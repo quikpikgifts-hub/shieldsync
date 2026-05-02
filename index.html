@@ -604,7 +604,84 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 /* RESPONSIVE */
 @media (max-width: 768px) {
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-  .app-content { padding: 16px; }
+  .app-content { padding: 16px; padding-bottom: 90px; }
+  .header-nav { display: none; }
+  .app-header { padding: 0 12px; }
+  .header-logo { font-size: 16px; }
+  .live-clock { font-size: 12px; }
+  .user-badge { padding: 4px 10px; }
+  .user-badge .id { font-size: 11px; }
+  .logout-btn { font-size: 10px; padding: 4px 8px; }
+  .section-title { font-size: 18px; }
+}
+
+/* BOTTOM NAV - MOBILE ONLY */
+#mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 200;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-bright);
+  padding: 0;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+}
+
+@media (max-width: 768px) {
+  #mobile-bottom-nav { display: flex; }
+}
+
+.mobile-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 4px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-head);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  border-top: 2px solid transparent;
+  position: relative;
+}
+
+.mobile-nav-btn .nav-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.mobile-nav-btn.active {
+  color: var(--accent);
+  border-top-color: var(--accent);
+  background: rgba(0,200,255,0.05);
+}
+
+.mobile-nav-btn.active .nav-icon {
+  filter: drop-shadow(0 0 4px var(--accent));
+}
+
+/* Badge on mobile nav icon */
+.mobile-nav-badge {
+  position: absolute;
+  top: 6px;
+  right: calc(50% - 16px);
+  background: var(--red);
+  color: #fff;
+  font-size: 9px;
+  font-family: var(--font-mono);
+  padding: 1px 5px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+  display: none;
 }
 
 /* NARRATIVE PREVIEW */
@@ -1334,6 +1411,9 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
     </div>
 
   </div><!-- /app-content -->
+<!-- MOBILE BOTTOM NAV -->
+<nav id="mobile-bottom-nav"></nav>
+
 </div><!-- /app -->
 
 <script>
@@ -1430,9 +1510,28 @@ const NAV_CONFIG = {
   ]
 };
 
+const MOBILE_ICONS = {
+  'officer-dashboard': { icon: '🏠', label: 'Home' },
+  'officer-timesheet': { icon: '⏱', label: 'Timesheet' },
+  'officer-incident':  { icon: '📝', label: 'Incident' },
+  'officer-dar':       { icon: '📋', label: 'DAR' },
+  'officer-visitor':   { icon: '🚗', label: 'Log' },
+  'sup-statusboard':   { icon: '📡', label: 'Board' },
+  'sup-timesheets':    { icon: '📋', label: 'Timesheets' },
+  'sup-incidents':     { icon: '📁', label: 'Incidents' },
+  'admin-dashboard':   { icon: '🏠', label: 'Home' },
+  'admin-payroll':     { icon: '💰', label: 'Payroll' },
+  'admin-roster':      { icon: '👮', label: 'Roster' },
+  'admin-clients':     { icon: '🏢', label: 'Clients' },
+  'admin-reports':     { icon: '📈', label: 'Reports' },
+  'client-portal':     { icon: '🏢', label: 'Portal' },
+};
+
 function setupNav() {
   const nav = document.getElementById('main-nav');
+  const mobileNav = document.getElementById('mobile-bottom-nav');
   nav.innerHTML = '';
+  mobileNav.innerHTML = '';
   const items = NAV_CONFIG[currentUser.role] || [];
   items.forEach((item, i) => {
     const btn = document.createElement('button');
@@ -1441,6 +1540,13 @@ function setupNav() {
     btn.dataset.section = item.section;
     btn.onclick = () => navigateTo(item.section);
     nav.appendChild(btn);
+    const meta = MOBILE_ICONS[item.section] || { icon: '◉', label: item.label.slice(0,6) };
+    const mbtn = document.createElement('button');
+    mbtn.className = 'mobile-nav-btn' + (i === 0 ? ' active' : '');
+    mbtn.dataset.section = item.section;
+    mbtn.innerHTML = `<span class="nav-icon">${meta.icon}</span><span>${meta.label}</span>`;
+    mbtn.onclick = () => navigateTo(item.section);
+    mobileNav.appendChild(mbtn);
   });
   if (items.length > 0) navigateTo(items[0].section);
 }
@@ -1448,16 +1554,22 @@ function setupNav() {
 function navigateTo(sectionId) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
   const sec = document.getElementById('section-' + sectionId);
   if (sec) sec.classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => { if(b.dataset.section === sectionId) b.classList.add('active'); });
-  
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => { if(b.dataset.section === sectionId) b.classList.add('active'); });
+  window.scrollTo(0, 0);
   // Refresh data on load
   if (sectionId === 'sup-statusboard') refreshStatusBoard();
   if (sectionId === 'sup-timesheets') refreshSupTimesheets();
   if (sectionId === 'sup-incidents') refreshSupIncidents();
   if (sectionId === 'admin-dashboard') refreshAdminDash();
   if (sectionId === 'admin-reports') refreshAdminReports();
+  if (sectionId === 'officer-timesheet') renderTimesheetEntries();
+  if (sectionId === 'officer-incident') renderIncidentList();
+  if (sectionId === 'officer-dar') renderDARList();
+  if (sectionId === 'officer-visitor') renderVisitorVehicleLogs();
 }
 
 function showAdminSection(sub) {
