@@ -1,25 +1,1616 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ShieldSync</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { background: #03070f; color: #e2e8f0; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-      .card { text-align: center; padding: 40px; }
-      .logo { font-size: 48px; margin-bottom: 16px; }
-      h1 { font-size: 32px; font-weight: 900; color: #0ea5e9; }
-      p { color: #475569; margin-top: 8px; font-size: 16px; }
-      .badge { display: inline-block; margin-top: 20px; padding: 8px 20px; background: #0ea5e910; border: 1px solid #0ea5e940; border-radius: 8px; color: #0ea5e9; font-size: 13px; }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <div class="logo">🛡️</div>
-      <h1>ShieldSync</h1>
-      <p>Security Management Platform</p>
-      <div class="badge">✓ System Online — Sanford, FL</div>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShieldSync — Security Management</title>
+<style>
+  :root {
+    --blue-900: #042C53;
+    --blue-800: #0C447C;
+    --blue-600: #185FA5;
+    --blue-400: #378ADD;
+    --blue-100: #B5D4F4;
+    --blue-50: #E6F1FB;
+    --gray-900: #2C2C2A;
+    --gray-800: #444441;
+    --gray-600: #5F5E5A;
+    --gray-400: #888780;
+    --gray-200: #B4B2A9;
+    --gray-100: #D3D1C7;
+    --gray-50: #F1EFE8;
+    --green-600: #3B6D11;
+    --green-50: #EAF3DE;
+    --green-800: #27500A;
+    --amber-600: #854F0B;
+    --amber-50: #FAEEDA;
+    --amber-800: #633806;
+    --red-600: #A32D2D;
+    --red-50: #FCEBEB;
+    --red-800: #791F1F;
+    --teal-600: #0F6E56;
+    --teal-50: #E1F5EE;
+    --teal-800: #085041;
+    --purple-600: #534AB7;
+    --purple-50: #EEEDFE;
+    --purple-800: #3C3489;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0a0f1e;
+    color: #e8eaf0;
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* ── LOGIN ── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0a0f1e 0%, #0d1b3e 100%);
+  }
+
+  .login-card {
+    background: #111827;
+    border: 1px solid #1e2d4a;
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 380px;
+    box-shadow: 0 0 40px rgba(55, 138, 221, 0.08);
+  }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .shield-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--blue-600);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .login-logo h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+
+  .login-logo p {
+    font-size: 11px;
+    color: var(--gray-400);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .form-group {
+    margin-bottom: 1.2rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .form-group input {
+    width: 100%;
+    background: #0d1b3e;
+    border: 1px solid #1e2d4a;
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #e8eaf0;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus {
+    border-color: var(--blue-400);
+  }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--blue-600);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background 0.2s;
+    margin-top: 0.5rem;
+  }
+
+  .btn-primary:hover { background: var(--blue-400); }
+
+  .demo-logins {
+    margin-top: 1.5rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid #1e2d4a;
+  }
+
+  .demo-logins p {
+    font-size: 11px;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .demo-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .demo-pill {
+    background: #0d1b3e;
+    border: 1px solid #1e2d4a;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 11px;
+    color: var(--blue-100);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .demo-pill:hover { border-color: var(--blue-400); }
+
+  .login-error {
+    background: #2a1010;
+    border: 1px solid var(--red-600);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #f7c1c1;
+    font-size: 13px;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  /* ── APP SHELL ── */
+  #app-screen { display: none; min-height: 100vh; }
+
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 220px;
+    background: #111827;
+    border-right: 1px solid #1e2d4a;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 1.2rem 1.2rem 1rem;
+    border-bottom: 1px solid #1e2d4a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sidebar-logo .shield-icon { width: 34px; height: 34px; border-radius: 8px; font-size: 16px; }
+
+  .sidebar-logo span {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+
+  .user-badge {
+    padding: 0.9rem 1.2rem;
+    border-bottom: 1px solid #1e2d4a;
+  }
+
+  .user-badge .user-id { font-size: 13px; font-weight: 600; color: #fff; }
+
+  .user-badge .user-role {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  .role-officer { color: #5DCAA5; }
+  .role-supervisor { color: var(--blue-100); }
+  .role-admin { color: #FAC775; }
+  .role-client { color: #F4C0D1; }
+
+  nav { flex: 1; padding: 0.8rem 0; overflow-y: auto; }
+
+  .nav-section {
+    padding: 0.4rem 1rem 0.2rem;
+    font-size: 10px;
+    color: var(--gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 1.2rem;
+    color: var(--gray-400);
+    cursor: pointer;
+    border-radius: 0;
+    transition: background 0.15s, color 0.15s;
+    font-size: 13px;
+    font-weight: 500;
+    user-select: none;
+  }
+
+  .nav-item:hover { background: #1a2644; color: #e8eaf0; }
+
+  .nav-item.active {
+    background: #162040;
+    color: var(--blue-100);
+    border-right: 2px solid var(--blue-400);
+  }
+
+  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 1rem 1.2rem;
+    border-top: 1px solid #1e2d4a;
+  }
+
+  .btn-logout {
+    width: 100%;
+    background: transparent;
+    border: 1px solid #1e2d4a;
+    border-radius: 8px;
+    padding: 8px;
+    color: var(--gray-400);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .btn-logout:hover { border-color: var(--red-600); color: #f7c1c1; }
+
+  /* ── MAIN CONTENT ── */
+  .main { margin-left: 220px; min-height: 100vh; }
+
+  .topbar {
+    background: #111827;
+    border-bottom: 1px solid #1e2d4a;
+    padding: 0 1.5rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar h2 { font-size: 16px; font-weight: 600; color: #fff; }
+
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #5DCAA5;
+    display: inline-block;
+  }
+
+  .status-text { font-size: 12px; color: var(--gray-400); }
+
+  .content { padding: 1.5rem; }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── DASHBOARD ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    background: #111827;
+    border: 1px solid #1e2d4a;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+  }
+
+  .stat-card .stat-label {
+    font-size: 11px;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .stat-card .stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-card .stat-sub { font-size: 11px; }
+  .stat-ok { color: #5DCAA5; }
+  .stat-warn { color: #FAC775; }
+  .stat-danger { color: #f7c1c1; }
+  .stat-info { color: var(--blue-100); }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: #111827;
+    border: 1px solid #1e2d4a;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 0.9rem 1.2rem;
+    border-bottom: 1px solid #1e2d4a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-header h3 { font-size: 13px; font-weight: 600; color: #fff; }
+
+  .panel-body { padding: 1rem 1.2rem; }
+
+  .incident-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #1a2230;
+  }
+
+  .incident-item:last-child { border-bottom: none; }
+
+  .incident-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .dot-red { background: #E24B4A; }
+  .dot-amber { background: #EF9F27; }
+  .dot-green { background: #5DCAA5; }
+  .dot-blue { background: var(--blue-400); }
+
+  .incident-title { font-size: 13px; color: #e8eaf0; font-weight: 500; }
+  .incident-meta { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-green { background: #0d2a1a; color: #5DCAA5; }
+  .badge-amber { background: #2a1e08; color: #FAC775; }
+  .badge-red { background: #2a1010; color: #f7c1c1; }
+  .badge-blue { background: #0a1e3a; color: var(--blue-100); }
+  .badge-gray { background: #1a1f2e; color: var(--gray-400); }
+  .badge-purple { background: #1a1832; color: #AFA9EC; }
+
+  .officer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #1a2230;
+  }
+
+  .officer-row:last-child { border-bottom: none; }
+
+  .officer-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #162040;
+    border: 1px solid #1e2d4a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--blue-100);
+    flex-shrink: 0;
+  }
+
+  .officer-name { font-size: 13px; font-weight: 500; color: #e8eaf0; }
+  .officer-site { font-size: 11px; color: var(--gray-400); }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  table th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #1e2d4a;
+  }
+
+  table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #141f35;
+    color: #e8eaf0;
+    vertical-align: middle;
+  }
+
+  table tr:last-child td { border-bottom: none; }
+  table tr:hover td { background: #131d33; }
+
+  /* ── FORMS ── */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .field-group label {
+    display: block;
+    font-size: 12px;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .field-group input,
+  .field-group select,
+  .field-group textarea {
+    width: 100%;
+    background: #0d1b3e;
+    border: 1px solid #1e2d4a;
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: #e8eaf0;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+
+  .field-group input:focus,
+  .field-group select:focus,
+  .field-group textarea:focus { border-color: var(--blue-400); }
+
+  .field-group select option { background: #111827; }
+
+  .btn-sm {
+    padding: 7px 14px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    letter-spacing: 0.3px;
+    transition: opacity 0.2s;
+  }
+
+  .btn-sm:hover { opacity: 0.85; }
+  .btn-blue { background: var(--blue-600); color: #fff; }
+  .btn-green { background: #3B6D11; color: #EAF3DE; }
+  .btn-red { background: var(--red-600); color: #FCEBEB; }
+  .btn-gray { background: #1e2d4a; color: var(--gray-200); }
+
+  /* ── SCHEDULE GRID ── */
+  .schedule-grid {
+    display: grid;
+    grid-template-columns: 100px repeat(7, 1fr);
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .sch-header {
+    padding: 6px 8px;
+    color: var(--gray-400);
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .sch-name {
+    padding: 6px 8px;
+    color: #e8eaf0;
+    font-weight: 500;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+  }
+
+  .sch-cell {
+    padding: 6px 4px;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 600;
+    cursor: default;
+  }
+
+  .sch-on { background: #0d2a1a; color: #5DCAA5; }
+  .sch-off { background: #141f35; color: var(--gray-600); }
+  .sch-leave { background: #2a1e08; color: #FAC775; }
+
+  /* ── REPORT CARDS ── */
+  .report-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+
+  .report-card {
+    background: #111827;
+    border: 1px solid #1e2d4a;
+    border-radius: 12px;
+    padding: 1.2rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .report-card:hover { border-color: var(--blue-400); }
+
+  .report-icon { font-size: 22px; margin-bottom: 10px; }
+  .report-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .report-desc { font-size: 12px; color: var(--gray-400); }
+
+  /* ── ALERTS ── */
+  .alert-bar {
+    background: #2a1e08;
+    border: 1px solid #854F0B;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #FAC775;
+  }
+
+  /* ── MAP PLACEHOLDER ── */
+  .map-area {
+    background: #0d1b3e;
+    border: 1px solid #1e2d4a;
+    border-radius: 12px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    color: var(--gray-600);
+    font-size: 13px;
+    margin-bottom: 1rem;
+  }
+
+  .map-area .map-icon { font-size: 28px; opacity: 0.4; }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+  }
+
+  .page-header h2 { font-size: 18px; font-weight: 600; color: #fff; }
+  .page-header p { font-size: 13px; color: var(--gray-400); margin-top: 2px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: #111827;
+    border: 1px solid #1e2d4a;
+    border-radius: 16px;
+    padding: 1.8rem;
+    width: 480px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal h3 { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 1.2rem; }
+
+  .modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #1e2d4a;
+  }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #1a2644;
+    border: 1px solid var(--blue-600);
+    border-radius: 10px;
+    padding: 12px 18px;
+    color: var(--blue-100);
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 9999;
+    display: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #1e2d4a;
+    margin-bottom: 1.2rem;
+  }
+
+  .tab-btn {
+    padding: 8px 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--gray-400);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    margin-bottom: -1px;
+  }
+
+  .tab-btn.active {
+    color: var(--blue-100);
+    border-bottom-color: var(--blue-400);
+  }
+
+  /* ── PROFILE ── */
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .profile-avatar {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: #162040;
+    border: 2px solid var(--blue-600);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--blue-100);
+  }
+
+  .profile-name { font-size: 20px; font-weight: 700; color: #fff; }
+  .profile-role { font-size: 13px; color: var(--gray-400); margin-top: 2px; }
+
+  /* ── ACCESS DENIED ── */
+  .access-denied {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: var(--gray-600);
+  }
+
+  .access-denied .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+  .access-denied h3 { font-size: 16px; color: var(--gray-400); margin-bottom: 6px; }
+  .access-denied p { font-size: 13px; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #1e2d4a; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ LOGIN ═══════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="shield-icon">🛡</div>
+      <div>
+        <h1>ShieldSync</h1>
+        <p>Security Management Platform</p>
+      </div>
     </div>
-  </body>
+
+    <div id="login-error" class="login-error">Invalid ID or PIN. Please try again.</div>
+
+    <div class="form-group">
+      <label>Officer / Client ID</label>
+      <input type="text" id="login-id" placeholder="e.g. SS-001 or C-MGH" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>PIN</label>
+      <input type="password" id="login-pin" placeholder="••••" maxlength="6">
+    </div>
+
+    <button class="btn-primary" onclick="attemptLogin()">Sign In</button>
+
+    <div class="demo-logins">
+      <p>Demo Accounts</p>
+      <div class="demo-pills">
+        <span class="demo-pill" onclick="fillDemo('SS-001','1234')">SS-001 · Officer</span>
+        <span class="demo-pill" onclick="fillDemo('SS-003','1234')">SS-003 · Supervisor</span>
+        <span class="demo-pill" onclick="fillDemo('SS-000','1234')">SS-000 · Admin</span>
+        <span class="demo-pill" onclick="fillDemo('C-MGH','1234')">C-MGH · Client</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ APP ════════════════════════════════════ -->
+<div id="app-screen">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="shield-icon">🛡</div>
+      <span>ShieldSync</span>
+    </div>
+
+    <div class="user-badge">
+      <div class="user-id" id="sb-user-id">SS-001</div>
+      <div class="user-role" id="sb-user-role">Officer</div>
+    </div>
+
+    <nav id="sidebar-nav"></nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <h2 id="topbar-title">Dashboard</h2>
+      <div class="topbar-right">
+        <span class="status-dot"></span>
+        <span class="status-text">All Systems Operational</span>
+        <span class="status-text" id="topbar-time"></span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid" id="dash-stats"></div>
+        <div id="dash-alert" class="alert-bar" style="display:none">
+          ⚠ Active Alert: Unauthorized access detected at North Gate — Zone 3. Response dispatched.
+        </div>
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Recent Incidents</h3>
+              <span class="badge badge-red" id="incident-count">3 Active</span>
+            </div>
+            <div class="panel-body" id="incidents-list"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Officers On Duty</h3>
+              <span class="badge badge-green">Live</span>
+            </div>
+            <div class="panel-body" id="officers-duty"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INCIDENTS -->
+      <div class="page" id="page-incidents">
+        <div class="page-header">
+          <div>
+            <h2>Incident Reports</h2>
+            <p>Log and manage security incidents</p>
+          </div>
+          <button class="btn-sm btn-blue" id="btn-new-incident" onclick="openIncidentModal()">+ New Incident</button>
+        </div>
+        <div class="panel">
+          <div class="panel-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Location</th>
+                    <th>Severity</th>
+                    <th>Reported By</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="incidents-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCHEDULE -->
+      <div class="page" id="page-schedule">
+        <div class="page-header">
+          <div>
+            <h2>Shift Schedule</h2>
+            <p>Current week — May 2025</p>
+          </div>
+          <button class="btn-sm btn-blue" id="btn-edit-schedule" onclick="toast('Schedule editing enabled')">Edit Schedule</button>
+        </div>
+        <div class="panel">
+          <div class="panel-body">
+            <div class="schedule-grid" id="schedule-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERSONNEL (admin/supervisor only) -->
+      <div class="page" id="page-personnel">
+        <div class="page-header">
+          <div>
+            <h2>Personnel Management</h2>
+            <p>Officers, supervisors, and accounts</p>
+          </div>
+          <button class="btn-sm btn-blue" onclick="openPersonnelModal()">+ Add Officer</button>
+        </div>
+        <div class="panel">
+          <div class="panel-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Site</th>
+                    <th>Status</th>
+                    <th>Certifications</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="personnel-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SITES (client/admin/supervisor) -->
+      <div class="page" id="page-sites">
+        <div class="page-header">
+          <div>
+            <h2>Site Overview</h2>
+            <p>Monitored locations and patrol zones</p>
+          </div>
+        </div>
+        <div class="map-area">
+          <div class="map-icon">🗺</div>
+          <span>Interactive site map — GPS integration coming soon</span>
+        </div>
+        <div class="panel">
+          <div class="panel-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Site</th>
+                    <th>Address</th>
+                    <th>Type</th>
+                    <th>Officers Assigned</th>
+                    <th>Coverage</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="sites-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="page" id="page-reports">
+        <div class="page-header">
+          <div>
+            <h2>Reports & Analytics</h2>
+            <p>Security performance and insights</p>
+          </div>
+        </div>
+        <div class="report-grid" id="report-grid"></div>
+        <div class="panel">
+          <div class="panel-header"><h3>Monthly Summary — April 2025</h3></div>
+          <div class="panel-body">
+            <div class="stats-grid">
+              <div class="stat-card"><div class="stat-label">Incidents</div><div class="stat-value">47</div><div class="stat-sub stat-warn">+12% vs March</div></div>
+              <div class="stat-card"><div class="stat-label">Response Time</div><div class="stat-value">4.2<span style="font-size:14px">min</span></div><div class="stat-sub stat-ok">Within SLA</div></div>
+              <div class="stat-card"><div class="stat-label">Patrol Hours</div><div class="stat-value">1,284</div><div class="stat-sub stat-ok">99.1% coverage</div></div>
+              <div class="stat-card"><div class="stat-label">Open Issues</div><div class="stat-value">3</div><div class="stat-sub stat-danger">2 escalated</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROFILE / MY INFO -->
+      <div class="page" id="page-profile">
+        <div class="page-header"><div><h2>My Profile</h2><p>Account details and settings</p></div></div>
+        <div class="panel">
+          <div class="panel-body">
+            <div class="profile-header">
+              <div class="profile-avatar" id="profile-initials">?</div>
+              <div>
+                <div class="profile-name" id="profile-name">Loading...</div>
+                <div class="profile-role" id="profile-role-text">Loading...</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field-group"><label>Officer ID</label><input type="text" id="p-id" readonly></div>
+              <div class="field-group"><label>Role</label><input type="text" id="p-role" readonly></div>
+            </div>
+            <div class="form-row">
+              <div class="field-group"><label>Assigned Site</label><input type="text" id="p-site" readonly></div>
+              <div class="field-group"><label>Supervisor</label><input type="text" id="p-sup" readonly></div>
+            </div>
+            <div class="form-row">
+              <div class="field-group"><label>Email</label><input type="text" id="p-email"></div>
+              <div class="field-group"><label>Phone</label><input type="text" id="p-phone"></div>
+            </div>
+            <button class="btn-sm btn-blue" onclick="toast('Profile saved')">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN PANEL -->
+      <div class="page" id="page-admin">
+        <div class="page-header"><div><h2>Admin Panel</h2><p>System configuration and access control</p></div></div>
+        <div id="admin-content"></div>
+      </div>
+
+      <!-- CLIENT PORTAL -->
+      <div class="page" id="page-client">
+        <div class="page-header"><div><h2>Client Portal</h2><p>Your contracted security services</p></div></div>
+        <div id="client-content"></div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app-screen -->
+
+<!-- ═══════════════════════════════════ MODALS ════════════════════════════════ -->
+
+<!-- INCIDENT MODAL -->
+<div class="modal-overlay" id="modal-incident">
+  <div class="modal">
+    <h3>Log New Incident</h3>
+    <div class="form-row">
+      <div class="field-group"><label>Incident Type</label>
+        <select id="inc-type">
+          <option>Unauthorized Access</option>
+          <option>Theft/Burglary</option>
+          <option>Vandalism</option>
+          <option>Medical Emergency</option>
+          <option>Suspicious Activity</option>
+          <option>Fire/Safety Hazard</option>
+          <option>Noise Complaint</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field-group"><label>Severity</label>
+        <select id="inc-sev">
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
+          <option>Critical</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field-group"><label>Location / Zone</label><input type="text" id="inc-loc" placeholder="e.g. North Gate, Zone 3"></div>
+      <div class="field-group"><label>Date & Time</label><input type="datetime-local" id="inc-time"></div>
+    </div>
+    <div class="field-group" style="margin-bottom:1rem">
+      <label>Description</label>
+      <textarea id="inc-desc" rows="3" placeholder="Describe what occurred..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-gray" onclick="closeModal('modal-incident')">Cancel</button>
+      <button class="btn-sm btn-blue" onclick="submitIncident()">Submit Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- PERSONNEL MODAL -->
+<div class="modal-overlay" id="modal-personnel">
+  <div class="modal">
+    <h3>Add New Officer</h3>
+    <div class="form-row">
+      <div class="field-group"><label>First Name</label><input type="text" id="new-fname" placeholder="First"></div>
+      <div class="field-group"><label>Last Name</label><input type="text" id="new-lname" placeholder="Last"></div>
+    </div>
+    <div class="form-row">
+      <div class="field-group"><label>Role</label>
+        <select id="new-role">
+          <option>Officer</option>
+          <option>Supervisor</option>
+        </select>
+      </div>
+      <div class="field-group"><label>Assigned Site</label>
+        <select id="new-site">
+          <option>MGH Medical Center</option>
+          <option>Riverside Plaza</option>
+          <option>Harbor Industrial</option>
+          <option>Westfield Mall</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field-group"><label>Email</label><input type="email" id="new-email" placeholder="officer@example.com"></div>
+      <div class="field-group"><label>Initial PIN</label><input type="password" id="new-pin" placeholder="4–6 digits" maxlength="6"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sm btn-gray" onclick="closeModal('modal-personnel')">Cancel</button>
+      <button class="btn-sm btn-blue" onclick="submitPersonnel()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════ DATA ════════════════════════════════
+
+const USERS = {
+  'SS-001': { pin:'1234', role:'officer', name:'James Carter', site:'MGH Medical Center', supervisor:'SS-003', email:'jcarter@shieldsync.com', phone:'(555) 201-4400' },
+  'SS-003': { pin:'1234', role:'supervisor', name:'Maria Delgado', site:'MGH Medical Center', supervisor:'SS-000', email:'mdelgado@shieldsync.com', phone:'(555) 201-4403' },
+  'SS-000': { pin:'1234', role:'admin', name:'Derek Wallace', site:'All Sites', supervisor:'N/A', email:'dwallace@shieldsync.com', phone:'(555) 201-4400' },
+  'C-MGH':  { pin:'1234', role:'client', name:'MGH Security Office', site:'MGH Medical Center', supervisor:'SS-003', email:'security@mgh.org', phone:'(555) 726-5000' }
+};
+
+const INCIDENTS = [
+  { id:'INC-0047', title:'Unauthorized Access', loc:'North Gate, Zone 3', sev:'High', by:'SS-001', time:'Today 09:14', status:'Active' },
+  { id:'INC-0046', title:'Suspicious Vehicle', loc:'Parking Level B2', sev:'Medium', by:'SS-002', time:'Today 08:55', status:'Investigating' },
+  { id:'INC-0045', title:'Vandalism — Graffiti', loc:'East Stairwell', sev:'Low', by:'SS-005', time:'Yesterday 22:30', status:'Resolved' },
+  { id:'INC-0044', title:'Medical Emergency', loc:'Lobby Reception', sev:'Critical', by:'SS-001', time:'Yesterday 19:10', status:'Resolved' },
+  { id:'INC-0043', title:'Noise Complaint', loc:'3rd Floor Corridor', sev:'Low', by:'SS-004', time:'2 days ago', status:'Closed' },
+];
+
+const PERSONNEL = [
+  { id:'SS-000', name:'Derek Wallace', role:'Admin', site:'All Sites', status:'Active', certs:'CPR, BSIS, Firearms' },
+  { id:'SS-003', name:'Maria Delgado', role:'Supervisor', site:'MGH Medical Center', status:'Active', certs:'CPR, BSIS, First Aid' },
+  { id:'SS-001', name:'James Carter', role:'Officer', site:'MGH Medical Center', status:'On Duty', certs:'CPR, BSIS' },
+  { id:'SS-002', name:'Tyrone Banks', role:'Officer', site:'Riverside Plaza', status:'On Duty', certs:'CPR, BSIS' },
+  { id:'SS-004', name:'Linda Ortiz', role:'Officer', site:'Harbor Industrial', status:'Off Duty', certs:'CPR' },
+  { id:'SS-005', name:'Marcus Webb', role:'Officer', site:'MGH Medical Center', status:'On Leave', certs:'CPR, BSIS, K9' },
+];
+
+const SITES = [
+  { name:'MGH Medical Center', addr:'55 Fruit St, Boston MA', type:'Healthcare', officers:'4', coverage:'24/7', status:'Active' },
+  { name:'Riverside Plaza', addr:'200 River Dr, Cambridge MA', type:'Commercial', officers:'2', coverage:'06:00–22:00', status:'Active' },
+  { name:'Harbor Industrial', addr:'88 Port Way, Quincy MA', type:'Industrial', officers:'2', coverage:'24/7', status:'Active' },
+  { name:'Westfield Mall', addr:'890 Mall Blvd, Newton MA', type:'Retail', officers:'3', coverage:'08:00–23:00', status:'Pending' },
+];
+
+const SCHEDULE_OFFICERS = ['SS-001 Carter', 'SS-002 Banks', 'SS-004 Ortiz', 'SS-005 Webb', 'SS-006 Reyes'];
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const SCHEDULE_DATA = [
+  ['on','on','on','off','off','on','on'],
+  ['off','on','on','on','on','on','off'],
+  ['on','off','off','on','on','on','on'],
+  ['leave','leave','on','on','off','off','on'],
+  ['on','on','off','off','on','on','on'],
+];
+
+const NAV_CONFIG = {
+  officer: [
+    { id:'dashboard', icon:'🏠', label:'Dashboard' },
+    { id:'incidents', icon:'🚨', label:'Incidents' },
+    { id:'schedule', icon:'📅', label:'My Schedule' },
+    { id:'sites', icon:'📍', label:'My Site' },
+    { id:'profile', icon:'👤', label:'My Profile' },
+  ],
+  supervisor: [
+    { id:'dashboard', icon:'🏠', label:'Dashboard' },
+    { id:'incidents', icon:'🚨', label:'Incidents' },
+    { id:'schedule', icon:'📅', label:'Schedule' },
+    { id:'personnel', icon:'👥', label:'Personnel' },
+    { id:'sites', icon:'📍', label:'Sites' },
+    { id:'reports', icon:'📊', label:'Reports' },
+    { id:'profile', icon:'👤', label:'My Profile' },
+  ],
+  admin: [
+    { id:'dashboard', icon:'🏠', label:'Dashboard' },
+    { id:'incidents', icon:'🚨', label:'Incidents' },
+    { id:'schedule', icon:'📅', label:'Schedule' },
+    { id:'personnel', icon:'👥', label:'Personnel' },
+    { id:'sites', icon:'📍', label:'Sites' },
+    { id:'reports', icon:'📊', label:'Reports' },
+    { id:'admin', icon:'⚙️', label:'Admin Panel' },
+    { id:'profile', icon:'👤', label:'My Profile' },
+  ],
+  client: [
+    { id:'dashboard', icon:'🏠', label:'Overview' },
+    { id:'incidents', icon:'🚨', label:'Incident Log' },
+    { id:'sites', icon:'📍', label:'My Sites' },
+    { id:'reports', icon:'📊', label:'Reports' },
+    { id:'client', icon:'🏢', label:'Client Portal' },
+    { id:'profile', icon:'👤', label:'Account' },
+  ]
+};
+
+const DASH_STATS = {
+  officer: [
+    { label:'My Incidents', value:'3', sub:'This week', cls:'stat-info' },
+    { label:'Hours on Duty', value:'38.5', sub:'This month', cls:'stat-ok' },
+    { label:'Patrol Checks', value:'124', sub:'This month', cls:'stat-ok' },
+    { label:'Open Reports', value:'2', sub:'Pending review', cls:'stat-warn' },
+  ],
+  supervisor: [
+    { label:'Officers on Duty', value:'4', sub:'of 6 active', cls:'stat-ok' },
+    { label:'Active Incidents', value:'3', sub:'2 require action', cls:'stat-danger' },
+    { label:'Shift Coverage', value:'97%', sub:'This week', cls:'stat-ok' },
+    { label:'Pending Reports', value:'5', sub:'Awaiting review', cls:'stat-warn' },
+  ],
+  admin: [
+    { label:'Total Officers', value:'18', sub:'Across all sites', cls:'stat-info' },
+    { label:'Active Incidents', value:'3', sub:'System-wide', cls:'stat-danger' },
+    { label:'Sites Covered', value:'4', sub:'100% operational', cls:'stat-ok' },
+    { label:'Monthly Hours', value:'1,284', sub:'April 2025', cls:'stat-ok' },
+  ],
+  client: [
+    { label:'Officers Assigned', value:'4', sub:'At your site', cls:'stat-info' },
+    { label:'Incidents This Month', value:'12', sub:'2 unresolved', cls:'stat-warn' },
+    { label:'Response Time', value:'4.2m', sub:'Avg April 2025', cls:'stat-ok' },
+    { label:'Contract Hours', value:'720', sub:'Monthly SLA', cls:'stat-ok' },
+  ],
+};
+
+const REPORT_CARDS = [
+  { icon:'📋', title:'Incident Summary', desc:'All incidents by type and severity' },
+  { icon:'⏱', title:'Response Time Analysis', desc:'Officer response performance' },
+  { icon:'🗓', title:'Attendance & Hours', desc:'Shift adherence by officer' },
+  { icon:'📍', title:'Patrol Coverage', desc:'Zone-by-zone patrol records' },
+];
+
+// ═══════════════════════════════ AUTH ════════════════════════════════
+
+let currentUser = null;
+
+function fillDemo(id, pin) {
+  document.getElementById('login-id').value = id;
+  document.getElementById('login-pin').value = pin;
+}
+
+function attemptLogin() {
+  const id = document.getElementById('login-id').value.trim().toUpperCase();
+  const pin = document.getElementById('login-pin').value.trim();
+  const err = document.getElementById('login-error');
+
+  if (USERS[id] && USERS[id].pin === pin) {
+    err.style.display = 'none';
+    currentUser = { id, ...USERS[id] };
+    launchApp();
+  } else {
+    err.style.display = 'block';
+    document.getElementById('login-pin').value = '';
+  }
+}
+
+document.getElementById('login-pin').addEventListener('keydown', e => { if(e.key==='Enter') attemptLogin(); });
+document.getElementById('login-id').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('login-pin').focus(); });
+
+function logout() {
+  currentUser = null;
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-id').value = '';
+  document.getElementById('login-pin').value = '';
+}
+
+// ═══════════════════════════════ LAUNCH ════════════════════════════════
+
+function launchApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+
+  const u = currentUser;
+  const roleLabel = u.role.charAt(0).toUpperCase() + u.role.slice(1);
+  const roleClass = 'role-' + u.role;
+
+  document.getElementById('sb-user-id').textContent = u.id;
+  const roleEl = document.getElementById('sb-user-role');
+  roleEl.textContent = roleLabel;
+  roleEl.className = 'user-role ' + roleClass;
+
+  buildNav();
+  populateDashboard();
+  populateIncidents();
+  populateSchedule();
+  populatePersonnel();
+  populateSites();
+  populateReports();
+  populateProfile();
+  populateAdmin();
+  populateClient();
+
+  navigateTo('dashboard');
+  startClock();
+}
+
+// ═══════════════════════════════ NAV ════════════════════════════════
+
+function buildNav() {
+  const nav = document.getElementById('sidebar-nav');
+  const items = NAV_CONFIG[currentUser.role] || [];
+  nav.innerHTML = '';
+  items.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'nav-item';
+    el.dataset.page = item.id;
+    el.innerHTML = `<span class="nav-icon">${item.icon}</span><span>${item.label}</span>`;
+    el.onclick = () => navigateTo(item.id);
+    nav.appendChild(el);
+  });
+}
+
+function navigateTo(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const page = document.getElementById('page-' + pageId);
+  if (page) page.classList.add('active');
+
+  const navItem = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+  if (navItem) navItem.classList.add('active');
+
+  const labels = { dashboard:'Dashboard', incidents:'Incident Reports', schedule:'Shift Schedule', personnel:'Personnel', sites:'Site Overview', reports:'Reports & Analytics', admin:'Admin Panel', profile:'My Profile', client:'Client Portal' };
+  document.getElementById('topbar-title').textContent = labels[pageId] || pageId;
+}
+
+// ═══════════════════════════════ POPULATE ════════════════════════════
+
+function populateDashboard() {
+  const stats = DASH_STATS[currentUser.role];
+  document.getElementById('dash-stats').innerHTML = stats.map(s => `
+    <div class="stat-card">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value">${s.value}</div>
+      <div class="stat-sub ${s.cls}">${s.sub}</div>
+    </div>
+  `).join('');
+
+  if (['admin','supervisor'].includes(currentUser.role)) {
+    document.getElementById('dash-alert').style.display = 'flex';
+  }
+
+  document.getElementById('incidents-list').innerHTML = INCIDENTS.slice(0,4).map(i => `
+    <div class="incident-item">
+      <div class="incident-dot ${i.status==='Active'?'dot-red':i.status==='Investigating'?'dot-amber':'dot-green'}"></div>
+      <div>
+        <div class="incident-title">${i.title}</div>
+        <div class="incident-meta">${i.loc} · ${i.time}</div>
+      </div>
+      <div style="margin-left:auto">${sevBadge(i.sev)}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('officers-duty').innerHTML = PERSONNEL.filter(p=>p.status==='On Duty').map(p => `
+    <div class="officer-row">
+      <div class="officer-avatar">${p.name.split(' ').map(n=>n[0]).join('')}</div>
+      <div>
+        <div class="officer-name">${p.name}</div>
+        <div class="officer-site">${p.id} · ${p.site}</div>
+      </div>
+      <span class="badge badge-green" style="margin-left:auto">On Duty</span>
+    </div>
+  `).join('');
+}
+
+function sevBadge(sev) {
+  const map = { Low:'badge-blue', Medium:'badge-amber', High:'badge-red', Critical:'badge-red' };
+  return `<span class="badge ${map[sev]||'badge-gray'}">${sev}</span>`;
+}
+
+function statusBadge(st) {
+  const map = { Active:'badge-green', 'On Duty':'badge-green', 'Off Duty':'badge-gray', 'On Leave':'badge-amber', Pending:'badge-amber', Investigating:'badge-amber', Resolved:'badge-blue', Closed:'badge-gray', Critical:'badge-red' };
+  return `<span class="badge ${map[st]||'badge-gray'}">${st}</span>`;
+}
+
+function populateIncidents() {
+  const canNew = ['officer','supervisor','admin'].includes(currentUser.role);
+  document.getElementById('btn-new-incident').style.display = canNew ? 'inline-block' : 'none';
+
+  let rows = INCIDENTS;
+  if (currentUser.role === 'officer') rows = INCIDENTS.filter(i => i.by === currentUser.id);
+  if (currentUser.role === 'client') rows = INCIDENTS;
+
+  document.getElementById('incidents-table').innerHTML = rows.map(i => `
+    <tr>
+      <td><span style="color:var(--gray-400);font-size:12px">${i.id}</span></td>
+      <td style="font-weight:500">${i.title}</td>
+      <td>${i.loc}</td>
+      <td>${sevBadge(i.sev)}</td>
+      <td>${i.by}</td>
+      <td style="color:var(--gray-400)">${i.time}</td>
+      <td>${statusBadge(i.status)}</td>
+    </tr>
+  `).join('');
+}
+
+function populateSchedule() {
+  const canEdit = ['supervisor','admin'].includes(currentUser.role);
+  document.getElementById('btn-edit-schedule').style.display = canEdit ? 'inline-block' : 'none';
+
+  let grid = `<div class="sch-header"></div>`;
+  DAYS.forEach(d => { grid += `<div class="sch-header">${d}</div>`; });
+
+  SCHEDULE_OFFICERS.forEach((name, i) => {
+    grid += `<div class="sch-name">${name}</div>`;
+    SCHEDULE_DATA[i].forEach(cell => {
+      const cls = cell==='on'?'sch-on':cell==='leave'?'sch-leave':'sch-off';
+      const label = cell==='on'?'ON':cell==='leave'?'LVE':'OFF';
+      grid += `<div class="sch-cell ${cls}">${label}</div>`;
+    });
+  });
+
+  document.getElementById('schedule-grid').innerHTML = grid;
+}
+
+function populatePersonnel() {
+  const allowed = ['supervisor','admin'].includes(currentUser.role);
+  const tbody = document.getElementById('personnel-table');
+  if (!allowed) { tbody.closest('.panel').querySelector('.panel-body').innerHTML = accessDenied('Supervisor or Admin access required'); return; }
+
+  tbody.innerHTML = PERSONNEL.map(p => `
+    <tr>
+      <td><span style="color:var(--blue-100);font-size:12px;font-weight:600">${p.id}</span></td>
+      <td style="font-weight:500">${p.name}</td>
+      <td>${p.role}</td>
+      <td>${p.site}</td>
+      <td>${statusBadge(p.status)}</td>
+      <td style="font-size:12px;color:var(--gray-400)">${p.certs}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn-sm btn-gray" onclick="toast('Viewing ${p.name}')">View</button>
+        ${currentUser.role==='admin'?`<button class="btn-sm btn-red" onclick="toast('${p.name} deactivated')">Remove</button>`:''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function populateSites() {
+  document.getElementById('sites-table').innerHTML = SITES.map(s => `
+    <tr>
+      <td style="font-weight:500">${s.name}</td>
+      <td style="font-size:12px;color:var(--gray-400)">${s.addr}</td>
+      <td>${s.type}</td>
+      <td style="text-align:center">${s.officers}</td>
+      <td>${s.coverage}</td>
+      <td>${statusBadge(s.status)}</td>
+    </tr>
+  `).join('');
+}
+
+function populateReports() {
+  document.getElementById('report-grid').innerHTML = REPORT_CARDS.map(r => `
+    <div class="report-card" onclick="toast('Opening: ${r.title}')">
+      <div class="report-icon">${r.icon}</div>
+      <div class="report-title">${r.title}</div>
+      <div class="report-desc">${r.desc}</div>
+    </div>
+  `).join('');
+}
+
+function populateProfile() {
+  const u = currentUser;
+  const initials = u.name.split(' ').map(n=>n[0]).join('');
+  document.getElementById('profile-initials').textContent = initials;
+  document.getElementById('profile-name').textContent = u.name;
+  document.getElementById('profile-role-text').textContent = u.role.charAt(0).toUpperCase() + u.role.slice(1) + ' · ' + u.id;
+  document.getElementById('p-id').value = u.id;
+  document.getElementById('p-role').value = u.role.charAt(0).toUpperCase() + u.role.slice(1);
+  document.getElementById('p-site').value = u.site;
+  document.getElementById('p-sup').value = u.supervisor || 'N/A';
+  document.getElementById('p-email').value = u.email;
+  document.getElementById('p-phone').value = u.phone;
+}
+
+function populateAdmin() {
+  const el = document.getElementById('admin-content');
+  if (currentUser.role !== 'admin') { el.innerHTML = accessDenied('Admin access required'); return; }
+  el.innerHTML = `
+    <div class="grid-2" style="margin-bottom:1rem">
+      <div class="panel">
+        <div class="panel-header"><h3>System Status</h3></div>
+        <div class="panel-body">
+          ${[['Firebase Auth','Connected','badge-green'],['Firestore DB','Connected','badge-green'],['Storage','Connected','badge-green'],['Cloud Functions','Deployed','badge-green'],['Vercel Hosting','Live','badge-green']].map(r=>`
+            <div class="officer-row"><div class="officer-name">${r[0]}</div><span class="badge ${r[2]}" style="margin-left:auto">${r[1]}</span></div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h3>Access Control</h3></div>
+        <div class="panel-body">
+          ${['Officer','Supervisor','Admin','Client'].map(r=>`
+            <div class="officer-row"><div class="officer-name">${r}</div><button class="btn-sm btn-gray" style="margin-left:auto" onclick="toast('Editing ${r} permissions')">Edit Permissions</button></div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>Audit Log</h3></div>
+      <div class="panel-body" style="padding:0">
+        <table>
+          <thead><tr><th>Time</th><th>User</th><th>Action</th><th>IP</th></tr></thead>
+          <tbody>
+            ${[['Today 09:14','SS-001','Incident INC-0047 created','192.168.1.14'],['Today 08:55','SS-002','Incident INC-0046 created','192.168.1.22'],['Today 08:00','SS-000','System config updated','192.168.1.1'],['Yesterday 22:45','SS-003','Schedule updated','192.168.1.3']].map(r=>`
+              <tr><td style="color:var(--gray-400);font-size:12px">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td style="font-size:12px;color:var(--gray-400)">${r[3]}</td></tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function populateClient() {
+  const el = document.getElementById('client-content');
+  if (currentUser.role !== 'client') { el.innerHTML = accessDenied('Client access only'); return; }
+  el.innerHTML = `
+    <div class="stats-grid" style="margin-bottom:1rem">
+      <div class="stat-card"><div class="stat-label">Contract Status</div><div class="stat-value" style="font-size:18px">Active</div><div class="stat-sub stat-ok">Valid thru Dec 2025</div></div>
+      <div class="stat-card"><div class="stat-label">Monthly Hours</div><div class="stat-value">720</div><div class="stat-sub stat-ok">Fully utilized</div></div>
+      <div class="stat-card"><div class="stat-label">Supervisor</div><div class="stat-value" style="font-size:16px">M. Delgado</div><div class="stat-sub stat-info">SS-003</div></div>
+      <div class="stat-card"><div class="stat-label">Next Invoice</div><div class="stat-value" style="font-size:18px">Jun 1</div><div class="stat-sub stat-warn">$12,400</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><h3>My Security Team — MGH Medical Center</h3></div>
+      <div class="panel-body">
+        ${PERSONNEL.filter(p=>p.site==='MGH Medical Center').map(p=>`
+          <div class="officer-row">
+            <div class="officer-avatar">${p.name.split(' ').map(n=>n[0]).join('')}</div>
+            <div><div class="officer-name">${p.name}</div><div class="officer-site">${p.id} · ${p.role}</div></div>
+            <span class="badge ${p.status==='On Duty'?'badge-green':p.status==='On Leave'?'badge-amber':'badge-gray'}" style="margin-left:auto">${p.status}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function accessDenied(msg) {
+  return `<div class="access-denied"><div class="icon">🔒</div><h3>Access Restricted</h3><p>${msg}</p></div>`;
+}
+
+// ═══════════════════════════════ MODALS ════════════════════════════════
+
+function openIncidentModal() {
+  const now = new Date();
+  const local = new Date(now - now.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  document.getElementById('inc-time').value = local;
+  document.getElementById('modal-incident').classList.add('open');
+}
+
+function openPersonnelModal() {
+  document.getElementById('modal-personnel').classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function submitIncident() {
+  const type = document.getElementById('inc-type').value;
+  const loc = document.getElementById('inc-loc').value || 'Unspecified';
+  const sev = document.getElementById('inc-sev').value;
+  const newInc = { id:'INC-NEW', title:type, loc, sev, by:currentUser.id, time:'Just now', status:'Active' };
+  INCIDENTS.unshift(newInc);
+  populateIncidents();
+  populateDashboard();
+  closeModal('modal-incident');
+  toast('Incident report submitted — ' + type);
+}
+
+function submitPersonnel() {
+  const fname = document.getElementById('new-fname').value;
+  const lname = document.getElementById('new-lname').value;
+  if (!fname || !lname) { toast('Please enter first and last name'); return; }
+  closeModal('modal-personnel');
+  toast(`Officer ${fname} ${lname} created successfully`);
+}
+
+// ════════════════════════════════ UTILS ════════════════════════════════
+
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.display = 'none'; }, 3000);
+}
+
+function startClock() {
+  function tick() {
+    const now = new Date();
+    document.getElementById('topbar-time').textContent =
+      now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+  }
+  tick();
+  setInterval(tick, 30000);
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+</script>
+</body>
 </html>
