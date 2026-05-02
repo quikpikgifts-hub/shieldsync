@@ -3,1614 +3,2113 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShieldSync — Security Management</title>
+<title>ShieldSync — Security Management Platform</title>
 <style>
-  :root {
-    --blue-900: #042C53;
-    --blue-800: #0C447C;
-    --blue-600: #185FA5;
-    --blue-400: #378ADD;
-    --blue-100: #B5D4F4;
-    --blue-50: #E6F1FB;
-    --gray-900: #2C2C2A;
-    --gray-800: #444441;
-    --gray-600: #5F5E5A;
-    --gray-400: #888780;
-    --gray-200: #B4B2A9;
-    --gray-100: #D3D1C7;
-    --gray-50: #F1EFE8;
-    --green-600: #3B6D11;
-    --green-50: #EAF3DE;
-    --green-800: #27500A;
-    --amber-600: #854F0B;
-    --amber-50: #FAEEDA;
-    --amber-800: #633806;
-    --red-600: #A32D2D;
-    --red-50: #FCEBEB;
-    --red-800: #791F1F;
-    --teal-600: #0F6E56;
-    --teal-50: #E1F5EE;
-    --teal-800: #085041;
-    --purple-600: #534AB7;
-    --purple-50: #EEEDFE;
-    --purple-800: #3C3489;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: #0a0f1e;
-    color: #e8eaf0;
-    min-height: 100vh;
-    font-size: 14px;
-  }
-
-  /* ── LOGIN ── */
-  #login-screen {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #0a0f1e 0%, #0d1b3e 100%);
-  }
-
-  .login-card {
-    background: #111827;
-    border: 1px solid #1e2d4a;
-    border-radius: 16px;
-    padding: 2.5rem;
-    width: 380px;
-    box-shadow: 0 0 40px rgba(55, 138, 221, 0.08);
-  }
-
-  .login-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 2rem;
-  }
-
-  .shield-icon {
-    width: 44px;
-    height: 44px;
-    background: var(--blue-600);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-  }
-
-  .login-logo h1 {
-    font-size: 22px;
-    font-weight: 600;
-    color: #fff;
-    letter-spacing: -0.3px;
-  }
-
-  .login-logo p {
-    font-size: 11px;
-    color: var(--gray-400);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-
-  .form-group {
-    margin-bottom: 1.2rem;
-  }
-
-  .form-group label {
-    display: block;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--gray-400);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-  }
-
-  .form-group input {
-    width: 100%;
-    background: #0d1b3e;
-    border: 1px solid #1e2d4a;
-    border-radius: 8px;
-    padding: 10px 14px;
-    color: #e8eaf0;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .form-group input:focus {
-    border-color: var(--blue-400);
-  }
-
-  .btn-primary {
-    width: 100%;
-    background: var(--blue-600);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 11px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: background 0.2s;
-    margin-top: 0.5rem;
-  }
-
-  .btn-primary:hover { background: var(--blue-400); }
-
-  .demo-logins {
-    margin-top: 1.5rem;
-    padding-top: 1.2rem;
-    border-top: 1px solid #1e2d4a;
-  }
-
-  .demo-logins p {
-    font-size: 11px;
-    color: var(--gray-400);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-  }
-
-  .demo-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .demo-pill {
-    background: #0d1b3e;
-    border: 1px solid #1e2d4a;
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 11px;
-    color: var(--blue-100);
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-
-  .demo-pill:hover { border-color: var(--blue-400); }
-
-  .login-error {
-    background: #2a1010;
-    border: 1px solid var(--red-600);
-    border-radius: 8px;
-    padding: 10px 14px;
-    color: #f7c1c1;
-    font-size: 13px;
-    margin-bottom: 1rem;
-    display: none;
-  }
-
-  /* ── APP SHELL ── */
-  #app-screen { display: none; min-height: 100vh; }
-
-  .sidebar {
-    position: fixed;
-    left: 0; top: 0; bottom: 0;
-    width: 220px;
-    background: #111827;
-    border-right: 1px solid #1e2d4a;
-    display: flex;
-    flex-direction: column;
-    z-index: 100;
-  }
-
-  .sidebar-logo {
-    padding: 1.2rem 1.2rem 1rem;
-    border-bottom: 1px solid #1e2d4a;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .sidebar-logo .shield-icon { width: 34px; height: 34px; border-radius: 8px; font-size: 16px; }
-
-  .sidebar-logo span {
-    font-size: 16px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: -0.3px;
-  }
-
-  .user-badge {
-    padding: 0.9rem 1.2rem;
-    border-bottom: 1px solid #1e2d4a;
-  }
-
-  .user-badge .user-id { font-size: 13px; font-weight: 600; color: #fff; }
-
-  .user-badge .user-role {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 2px;
-  }
-
-  .role-officer { color: #5DCAA5; }
-  .role-supervisor { color: var(--blue-100); }
-  .role-admin { color: #FAC775; }
-  .role-client { color: #F4C0D1; }
-
-  nav { flex: 1; padding: 0.8rem 0; overflow-y: auto; }
-
-  .nav-section {
-    padding: 0.4rem 1rem 0.2rem;
-    font-size: 10px;
-    color: var(--gray-600);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-  }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 1.2rem;
-    color: var(--gray-400);
-    cursor: pointer;
-    border-radius: 0;
-    transition: background 0.15s, color 0.15s;
-    font-size: 13px;
-    font-weight: 500;
-    user-select: none;
-  }
-
-  .nav-item:hover { background: #1a2644; color: #e8eaf0; }
-
-  .nav-item.active {
-    background: #162040;
-    color: var(--blue-100);
-    border-right: 2px solid var(--blue-400);
-  }
-
-  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
-
-  .sidebar-footer {
-    padding: 1rem 1.2rem;
-    border-top: 1px solid #1e2d4a;
-  }
-
-  .btn-logout {
-    width: 100%;
-    background: transparent;
-    border: 1px solid #1e2d4a;
-    border-radius: 8px;
-    padding: 8px;
-    color: var(--gray-400);
-    font-size: 13px;
-    cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-  }
-
-  .btn-logout:hover { border-color: var(--red-600); color: #f7c1c1; }
-
-  /* ── MAIN CONTENT ── */
-  .main { margin-left: 220px; min-height: 100vh; }
-
-  .topbar {
-    background: #111827;
-    border-bottom: 1px solid #1e2d4a;
-    padding: 0 1.5rem;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-  }
-
-  .topbar h2 { font-size: 16px; font-weight: 600; color: #fff; }
-
-  .topbar-right { display: flex; align-items: center; gap: 12px; }
-
-  .status-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: #5DCAA5;
-    display: inline-block;
-  }
-
-  .status-text { font-size: 12px; color: var(--gray-400); }
-
-  .content { padding: 1.5rem; }
-
-  /* ── PAGES ── */
-  .page { display: none; }
-  .page.active { display: block; }
-
-  /* ── DASHBOARD ── */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
-    margin-bottom: 1.5rem;
-  }
-
-  .stat-card {
-    background: #111827;
-    border: 1px solid #1e2d4a;
-    border-radius: 12px;
-    padding: 1rem 1.2rem;
-  }
-
-  .stat-card .stat-label {
-    font-size: 11px;
-    color: var(--gray-400);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-  }
-
-  .stat-card .stat-value {
-    font-size: 26px;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-
-  .stat-card .stat-sub { font-size: 11px; }
-  .stat-ok { color: #5DCAA5; }
-  .stat-warn { color: #FAC775; }
-  .stat-danger { color: #f7c1c1; }
-  .stat-info { color: var(--blue-100); }
-
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
-
-  .panel {
-    background: #111827;
-    border: 1px solid #1e2d4a;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  .panel-header {
-    padding: 0.9rem 1.2rem;
-    border-bottom: 1px solid #1e2d4a;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .panel-header h3 { font-size: 13px; font-weight: 600; color: #fff; }
-
-  .panel-body { padding: 1rem 1.2rem; }
-
-  .incident-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 8px 0;
-    border-bottom: 1px solid #1a2230;
-  }
-
-  .incident-item:last-child { border-bottom: none; }
-
-  .incident-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    margin-top: 5px;
-    flex-shrink: 0;
-  }
-
-  .dot-red { background: #E24B4A; }
-  .dot-amber { background: #EF9F27; }
-  .dot-green { background: #5DCAA5; }
-  .dot-blue { background: var(--blue-400); }
-
-  .incident-title { font-size: 13px; color: #e8eaf0; font-weight: 500; }
-  .incident-meta { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
-
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
-
-  .badge-green { background: #0d2a1a; color: #5DCAA5; }
-  .badge-amber { background: #2a1e08; color: #FAC775; }
-  .badge-red { background: #2a1010; color: #f7c1c1; }
-  .badge-blue { background: #0a1e3a; color: var(--blue-100); }
-  .badge-gray { background: #1a1f2e; color: var(--gray-400); }
-  .badge-purple { background: #1a1832; color: #AFA9EC; }
-
-  .officer-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 0;
-    border-bottom: 1px solid #1a2230;
-  }
-
-  .officer-row:last-child { border-bottom: none; }
-
-  .officer-avatar {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: #162040;
-    border: 1px solid #1e2d4a;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--blue-100);
-    flex-shrink: 0;
-  }
-
-  .officer-name { font-size: 13px; font-weight: 500; color: #e8eaf0; }
-  .officer-site { font-size: 11px; color: var(--gray-400); }
-
-  /* ── TABLE ── */
-  .table-wrap { overflow-x: auto; }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-
-  table th {
-    text-align: left;
-    padding: 10px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--gray-400);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid #1e2d4a;
-  }
-
-  table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid #141f35;
-    color: #e8eaf0;
-    vertical-align: middle;
-  }
-
-  table tr:last-child td { border-bottom: none; }
-  table tr:hover td { background: #131d33; }
-
-  /* ── FORMS ── */
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .field-group label {
-    display: block;
-    font-size: 12px;
-    color: var(--gray-400);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-    font-weight: 500;
-  }
-
-  .field-group input,
-  .field-group select,
-  .field-group textarea {
-    width: 100%;
-    background: #0d1b3e;
-    border: 1px solid #1e2d4a;
-    border-radius: 8px;
-    padding: 9px 12px;
-    color: #e8eaf0;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
-    font-family: inherit;
-  }
-
-  .field-group input:focus,
-  .field-group select:focus,
-  .field-group textarea:focus { border-color: var(--blue-400); }
-
-  .field-group select option { background: #111827; }
-
-  .btn-sm {
-    padding: 7px 14px;
-    border-radius: 7px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    letter-spacing: 0.3px;
-    transition: opacity 0.2s;
-  }
-
-  .btn-sm:hover { opacity: 0.85; }
-  .btn-blue { background: var(--blue-600); color: #fff; }
-  .btn-green { background: #3B6D11; color: #EAF3DE; }
-  .btn-red { background: var(--red-600); color: #FCEBEB; }
-  .btn-gray { background: #1e2d4a; color: var(--gray-200); }
-
-  /* ── SCHEDULE GRID ── */
-  .schedule-grid {
-    display: grid;
-    grid-template-columns: 100px repeat(7, 1fr);
-    gap: 4px;
-    font-size: 11px;
-  }
-
-  .sch-header {
-    padding: 6px 8px;
-    color: var(--gray-400);
-    font-weight: 600;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .sch-name {
-    padding: 6px 8px;
-    color: #e8eaf0;
-    font-weight: 500;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-  }
-
-  .sch-cell {
-    padding: 6px 4px;
-    border-radius: 6px;
-    text-align: center;
-    font-weight: 600;
-    cursor: default;
-  }
-
-  .sch-on { background: #0d2a1a; color: #5DCAA5; }
-  .sch-off { background: #141f35; color: var(--gray-600); }
-  .sch-leave { background: #2a1e08; color: #FAC775; }
-
-  /* ── REPORT CARDS ── */
-  .report-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
-    margin-bottom: 1.5rem;
-  }
-
-  .report-card {
-    background: #111827;
-    border: 1px solid #1e2d4a;
-    border-radius: 12px;
-    padding: 1.2rem;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-
-  .report-card:hover { border-color: var(--blue-400); }
-
-  .report-icon { font-size: 22px; margin-bottom: 10px; }
-  .report-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
-  .report-desc { font-size: 12px; color: var(--gray-400); }
-
-  /* ── ALERTS ── */
-  .alert-bar {
-    background: #2a1e08;
-    border: 1px solid #854F0B;
-    border-radius: 8px;
-    padding: 10px 14px;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    color: #FAC775;
-  }
-
-  /* ── MAP PLACEHOLDER ── */
-  .map-area {
-    background: #0d1b3e;
-    border: 1px solid #1e2d4a;
-    border-radius: 12px;
-    height: 220px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 8px;
-    color: var(--gray-600);
-    font-size: 13px;
-    margin-bottom: 1rem;
-  }
-
-  .map-area .map-icon { font-size: 28px; opacity: 0.4; }
-
-  /* ── PAGE HEADER ── */
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.2rem;
-  }
-
-  .page-header h2 { font-size: 18px; font-weight: 600; color: #fff; }
-  .page-header p { font-size: 13px; color: var(--gray-400); margin-top: 2px; }
-
-  /* ── MODAL ── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 999;
-    display: none;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-overlay.open { display: flex; }
-
-  .modal {
-    background: #111827;
-    border: 1px solid #1e2d4a;
-    border-radius: 16px;
-    padding: 1.8rem;
-    width: 480px;
-    max-width: 95vw;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-
-  .modal h3 { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 1.2rem; }
-
-  .modal-footer {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 1.2rem;
-    padding-top: 1rem;
-    border-top: 1px solid #1e2d4a;
-  }
-
-  /* ── TOAST ── */
-  #toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: #1a2644;
-    border: 1px solid var(--blue-600);
-    border-radius: 10px;
-    padding: 12px 18px;
-    color: var(--blue-100);
-    font-size: 13px;
-    font-weight: 500;
-    z-index: 9999;
-    display: none;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  }
-
-  /* ── TABS ── */
-  .tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 1px solid #1e2d4a;
-    margin-bottom: 1.2rem;
-  }
-
-  .tab-btn {
-    padding: 8px 16px;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    color: var(--gray-400);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: color 0.2s, border-color 0.2s;
-    margin-bottom: -1px;
-  }
-
-  .tab-btn.active {
-    color: var(--blue-100);
-    border-bottom-color: var(--blue-400);
-  }
-
-  /* ── PROFILE ── */
-  .profile-header {
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .profile-avatar {
-    width: 60px; height: 60px;
-    border-radius: 50%;
-    background: #162040;
-    border: 2px solid var(--blue-600);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--blue-100);
-  }
-
-  .profile-name { font-size: 20px; font-weight: 700; color: #fff; }
-  .profile-role { font-size: 13px; color: var(--gray-400); margin-top: 2px; }
-
-  /* ── ACCESS DENIED ── */
-  .access-denied {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 300px;
-    color: var(--gray-600);
-  }
-
-  .access-denied .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
-  .access-denied h3 { font-size: 16px; color: var(--gray-400); margin-bottom: 6px; }
-  .access-denied p { font-size: 13px; }
-
-  /* scrollbar */
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #1e2d4a; border-radius: 3px; }
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-primary: #050a0f;
+  --bg-secondary: #080f17;
+  --bg-card: #0d1820;
+  --bg-elevated: #111f2e;
+  --border: #1a3045;
+  --border-bright: #1e4060;
+  --accent: #00c8ff;
+  --accent-dim: #0090bb;
+  --accent-glow: rgba(0,200,255,0.15);
+  --green: #00ff88;
+  --green-dim: #00bb60;
+  --red: #ff3355;
+  --red-dim: #cc0030;
+  --orange: #ff8800;
+  --yellow: #ffd000;
+  --text-primary: #e8f4ff;
+  --text-secondary: #7aa8c8;
+  --text-muted: #3a6080;
+  --font-head: 'Rajdhani', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-body: 'Exo 2', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* GRID BACKGROUND */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ====== LOGIN SCREEN ====== */
+#login-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  background: var(--bg-primary);
+}
+
+.login-box {
+  width: 420px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-bright);
+  border-radius: 4px;
+  padding: 48px 40px;
+  position: relative;
+  box-shadow: 0 0 60px rgba(0,200,255,0.1), 0 0 120px rgba(0,200,255,0.05);
+}
+
+.login-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.login-logo .shield {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 12px var(--accent));
+}
+
+.login-logo h1 {
+  font-family: var(--font-head);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--accent);
+  text-shadow: 0 0 20px rgba(0,200,255,0.5);
+}
+
+.login-logo p {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  padding: 12px 16px;
+  border-radius: 2px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.form-group select option { background: var(--bg-card); }
+.form-group textarea { resize: vertical; min-height: 100px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 2px;
+  font-family: var(--font-head);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background: #00e0ff;
+  box-shadow: 0 0 20px rgba(0,200,255,0.4);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.btn-secondary:hover {
+  background: var(--accent-glow);
+}
+
+.btn-green {
+  background: var(--green);
+  color: #000;
+}
+
+.btn-green:hover { background: #00ffaa; box-shadow: 0 0 15px rgba(0,255,136,0.4); }
+
+.btn-red {
+  background: var(--red);
+  color: #fff;
+}
+
+.btn-red:hover { background: #ff5577; box-shadow: 0 0 15px rgba(255,51,85,0.4); }
+
+.btn-orange {
+  background: var(--orange);
+  color: #000;
+}
+
+.btn-orange:hover { background: #ffaa00; }
+
+.btn-yellow {
+  background: var(--yellow);
+  color: #000;
+}
+
+.btn-sm {
+  padding: 7px 14px;
+  font-size: 12px;
+}
+
+.btn-xs {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+#login-error {
+  color: var(--red);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: center;
+  margin-top: 12px;
+  display: none;
+}
+
+/* ====== MAIN APP ====== */
+#app { display: none; position: relative; z-index: 1; }
+
+/* HEADER */
+.app-header {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-logo {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--accent);
+  text-shadow: 0 0 12px rgba(0,200,255,0.4);
+  white-space: nowrap;
+}
+
+.header-logo span { color: var(--text-muted); font-size: 12px; font-weight: 400; letter-spacing: 1px; margin-left: 4px; }
+
+.header-nav {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  overflow-x: auto;
+}
+
+.nav-btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-head);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.nav-btn:hover { color: var(--text-primary); background: var(--bg-elevated); }
+.nav-btn.active { color: var(--accent); background: var(--accent-glow); border-bottom: 2px solid var(--accent); }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 6px 14px;
+  border-radius: 2px;
+}
+
+.user-badge .id {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.user-badge .role {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.live-clock {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--green);
+  text-shadow: 0 0 8px rgba(0,255,136,0.4);
+}
+
+/* CONTENT */
+.app-content {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section { display: none; }
+.section.active { display: block; }
+
+/* CARDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 24px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--accent);
+  border-radius: 4px 0 0 4px;
+}
+
+.card.card-green::before { background: var(--green); }
+.card.card-red::before { background: var(--red); }
+.card.card-orange::before { background: var(--orange); }
+.card.card-yellow::before { background: var(--yellow); }
+
+.card-title {
+  font-family: var(--font-head);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card.card-green .card-title { color: var(--green); }
+.card.card-red .card-title { color: var(--red); }
+.card.card-orange .card-title { color: var(--orange); }
+
+/* GRID LAYOUTS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+/* STATUS BADGES */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.badge-green { background: rgba(0,255,136,0.1); color: var(--green); border: 1px solid rgba(0,255,136,0.3); }
+.badge-red { background: rgba(255,51,85,0.1); color: var(--red); border: 1px solid rgba(255,51,85,0.3); }
+.badge-orange { background: rgba(255,136,0,0.1); color: var(--orange); border: 1px solid rgba(255,136,0,0.3); }
+.badge-yellow { background: rgba(255,208,0,0.1); color: var(--yellow); border: 1px solid rgba(255,208,0,0.3); }
+.badge-blue { background: rgba(0,200,255,0.1); color: var(--accent); border: 1px solid rgba(0,200,255,0.3); }
+.badge-muted { background: rgba(58,96,128,0.2); color: var(--text-muted); border: 1px solid var(--border); }
+
+.pulse { animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* TABLES */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th {
+  background: var(--bg-elevated);
+  padding: 10px 14px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+}
+.data-table tr:hover td { background: var(--bg-elevated); color: var(--text-primary); }
+
+/* SOS BUTTON */
+.sos-btn {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  cursor: pointer;
+  box-shadow: 0 0 0 4px rgba(255,51,85,0.3), 0 0 30px rgba(255,51,85,0.4);
+  animation: sos-idle 3s ease-in-out infinite;
+  transition: all 0.2s;
+}
+
+.sos-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 6px rgba(255,51,85,0.4), 0 0 50px rgba(255,51,85,0.6);
+}
+
+.sos-btn.triggered {
+  animation: sos-active 0.5s ease-in-out infinite;
+}
+
+@keyframes sos-idle { 0%,100% { box-shadow: 0 0 0 4px rgba(255,51,85,0.3), 0 0 30px rgba(255,51,85,0.3); } 50% { box-shadow: 0 0 0 8px rgba(255,51,85,0.1), 0 0 40px rgba(255,51,85,0.5); } }
+@keyframes sos-active { 0%,100% { background: var(--red); } 50% { background: #ff0000; box-shadow: 0 0 0 12px rgba(255,0,0,0.2), 0 0 60px rgba(255,0,0,0.8); } }
+
+/* STATUS BOARD OFFICERS */
+.officer-status-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.3s;
+}
+
+.officer-status-card.status-on-site { border-color: rgba(0,255,136,0.4); box-shadow: 0 0 12px rgba(0,255,136,0.1); }
+.officer-status-card.status-en-route { border-color: rgba(255,208,0,0.4); box-shadow: 0 0 12px rgba(255,208,0,0.1); }
+.officer-status-card.status-off-duty { border-color: var(--border); }
+.officer-status-card.status-clocked-out { border-color: rgba(0,200,255,0.3); }
+
+.officer-name { font-family: var(--font-head); font-size: 15px; font-weight: 600; letter-spacing: 1px; }
+.officer-id { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+/* STAT BOXES */
+.stat-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+  text-align: center;
+}
+
+.stat-number {
+  font-family: var(--font-mono);
+  font-size: 36px;
+  color: var(--accent);
+  text-shadow: 0 0 16px rgba(0,200,255,0.4);
+  display: block;
+}
+
+.stat-label {
+  font-family: var(--font-head);
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 6px;
+  display: block;
+}
+
+/* SECTION TITLES */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-family: var(--font-head);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
+.section-title span { color: var(--accent); }
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-family: var(--font-head);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+}
+
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ALERTS */
+.alert {
+  padding: 12px 16px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alert-info { background: rgba(0,200,255,0.1); border: 1px solid rgba(0,200,255,0.3); color: var(--accent); }
+.alert-success { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); color: var(--green); }
+.alert-warning { background: rgba(255,136,0,0.1); border: 1px solid rgba(255,136,0,0.3); color: var(--orange); }
+.alert-danger { background: rgba(255,51,85,0.1); border: 1px solid rgba(255,51,85,0.3); color: var(--red); }
+
+/* MISC */
+hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+.text-mono { font-family: var(--font-mono); }
+.text-accent { color: var(--accent); }
+.text-green { color: var(--green); }
+.text-red { color: var(--red); }
+.text-muted { color: var(--text-muted); }
+.text-sm { font-size: 12px; }
+
+.flex { display: flex; }
+.flex-center { display: flex; align-items: center; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+.gap-20 { gap: 20px; }
+.justify-between { justify-content: space-between; }
+.flex-wrap { flex-wrap: wrap; }
+.align-center { align-items: center; }
+.mb-12 { margin-bottom: 12px; }
+.mb-20 { margin-bottom: 20px; }
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .app-content { padding: 16px; }
+}
+
+/* NARRATIVE PREVIEW */
+.narrative-preview {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 16px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  min-height: 80px;
+  white-space: pre-wrap;
+}
+
+/* TIMESHEET ROW */
+.ts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.ts-header { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+
+/* SHIFT LOG ENTRIES */
+.log-entry {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+
+.log-time {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent);
+  min-width: 60px;
+}
+
+.log-text { font-size: 13px; color: var(--text-secondary); flex: 1; }
+
+/* SCROLLABLE */
+.scroll-box {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.scroll-box::-webkit-scrollbar { width: 4px; }
+.scroll-box::-webkit-scrollbar-track { background: var(--bg-secondary); }
+.scroll-box::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+/* PAYROLL TABLE */
+.payroll-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.payroll-header {
+  background: var(--bg-elevated);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 2px 2px 0 0;
+}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════ LOGIN ═══════════════════════════════════ -->
+<!-- ===== LOGIN SCREEN ===== -->
 <div id="login-screen">
-  <div class="login-card">
+  <div class="login-box">
     <div class="login-logo">
-      <div class="shield-icon">🛡</div>
-      <div>
-        <h1>ShieldSync</h1>
-        <p>Security Management Platform</p>
-      </div>
+      <span class="shield">🛡</span>
+      <h1>SHIELDSYNC</h1>
+      <p>SECURITY MANAGEMENT PLATFORM v2.0</p>
     </div>
-
-    <div id="login-error" class="login-error">Invalid ID or PIN. Please try again.</div>
-
     <div class="form-group">
-      <label>Officer / Client ID</label>
-      <input type="text" id="login-id" placeholder="e.g. SS-001 or C-MGH" autocomplete="off">
+      <label>BADGE / CLIENT ID</label>
+      <input type="text" id="login-id" placeholder="e.g. SS-001" autocomplete="off">
     </div>
     <div class="form-group">
       <label>PIN</label>
       <input type="password" id="login-pin" placeholder="••••" maxlength="6">
     </div>
-
-    <button class="btn-primary" onclick="attemptLogin()">Sign In</button>
-
-    <div class="demo-logins">
-      <p>Demo Accounts</p>
-      <div class="demo-pills">
-        <span class="demo-pill" onclick="fillDemo('SS-001','1234')">SS-001 · Officer</span>
-        <span class="demo-pill" onclick="fillDemo('SS-003','1234')">SS-003 · Supervisor</span>
-        <span class="demo-pill" onclick="fillDemo('SS-000','1234')">SS-000 · Admin</span>
-        <span class="demo-pill" onclick="fillDemo('C-MGH','1234')">C-MGH · Client</span>
-      </div>
+    <button class="btn btn-primary" onclick="doLogin()">ACCESS SYSTEM</button>
+    <div id="login-error">⚠ INVALID CREDENTIALS — ACCESS DENIED</div>
+    <div style="margin-top:24px;border-top:1px solid var(--border);padding-top:16px;">
+      <p style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-align:center;letter-spacing:1px;">AUTHORIZED PERSONNEL ONLY</p>
+      <p style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-align:center;letter-spacing:1px;margin-top:4px;">SS-001/SS-003/SS-000/C-MGH · PIN 1234</p>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════ APP ════════════════════════════════════ -->
-<div id="app-screen">
-
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sidebar-logo">
-      <div class="shield-icon">🛡</div>
-      <span>ShieldSync</span>
+<!-- ===== MAIN APP ===== -->
+<div id="app">
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-logo">SHIELD<span>SYNC</span></div>
+    <nav class="header-nav" id="main-nav"></nav>
+    <div class="header-right">
+      <div class="live-clock" id="live-clock">00:00:00</div>
+      <div class="user-badge">
+        <div>
+          <div class="id" id="header-id">--</div>
+          <div class="role" id="header-role">--</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">LOGOUT</button>
     </div>
+  </header>
 
-    <div class="user-badge">
-      <div class="user-id" id="sb-user-id">SS-001</div>
-      <div class="user-role" id="sb-user-role">Officer</div>
-    </div>
+  <!-- CONTENT -->
+  <div class="app-content">
 
-    <nav id="sidebar-nav"></nav>
+    <!-- ===== OFFICER SECTIONS ===== -->
 
-    <div class="sidebar-footer">
-      <button class="btn-logout" onclick="logout()">Sign Out</button>
-    </div>
-  </div>
+    <!-- OFFICER DASHBOARD -->
+    <div id="section-officer-dashboard" class="section">
+      <div class="section-header">
+        <div class="section-title">OFFICER <span>DASHBOARD</span></div>
+        <div id="officer-status-display"><span class="badge badge-muted pulse" id="current-status-badge">● OFF DUTY</span></div>
+      </div>
 
-  <!-- MAIN -->
-  <div class="main">
-    <div class="topbar">
-      <h2 id="topbar-title">Dashboard</h2>
-      <div class="topbar-right">
-        <span class="status-dot"></span>
-        <span class="status-text">All Systems Operational</span>
-        <span class="status-text" id="topbar-time"></span>
+      <div class="grid-2" style="margin-bottom:20px;">
+        <!-- CLOCK IN/OUT + EN ROUTE -->
+        <div class="card card-green">
+          <div class="card-title">⏱ SHIFT CONTROL</div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <button class="btn btn-green" id="btn-en-route" onclick="officerEnRoute()">📍 EN ROUTE</button>
+            <button class="btn btn-primary" id="btn-clock-in" onclick="officerClockIn()">🟢 CLOCK IN</button>
+            <button class="btn btn-secondary" id="btn-clock-out" onclick="officerClockOut()" disabled>🔴 CLOCK OUT</button>
+          </div>
+          <div id="shift-timestamps" style="margin-top:16px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);"></div>
+        </div>
+
+        <!-- SOS PANIC -->
+        <div class="card card-red" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+          <div class="card-title" style="margin-bottom:0;">🚨 EMERGENCY</div>
+          <button class="sos-btn" id="sos-btn" onclick="triggerSOS()">SOS</button>
+          <p style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-align:center;letter-spacing:1px;">HOLD FOR EMERGENCY ALERT<br>SENDS GPS + ID TO SUPERVISOR</p>
+          <div id="sos-status" style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);"></div>
+        </div>
+      </div>
+
+      <!-- ACTIVITY LOG -->
+      <div class="card">
+        <div class="card-title">📋 SHIFT ACTIVITY LOG</div>
+        <div class="flex gap-8 mb-12">
+          <input type="text" id="activity-note-input" placeholder="Add activity note..." style="flex:1;background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-primary);font-family:var(--font-body);font-size:13px;padding:8px 12px;border-radius:2px;outline:none;">
+          <button class="btn btn-secondary btn-sm" onclick="addActivityNote()">ADD</button>
+        </div>
+        <div class="scroll-box" id="activity-log-list">
+          <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No activity logged yet.</p>
+        </div>
       </div>
     </div>
 
-    <div class="content">
+    <!-- TIMESHEET -->
+    <div id="section-officer-timesheet" class="section">
+      <div class="section-header">
+        <div class="section-title">MY <span>TIMESHEET</span></div>
+      </div>
 
-      <!-- DASHBOARD -->
-      <div class="page active" id="page-dashboard">
-        <div class="stats-grid" id="dash-stats"></div>
-        <div id="dash-alert" class="alert-bar" style="display:none">
-          ⚠ Active Alert: Unauthorized access detected at North Gate — Zone 3. Response dispatched.
+      <div class="card">
+        <div class="card-title">⏰ LOG NEW ENTRY</div>
+        <div class="grid-2" style="gap:16px;margin-bottom:16px;">
+          <div class="form-group" style="margin:0;">
+            <label>DATE</label>
+            <input type="date" id="ts-date">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>SHIFT PRESET</label>
+            <select id="ts-preset" onchange="applyShiftPreset()">
+              <option value="">-- Select Preset --</option>
+              <option value="day">Day Shift (6AM – 2PM)</option>
+              <option value="evening">Evening Shift (2PM – 10PM)</option>
+              <option value="night">Night Shift (10PM – 6AM)</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>TIME IN</label>
+            <input type="time" id="ts-in">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>TIME OUT</label>
+            <input type="time" id="ts-out">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>SITE / LOCATION</label>
+            <input type="text" id="ts-site" placeholder="e.g. MGH Campus">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>NOTES</label>
+            <input type="text" id="ts-notes" placeholder="Optional notes">
+          </div>
         </div>
-        <div class="grid-2">
-          <div class="panel">
-            <div class="panel-header">
-              <h3>Recent Incidents</h3>
-              <span class="badge badge-red" id="incident-count">3 Active</span>
+        <button class="btn btn-primary btn-sm" onclick="submitTimesheet()">SUBMIT TIMESHEET ENTRY</button>
+        <div id="ts-auto-note" class="alert alert-info" style="margin-top:12px;display:none;">✓ Auto-populated from today's clock in/out</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📅 MY TIMESHEET ENTRIES</div>
+        <div class="scroll-box">
+          <div class="ts-row ts-header">
+            <div>DATE / SITE</div><div>IN</div><div>OUT</div><div>HOURS</div><div>STATUS</div><div>NOTES</div><div></div>
+          </div>
+          <div id="ts-entries-list">
+            <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);padding:16px 0;">No timesheet entries yet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INCIDENT REPORT -->
+    <div id="section-officer-incident" class="section">
+      <div class="section-header">
+        <div class="section-title">INCIDENT <span>REPORT</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📝 NEW INCIDENT REPORT</div>
+        <div class="grid-2" style="gap:16px;margin-bottom:16px;">
+          <div class="form-group" style="margin:0;">
+            <label>INCIDENT DATE</label>
+            <input type="date" id="ir-date">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>INCIDENT TIME</label>
+            <input type="time" id="ir-time">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>LOCATION</label>
+            <input type="text" id="ir-location" placeholder="Building, gate, zone..." oninput="updateNarrativePreview()">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>INCIDENT TYPE</label>
+            <select id="ir-type" onchange="updateNarrativePreview()">
+              <option>Unauthorized Access</option>
+              <option>Suspicious Activity</option>
+              <option>Theft / Vandalism</option>
+              <option>Medical Emergency</option>
+              <option>Disturbance</option>
+              <option>Trespassing</option>
+              <option>Property Damage</option>
+              <option>Vehicle Incident</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>AUTO-GENERATED OPENING PARAGRAPH</label>
+          <div class="narrative-preview" id="narrative-preview">Fill in the fields above to generate the opening paragraph...</div>
+        </div>
+
+        <div class="form-group">
+          <label>INCIDENT NARRATIVE (continue here)</label>
+          <textarea id="ir-narrative" placeholder="Describe in detail what occurred, persons involved, actions taken, and outcome..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>WITNESSES / PERSONS INVOLVED</label>
+          <input type="text" id="ir-witnesses" placeholder="Names and descriptions">
+        </div>
+        <div class="form-group">
+          <label>FOLLOW-UP REQUIRED</label>
+          <select id="ir-followup">
+            <option value="No">No Follow-Up Required</option>
+            <option value="Police">Police Report Filed</option>
+            <option value="Supervisor">Supervisor Notification</option>
+            <option value="Medical">Medical Services Called</option>
+            <option value="Investigation">Investigation Opened</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="submitIncidentReport()">SUBMIT INCIDENT REPORT</button>
+      </div>
+
+      <div class="card" id="ir-history-card">
+        <div class="card-title">📁 SUBMITTED REPORTS</div>
+        <div id="ir-list">
+          <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No reports submitted yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAILY ACTIVITY REPORT -->
+    <div id="section-officer-dar" class="section">
+      <div class="section-header">
+        <div class="section-title">DAILY ACTIVITY <span>REPORT</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 END OF SHIFT — DAR</div>
+        <div class="grid-2" style="gap:16px;margin-bottom:16px;">
+          <div class="form-group" style="margin:0;">
+            <label>DATE</label>
+            <input type="date" id="dar-date">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>SITE</label>
+            <input type="text" id="dar-site" placeholder="Site / Property Name">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>SHIFT START</label>
+            <input type="time" id="dar-start">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>SHIFT END</label>
+            <input type="time" id="dar-end">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>PATROLS CONDUCTED</label>
+          <input type="text" id="dar-patrols" placeholder="e.g. 4 exterior patrols, 2 interior sweeps">
+        </div>
+        <div class="form-group">
+          <label>INCIDENTS / NOTABLE EVENTS</label>
+          <textarea id="dar-incidents" placeholder="Describe any incidents, unusual observations, or notable events during the shift..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>ACCESS CONTROL SUMMARY</label>
+          <textarea id="dar-access" placeholder="Summary of visitor/vehicle traffic, any access issues..." style="min-height:80px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>EQUIPMENT STATUS</label>
+          <input type="text" id="dar-equipment" placeholder="e.g. All equipment operational / List any issues">
+        </div>
+        <div class="form-group">
+          <label>ADDITIONAL NOTES</label>
+          <textarea id="dar-notes" style="min-height:80px;" placeholder="Any other notes for relief officer or supervisor..."></textarea>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="submitDAR()">SUBMIT DAILY ACTIVITY REPORT</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📁 SUBMITTED DARS</div>
+        <div id="dar-list">
+          <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No DARs submitted yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISITOR & VEHICLE LOG -->
+    <div id="section-officer-visitor" class="section">
+      <div class="section-header">
+        <div class="section-title">VISITOR & <span>VEHICLE LOG</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🚗 LOG ENTRY</div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('vv','visitor',this)">VISITOR</button>
+          <button class="tab-btn" onclick="switchTab('vv','vehicle',this)">VEHICLE</button>
+        </div>
+
+        <div id="vv-tab-visitor" class="tab-content active">
+          <div class="grid-2" style="gap:16px;">
+            <div class="form-group" style="margin:0;"><label>VISITOR NAME</label><input type="text" id="vis-name" placeholder="Full Name"></div>
+            <div class="form-group" style="margin:0;"><label>ID / BADGE</label><input type="text" id="vis-id" placeholder="Driver's License, Badge #, etc."></div>
+            <div class="form-group" style="margin:0;"><label>COMPANY / AFFILIATION</label><input type="text" id="vis-company" placeholder="Company or reason for visit"></div>
+            <div class="form-group" style="margin:0;"><label>VISITING / DESTINATION</label><input type="text" id="vis-destination" placeholder="Person or department visiting"></div>
+            <div class="form-group" style="margin:0;"><label>TIME IN</label><input type="time" id="vis-timein"></div>
+            <div class="form-group" style="margin:0;"><label>TIME OUT</label><input type="time" id="vis-timeout"></div>
+            <div class="form-group" style="margin:0;"><label>ACCESS GRANTED</label>
+              <select id="vis-access"><option>Yes</option><option>No — Denied</option><option>Escort Required</option></select>
             </div>
-            <div class="panel-body" id="incidents-list"></div>
+            <div class="form-group" style="margin:0;"><label>NOTES</label><input type="text" id="vis-notes" placeholder="Optional notes"></div>
           </div>
-          <div class="panel">
-            <div class="panel-header">
-              <h3>Officers On Duty</h3>
-              <span class="badge badge-green">Live</span>
-            </div>
-            <div class="panel-body" id="officers-duty"></div>
-          </div>
+          <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="logVisitor()">LOG VISITOR</button>
         </div>
-      </div>
 
-      <!-- INCIDENTS -->
-      <div class="page" id="page-incidents">
-        <div class="page-header">
-          <div>
-            <h2>Incident Reports</h2>
-            <p>Log and manage security incidents</p>
-          </div>
-          <button class="btn-sm btn-blue" id="btn-new-incident" onclick="openIncidentModal()">+ New Incident</button>
-        </div>
-        <div class="panel">
-          <div class="panel-body" style="padding:0">
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Location</th>
-                    <th>Severity</th>
-                    <th>Reported By</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="incidents-table"></tbody>
-              </table>
+        <div id="vv-tab-vehicle" class="tab-content">
+          <div class="grid-2" style="gap:16px;">
+            <div class="form-group" style="margin:0;"><label>LICENSE PLATE</label><input type="text" id="veh-plate" placeholder="ABC-1234"></div>
+            <div class="form-group" style="margin:0;"><label>MAKE / MODEL</label><input type="text" id="veh-model" placeholder="e.g. Toyota Camry Black"></div>
+            <div class="form-group" style="margin:0;"><label>DRIVER NAME</label><input type="text" id="veh-driver" placeholder="Driver's name"></div>
+            <div class="form-group" style="margin:0;"><label>PURPOSE</label><input type="text" id="veh-purpose" placeholder="Delivery, visitor, contractor..."></div>
+            <div class="form-group" style="margin:0;"><label>TIME IN</label><input type="time" id="veh-timein"></div>
+            <div class="form-group" style="margin:0;"><label>TIME OUT</label><input type="time" id="veh-timeout"></div>
+            <div class="form-group" style="margin:0;"><label>PARKING ZONE</label><input type="text" id="veh-zone" placeholder="Zone A, Lot 2, etc."></div>
+            <div class="form-group" style="margin:0;"><label>STATUS</label>
+              <select id="veh-status"><option>Authorized</option><option>Unauthorized — Flagged</option><option>Towed</option></select>
             </div>
           </div>
+          <button class="btn btn-primary btn-sm" style="margin-top:16px;" onclick="logVehicle()">LOG VEHICLE</button>
         </div>
       </div>
 
-      <!-- SCHEDULE -->
-      <div class="page" id="page-schedule">
-        <div class="page-header">
-          <div>
-            <h2>Shift Schedule</h2>
-            <p>Current week — May 2025</p>
-          </div>
-          <button class="btn-sm btn-blue" id="btn-edit-schedule" onclick="toast('Schedule editing enabled')">Edit Schedule</button>
+      <div class="card">
+        <div class="card-title">📋 LOG ENTRIES TODAY</div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('vlog','visitors',this)">VISITORS (<span id="vis-count">0</span>)</button>
+          <button class="tab-btn" onclick="switchTab('vlog','vehicles',this)">VEHICLES (<span id="veh-count">0</span>)</button>
         </div>
-        <div class="panel">
-          <div class="panel-body">
-            <div class="schedule-grid" id="schedule-grid"></div>
-          </div>
+        <div id="vlog-tab-visitors" class="tab-content active scroll-box" id="visitor-log-display">
+          <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No visitors logged.</p>
+        </div>
+        <div id="vlog-tab-vehicles" class="tab-content scroll-box">
+          <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No vehicles logged.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SUPERVISOR SECTIONS ===== -->
+
+    <!-- LIVE STATUS BOARD -->
+    <div id="section-sup-statusboard" class="section">
+      <div class="section-header">
+        <div class="section-title">LIVE <span>STATUS BOARD</span></div>
+        <div class="flex gap-8 align-center">
+          <div class="badge badge-green pulse">● LIVE</div>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">Updates every 10s</span>
         </div>
       </div>
 
-      <!-- PERSONNEL (admin/supervisor only) -->
-      <div class="page" id="page-personnel">
-        <div class="page-header">
-          <div>
-            <h2>Personnel Management</h2>
-            <p>Officers, supervisors, and accounts</p>
-          </div>
-          <button class="btn-sm btn-blue" onclick="openPersonnelModal()">+ Add Officer</button>
-        </div>
-        <div class="panel">
-          <div class="panel-body" style="padding:0">
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Role</th>
-                    <th>Site</th>
-                    <th>Status</th>
-                    <th>Certifications</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="personnel-table"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-box"><span class="stat-number" id="sup-total">0</span><span class="stat-label">TOTAL OFFICERS</span></div>
+        <div class="stat-box"><span class="stat-number text-green" id="sup-onsite">0</span><span class="stat-label">ON SITE</span></div>
+        <div class="stat-box"><span class="stat-number" style="color:var(--yellow);" id="sup-enroute">0</span><span class="stat-label">EN ROUTE</span></div>
+        <div class="stat-box"><span class="stat-number text-muted" id="sup-offduty">0</span><span class="stat-label">OFF DUTY</span></div>
       </div>
 
-      <!-- SITES (client/admin/supervisor) -->
-      <div class="page" id="page-sites">
-        <div class="page-header">
-          <div>
-            <h2>Site Overview</h2>
-            <p>Monitored locations and patrol zones</p>
-          </div>
-        </div>
-        <div class="map-area">
-          <div class="map-icon">🗺</div>
-          <span>Interactive site map — GPS integration coming soon</span>
-        </div>
-        <div class="panel">
-          <div class="panel-body" style="padding:0">
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Site</th>
-                    <th>Address</th>
-                    <th>Type</th>
-                    <th>Officers Assigned</th>
-                    <th>Coverage</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="sites-table"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+      <div class="card">
+        <div class="card-title">👮 OFFICER STATUS BOARD</div>
+        <div id="officer-status-board" class="grid-3" style="gap:16px;"></div>
       </div>
 
-      <!-- REPORTS -->
-      <div class="page" id="page-reports">
-        <div class="page-header">
-          <div>
-            <h2>Reports & Analytics</h2>
-            <p>Security performance and insights</p>
-          </div>
-        </div>
-        <div class="report-grid" id="report-grid"></div>
-        <div class="panel">
-          <div class="panel-header"><h3>Monthly Summary — April 2025</h3></div>
-          <div class="panel-body">
-            <div class="stats-grid">
-              <div class="stat-card"><div class="stat-label">Incidents</div><div class="stat-value">47</div><div class="stat-sub stat-warn">+12% vs March</div></div>
-              <div class="stat-card"><div class="stat-label">Response Time</div><div class="stat-value">4.2<span style="font-size:14px">min</span></div><div class="stat-sub stat-ok">Within SLA</div></div>
-              <div class="stat-card"><div class="stat-label">Patrol Hours</div><div class="stat-value">1,284</div><div class="stat-sub stat-ok">99.1% coverage</div></div>
-              <div class="stat-card"><div class="stat-label">Open Issues</div><div class="stat-value">3</div><div class="stat-sub stat-danger">2 escalated</div></div>
-            </div>
-          </div>
+      <div class="card card-red" id="sos-alerts-card" style="display:none;">
+        <div class="card-title">🚨 ACTIVE SOS ALERTS</div>
+        <div id="sos-alerts-list"></div>
+      </div>
+    </div>
+
+    <!-- SUPERVISOR TIMESHEETS -->
+    <div id="section-sup-timesheets" class="section">
+      <div class="section-header">
+        <div class="section-title">TIMESHEET <span>APPROVALS</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 PENDING APPROVALS</div>
+        <div id="sup-ts-list">
+          <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No pending timesheets.</p>
         </div>
       </div>
+      <div class="card">
+        <div class="card-title">✅ APPROVED / REJECTED HISTORY</div>
+        <div id="sup-ts-history">
+          <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No history.</p>
+        </div>
+      </div>
+    </div>
 
-      <!-- PROFILE / MY INFO -->
-      <div class="page" id="page-profile">
-        <div class="page-header"><div><h2>My Profile</h2><p>Account details and settings</p></div></div>
-        <div class="panel">
-          <div class="panel-body">
-            <div class="profile-header">
-              <div class="profile-avatar" id="profile-initials">?</div>
-              <div>
-                <div class="profile-name" id="profile-name">Loading...</div>
-                <div class="profile-role" id="profile-role-text">Loading...</div>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="field-group"><label>Officer ID</label><input type="text" id="p-id" readonly></div>
-              <div class="field-group"><label>Role</label><input type="text" id="p-role" readonly></div>
-            </div>
-            <div class="form-row">
-              <div class="field-group"><label>Assigned Site</label><input type="text" id="p-site" readonly></div>
-              <div class="field-group"><label>Supervisor</label><input type="text" id="p-sup" readonly></div>
-            </div>
-            <div class="form-row">
-              <div class="field-group"><label>Email</label><input type="text" id="p-email"></div>
-              <div class="field-group"><label>Phone</label><input type="text" id="p-phone"></div>
-            </div>
-            <button class="btn-sm btn-blue" onclick="toast('Profile saved')">Save Changes</button>
+    <!-- SUPERVISOR INCIDENTS -->
+    <div id="section-sup-incidents" class="section">
+      <div class="section-header">
+        <div class="section-title">INCIDENT <span>REPORTS</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📁 ALL INCIDENT REPORTS</div>
+        <div id="sup-ir-list">
+          <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No reports submitted.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN SECTIONS ===== -->
+
+    <!-- ADMIN DASHBOARD -->
+    <div id="section-admin-dashboard" class="section">
+      <div class="section-header">
+        <div class="section-title">ADMIN <span>DASHBOARD</span></div>
+      </div>
+      <div class="grid-4" style="margin-bottom:24px;">
+        <div class="stat-box"><span class="stat-number">3</span><span class="stat-label">OFFICERS</span></div>
+        <div class="stat-box"><span class="stat-number">2</span><span class="stat-label">CLIENTS</span></div>
+        <div class="stat-box"><span class="stat-number text-green" id="admin-open-incidents">0</span><span class="stat-label">OPEN INCIDENTS</span></div>
+        <div class="stat-box"><span class="stat-number" style="color:var(--yellow);" id="admin-pending-ts">0</span><span class="stat-label">PENDING TS</span></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">📊 RECENT ACTIVITY</div>
+          <div id="admin-recent-activity">
+            <div class="log-entry"><div class="log-time">--:--</div><div class="log-text text-muted">System initialized. Ready.</div></div>
+          </div>
+        </div>
+        <div class="card card-green">
+          <div class="card-title">⚡ QUICK ACTIONS</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button class="btn btn-secondary btn-sm" onclick="showAdminSection('payroll')">💰 VIEW PAYROLL</button>
+            <button class="btn btn-secondary btn-sm" onclick="showAdminSection('roster')">👤 STAFF ROSTER</button>
+            <button class="btn btn-secondary btn-sm" onclick="showAdminSection('clients')">🏢 MANAGE CLIENTS</button>
+            <button class="btn btn-secondary btn-sm" onclick="showAdminSection('reports')">📈 REPORTS</button>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- ADMIN PANEL -->
-      <div class="page" id="page-admin">
-        <div class="page-header"><div><h2>Admin Panel</h2><p>System configuration and access control</p></div></div>
-        <div id="admin-content"></div>
+    <!-- PAYROLL -->
+    <div id="section-admin-payroll" class="section">
+      <div class="section-header">
+        <div class="section-title">PAYROLL <span>MANAGEMENT</span></div>
+        <button class="btn btn-secondary btn-sm" onclick="exportPayroll()">⬇ EXPORT</button>
       </div>
-
-      <!-- CLIENT PORTAL -->
-      <div class="page" id="page-client">
-        <div class="page-header"><div><h2>Client Portal</h2><p>Your contracted security services</p></div></div>
-        <div id="client-content"></div>
-      </div>
-
-    </div><!-- /content -->
-  </div><!-- /main -->
-</div><!-- /app-screen -->
-
-<!-- ═══════════════════════════════════ MODALS ════════════════════════════════ -->
-
-<!-- INCIDENT MODAL -->
-<div class="modal-overlay" id="modal-incident">
-  <div class="modal">
-    <h3>Log New Incident</h3>
-    <div class="form-row">
-      <div class="field-group"><label>Incident Type</label>
-        <select id="inc-type">
-          <option>Unauthorized Access</option>
-          <option>Theft/Burglary</option>
-          <option>Vandalism</option>
-          <option>Medical Emergency</option>
-          <option>Suspicious Activity</option>
-          <option>Fire/Safety Hazard</option>
-          <option>Noise Complaint</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="field-group"><label>Severity</label>
-        <select id="inc-sev">
-          <option>Low</option>
-          <option>Medium</option>
-          <option>High</option>
-          <option>Critical</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="field-group"><label>Location / Zone</label><input type="text" id="inc-loc" placeholder="e.g. North Gate, Zone 3"></div>
-      <div class="field-group"><label>Date & Time</label><input type="datetime-local" id="inc-time"></div>
-    </div>
-    <div class="field-group" style="margin-bottom:1rem">
-      <label>Description</label>
-      <textarea id="inc-desc" rows="3" placeholder="Describe what occurred..."></textarea>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-sm btn-gray" onclick="closeModal('modal-incident')">Cancel</button>
-      <button class="btn-sm btn-blue" onclick="submitIncident()">Submit Report</button>
-    </div>
-  </div>
-</div>
-
-<!-- PERSONNEL MODAL -->
-<div class="modal-overlay" id="modal-personnel">
-  <div class="modal">
-    <h3>Add New Officer</h3>
-    <div class="form-row">
-      <div class="field-group"><label>First Name</label><input type="text" id="new-fname" placeholder="First"></div>
-      <div class="field-group"><label>Last Name</label><input type="text" id="new-lname" placeholder="Last"></div>
-    </div>
-    <div class="form-row">
-      <div class="field-group"><label>Role</label>
-        <select id="new-role">
-          <option>Officer</option>
-          <option>Supervisor</option>
-        </select>
-      </div>
-      <div class="field-group"><label>Assigned Site</label>
-        <select id="new-site">
-          <option>MGH Medical Center</option>
-          <option>Riverside Plaza</option>
-          <option>Harbor Industrial</option>
-          <option>Westfield Mall</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="field-group"><label>Email</label><input type="email" id="new-email" placeholder="officer@example.com"></div>
-      <div class="field-group"><label>Initial PIN</label><input type="password" id="new-pin" placeholder="4–6 digits" maxlength="6"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-sm btn-gray" onclick="closeModal('modal-personnel')">Cancel</button>
-      <button class="btn-sm btn-blue" onclick="submitPersonnel()">Create Account</button>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
-<div id="toast"></div>
-
-<script>
-// ═══════════════════════════════ DATA ════════════════════════════════
-
-const USERS = {
-  'SS-001': { pin:'1234', role:'officer', name:'James Carter', site:'MGH Medical Center', supervisor:'SS-003', email:'jcarter@shieldsync.com', phone:'(555) 201-4400' },
-  'SS-003': { pin:'1234', role:'supervisor', name:'Maria Delgado', site:'MGH Medical Center', supervisor:'SS-000', email:'mdelgado@shieldsync.com', phone:'(555) 201-4403' },
-  'SS-000': { pin:'1234', role:'admin', name:'Derek Wallace', site:'All Sites', supervisor:'N/A', email:'dwallace@shieldsync.com', phone:'(555) 201-4400' },
-  'C-MGH':  { pin:'1234', role:'client', name:'MGH Security Office', site:'MGH Medical Center', supervisor:'SS-003', email:'security@mgh.org', phone:'(555) 726-5000' }
-};
-
-const INCIDENTS = [
-  { id:'INC-0047', title:'Unauthorized Access', loc:'North Gate, Zone 3', sev:'High', by:'SS-001', time:'Today 09:14', status:'Active' },
-  { id:'INC-0046', title:'Suspicious Vehicle', loc:'Parking Level B2', sev:'Medium', by:'SS-002', time:'Today 08:55', status:'Investigating' },
-  { id:'INC-0045', title:'Vandalism — Graffiti', loc:'East Stairwell', sev:'Low', by:'SS-005', time:'Yesterday 22:30', status:'Resolved' },
-  { id:'INC-0044', title:'Medical Emergency', loc:'Lobby Reception', sev:'Critical', by:'SS-001', time:'Yesterday 19:10', status:'Resolved' },
-  { id:'INC-0043', title:'Noise Complaint', loc:'3rd Floor Corridor', sev:'Low', by:'SS-004', time:'2 days ago', status:'Closed' },
-];
-
-const PERSONNEL = [
-  { id:'SS-000', name:'Derek Wallace', role:'Admin', site:'All Sites', status:'Active', certs:'CPR, BSIS, Firearms' },
-  { id:'SS-003', name:'Maria Delgado', role:'Supervisor', site:'MGH Medical Center', status:'Active', certs:'CPR, BSIS, First Aid' },
-  { id:'SS-001', name:'James Carter', role:'Officer', site:'MGH Medical Center', status:'On Duty', certs:'CPR, BSIS' },
-  { id:'SS-002', name:'Tyrone Banks', role:'Officer', site:'Riverside Plaza', status:'On Duty', certs:'CPR, BSIS' },
-  { id:'SS-004', name:'Linda Ortiz', role:'Officer', site:'Harbor Industrial', status:'Off Duty', certs:'CPR' },
-  { id:'SS-005', name:'Marcus Webb', role:'Officer', site:'MGH Medical Center', status:'On Leave', certs:'CPR, BSIS, K9' },
-];
-
-const SITES = [
-  { name:'MGH Medical Center', addr:'55 Fruit St, Boston MA', type:'Healthcare', officers:'4', coverage:'24/7', status:'Active' },
-  { name:'Riverside Plaza', addr:'200 River Dr, Cambridge MA', type:'Commercial', officers:'2', coverage:'06:00–22:00', status:'Active' },
-  { name:'Harbor Industrial', addr:'88 Port Way, Quincy MA', type:'Industrial', officers:'2', coverage:'24/7', status:'Active' },
-  { name:'Westfield Mall', addr:'890 Mall Blvd, Newton MA', type:'Retail', officers:'3', coverage:'08:00–23:00', status:'Pending' },
-];
-
-const SCHEDULE_OFFICERS = ['SS-001 Carter', 'SS-002 Banks', 'SS-004 Ortiz', 'SS-005 Webb', 'SS-006 Reyes'];
-const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const SCHEDULE_DATA = [
-  ['on','on','on','off','off','on','on'],
-  ['off','on','on','on','on','on','off'],
-  ['on','off','off','on','on','on','on'],
-  ['leave','leave','on','on','off','off','on'],
-  ['on','on','off','off','on','on','on'],
-];
-
-const NAV_CONFIG = {
-  officer: [
-    { id:'dashboard', icon:'🏠', label:'Dashboard' },
-    { id:'incidents', icon:'🚨', label:'Incidents' },
-    { id:'schedule', icon:'📅', label:'My Schedule' },
-    { id:'sites', icon:'📍', label:'My Site' },
-    { id:'profile', icon:'👤', label:'My Profile' },
-  ],
-  supervisor: [
-    { id:'dashboard', icon:'🏠', label:'Dashboard' },
-    { id:'incidents', icon:'🚨', label:'Incidents' },
-    { id:'schedule', icon:'📅', label:'Schedule' },
-    { id:'personnel', icon:'👥', label:'Personnel' },
-    { id:'sites', icon:'📍', label:'Sites' },
-    { id:'reports', icon:'📊', label:'Reports' },
-    { id:'profile', icon:'👤', label:'My Profile' },
-  ],
-  admin: [
-    { id:'dashboard', icon:'🏠', label:'Dashboard' },
-    { id:'incidents', icon:'🚨', label:'Incidents' },
-    { id:'schedule', icon:'📅', label:'Schedule' },
-    { id:'personnel', icon:'👥', label:'Personnel' },
-    { id:'sites', icon:'📍', label:'Sites' },
-    { id:'reports', icon:'📊', label:'Reports' },
-    { id:'admin', icon:'⚙️', label:'Admin Panel' },
-    { id:'profile', icon:'👤', label:'My Profile' },
-  ],
-  client: [
-    { id:'dashboard', icon:'🏠', label:'Overview' },
-    { id:'incidents', icon:'🚨', label:'Incident Log' },
-    { id:'sites', icon:'📍', label:'My Sites' },
-    { id:'reports', icon:'📊', label:'Reports' },
-    { id:'client', icon:'🏢', label:'Client Portal' },
-    { id:'profile', icon:'👤', label:'Account' },
-  ]
-};
-
-const DASH_STATS = {
-  officer: [
-    { label:'My Incidents', value:'3', sub:'This week', cls:'stat-info' },
-    { label:'Hours on Duty', value:'38.5', sub:'This month', cls:'stat-ok' },
-    { label:'Patrol Checks', value:'124', sub:'This month', cls:'stat-ok' },
-    { label:'Open Reports', value:'2', sub:'Pending review', cls:'stat-warn' },
-  ],
-  supervisor: [
-    { label:'Officers on Duty', value:'4', sub:'of 6 active', cls:'stat-ok' },
-    { label:'Active Incidents', value:'3', sub:'2 require action', cls:'stat-danger' },
-    { label:'Shift Coverage', value:'97%', sub:'This week', cls:'stat-ok' },
-    { label:'Pending Reports', value:'5', sub:'Awaiting review', cls:'stat-warn' },
-  ],
-  admin: [
-    { label:'Total Officers', value:'18', sub:'Across all sites', cls:'stat-info' },
-    { label:'Active Incidents', value:'3', sub:'System-wide', cls:'stat-danger' },
-    { label:'Sites Covered', value:'4', sub:'100% operational', cls:'stat-ok' },
-    { label:'Monthly Hours', value:'1,284', sub:'April 2025', cls:'stat-ok' },
-  ],
-  client: [
-    { label:'Officers Assigned', value:'4', sub:'At your site', cls:'stat-info' },
-    { label:'Incidents This Month', value:'12', sub:'2 unresolved', cls:'stat-warn' },
-    { label:'Response Time', value:'4.2m', sub:'Avg April 2025', cls:'stat-ok' },
-    { label:'Contract Hours', value:'720', sub:'Monthly SLA', cls:'stat-ok' },
-  ],
-};
-
-const REPORT_CARDS = [
-  { icon:'📋', title:'Incident Summary', desc:'All incidents by type and severity' },
-  { icon:'⏱', title:'Response Time Analysis', desc:'Officer response performance' },
-  { icon:'🗓', title:'Attendance & Hours', desc:'Shift adherence by officer' },
-  { icon:'📍', title:'Patrol Coverage', desc:'Zone-by-zone patrol records' },
-];
-
-// ═══════════════════════════════ AUTH ════════════════════════════════
-
-let currentUser = null;
-
-function fillDemo(id, pin) {
-  document.getElementById('login-id').value = id;
-  document.getElementById('login-pin').value = pin;
-}
-
-function attemptLogin() {
-  const id = document.getElementById('login-id').value.trim().toUpperCase();
-  const pin = document.getElementById('login-pin').value.trim();
-  const err = document.getElementById('login-error');
-
-  if (USERS[id] && USERS[id].pin === pin) {
-    err.style.display = 'none';
-    currentUser = { id, ...USERS[id] };
-    launchApp();
-  } else {
-    err.style.display = 'block';
-    document.getElementById('login-pin').value = '';
-  }
-}
-
-document.getElementById('login-pin').addEventListener('keydown', e => { if(e.key==='Enter') attemptLogin(); });
-document.getElementById('login-id').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('login-pin').focus(); });
-
-function logout() {
-  currentUser = null;
-  document.getElementById('app-screen').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-id').value = '';
-  document.getElementById('login-pin').value = '';
-}
-
-// ═══════════════════════════════ LAUNCH ════════════════════════════════
-
-function launchApp() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display = 'block';
-
-  const u = currentUser;
-  const roleLabel = u.role.charAt(0).toUpperCase() + u.role.slice(1);
-  const roleClass = 'role-' + u.role;
-
-  document.getElementById('sb-user-id').textContent = u.id;
-  const roleEl = document.getElementById('sb-user-role');
-  roleEl.textContent = roleLabel;
-  roleEl.className = 'user-role ' + roleClass;
-
-  buildNav();
-  populateDashboard();
-  populateIncidents();
-  populateSchedule();
-  populatePersonnel();
-  populateSites();
-  populateReports();
-  populateProfile();
-  populateAdmin();
-  populateClient();
-
-  navigateTo('dashboard');
-  startClock();
-}
-
-// ═══════════════════════════════ NAV ════════════════════════════════
-
-function buildNav() {
-  const nav = document.getElementById('sidebar-nav');
-  const items = NAV_CONFIG[currentUser.role] || [];
-  nav.innerHTML = '';
-  items.forEach(item => {
-    const el = document.createElement('div');
-    el.className = 'nav-item';
-    el.dataset.page = item.id;
-    el.innerHTML = `<span class="nav-icon">${item.icon}</span><span>${item.label}</span>`;
-    el.onclick = () => navigateTo(item.id);
-    nav.appendChild(el);
-  });
-}
-
-function navigateTo(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-  const page = document.getElementById('page-' + pageId);
-  if (page) page.classList.add('active');
-
-  const navItem = document.querySelector(`.nav-item[data-page="${pageId}"]`);
-  if (navItem) navItem.classList.add('active');
-
-  const labels = { dashboard:'Dashboard', incidents:'Incident Reports', schedule:'Shift Schedule', personnel:'Personnel', sites:'Site Overview', reports:'Reports & Analytics', admin:'Admin Panel', profile:'My Profile', client:'Client Portal' };
-  document.getElementById('topbar-title').textContent = labels[pageId] || pageId;
-}
-
-// ═══════════════════════════════ POPULATE ════════════════════════════
-
-function populateDashboard() {
-  const stats = DASH_STATS[currentUser.role];
-  document.getElementById('dash-stats').innerHTML = stats.map(s => `
-    <div class="stat-card">
-      <div class="stat-label">${s.label}</div>
-      <div class="stat-value">${s.value}</div>
-      <div class="stat-sub ${s.cls}">${s.sub}</div>
-    </div>
-  `).join('');
-
-  if (['admin','supervisor'].includes(currentUser.role)) {
-    document.getElementById('dash-alert').style.display = 'flex';
-  }
-
-  document.getElementById('incidents-list').innerHTML = INCIDENTS.slice(0,4).map(i => `
-    <div class="incident-item">
-      <div class="incident-dot ${i.status==='Active'?'dot-red':i.status==='Investigating'?'dot-amber':'dot-green'}"></div>
-      <div>
-        <div class="incident-title">${i.title}</div>
-        <div class="incident-meta">${i.loc} · ${i.time}</div>
-      </div>
-      <div style="margin-left:auto">${sevBadge(i.sev)}</div>
-    </div>
-  `).join('');
-
-  document.getElementById('officers-duty').innerHTML = PERSONNEL.filter(p=>p.status==='On Duty').map(p => `
-    <div class="officer-row">
-      <div class="officer-avatar">${p.name.split(' ').map(n=>n[0]).join('')}</div>
-      <div>
-        <div class="officer-name">${p.name}</div>
-        <div class="officer-site">${p.id} · ${p.site}</div>
-      </div>
-      <span class="badge badge-green" style="margin-left:auto">On Duty</span>
-    </div>
-  `).join('');
-}
-
-function sevBadge(sev) {
-  const map = { Low:'badge-blue', Medium:'badge-amber', High:'badge-red', Critical:'badge-red' };
-  return `<span class="badge ${map[sev]||'badge-gray'}">${sev}</span>`;
-}
-
-function statusBadge(st) {
-  const map = { Active:'badge-green', 'On Duty':'badge-green', 'Off Duty':'badge-gray', 'On Leave':'badge-amber', Pending:'badge-amber', Investigating:'badge-amber', Resolved:'badge-blue', Closed:'badge-gray', Critical:'badge-red' };
-  return `<span class="badge ${map[st]||'badge-gray'}">${st}</span>`;
-}
-
-function populateIncidents() {
-  const canNew = ['officer','supervisor','admin'].includes(currentUser.role);
-  document.getElementById('btn-new-incident').style.display = canNew ? 'inline-block' : 'none';
-
-  let rows = INCIDENTS;
-  if (currentUser.role === 'officer') rows = INCIDENTS.filter(i => i.by === currentUser.id);
-  if (currentUser.role === 'client') rows = INCIDENTS;
-
-  document.getElementById('incidents-table').innerHTML = rows.map(i => `
-    <tr>
-      <td><span style="color:var(--gray-400);font-size:12px">${i.id}</span></td>
-      <td style="font-weight:500">${i.title}</td>
-      <td>${i.loc}</td>
-      <td>${sevBadge(i.sev)}</td>
-      <td>${i.by}</td>
-      <td style="color:var(--gray-400)">${i.time}</td>
-      <td>${statusBadge(i.status)}</td>
-    </tr>
-  `).join('');
-}
-
-function populateSchedule() {
-  const canEdit = ['supervisor','admin'].includes(currentUser.role);
-  document.getElementById('btn-edit-schedule').style.display = canEdit ? 'inline-block' : 'none';
-
-  let grid = `<div class="sch-header"></div>`;
-  DAYS.forEach(d => { grid += `<div class="sch-header">${d}</div>`; });
-
-  SCHEDULE_OFFICERS.forEach((name, i) => {
-    grid += `<div class="sch-name">${name}</div>`;
-    SCHEDULE_DATA[i].forEach(cell => {
-      const cls = cell==='on'?'sch-on':cell==='leave'?'sch-leave':'sch-off';
-      const label = cell==='on'?'ON':cell==='leave'?'LVE':'OFF';
-      grid += `<div class="sch-cell ${cls}">${label}</div>`;
-    });
-  });
-
-  document.getElementById('schedule-grid').innerHTML = grid;
-}
-
-function populatePersonnel() {
-  const allowed = ['supervisor','admin'].includes(currentUser.role);
-  const tbody = document.getElementById('personnel-table');
-  if (!allowed) { tbody.closest('.panel').querySelector('.panel-body').innerHTML = accessDenied('Supervisor or Admin access required'); return; }
-
-  tbody.innerHTML = PERSONNEL.map(p => `
-    <tr>
-      <td><span style="color:var(--blue-100);font-size:12px;font-weight:600">${p.id}</span></td>
-      <td style="font-weight:500">${p.name}</td>
-      <td>${p.role}</td>
-      <td>${p.site}</td>
-      <td>${statusBadge(p.status)}</td>
-      <td style="font-size:12px;color:var(--gray-400)">${p.certs}</td>
-      <td style="display:flex;gap:6px">
-        <button class="btn-sm btn-gray" onclick="toast('Viewing ${p.name}')">View</button>
-        ${currentUser.role==='admin'?`<button class="btn-sm btn-red" onclick="toast('${p.name} deactivated')">Remove</button>`:''}
-      </td>
-    </tr>
-  `).join('');
-}
-
-function populateSites() {
-  document.getElementById('sites-table').innerHTML = SITES.map(s => `
-    <tr>
-      <td style="font-weight:500">${s.name}</td>
-      <td style="font-size:12px;color:var(--gray-400)">${s.addr}</td>
-      <td>${s.type}</td>
-      <td style="text-align:center">${s.officers}</td>
-      <td>${s.coverage}</td>
-      <td>${statusBadge(s.status)}</td>
-    </tr>
-  `).join('');
-}
-
-function populateReports() {
-  document.getElementById('report-grid').innerHTML = REPORT_CARDS.map(r => `
-    <div class="report-card" onclick="toast('Opening: ${r.title}')">
-      <div class="report-icon">${r.icon}</div>
-      <div class="report-title">${r.title}</div>
-      <div class="report-desc">${r.desc}</div>
-    </div>
-  `).join('');
-}
-
-function populateProfile() {
-  const u = currentUser;
-  const initials = u.name.split(' ').map(n=>n[0]).join('');
-  document.getElementById('profile-initials').textContent = initials;
-  document.getElementById('profile-name').textContent = u.name;
-  document.getElementById('profile-role-text').textContent = u.role.charAt(0).toUpperCase() + u.role.slice(1) + ' · ' + u.id;
-  document.getElementById('p-id').value = u.id;
-  document.getElementById('p-role').value = u.role.charAt(0).toUpperCase() + u.role.slice(1);
-  document.getElementById('p-site').value = u.site;
-  document.getElementById('p-sup').value = u.supervisor || 'N/A';
-  document.getElementById('p-email').value = u.email;
-  document.getElementById('p-phone').value = u.phone;
-}
-
-function populateAdmin() {
-  const el = document.getElementById('admin-content');
-  if (currentUser.role !== 'admin') { el.innerHTML = accessDenied('Admin access required'); return; }
-  el.innerHTML = `
-    <div class="grid-2" style="margin-bottom:1rem">
-      <div class="panel">
-        <div class="panel-header"><h3>System Status</h3></div>
-        <div class="panel-body">
-          ${[['Firebase Auth','Connected','badge-green'],['Firestore DB','Connected','badge-green'],['Storage','Connected','badge-green'],['Cloud Functions','Deployed','badge-green'],['Vercel Hosting','Live','badge-green']].map(r=>`
-            <div class="officer-row"><div class="officer-name">${r[0]}</div><span class="badge ${r[2]}" style="margin-left:auto">${r[1]}</span></div>
-          `).join('')}
+      <div class="card">
+        <div class="card-title">💰 CURRENT PAY PERIOD</div>
+        <div class="payroll-row payroll-header">
+          <div>OFFICER</div><div>HOURS</div><div>RATE</div><div>REGULAR</div><div>OT</div><div>GROSS</div><div>STATUS</div>
         </div>
-      </div>
-      <div class="panel">
-        <div class="panel-header"><h3>Access Control</h3></div>
-        <div class="panel-body">
-          ${['Officer','Supervisor','Admin','Client'].map(r=>`
-            <div class="officer-row"><div class="officer-name">${r}</div><button class="btn-sm btn-gray" style="margin-left:auto" onclick="toast('Editing ${r} permissions')">Edit Permissions</button></div>
-          `).join('')}
+        <div id="payroll-table-body">
+          <div class="payroll-row">
+            <div class="text-mono text-accent">SS-001 — J. Martinez</div>
+            <div>40.0</div><div>$18.00/hr</div><div>$720.00</div><div>$0.00</div><div class="text-green">$720.00</div>
+            <div><span class="badge badge-yellow">PENDING</span></div>
+          </div>
+          <div class="payroll-row">
+            <div class="text-mono text-accent">SS-002 — K. Thompson</div>
+            <div>44.5</div><div>$18.00/hr</div><div>$720.00</div><div>$121.50</div><div class="text-green">$841.50</div>
+            <div><span class="badge badge-green">APPROVED</span></div>
+          </div>
+          <div class="payroll-row">
+            <div class="text-mono text-accent">SS-003 — R. Johnson</div>
+            <div>40.0</div><div>$22.00/hr</div><div>$880.00</div><div>$0.00</div><div class="text-green">$880.00</div>
+            <div><span class="badge badge-green">APPROVED</span></div>
+          </div>
+        </div>
+        <div style="padding:16px 14px;border-top:2px solid var(--border-bright);display:flex;justify-content:flex-end;gap:24px;">
+          <span style="font-family:var(--font-mono);font-size:13px;color:var(--text-secondary);">TOTAL GROSS:</span>
+          <span style="font-family:var(--font-mono);font-size:16px;color:var(--green);text-shadow:0 0 8px rgba(0,255,136,0.4);">$2,441.50</span>
         </div>
       </div>
     </div>
-    <div class="panel">
-      <div class="panel-header"><h3>Audit Log</h3></div>
-      <div class="panel-body" style="padding:0">
-        <table>
-          <thead><tr><th>Time</th><th>User</th><th>Action</th><th>IP</th></tr></thead>
-          <tbody>
-            ${[['Today 09:14','SS-001','Incident INC-0047 created','192.168.1.14'],['Today 08:55','SS-002','Incident INC-0046 created','192.168.1.22'],['Today 08:00','SS-000','System config updated','192.168.1.1'],['Yesterday 22:45','SS-003','Schedule updated','192.168.1.3']].map(r=>`
-              <tr><td style="color:var(--gray-400);font-size:12px">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td style="font-size:12px;color:var(--gray-400)">${r[3]}</td></tr>
-            `).join('')}
+
+    <!-- STAFF ROSTER -->
+    <div id="section-admin-roster" class="section">
+      <div class="section-header">
+        <div class="section-title">STAFF <span>ROSTER</span></div>
+        <button class="btn btn-primary btn-sm" onclick="addStaffModal()">+ ADD OFFICER</button>
+      </div>
+      <div class="card">
+        <div class="card-title">👮 ALL PERSONNEL</div>
+        <table class="data-table">
+          <thead>
+            <tr><th>BADGE</th><th>NAME</th><th>ROLE</th><th>STATUS</th><th>HOURLY RATE</th><th>ASSIGNED SITE</th><th>ACTIONS</th></tr>
+          </thead>
+          <tbody id="roster-tbody">
+            <tr>
+              <td class="text-mono text-accent">SS-001</td>
+              <td>J. Martinez</td>
+              <td><span class="badge badge-blue">OFFICER</span></td>
+              <td><span class="badge badge-green" id="roster-ss001-status">OFF DUTY</span></td>
+              <td>$18.00/hr</td>
+              <td>MGH Campus</td>
+              <td><button class="btn btn-secondary btn-xs">EDIT</button></td>
+            </tr>
+            <tr>
+              <td class="text-mono text-accent">SS-002</td>
+              <td>K. Thompson</td>
+              <td><span class="badge badge-blue">OFFICER</span></td>
+              <td><span class="badge badge-muted">OFF DUTY</span></td>
+              <td>$18.00/hr</td>
+              <td>Riverside Plaza</td>
+              <td><button class="btn btn-secondary btn-xs">EDIT</button></td>
+            </tr>
+            <tr>
+              <td class="text-mono text-accent">SS-003</td>
+              <td>R. Johnson</td>
+              <td><span class="badge badge-orange">SUPERVISOR</span></td>
+              <td><span class="badge badge-muted">OFF DUTY</span></td>
+              <td>$22.00/hr</td>
+              <td>All Sites</td>
+              <td><button class="btn btn-secondary btn-xs">EDIT</button></td>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
-  `;
-}
 
-function populateClient() {
-  const el = document.getElementById('client-content');
-  if (currentUser.role !== 'client') { el.innerHTML = accessDenied('Client access only'); return; }
-  el.innerHTML = `
-    <div class="stats-grid" style="margin-bottom:1rem">
-      <div class="stat-card"><div class="stat-label">Contract Status</div><div class="stat-value" style="font-size:18px">Active</div><div class="stat-sub stat-ok">Valid thru Dec 2025</div></div>
-      <div class="stat-card"><div class="stat-label">Monthly Hours</div><div class="stat-value">720</div><div class="stat-sub stat-ok">Fully utilized</div></div>
-      <div class="stat-card"><div class="stat-label">Supervisor</div><div class="stat-value" style="font-size:16px">M. Delgado</div><div class="stat-sub stat-info">SS-003</div></div>
-      <div class="stat-card"><div class="stat-label">Next Invoice</div><div class="stat-value" style="font-size:18px">Jun 1</div><div class="stat-sub stat-warn">$12,400</div></div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><h3>My Security Team — MGH Medical Center</h3></div>
-      <div class="panel-body">
-        ${PERSONNEL.filter(p=>p.site==='MGH Medical Center').map(p=>`
-          <div class="officer-row">
-            <div class="officer-avatar">${p.name.split(' ').map(n=>n[0]).join('')}</div>
-            <div><div class="officer-name">${p.name}</div><div class="officer-site">${p.id} · ${p.role}</div></div>
-            <span class="badge ${p.status==='On Duty'?'badge-green':p.status==='On Leave'?'badge-amber':'badge-gray'}" style="margin-left:auto">${p.status}</span>
+    <!-- CLIENTS -->
+    <div id="section-admin-clients" class="section">
+      <div class="section-header">
+        <div class="section-title">CLIENT <span>MANAGEMENT</span></div>
+        <button class="btn btn-primary btn-sm">+ ADD CLIENT</button>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">🏢 MGH CAMPUS</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);line-height:2;">
+            <div>ID: <span class="text-accent">C-MGH</span></div>
+            <div>CONTRACT: Monthly Fixed</div>
+            <div>RATE: $8,500/month</div>
+            <div>OFFICERS ASSIGNED: 2</div>
+            <div>STATUS: <span class="badge badge-green">ACTIVE</span></div>
           </div>
-        `).join('')}
+          <hr>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-xs">VIEW CONTRACT</button>
+            <button class="btn btn-secondary btn-xs">BILLING HISTORY</button>
+            <button class="btn btn-secondary btn-xs">PATROL LOGS</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🏢 RIVERSIDE PLAZA</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);line-height:2;">
+            <div>ID: <span class="text-accent">C-RSP</span></div>
+            <div>CONTRACT: Hourly</div>
+            <div>RATE: $28.00/hr</div>
+            <div>OFFICERS ASSIGNED: 1</div>
+            <div>STATUS: <span class="badge badge-green">ACTIVE</span></div>
+          </div>
+          <hr>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-xs">VIEW CONTRACT</button>
+            <button class="btn btn-secondary btn-xs">BILLING HISTORY</button>
+            <button class="btn btn-secondary btn-xs">PATROL LOGS</button>
+          </div>
+        </div>
       </div>
     </div>
-  `;
-}
 
-function accessDenied(msg) {
-  return `<div class="access-denied"><div class="icon">🔒</div><h3>Access Restricted</h3><p>${msg}</p></div>`;
-}
+    <!-- ADMIN REPORTS -->
+    <div id="section-admin-reports" class="section">
+      <div class="section-header">
+        <div class="section-title">SYSTEM <span>REPORTS</span></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">📈 REPORT GENERATOR</div>
+          <div class="form-group"><label>REPORT TYPE</label>
+            <select id="report-type">
+              <option>Weekly Incident Summary</option>
+              <option>Monthly Payroll Summary</option>
+              <option>Officer Hours Report</option>
+              <option>Client Site Activity</option>
+              <option>Visitor / Vehicle Log Export</option>
+            </select>
+          </div>
+          <div class="form-group"><label>DATE RANGE FROM</label><input type="date" id="report-from"></div>
+          <div class="form-group"><label>DATE RANGE TO</label><input type="date" id="report-to"></div>
+          <button class="btn btn-primary btn-sm" onclick="generateReport()">GENERATE REPORT</button>
+        </div>
+        <div class="card">
+          <div class="card-title">📊 SYSTEM STATS</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);line-height:2.2;">
+            <div>TOTAL INCIDENTS (MTD): <span class="text-accent" id="stat-incidents">0</span></div>
+            <div>TOTAL HOURS LOGGED (MTD): <span class="text-accent" id="stat-hours">124.5</span></div>
+            <div>TIMESHEETS PENDING: <span class="text-yellow" id="stat-ts-pending">0</span></div>
+            <div>VISITORS LOGGED (TODAY): <span class="text-accent" id="stat-visitors">0</span></div>
+            <div>VEHICLES LOGGED (TODAY): <span class="text-accent" id="stat-vehicles">0</span></div>
+            <div>SOS ALERTS (MTD): <span class="text-red" id="stat-sos">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-// ═══════════════════════════════ MODALS ════════════════════════════════
+    <!-- ===== CLIENT SECTIONS ===== -->
 
-function openIncidentModal() {
+    <!-- CLIENT PORTAL -->
+    <div id="section-client-portal" class="section">
+      <div class="section-header">
+        <div class="section-title">CLIENT <span>PORTAL</span></div>
+      </div>
+
+      <div class="alert alert-info">🏢 Welcome — MGH Campus Security Portal</div>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('client','patrol',this)">PATROL LOGS</button>
+        <button class="tab-btn" onclick="switchTab('client','incidents',this)">INCIDENTS</button>
+        <button class="tab-btn" onclick="switchTab('client','visitors',this)">VISITOR LOG</button>
+        <button class="tab-btn" onclick="switchTab('client','billing',this)">BILLING</button>
+      </div>
+
+      <div id="client-tab-patrol" class="tab-content active">
+        <div class="card">
+          <div class="card-title">🚶 RECENT PATROL LOGS</div>
+          <table class="data-table">
+            <thead><tr><th>DATE</th><th>OFFICER</th><th>SHIFT</th><th>PATROLS</th><th>INCIDENTS</th><th>STATUS</th></tr></thead>
+            <tbody>
+              <tr><td>May 1, 2026</td><td>SS-001 — J. Martinez</td><td>Day (6AM–2PM)</td><td>4 ext / 2 int</td><td>0</td><td><span class="badge badge-green">COMPLETE</span></td></tr>
+              <tr><td>Apr 30, 2026</td><td>SS-002 — K. Thompson</td><td>Evening (2PM–10PM)</td><td>3 ext / 2 int</td><td>1</td><td><span class="badge badge-green">COMPLETE</span></td></tr>
+              <tr><td>Apr 29, 2026</td><td>SS-001 — J. Martinez</td><td>Day (6AM–2PM)</td><td>4 ext / 3 int</td><td>0</td><td><span class="badge badge-green">COMPLETE</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="client-tab-incidents" class="tab-content">
+        <div class="card">
+          <div class="card-title">📋 INCIDENT REPORTS — YOUR SITE</div>
+          <div id="client-ir-list">
+            <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No incidents on file.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="client-tab-visitors" class="tab-content">
+        <div class="card">
+          <div class="card-title">👥 VISITOR LOG</div>
+          <div id="client-visitor-list">
+            <p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No visitor records.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="client-tab-billing" class="tab-content">
+        <div class="card">
+          <div class="card-title">💳 BILLING SUMMARY</div>
+          <table class="data-table">
+            <thead><tr><th>PERIOD</th><th>HOURS</th><th>RATE</th><th>AMOUNT</th><th>STATUS</th></tr></thead>
+            <tbody>
+              <tr><td>April 2026</td><td>Fixed Contract</td><td>Monthly</td><td class="text-green">$8,500.00</td><td><span class="badge badge-yellow">INVOICED</span></td></tr>
+              <tr><td>March 2026</td><td>Fixed Contract</td><td>Monthly</td><td class="text-green">$8,500.00</td><td><span class="badge badge-green">PAID</span></td></tr>
+              <tr><td>February 2026</td><td>Fixed Contract</td><td>Monthly</td><td class="text-green">$8,500.00</td><td><span class="badge badge-green">PAID</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /app-content -->
+</div><!-- /app -->
+
+<script>
+// ===== STATE =====
+const USERS = {
+  'SS-001': { pin: '1234', role: 'officer', name: 'J. Martinez', badge: 'SS-001' },
+  'SS-002': { pin: '1234', role: 'officer', name: 'K. Thompson', badge: 'SS-002' },
+  'SS-003': { pin: '1234', role: 'supervisor', name: 'R. Johnson', badge: 'SS-003' },
+  'SS-000': { pin: '1234', role: 'admin', name: 'Admin', badge: 'SS-000' },
+  'C-MGH':  { pin: '1234', role: 'client', name: 'MGH Campus', badge: 'C-MGH' }
+};
+
+let currentUser = null;
+
+// SHARED STATE (in-memory, shared across roles for demo)
+const state = {
+  officers: {
+    'SS-001': { name: 'J. Martinez', status: 'OFF DUTY', enRouteTime: null, clockInTime: null, clockOutTime: null, gps: null },
+    'SS-002': { name: 'K. Thompson', status: 'OFF DUTY', enRouteTime: null, clockInTime: null, clockOutTime: null, gps: null },
+    'SS-003': { name: 'R. Johnson (Supervisor)', status: 'OFF DUTY', enRouteTime: null, clockInTime: null, clockOutTime: null, gps: null }
+  },
+  timesheets: [],       // { id, badge, name, date, site, timeIn, timeOut, hours, notes, status }
+  incidents: [],        // { id, badge, name, date, time, type, location, narrative, witnesses, followup, full }
+  dars: [],             // { id, badge, date, site, start, end, patrols, incidents, access, equipment, notes }
+  visitors: [],         // { id, name, idBadge, company, destination, timeIn, timeOut, access, notes, date }
+  vehicles: [],         // { id, plate, model, driver, purpose, timeIn, timeOut, zone, status, date }
+  sosAlerts: [],        // { id, badge, name, time, gps }
+  activityLogs: {},     // { badge: [{time, note}] }
+};
+
+// ===== CLOCK =====
+function updateClock() {
   const now = new Date();
-  const local = new Date(now - now.getTimezoneOffset()*60000).toISOString().slice(0,16);
-  document.getElementById('inc-time').value = local;
-  document.getElementById('modal-incident').classList.add('open');
+  document.getElementById('live-clock').textContent = now.toLocaleTimeString('en-US', {hour12: false});
 }
+setInterval(updateClock, 1000);
+updateClock();
 
-function openPersonnelModal() {
-  document.getElementById('modal-personnel').classList.add('open');
-}
-
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-
-function submitIncident() {
-  const type = document.getElementById('inc-type').value;
-  const loc = document.getElementById('inc-loc').value || 'Unspecified';
-  const sev = document.getElementById('inc-sev').value;
-  const newInc = { id:'INC-NEW', title:type, loc, sev, by:currentUser.id, time:'Just now', status:'Active' };
-  INCIDENTS.unshift(newInc);
-  populateIncidents();
-  populateDashboard();
-  closeModal('modal-incident');
-  toast('Incident report submitted — ' + type);
-}
-
-function submitPersonnel() {
-  const fname = document.getElementById('new-fname').value;
-  const lname = document.getElementById('new-lname').value;
-  if (!fname || !lname) { toast('Please enter first and last name'); return; }
-  closeModal('modal-personnel');
-  toast(`Officer ${fname} ${lname} created successfully`);
-}
-
-// ════════════════════════════════ UTILS ════════════════════════════════
-
-let toastTimer;
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.style.display = 'none'; }, 3000);
-}
-
-function startClock() {
-  function tick() {
-    const now = new Date();
-    document.getElementById('topbar-time').textContent =
-      now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+// ===== LOGIN =====
+function doLogin() {
+  const id = document.getElementById('login-id').value.trim().toUpperCase();
+  const pin = document.getElementById('login-pin').value.trim();
+  const user = USERS[id];
+  if (user && user.pin === pin) {
+    currentUser = { ...user, id };
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('header-id').textContent = currentUser.id;
+    document.getElementById('header-role').textContent = currentUser.role.toUpperCase();
+    setupNav();
+    setDefaultDates();
+  } else {
+    const err = document.getElementById('login-error');
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3000);
   }
-  tick();
-  setInterval(tick, 30000);
 }
 
-// Close modal on overlay click
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) overlay.classList.remove('open');
+document.getElementById('login-pin').addEventListener('keypress', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('login-id').addEventListener('keypress', e => { if(e.key==='Enter') document.getElementById('login-pin').focus(); });
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-id').value = '';
+  document.getElementById('login-pin').value = '';
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+}
+
+// ===== NAVIGATION =====
+const NAV_CONFIG = {
+  officer: [
+    { label: '◉ DASHBOARD', section: 'officer-dashboard' },
+    { label: '⏱ TIMESHEET', section: 'officer-timesheet' },
+    { label: '📝 INCIDENT REPORT', section: 'officer-incident' },
+    { label: '📋 DAILY REPORT', section: 'officer-dar' },
+    { label: '🚗 VISITOR / VEHICLE LOG', section: 'officer-visitor' },
+  ],
+  supervisor: [
+    { label: '◉ STATUS BOARD', section: 'sup-statusboard' },
+    { label: '📋 TIMESHEETS', section: 'sup-timesheets' },
+    { label: '📁 INCIDENTS', section: 'sup-incidents' },
+  ],
+  admin: [
+    { label: '◉ DASHBOARD', section: 'admin-dashboard' },
+    { label: '💰 PAYROLL', section: 'admin-payroll' },
+    { label: '👮 ROSTER', section: 'admin-roster' },
+    { label: '🏢 CLIENTS', section: 'admin-clients' },
+    { label: '📈 REPORTS', section: 'admin-reports' },
+  ],
+  client: [
+    { label: '◉ PORTAL', section: 'client-portal' },
+  ]
+};
+
+function setupNav() {
+  const nav = document.getElementById('main-nav');
+  nav.innerHTML = '';
+  const items = NAV_CONFIG[currentUser.role] || [];
+  items.forEach((item, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = item.label;
+    btn.dataset.section = item.section;
+    btn.onclick = () => navigateTo(item.section);
+    nav.appendChild(btn);
   });
+  if (items.length > 0) navigateTo(items[0].section);
+}
+
+function navigateTo(sectionId) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const sec = document.getElementById('section-' + sectionId);
+  if (sec) sec.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => { if(b.dataset.section === sectionId) b.classList.add('active'); });
+  
+  // Refresh data on load
+  if (sectionId === 'sup-statusboard') refreshStatusBoard();
+  if (sectionId === 'sup-timesheets') refreshSupTimesheets();
+  if (sectionId === 'sup-incidents') refreshSupIncidents();
+  if (sectionId === 'admin-dashboard') refreshAdminDash();
+  if (sectionId === 'admin-reports') refreshAdminReports();
+}
+
+function showAdminSection(sub) {
+  navigateTo('admin-' + sub);
+}
+
+// ===== TABS =====
+function switchTab(group, tab, btn) {
+  document.querySelectorAll('[id^="' + group + '-tab-"]').forEach(t => t.classList.remove('active'));
+  const target = document.getElementById(group + '-tab-' + tab);
+  if (target) target.classList.add('active');
+  if (btn) {
+    btn.closest('.tabs').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+// ===== SET DEFAULT DATES =====
+function setDefaultDates() {
+  const today = new Date().toISOString().split('T')[0];
+  const now = new Date().toTimeString().slice(0,5);
+  ['ts-date','ir-date','dar-date'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = today;
+  });
+  ['ir-time','vis-timein','veh-timein'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = now;
+  });
+  updateNarrativePreview();
+}
+
+// ===== OFFICER FUNCTIONS =====
+
+function getGPS() {
+  return new Promise(resolve => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => resolve(`${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`),
+        () => resolve('GPS Unavailable')
+      );
+    } else resolve('GPS Not Supported');
+  });
+}
+
+async function officerEnRoute() {
+  const badge = currentUser.id;
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString();
+  const gps = await getGPS();
+  
+  state.officers[badge] = state.officers[badge] || {};
+  state.officers[badge].status = 'EN ROUTE';
+  state.officers[badge].enRouteTime = timeStr;
+  state.officers[badge].gps = gps;
+  
+  document.getElementById('current-status-badge').className = 'badge badge-yellow pulse';
+  document.getElementById('current-status-badge').textContent = '● EN ROUTE';
+  
+  const el = document.getElementById('shift-timestamps');
+  el.innerHTML += `<div style="margin-bottom:4px;">📍 <span style="color:var(--yellow);">EN ROUTE</span> — ${timeStr} | GPS: ${gps}</div>`;
+  
+  addActivityEntry(badge, `EN ROUTE to site | GPS: ${gps}`);
+  showToast('En Route status set', 'yellow');
+}
+
+async function officerClockIn() {
+  const badge = currentUser.id;
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString();
+  const gps = await getGPS();
+  
+  state.officers[badge] = state.officers[badge] || {};
+  state.officers[badge].status = 'ON SITE';
+  state.officers[badge].clockInTime = now;
+  state.officers[badge].clockInTimeStr = timeStr;
+  state.officers[badge].gps = gps;
+  
+  document.getElementById('current-status-badge').className = 'badge badge-green pulse';
+  document.getElementById('current-status-badge').textContent = '● ON SITE';
+  document.getElementById('btn-clock-out').disabled = false;
+  document.getElementById('btn-clock-in').disabled = true;
+  
+  const el = document.getElementById('shift-timestamps');
+  el.innerHTML += `<div style="margin-bottom:4px;">🟢 <span style="color:var(--green);">CLOCKED IN</span> — ${timeStr} | GPS: ${gps}</div>`;
+  
+  // Auto-populate timesheet
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('ts-date').value = today;
+  document.getElementById('ts-in').value = now.toTimeString().slice(0,5);
+  
+  addActivityEntry(badge, `Clocked IN | GPS: ${gps}`);
+  showToast('Clocked In — Timesheet auto-populated', 'green');
+}
+
+async function officerClockOut() {
+  const badge = currentUser.id;
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString();
+  
+  state.officers[badge].status = 'CLOCKED OUT';
+  state.officers[badge].clockOutTime = now;
+  state.officers[badge].clockOutTimeStr = timeStr;
+  
+  document.getElementById('current-status-badge').className = 'badge badge-blue';
+  document.getElementById('current-status-badge').textContent = '● CLOCKED OUT';
+  document.getElementById('btn-clock-out').disabled = true;
+  
+  const el = document.getElementById('shift-timestamps');
+  el.innerHTML += `<div style="margin-bottom:4px;">🔴 <span style="color:var(--red);">CLOCKED OUT</span> — ${timeStr}</div>`;
+  
+  // Auto-populate timesheet out time
+  document.getElementById('ts-out').value = now.toTimeString().slice(0,5);
+  document.getElementById('ts-auto-note').style.display = 'flex';
+  
+  addActivityEntry(badge, `Clocked OUT`);
+  showToast('Clocked Out — Complete your timesheet', 'blue');
+}
+
+async function triggerSOS() {
+  const badge = currentUser.id;
+  const name = currentUser.name;
+  const now = new Date();
+  const gps = await getGPS();
+  
+  const btn = document.getElementById('sos-btn');
+  btn.classList.add('triggered');
+  
+  const alert = {
+    id: Date.now(),
+    badge,
+    name,
+    time: now.toLocaleString(),
+    gps
+  };
+  state.sosAlerts.push(alert);
+  
+  document.getElementById('sos-status').innerHTML = `<span style="color:var(--red);">🚨 SOS SENT — ${now.toLocaleTimeString()}<br>GPS: ${gps}</span>`;
+  
+  addActivityEntry(badge, `🚨 SOS ALERT TRIGGERED | GPS: ${gps}`);
+  showToast('🚨 SOS ALERT SENT TO SUPERVISOR', 'red');
+  
+  setTimeout(() => btn.classList.remove('triggered'), 10000);
+}
+
+function addActivityNote() {
+  const input = document.getElementById('activity-note-input');
+  const note = input.value.trim();
+  if (!note) return;
+  addActivityEntry(currentUser.id, note);
+  input.value = '';
+  renderActivityLog();
+}
+
+function addActivityEntry(badge, note) {
+  if (!state.activityLogs[badge]) state.activityLogs[badge] = [];
+  state.activityLogs[badge].push({ time: new Date().toLocaleTimeString(), note });
+  if (currentUser && currentUser.id === badge) renderActivityLog();
+}
+
+function renderActivityLog() {
+  const badge = currentUser.id;
+  const logs = state.activityLogs[badge] || [];
+  const el = document.getElementById('activity-log-list');
+  if (!el) return;
+  if (logs.length === 0) {
+    el.innerHTML = '<p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No activity logged yet.</p>';
+    return;
+  }
+  el.innerHTML = [...logs].reverse().map(l =>
+    `<div class="log-entry"><div class="log-time">${l.time}</div><div class="log-text">${l.note}</div></div>`
+  ).join('');
+}
+
+// SHIFT PRESETS
+function applyShiftPreset() {
+  const preset = document.getElementById('ts-preset').value;
+  const presets = {
+    day: { in: '06:00', out: '14:00' },
+    evening: { in: '14:00', out: '22:00' },
+    night: { in: '22:00', out: '06:00' }
+  };
+  if (presets[preset]) {
+    document.getElementById('ts-in').value = presets[preset].in;
+    document.getElementById('ts-out').value = presets[preset].out;
+  }
+}
+
+// TIMESHEET SUBMIT
+function submitTimesheet() {
+  const date = document.getElementById('ts-date').value;
+  const timeIn = document.getElementById('ts-in').value;
+  const timeOut = document.getElementById('ts-out').value;
+  const site = document.getElementById('ts-site').value || 'Unknown Site';
+  const notes = document.getElementById('ts-notes').value;
+  
+  if (!date || !timeIn || !timeOut) { showToast('Please fill date, time in and out', 'red'); return; }
+  
+  const hours = calcHours(timeIn, timeOut);
+  
+  const entry = {
+    id: Date.now(),
+    badge: currentUser.id,
+    name: currentUser.name,
+    date, site, timeIn, timeOut, hours, notes,
+    status: 'PENDING'
+  };
+  state.timesheets.push(entry);
+  renderTimesheetEntries();
+  showToast('Timesheet submitted for approval', 'green');
+  document.getElementById('ts-auto-note').style.display = 'none';
+}
+
+function calcHours(tin, tout) {
+  const [ih, im] = tin.split(':').map(Number);
+  const [oh, om] = tout.split(':').map(Number);
+  let mins = (oh * 60 + om) - (ih * 60 + im);
+  if (mins < 0) mins += 24 * 60;
+  return (mins / 60).toFixed(2);
+}
+
+function renderTimesheetEntries() {
+  const badge = currentUser.id;
+  const myEntries = state.timesheets.filter(t => t.badge === badge);
+  const el = document.getElementById('ts-entries-list');
+  if (!el) return;
+  if (myEntries.length === 0) {
+    el.innerHTML = '<p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);padding:16px 0;">No timesheet entries yet.</p>';
+    return;
+  }
+  el.innerHTML = [...myEntries].reverse().map(t => {
+    const statusBadge = t.status === 'APPROVED' ? 'badge-green' : t.status === 'REJECTED' ? 'badge-red' : 'badge-yellow';
+    return `<div class="ts-row">
+      <div><div style="font-weight:600;">${formatDate(t.date)}</div><div style="font-size:11px;color:var(--text-muted);">${t.site}</div></div>
+      <div class="text-mono" style="font-size:12px;">${t.timeIn}</div>
+      <div class="text-mono" style="font-size:12px;">${t.timeOut}</div>
+      <div class="text-mono text-accent">${t.hours}h</div>
+      <div><span class="badge ${statusBadge}">${t.status}</span></div>
+      <div style="font-size:12px;color:var(--text-muted);">${t.notes || '—'}</div>
+      <div></div>
+    </div>`;
+  }).join('');
+}
+
+// INCIDENT REPORT
+function updateNarrativePreview() {
+  if (!currentUser || currentUser.role !== 'officer') return;
+  const date = document.getElementById('ir-date')?.value || new Date().toISOString().split('T')[0];
+  const time = document.getElementById('ir-time')?.value || new Date().toTimeString().slice(0,5);
+  const location = document.getElementById('ir-location')?.value || '[Location]';
+  const type = document.getElementById('ir-type')?.value || 'Incident';
+  
+  const formatted = formatDate(date);
+  const timeFormatted = formatTime(time);
+  
+  const para = `On ${formatted}, at approximately ${timeFormatted}, Officer ${currentUser.name}, Badge No. ${currentUser.id}, was on duty at ${location} when the following was observed and/or reported: A ${type} occurred at the above-referenced location. This report is filed in accordance with standard operating procedures to document the incident and the actions taken by the responding officer.`;
+  
+  document.getElementById('narrative-preview').textContent = para;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('ir-date')?.addEventListener('input', updateNarrativePreview);
+  document.getElementById('ir-time')?.addEventListener('input', updateNarrativePreview);
 });
+
+function submitIncidentReport() {
+  const date = document.getElementById('ir-date').value;
+  const time = document.getElementById('ir-time').value;
+  const location = document.getElementById('ir-location').value;
+  const type = document.getElementById('ir-type').value;
+  const narrative = document.getElementById('ir-narrative').value;
+  const witnesses = document.getElementById('ir-witnesses').value;
+  const followup = document.getElementById('ir-followup').value;
+  
+  if (!location || !narrative) { showToast('Location and narrative are required', 'red'); return; }
+  
+  const opening = document.getElementById('narrative-preview').textContent;
+  const fullReport = opening + '\n\n' + narrative;
+  
+  const report = {
+    id: 'IR-' + Date.now().toString().slice(-6),
+    badge: currentUser.id,
+    name: currentUser.name,
+    date, time, type, location, narrative, witnesses, followup,
+    full: fullReport
+  };
+  state.incidents.push(report);
+  renderIncidentList();
+  showToast('Incident report submitted', 'green');
+  document.getElementById('ir-narrative').value = '';
+  document.getElementById('ir-location').value = '';
+  document.getElementById('ir-witnesses').value = '';
+}
+
+function renderIncidentList() {
+  const badge = currentUser.id;
+  const mine = state.incidents.filter(i => i.badge === badge);
+  const el = document.getElementById('ir-list');
+  if (!el) return;
+  if (mine.length === 0) {
+    el.innerHTML = '<p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No reports submitted yet.</p>';
+    return;
+  }
+  el.innerHTML = [...mine].reverse().map(r => `
+    <div style="border:1px solid var(--border);border-radius:2px;padding:14px;margin-bottom:10px;">
+      <div class="flex justify-between align-center mb-12">
+        <div><span class="text-mono text-accent">${r.id}</span> — <strong>${r.type}</strong></div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">${formatDate(r.date)} ${formatTime(r.time)}</div>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">📍 ${r.location}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">${r.full.substring(0,200)}...</div>
+      <div style="font-size:11px;color:var(--text-muted);">Follow-up: ${r.followup}</div>
+    </div>
+  `).join('');
+}
+
+// DAR
+function submitDAR() {
+  const dar = {
+    id: 'DAR-' + Date.now().toString().slice(-6),
+    badge: currentUser.id,
+    name: currentUser.name,
+    date: document.getElementById('dar-date').value,
+    site: document.getElementById('dar-site').value,
+    start: document.getElementById('dar-start').value,
+    end: document.getElementById('dar-end').value,
+    patrols: document.getElementById('dar-patrols').value,
+    incidents: document.getElementById('dar-incidents').value,
+    access: document.getElementById('dar-access').value,
+    equipment: document.getElementById('dar-equipment').value,
+    notes: document.getElementById('dar-notes').value,
+  };
+  if (!dar.site) { showToast('Please enter site name', 'red'); return; }
+  state.dars.push(dar);
+  renderDARList();
+  showToast('Daily Activity Report submitted', 'green');
+}
+
+function renderDARList() {
+  const el = document.getElementById('dar-list');
+  if (!el) return;
+  const mine = state.dars.filter(d => d.badge === currentUser.id);
+  if (mine.length === 0) {
+    el.innerHTML = '<p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No DARs submitted yet.</p>';
+    return;
+  }
+  el.innerHTML = [...mine].reverse().map(d => `
+    <div style="border:1px solid var(--border);border-radius:2px;padding:14px;margin-bottom:10px;">
+      <div class="flex justify-between align-center mb-12">
+        <div><span class="text-mono text-accent">${d.id}</span> — ${d.site}</div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">${formatDate(d.date)}</div>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);">Shift: ${formatTime(d.start)} – ${formatTime(d.end)} | Patrols: ${d.patrols || '—'}</div>
+    </div>
+  `).join('');
+}
+
+// VISITOR LOG
+function logVisitor() {
+  const vis = {
+    id: 'VIS-' + Date.now().toString().slice(-5),
+    type: 'visitor',
+    date: new Date().toLocaleDateString(),
+    name: document.getElementById('vis-name').value,
+    idBadge: document.getElementById('vis-id').value,
+    company: document.getElementById('vis-company').value,
+    destination: document.getElementById('vis-destination').value,
+    timeIn: document.getElementById('vis-timein').value,
+    timeOut: document.getElementById('vis-timeout').value,
+    access: document.getElementById('vis-access').value,
+    notes: document.getElementById('vis-notes').value,
+    loggedBy: currentUser.id
+  };
+  if (!vis.name) { showToast('Visitor name required', 'red'); return; }
+  state.visitors.push(vis);
+  renderVisitorVehicleLogs();
+  showToast('Visitor logged', 'green');
+  ['vis-name','vis-id','vis-company','vis-destination','vis-timeout','vis-notes'].forEach(id => document.getElementById(id).value = '');
+}
+
+function logVehicle() {
+  const veh = {
+    id: 'VEH-' + Date.now().toString().slice(-5),
+    type: 'vehicle',
+    date: new Date().toLocaleDateString(),
+    plate: document.getElementById('veh-plate').value,
+    model: document.getElementById('veh-model').value,
+    driver: document.getElementById('veh-driver').value,
+    purpose: document.getElementById('veh-purpose').value,
+    timeIn: document.getElementById('veh-timein').value,
+    timeOut: document.getElementById('veh-timeout').value,
+    zone: document.getElementById('veh-zone').value,
+    status: document.getElementById('veh-status').value,
+    loggedBy: currentUser.id
+  };
+  if (!veh.plate) { showToast('License plate required', 'red'); return; }
+  state.vehicles.push(veh);
+  renderVisitorVehicleLogs();
+  showToast('Vehicle logged', 'green');
+  ['veh-plate','veh-model','veh-driver','veh-purpose','veh-timeout','veh-zone'].forEach(id => document.getElementById(id).value = '');
+}
+
+function renderVisitorVehicleLogs() {
+  const visEl = document.getElementById('vlog-tab-visitors');
+  const vehEl = document.getElementById('vlog-tab-vehicles');
+  
+  document.getElementById('vis-count').textContent = state.visitors.length;
+  document.getElementById('veh-count').textContent = state.vehicles.length;
+  
+  if (visEl) {
+    if (state.visitors.length === 0) {
+      visEl.innerHTML = '<p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No visitors logged.</p>';
+    } else {
+      visEl.innerHTML = '<table class="data-table"><thead><tr><th>ID</th><th>NAME</th><th>COMPANY</th><th>DESTINATION</th><th>IN</th><th>OUT</th><th>ACCESS</th></tr></thead><tbody>' +
+        [...state.visitors].reverse().map(v => `<tr>
+          <td class="text-mono text-accent">${v.id}</td>
+          <td>${v.name}</td>
+          <td>${v.company||'—'}</td>
+          <td>${v.destination||'—'}</td>
+          <td class="text-mono">${formatTime(v.timeIn)}</td>
+          <td class="text-mono">${formatTime(v.timeOut)||'—'}</td>
+          <td><span class="badge ${v.access==='Yes'?'badge-green':v.access.includes('Denied')?'badge-red':'badge-yellow'}">${v.access}</span></td>
+        </tr>`).join('') + '</tbody></table>';
+    }
+  }
+  
+  if (vehEl) {
+    if (state.vehicles.length === 0) {
+      vehEl.innerHTML = '<p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No vehicles logged.</p>';
+    } else {
+      vehEl.innerHTML = '<table class="data-table"><thead><tr><th>ID</th><th>PLATE</th><th>VEHICLE</th><th>DRIVER</th><th>IN</th><th>OUT</th><th>STATUS</th></tr></thead><tbody>' +
+        [...state.vehicles].reverse().map(v => `<tr>
+          <td class="text-mono text-accent">${v.id}</td>
+          <td class="text-mono">${v.plate}</td>
+          <td>${v.model||'—'}</td>
+          <td>${v.driver||'—'}</td>
+          <td class="text-mono">${formatTime(v.timeIn)}</td>
+          <td class="text-mono">${formatTime(v.timeOut)||'—'}</td>
+          <td><span class="badge ${v.status==='Authorized'?'badge-green':v.status==='Towed'?'badge-red':'badge-orange'}">${v.status}</span></td>
+        </tr>`).join('') + '</tbody></table>';
+    }
+  }
+}
+
+// ===== SUPERVISOR FUNCTIONS =====
+
+function refreshStatusBoard() {
+  const officers = state.officers;
+  const keys = Object.keys(officers);
+  
+  let onsite = 0, enroute = 0, offduty = 0, clockedout = 0;
+  
+  const board = document.getElementById('officer-status-board');
+  if (!board) return;
+  
+  board.innerHTML = keys.map(badge => {
+    const o = officers[badge];
+    const status = o.status || 'OFF DUTY';
+    if (status === 'ON SITE') onsite++;
+    else if (status === 'EN ROUTE') enroute++;
+    else if (status === 'CLOCKED OUT') clockedout++;
+    else offduty++;
+    
+    const statusClass = status === 'ON SITE' ? 'status-on-site' : status === 'EN ROUTE' ? 'status-en-route' : status === 'CLOCKED OUT' ? 'status-clocked-out' : 'status-off-duty';
+    const badgeClass = status === 'ON SITE' ? 'badge-green' : status === 'EN ROUTE' ? 'badge-yellow' : status === 'CLOCKED OUT' ? 'badge-blue' : 'badge-muted';
+    
+    return `<div class="officer-status-card ${statusClass}">
+      <div class="flex justify-between align-center">
+        <div>
+          <div class="officer-name">${o.name}</div>
+          <div class="officer-id">${badge}</div>
+        </div>
+        <span class="badge ${badgeClass} pulse">● ${status}</span>
+      </div>
+      ${o.enRouteTime ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">En Route: ${o.enRouteTime}</div>` : ''}
+      ${o.clockInTimeStr ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--green);">Clock In: ${o.clockInTimeStr}</div>` : ''}
+      ${o.clockOutTimeStr ? `<div style="font-family:var(--font-mono);font-size:11px;color:var(--accent);">Clock Out: ${o.clockOutTimeStr}</div>` : ''}
+      ${o.gps && o.gps !== 'GPS Unavailable' ? `<div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">📍 ${o.gps}</div>` : ''}
+    </div>`;
+  }).join('');
+  
+  document.getElementById('sup-total').textContent = keys.length;
+  document.getElementById('sup-onsite').textContent = onsite;
+  document.getElementById('sup-enroute').textContent = enroute;
+  document.getElementById('sup-offduty').textContent = offduty + clockedout;
+  
+  // SOS Alerts
+  const sosCard = document.getElementById('sos-alerts-card');
+  const sosList = document.getElementById('sos-alerts-list');
+  if (state.sosAlerts.length > 0) {
+    sosCard.style.display = 'block';
+    sosList.innerHTML = state.sosAlerts.map(a => `
+      <div class="alert alert-danger">
+        🚨 <strong>${a.badge} — ${a.name}</strong> triggered SOS at ${a.time} | GPS: ${a.gps}
+        <button class="btn btn-xs btn-secondary" style="margin-left:auto;" onclick="dismissSOS(${a.id})">DISMISS</button>
+      </div>
+    `).join('');
+  } else {
+    sosCard.style.display = 'none';
+  }
+}
+
+function dismissSOS(id) {
+  state.sosAlerts = state.sosAlerts.filter(a => a.id !== id);
+  refreshStatusBoard();
+}
+
+// Auto-refresh status board every 10 seconds
+setInterval(() => {
+  if (currentUser && currentUser.role === 'supervisor') {
+    const sec = document.getElementById('section-sup-statusboard');
+    if (sec && sec.classList.contains('active')) refreshStatusBoard();
+  }
+}, 10000);
+
+function refreshSupTimesheets() {
+  const pending = state.timesheets.filter(t => t.status === 'PENDING');
+  const history = state.timesheets.filter(t => t.status !== 'PENDING');
+  
+  const pendingEl = document.getElementById('sup-ts-list');
+  const histEl = document.getElementById('sup-ts-history');
+  
+  if (pendingEl) {
+    if (pending.length === 0) {
+      pendingEl.innerHTML = '<p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No pending timesheets.</p>';
+    } else {
+      pendingEl.innerHTML = pending.map(t => `
+        <div style="border:1px solid var(--border-bright);border-radius:2px;padding:14px;margin-bottom:10px;">
+          <div class="flex justify-between align-center mb-12">
+            <div><span class="text-mono text-accent">${t.badge} — ${t.name}</span></div>
+            <span class="badge badge-yellow">PENDING</span>
+          </div>
+          <div style="font-size:13px;color:var(--text-secondary);">
+            ${formatDate(t.date)} | ${t.site} | ${t.timeIn} – ${t.timeOut} | <strong>${t.hours}h</strong>
+          </div>
+          ${t.notes ? `<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">${t.notes}</div>` : ''}
+          <div class="flex gap-8" style="margin-top:12px;">
+            <button class="btn btn-green btn-sm" onclick="approveTS(${t.id})">✓ APPROVE</button>
+            <button class="btn btn-red btn-sm" onclick="rejectTS(${t.id})">✗ REJECT</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+  
+  if (histEl) {
+    if (history.length === 0) {
+      histEl.innerHTML = '<p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No history.</p>';
+    } else {
+      histEl.innerHTML = history.map(t => {
+        const bc = t.status === 'APPROVED' ? 'badge-green' : 'badge-red';
+        return `<div style="border:1px solid var(--border);border-radius:2px;padding:10px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <span class="text-mono text-accent">${t.badge}</span> — ${formatDate(t.date)} | ${t.site} | ${t.hours}h
+          </div>
+          <span class="badge ${bc}">${t.status}</span>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+
+function approveTS(id) {
+  const ts = state.timesheets.find(t => t.id === id);
+  if (ts) { ts.status = 'APPROVED'; refreshSupTimesheets(); showToast('Timesheet approved', 'green'); }
+}
+
+function rejectTS(id) {
+  const ts = state.timesheets.find(t => t.id === id);
+  if (ts) { ts.status = 'REJECTED'; refreshSupTimesheets(); showToast('Timesheet rejected', 'red'); }
+}
+
+function refreshSupIncidents() {
+  const el = document.getElementById('sup-ir-list');
+  if (!el) return;
+  if (state.incidents.length === 0) {
+    el.innerHTML = '<p style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">No reports submitted.</p>';
+    return;
+  }
+  el.innerHTML = [...state.incidents].reverse().map(r => `
+    <div style="border:1px solid var(--border);border-radius:2px;padding:14px;margin-bottom:10px;">
+      <div class="flex justify-between align-center mb-12">
+        <div><span class="text-mono text-accent">${r.id}</span> — <strong>${r.type}</strong> — ${r.badge} (${r.name})</div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">${formatDate(r.date)} ${formatTime(r.time)}</div>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">📍 ${r.location}</div>
+      <div style="font-size:12px;color:var(--text-muted);">${r.full.substring(0,300)}...</div>
+      ${r.witnesses ? `<div style="font-size:11px;color:var(--text-muted);margin-top:6px;">Witnesses: ${r.witnesses}</div>` : ''}
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Follow-up: ${r.followup}</div>
+    </div>
+  `).join('');
+}
+
+// ===== ADMIN FUNCTIONS =====
+
+function refreshAdminDash() {
+  document.getElementById('admin-open-incidents').textContent = state.incidents.length;
+  document.getElementById('admin-pending-ts').textContent = state.timesheets.filter(t => t.status === 'PENDING').length;
+}
+
+function refreshAdminReports() {
+  document.getElementById('stat-incidents').textContent = state.incidents.length;
+  document.getElementById('stat-ts-pending').textContent = state.timesheets.filter(t => t.status === 'PENDING').length;
+  document.getElementById('stat-visitors').textContent = state.visitors.length;
+  document.getElementById('stat-vehicles').textContent = state.vehicles.length;
+  document.getElementById('stat-sos').textContent = state.sosAlerts.length;
+}
+
+function generateReport() {
+  showToast('Report generated — Export coming soon', 'blue');
+}
+
+function exportPayroll() {
+  showToast('Payroll export downloaded', 'green');
+}
+
+// ===== HELPERS =====
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function formatTime(timeStr) {
+  if (!timeStr) return '';
+  const [h, m] = timeStr.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${m.toString().padStart(2,'0')} ${ampm}`;
+}
+
+// TOAST
+function showToast(message, type = 'blue') {
+  const colors = { green: 'var(--green)', red: 'var(--red)', blue: 'var(--accent)', yellow: 'var(--yellow)' };
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    background: var(--bg-card); border: 1px solid ${colors[type]};
+    color: ${colors[type]}; font-family: var(--font-mono); font-size: 13px;
+    padding: 12px 20px; border-radius: 2px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 20px ${colors[type]}33;
+    animation: toastIn 0.3s ease; max-width: 360px;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+const toastStyle = document.createElement('style');
+toastStyle.textContent = '@keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }';
+document.head.appendChild(toastStyle);
 </script>
 </body>
 </html>
