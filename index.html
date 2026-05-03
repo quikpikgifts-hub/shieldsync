@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,11 +12,9 @@
 <body>
 
   <!-- AUTH SCREEN -->
+
   <div id="auth-screen" class="screen active">
-    <div class="auth-bg">
-      <div class="grid-overlay"></div>
-      <div class="scan-line"></div>
-    </div>
+    <div class="auth-bg"><div class="grid-overlay"></div><div class="scan-line"></div></div>
     <div class="auth-container">
       <div class="brand">
         <div class="shield-icon">
@@ -24,284 +23,237 @@
         <h1 class="logo-text">SHIELD<span>SYNC</span></h1>
         <p class="logo-sub">SECURITY MANAGEMENT PLATFORM</p>
       </div>
-
       <div class="auth-card" id="login-card">
-        <div class="card-header">
-          <span class="card-tag">SECURE LOGIN</span>
-          <h2>Access Portal</h2>
-        </div>
+        <div class="card-header"><span class="card-tag">SECURE LOGIN</span><h2>Access Portal</h2></div>
         <div id="auth-error" class="auth-error hidden"></div>
-        <div class="field-group">
-          <label>EMAIL ADDRESS</label>
-          <input type="email" id="login-email" placeholder="operator@shieldsync.io" autocomplete="email"/>
-        </div>
-        <div class="field-group">
-          <label>PASSWORD</label>
-          <input type="password" id="login-password" placeholder="••••••••••" autocomplete="current-password"/>
-        </div>
-        <button class="btn-primary" id="login-btn">
-          <span>AUTHENTICATE</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
+        <div class="field-group"><label>EMAIL ADDRESS</label><input type="email" id="login-email" placeholder="operator@shieldsync.io" autocomplete="email"/></div>
+        <div class="field-group"><label>PASSWORD</label><input type="password" id="login-password" placeholder="••••••••••" autocomplete="current-password"/></div>
+        <div class="remember-row"><label class="remember-label"><input type="checkbox" id="remember-me"/> Remember me</label></div>
+        <button class="btn-primary" id="login-btn"><span>AUTHENTICATE</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
         <p class="auth-switch">New operator? <a href="#" id="show-register">Create account</a></p>
       </div>
-
       <div class="auth-card hidden" id="register-card">
-        <div class="card-header">
-          <span class="card-tag">NEW OPERATOR</span>
-          <h2>Register Account</h2>
-        </div>
+        <div class="card-header"><span class="card-tag">NEW OPERATOR</span><h2>Register Account</h2></div>
         <div id="reg-error" class="auth-error hidden"></div>
-        <div class="field-group">
-          <label>FULL NAME</label>
-          <input type="text" id="reg-name" placeholder="John Shield"/>
-        </div>
-        <div class="field-group">
-          <label>EMAIL ADDRESS</label>
-          <input type="email" id="reg-email" placeholder="operator@shieldsync.io"/>
-        </div>
-        <div class="field-group">
-          <label>PASSWORD</label>
-          <input type="password" id="reg-password" placeholder="Min 8 characters"/>
-        </div>
-        <button class="btn-primary" id="register-btn">
-          <span>CREATE ACCOUNT</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
+        <div class="field-group"><label>FULL NAME</label><input type="text" id="reg-name" placeholder="John Shield"/></div>
+        <div class="field-group"><label>EMAIL ADDRESS</label><input type="email" id="reg-email" placeholder="operator@shieldsync.io"/></div>
+        <div class="field-group"><label>PASSWORD</label><input type="password" id="reg-password" placeholder="Min 8 characters"/></div>
+        <button class="btn-primary" id="register-btn"><span>CREATE ACCOUNT</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
         <p class="auth-switch">Already registered? <a href="#" id="show-login">Sign in</a></p>
       </div>
     </div>
   </div>
 
   <!-- MAIN APP -->
-  <div id="app-screen" class="screen hidden">
 
-    <!-- SIDEBAR -->
+  <div id="app-screen" class="screen hidden">
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <div class="shield-icon-sm">
-          <svg viewBox="0 0 40 46" fill="none"><path d="M20 2L4 9v12c0 10.5 6.8 20.3 16 23 9.2-2.7 16-12.5 16-23V9L20 2z" fill="url(#sg2)" stroke="#00f5c4" stroke-width="1.5"/><defs><linearGradient id="sg2" x1="20" y1="2" x2="20" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#00f5c4" stop-opacity="0.3"/><stop offset="1" stop-color="#003d2e" stop-opacity="0.8"/></linearGradient></defs></svg>
-        </div>
+        <div class="shield-icon-sm"><svg viewBox="0 0 40 46" fill="none"><path d="M20 2L4 9v12c0 10.5 6.8 20.3 16 23 9.2-2.7 16-12.5 16-23V9L20 2z" fill="url(#sg2)" stroke="#00f5c4" stroke-width="1.5"/><defs><linearGradient id="sg2" x1="20" y1="2" x2="20" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#00f5c4" stop-opacity="0.3"/><stop offset="1" stop-color="#003d2e" stop-opacity="0.8"/></linearGradient></defs></svg></div>
         <span>SHIELDSYNC</span>
       </div>
       <nav class="sidebar-nav">
-        <a class="nav-item active" data-view="dashboard">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-          Dashboard
-        </a>
-        <a class="nav-item" data-view="incidents">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          Incidents
-        </a>
-        <a class="nav-item" data-view="guards">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-          Guard Roster
-        </a>
-        <a class="nav-item" data-view="access">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-          Access Control
-        </a>
-        <a class="nav-item" data-view="reports">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          Reports
-        </a>
+        <a class="nav-item active" data-view="dashboard"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+        <a class="nav-item" data-view="incidents"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Incidents</a>
+        <a class="nav-item" data-view="enroute"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Enroute</a>
+        <a class="nav-item" data-view="guards"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Guard Roster</a>
+        <a class="nav-item" data-view="timesheet"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Timesheets</a>
+        <a class="nav-item" data-view="access"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Access Control</a>
+        <a class="nav-item" data-view="patrol"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Patrol Log</a>
+        <a class="nav-item" data-view="alerts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>Alerts <span id="alert-badge" class="alert-badge hidden">0</span></a>
+        <a class="nav-item" data-view="reports"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Reports</a>
       </nav>
       <div class="sidebar-footer">
         <div class="user-info">
           <div class="user-avatar" id="user-avatar">OP</div>
-          <div class="user-details">
-            <span id="user-name-display">Operator</span>
-            <span id="user-email-display">—</span>
-          </div>
+          <div class="user-details"><span id="user-name-display">Operator</span><span id="user-email-display">—</span></div>
         </div>
-        <button class="btn-logout" id="logout-btn" title="Sign out">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-        </button>
+        <button class="btn-logout" id="logout-btn" title="Sign out"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
       </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="main-content">
-
-      <!-- TOP BAR -->
-      <div class="topbar">
-        <div class="topbar-left">
-          <h2 id="view-title">Dashboard</h2>
-          <div class="status-pill"><span class="pulse"></span>LIVE</div>
-        </div>
-        <div class="topbar-right">
-          <div class="clock" id="live-clock">00:00:00</div>
-          <div class="date-display" id="live-date">—</div>
-        </div>
+```
+<main class="main-content">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2 id="view-title">Dashboard</h2>
+      <div class="status-pill"><span class="pulse"></span>LIVE</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-datetime">
+        <div class="clock" id="live-clock">00:00:00</div>
+        <div class="date-display" id="live-date">—</div>
       </div>
-
-      <!-- DASHBOARD VIEW -->
-      <div id="view-dashboard" class="view active">
-        <div class="stats-grid">
-          <div class="stat-card accent">
-            <div class="stat-icon red"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div>
-            <div class="stat-body">
-              <div class="stat-value" id="stat-open">0</div>
-              <div class="stat-label">OPEN INCIDENTS</div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-            <div class="stat-body">
-              <div class="stat-value" id="stat-guards">0</div>
-              <div class="stat-label">ACTIVE GUARDS</div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon amber"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-            <div class="stat-body">
-              <div class="stat-value" id="stat-access">0</div>
-              <div class="stat-label">ACCESS ENTRIES TODAY</div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-            <div class="stat-body">
-              <div class="stat-value" id="stat-total">0</div>
-              <div class="stat-label">TOTAL INCIDENTS</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="dash-grid">
-          <div class="panel">
-            <div class="panel-header">
-              <span>RECENT INCIDENTS</span>
-              <a href="#" class="panel-link" data-view="incidents">View all →</a>
-            </div>
-            <div id="dash-incidents-list" class="feed-list">
-              <div class="empty-state">No incidents logged yet.</div>
-            </div>
-          </div>
-          <div class="panel">
-            <div class="panel-header"><span>THREAT LEVEL</span></div>
-            <div class="threat-meter">
-              <div class="threat-labels">
-                <span>LOW</span><span>MODERATE</span><span>HIGH</span><span>CRITICAL</span>
-              </div>
-              <div class="threat-bar">
-                <div class="threat-fill" id="threat-fill"></div>
-              </div>
-              <div class="threat-status" id="threat-status">LOW — No active threats</div>
-            </div>
-            <div class="panel-header" style="margin-top:24px"><span>GUARD AVAILABILITY</span></div>
-            <div id="dash-guards-list" class="feed-list">
-              <div class="empty-state">No guards added yet.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- INCIDENTS VIEW -->
-      <div id="view-incidents" class="view hidden">
-        <div class="view-toolbar">
-          <button class="btn-primary sm" id="new-incident-btn">+ LOG INCIDENT</button>
-          <select id="incident-filter" class="filter-select">
-            <option value="all">All Status</option>
-            <option value="open">Open</option>
-            <option value="investigating">Investigating</option>
-            <option value="resolved">Resolved</option>
-          </select>
-        </div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr><th>ID</th><th>DATE/TIME</th><th>TYPE</th><th>LOCATION</th><th>SEVERITY</th><th>STATUS</th><th>ACTIONS</th></tr>
-            </thead>
-            <tbody id="incidents-table-body">
-              <tr><td colspan="7" class="empty-cell">No incidents logged. Click "+ LOG INCIDENT" to begin.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- GUARDS VIEW -->
-      <div id="view-guards" class="view hidden">
-        <div class="view-toolbar">
-          <button class="btn-primary sm" id="new-guard-btn">+ ADD GUARD</button>
-        </div>
-        <div class="cards-grid" id="guards-grid">
-          <div class="empty-state full">No guards added yet.</div>
-        </div>
-      </div>
-
-      <!-- ACCESS CONTROL VIEW -->
-      <div id="view-access" class="view hidden">
-        <div class="view-toolbar">
-          <button class="btn-primary sm" id="new-access-btn">+ LOG ENTRY</button>
-        </div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr><th>TIME</th><th>PERSON</th><th>ZONE</th><th>METHOD</th><th>STATUS</th></tr>
-            </thead>
-            <tbody id="access-table-body">
-              <tr><td colspan="5" class="empty-cell">No access entries logged.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- REPORTS VIEW -->
-      <div id="view-reports" class="view hidden">
-        <div class="reports-grid">
-          <div class="panel">
-            <div class="panel-header"><span>GENERATE REPORT</span></div>
-            <div class="report-form">
-              <div class="field-group">
-                <label>REPORT TYPE</label>
-                <select id="report-type" class="filter-select full">
-                  <option>Incident Summary</option>
-                  <option>Guard Activity</option>
-                  <option>Access Log</option>
-                  <option>Full Security Audit</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label>DATE RANGE</label>
-                <select class="filter-select full">
-                  <option>Last 7 days</option>
-                  <option>Last 30 days</option>
-                  <option>This month</option>
-                  <option>Custom range</option>
-                </select>
-              </div>
-              <button class="btn-primary" id="gen-report-btn"><span>GENERATE REPORT</span></button>
-            </div>
-          </div>
-          <div class="panel">
-            <div class="panel-header"><span>RECENT REPORTS</span></div>
-            <div id="reports-list" class="feed-list">
-              <div class="empty-state">No reports generated yet.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </main>
+      <button class="sos-btn" id="sos-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        SOS
+      </button>
+    </div>
   </div>
 
-  <!-- MODAL OVERLAY -->
+  <!-- DASHBOARD -->
+  <div id="view-dashboard" class="view active">
+    <div class="stats-grid">
+      <div class="stat-card accent">
+        <div class="stat-icon red"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div>
+        <div class="stat-body"><div class="stat-value" id="stat-open">0</div><div class="stat-label">OPEN INCIDENTS</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="stat-body"><div class="stat-value" id="stat-enroute">0</div><div class="stat-label">UNITS ENROUTE</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <div class="stat-body"><div class="stat-value" id="stat-guards">0</div><div class="stat-label">ACTIVE GUARDS</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        <div class="stat-body"><div class="stat-value" id="stat-access">0</div><div class="stat-label">ACCESS ENTRIES TODAY</div></div>
+      </div>
+    </div>
+    <div class="dash-grid">
+      <div class="panel">
+        <div class="panel-header"><span>RECENT INCIDENTS</span><a href="#" class="panel-link" data-view="incidents">View all →</a></div>
+        <div id="dash-incidents-list" class="feed-list"><div class="empty-state">No incidents logged yet.</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span>THREAT LEVEL</span></div>
+        <div class="threat-meter">
+          <div class="threat-labels"><span>LOW</span><span>MODERATE</span><span>HIGH</span><span>CRITICAL</span></div>
+          <div class="threat-bar"><div class="threat-fill green" id="threat-fill"></div></div>
+          <div class="threat-status" id="threat-status">LOW — No active threats</div>
+        </div>
+        <div class="panel-header" style="margin-top:24px"><span>UNITS ENROUTE</span></div>
+        <div id="dash-enroute-list" class="feed-list"><div class="empty-state">No units dispatched.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INCIDENTS -->
+  <div id="view-incidents" class="view hidden">
+    <div class="view-toolbar">
+      <button class="btn-primary sm" id="new-incident-btn">+ LOG INCIDENT</button>
+      <select id="incident-filter" class="filter-select"><option value="all">All Status</option><option value="open">Open</option><option value="investigating">Investigating</option><option value="resolved">Resolved</option></select>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>ID</th><th>DATE/TIME</th><th>TYPE</th><th>LOCATION</th><th>SEVERITY</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+        <tbody id="incidents-table-body"><tr><td colspan="7" class="empty-cell">No incidents logged.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ENROUTE -->
+  <div id="view-enroute" class="view hidden">
+    <div class="view-toolbar"><button class="btn-primary sm" id="new-enroute-btn">+ DISPATCH UNIT</button></div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>UNIT #</th><th>GUARD</th><th>DESTINATION</th><th>DISPATCHED</th><th>ETA</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+        <tbody id="enroute-table-body"><tr><td colspan="7" class="empty-cell">No units dispatched.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GUARDS -->
+  <div id="view-guards" class="view hidden">
+    <div class="view-toolbar"><button class="btn-primary sm" id="new-guard-btn">+ ADD GUARD</button></div>
+    <div class="cards-grid" id="guards-grid"><div class="empty-state full">No guards added yet.</div></div>
+  </div>
+
+  <!-- TIMESHEETS -->
+  <div id="view-timesheet" class="view hidden">
+    <div class="view-toolbar"><button class="btn-primary sm" id="new-timesheet-btn">+ CLOCK IN</button></div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>GUARD</th><th>DATE</th><th>CLOCK IN</th><th>CLOCK OUT</th><th>HOURS</th><th>SHIFT</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+        <tbody id="timesheet-table-body"><tr><td colspan="8" class="empty-cell">No timesheet entries yet.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ACCESS CONTROL -->
+  <div id="view-access" class="view hidden">
+    <div class="view-toolbar"><button class="btn-primary sm" id="new-access-btn">+ LOG ENTRY</button></div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>TIME</th><th>PERSON</th><th>ZONE</th><th>METHOD</th><th>STATUS</th></tr></thead>
+        <tbody id="access-table-body"><tr><td colspan="5" class="empty-cell">No access entries logged.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PATROL LOG -->
+  <div id="view-patrol" class="view hidden">
+    <div class="view-toolbar"><button class="btn-primary sm" id="new-patrol-btn">+ LOG CHECKPOINT</button></div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>TIME</th><th>GUARD</th><th>CHECKPOINT</th><th>ZONE</th><th>NOTES</th><th>STATUS</th></tr></thead>
+        <tbody id="patrol-table-body"><tr><td colspan="6" class="empty-cell">No patrol checkpoints logged.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ALERTS -->
+  <div id="view-alerts" class="view hidden">
+    <div class="view-toolbar">
+      <button class="btn-primary sm" id="new-alert-btn">+ CREATE ALERT</button>
+      <button class="btn-secondary sm" id="clear-alerts-btn">Clear All</button>
+    </div>
+    <div id="alerts-list" class="alerts-feed"><div class="empty-state">No alerts. System nominal.</div></div>
+  </div>
+
+  <!-- REPORTS -->
+  <div id="view-reports" class="view hidden">
+    <div class="reports-grid">
+      <div class="panel">
+        <div class="panel-header"><span>GENERATE REPORT</span></div>
+        <div class="report-form">
+          <div class="field-group"><label>REPORT TYPE</label><select id="report-type" class="filter-select full"><option>Incident Summary</option><option>Guard Activity</option><option>Access Log</option><option>Timesheet Summary</option><option>Full Security Audit</option></select></div>
+          <div class="field-group"><label>DATE RANGE</label><select class="filter-select full"><option>Last 7 days</option><option>Last 30 days</option><option>This month</option></select></div>
+          <button class="btn-primary" id="gen-report-btn"><span>GENERATE REPORT</span></button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span>RECENT REPORTS</span></div>
+        <div id="reports-list" class="feed-list"><div class="empty-state">No reports generated yet.</div></div>
+      </div>
+    </div>
+  </div>
+</main>
+```
+
+  </div>
+
+  <!-- SOS MODAL -->
+
+  <div id="sos-overlay" class="modal-overlay hidden">
+    <div class="modal sos-modal">
+      <div class="sos-header"><div class="sos-icon-big">⚠</div><h2>SOS EMERGENCY</h2><p>This will log a critical incident and trigger an emergency alert.</p></div>
+      <div class="modal-body">
+        <div class="field-group"><label>EMERGENCY TYPE</label><select id="sos-type" class="filter-select full"><option>Officer Down</option><option>Active Threat</option><option>Medical Emergency</option><option>Fire</option><option>Forced Entry</option><option>Evacuation Required</option></select></div>
+        <div class="field-group"><label>YOUR LOCATION</label><input type="text" id="sos-location" placeholder="Your current location"/></div>
+        <div class="field-group"><label>DETAILS</label><textarea id="sos-details" rows="2" placeholder="Brief description..."></textarea></div>
+        <div class="sos-actions">
+          <button class="btn-sos-confirm" id="sos-confirm">🚨 SEND SOS ALERT</button>
+          <button class="btn-cancel" id="sos-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN MODAL -->
+
   <div id="modal-overlay" class="modal-overlay hidden">
     <div class="modal" id="modal-box">
-      <div class="modal-header">
-        <h3 id="modal-title">Modal</h3>
-        <button class="modal-close" id="modal-close">✕</button>
-      </div>
+      <div class="modal-header"><h3 id="modal-title">Modal</h3><button class="modal-close" id="modal-close">✕</button></div>
       <div class="modal-body" id="modal-body"></div>
     </div>
   </div>
 
-  <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, where, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB8h2Pmz2Yv7Z137ElTFpcWKSeS6cRQ6T0",
@@ -316,364 +268,221 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // ─── STATE ────────────────────────────────────────────
     let currentUser = null;
-    let incidents = [];
-    let guards = [];
-    let accessLogs = [];
+    let incidents=[], guards=[], accessLogs=[], enroutes=[], timesheets=[], patrols=[], alerts=[];
 
-    // ─── CLOCK ───────────────────────────────────────────
+    // CLOCK
     function updateClock() {
       const now = new Date();
       document.getElementById("live-clock").textContent = now.toLocaleTimeString("en-GB");
-      document.getElementById("live-date").textContent = now.toLocaleDateString("en-GB", { weekday:"short", day:"numeric", month:"short", year:"numeric" });
+      document.getElementById("live-date").textContent = now.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
     }
-    setInterval(updateClock, 1000);
-    updateClock();
+    setInterval(updateClock,1000); updateClock();
 
-    // ─── NAVIGATION ──────────────────────────────────────
-    document.querySelectorAll(".nav-item").forEach(item => {
-      item.addEventListener("click", e => {
-        e.preventDefault();
-        switchView(item.dataset.view);
-      });
-    });
-    document.querySelectorAll(".panel-link").forEach(link => {
-      link.addEventListener("click", e => { e.preventDefault(); switchView(link.dataset.view); });
-    });
-
+    // NAV
+    document.querySelectorAll(".nav-item").forEach(item=>item.addEventListener("click",e=>{e.preventDefault();switchView(item.dataset.view);}));
+    document.querySelectorAll(".panel-link").forEach(link=>link.addEventListener("click",e=>{e.preventDefault();switchView(link.dataset.view);}));
     function switchView(view) {
-      document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
-      document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-      document.getElementById("view-" + view)?.classList.remove("hidden");
+      document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));
+      document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+      document.getElementById("view-"+view)?.classList.remove("hidden");
       document.querySelector(`[data-view="${view}"]`)?.classList.add("active");
-      const titles = { dashboard:"Dashboard", incidents:"Incidents", guards:"Guard Roster", access:"Access Control", reports:"Reports" };
-      document.getElementById("view-title").textContent = titles[view] || view;
-      if (view === "dashboard") refreshDashboard();
+      const titles={dashboard:"Dashboard",incidents:"Incidents",enroute:"Enroute Dispatch",guards:"Guard Roster",timesheet:"Timesheets",access:"Access Control",patrol:"Patrol Log",alerts:"Alerts",reports:"Reports"};
+      document.getElementById("view-title").textContent=titles[view]||view;
+      if(view==="dashboard") refreshDashboard();
     }
 
-    // ─── AUTH ─────────────────────────────────────────────
-    document.getElementById("show-register").addEventListener("click", e => {
-      e.preventDefault();
-      document.getElementById("login-card").classList.add("hidden");
-      document.getElementById("register-card").classList.remove("hidden");
+    // AUTH
+    document.getElementById("show-register").addEventListener("click",e=>{e.preventDefault();document.getElementById("login-card").classList.add("hidden");document.getElementById("register-card").classList.remove("hidden");});
+    document.getElementById("show-login").addEventListener("click",e=>{e.preventDefault();document.getElementById("register-card").classList.add("hidden");document.getElementById("login-card").classList.remove("hidden");});
+    document.getElementById("login-btn").addEventListener("click",async()=>{
+      const email=document.getElementById("login-email").value.trim();
+      const pass=document.getElementById("login-password").value;
+      const remember=document.getElementById("remember-me").checked;
+      const errEl=document.getElementById("auth-error"); errEl.classList.add("hidden");
+      try { await setPersistence(auth,remember?browserLocalPersistence:browserSessionPersistence); await signInWithEmailAndPassword(auth,email,pass); }
+      catch(e){errEl.textContent=friendlyError(e.code);errEl.classList.remove("hidden");}
     });
-    document.getElementById("show-login").addEventListener("click", e => {
-      e.preventDefault();
-      document.getElementById("register-card").classList.add("hidden");
-      document.getElementById("login-card").classList.remove("hidden");
+    document.getElementById("register-btn").addEventListener("click",async()=>{
+      const name=document.getElementById("reg-name").value.trim();
+      const email=document.getElementById("reg-email").value.trim();
+      const pass=document.getElementById("reg-password").value;
+      const errEl=document.getElementById("reg-error"); errEl.classList.add("hidden");
+      try{const cred=await createUserWithEmailAndPassword(auth,email,pass);if(name)await updateProfile(cred.user,{displayName:name});}
+      catch(e){errEl.textContent=friendlyError(e.code);errEl.classList.remove("hidden");}
     });
-
-    document.getElementById("login-btn").addEventListener("click", async () => {
-      const email = document.getElementById("login-email").value.trim();
-      const pass = document.getElementById("login-password").value;
-      const errEl = document.getElementById("auth-error");
-      errEl.classList.add("hidden");
-      try {
-        await signInWithEmailAndPassword(auth, email, pass);
-      } catch(e) {
-        errEl.textContent = friendlyError(e.code);
-        errEl.classList.remove("hidden");
-      }
-    });
-
-    document.getElementById("register-btn").addEventListener("click", async () => {
-      const name = document.getElementById("reg-name").value.trim();
-      const email = document.getElementById("reg-email").value.trim();
-      const pass = document.getElementById("reg-password").value;
-      const errEl = document.getElementById("reg-error");
-      errEl.classList.add("hidden");
-      try {
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        if (name) await updateProfile(cred.user, { displayName: name });
-      } catch(e) {
-        errEl.textContent = friendlyError(e.code);
-        errEl.classList.remove("hidden");
-      }
-    });
-
-    document.getElementById("logout-btn").addEventListener("click", () => signOut(auth));
-
-    onAuthStateChanged(auth, user => {
-      currentUser = user;
-      if (user) {
+    document.getElementById("logout-btn").addEventListener("click",()=>signOut(auth));
+    onAuthStateChanged(auth,user=>{
+      currentUser=user;
+      if(user){
         document.getElementById("auth-screen").classList.add("hidden");
         document.getElementById("app-screen").classList.remove("hidden");
-        const name = user.displayName || "Operator";
-        document.getElementById("user-name-display").textContent = name;
-        document.getElementById("user-email-display").textContent = user.email;
-        document.getElementById("user-avatar").textContent = name.charAt(0).toUpperCase();
+        const name=user.displayName||"Operator";
+        document.getElementById("user-name-display").textContent=name;
+        document.getElementById("user-email-display").textContent=user.email;
+        document.getElementById("user-avatar").textContent=name.charAt(0).toUpperCase();
         loadData();
       } else {
         document.getElementById("auth-screen").classList.remove("hidden");
         document.getElementById("app-screen").classList.add("hidden");
       }
     });
+    function friendlyError(code){const map={"auth/invalid-email":"Invalid email.","auth/user-not-found":"No account found.","auth/wrong-password":"Incorrect password.","auth/email-already-in-use":"Email already registered.","auth/weak-password":"Min 6 characters.","auth/invalid-credential":"Invalid email or password."};return map[code]||"Authentication failed.";}
 
-    function friendlyError(code) {
-      const map = {
-        "auth/invalid-email": "Invalid email address.",
-        "auth/user-not-found": "No account found with this email.",
-        "auth/wrong-password": "Incorrect password.",
-        "auth/email-already-in-use": "Email already registered.",
-        "auth/weak-password": "Password must be at least 6 characters.",
-        "auth/invalid-credential": "Invalid email or password.",
-      };
-      return map[code] || "Authentication failed. Please try again.";
+    // LOAD DATA
+    function loadData(){
+      if(!currentUser)return; const uid=currentUser.uid;
+      onSnapshot(query(collection(db,"incidents"),where("uid","==",uid)),snap=>{incidents=snap.docs.map(d=>({id:d.id,...d.data()}));renderIncidents();refreshDashboard();});
+      onSnapshot(query(collection(db,"guards"),where("uid","==",uid)),snap=>{guards=snap.docs.map(d=>({id:d.id,...d.data()}));renderGuards();refreshDashboard();});
+      onSnapshot(query(collection(db,"access_logs"),where("uid","==",uid)),snap=>{accessLogs=snap.docs.map(d=>({id:d.id,...d.data()}));renderAccessLogs();refreshDashboard();});
+      onSnapshot(query(collection(db,"enroutes"),where("uid","==",uid)),snap=>{enroutes=snap.docs.map(d=>({id:d.id,...d.data()}));renderEnroutes();refreshDashboard();});
+      onSnapshot(query(collection(db,"timesheets"),where("uid","==",uid)),snap=>{timesheets=snap.docs.map(d=>({id:d.id,...d.data()}));renderTimesheets();});
+      onSnapshot(query(collection(db,"patrols"),where("uid","==",uid)),snap=>{patrols=snap.docs.map(d=>({id:d.id,...d.data()}));renderPatrols();});
+      onSnapshot(query(collection(db,"alerts"),where("uid","==",uid)),snap=>{alerts=snap.docs.map(d=>({id:d.id,...d.data()}));renderAlerts();updateAlertBadge();});
     }
 
-    // ─── LOAD DATA ───────────────────────────────────────
-    function loadData() {
-      if (!currentUser) return;
-      const uid = currentUser.uid;
-
-      onSnapshot(query(collection(db, "incidents"), where("uid","==",uid)), snap => {
-        incidents = snap.docs.map(d => ({id:d.id, ...d.data()}));
-        renderIncidents();
-        refreshDashboard();
-      });
-      onSnapshot(query(collection(db, "guards"), where("uid","==",uid)), snap => {
-        guards = snap.docs.map(d => ({id:d.id, ...d.data()}));
-        renderGuards();
-        refreshDashboard();
-      });
-      onSnapshot(query(collection(db, "access_logs"), where("uid","==",uid)), snap => {
-        accessLogs = snap.docs.map(d => ({id:d.id, ...d.data()}));
-        renderAccessLogs();
-        refreshDashboard();
-      });
+    // DASHBOARD
+    function refreshDashboard(){
+      const open=incidents.filter(i=>i.status==="open").length;
+      const activeGuards=guards.filter(g=>g.status==="on-duty").length;
+      const activeEn=enroutes.filter(e=>e.status==="enroute").length;
+      const today=new Date().toDateString();
+      const todayAccess=accessLogs.filter(a=>a.createdAt?.toDate?.().toDateString()===today).length;
+      document.getElementById("stat-open").textContent=open;
+      document.getElementById("stat-guards").textContent=activeGuards;
+      document.getElementById("stat-enroute").textContent=activeEn;
+      document.getElementById("stat-access").textContent=todayAccess;
+      const pct=Math.min(open*20,100);
+      document.getElementById("threat-fill").style.width=pct+"%";
+      document.getElementById("threat-status").textContent=pct===0?"LOW — No active threats":pct<=40?"MODERATE — Monitor situation":pct<=70?"HIGH — Immediate attention required":"CRITICAL — Emergency response needed";
+      document.getElementById("threat-fill").className="threat-fill "+(pct===0?"green":pct<=40?"amber":"red");
+      const el=document.getElementById("dash-incidents-list");
+      const recent=[...incidents].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,5);
+      el.innerHTML=recent.length?recent.map(i=>`<div class="feed-item"><span class="severity-dot ${i.severity}"></span><div class="feed-info"><strong>${i.type}</strong><small>${i.location}</small></div><span class="status-badge ${i.status}">${i.status}</span></div>`).join(""):'<div class="empty-state">No incidents logged yet.</div>';
+      const gel=document.getElementById("dash-enroute-list");
+      const enList=enroutes.filter(e=>e.status==="enroute").slice(0,4);
+      gel.innerHTML=enList.length?enList.map(e=>`<div class="feed-item"><div class="guard-avatar">${(e.guard||"U").charAt(0)}</div><div class="feed-info"><strong>${e.guard}</strong><small>→ ${e.destination}</small></div><span class="status-badge investigating">ENROUTE</span></div>`).join(""):'<div class="empty-state">No units dispatched.</div>';
     }
 
-    // ─── DASHBOARD ───────────────────────────────────────
-    function refreshDashboard() {
-      const open = incidents.filter(i => i.status === "open").length;
-      const activeGuards = guards.filter(g => g.status === "on-duty").length;
-      const today = new Date().toDateString();
-      const todayAccess = accessLogs.filter(a => a.createdAt?.toDate?.().toDateString() === today).length;
-
-      document.getElementById("stat-open").textContent = open;
-      document.getElementById("stat-guards").textContent = activeGuards;
-      document.getElementById("stat-access").textContent = todayAccess;
-      document.getElementById("stat-total").textContent = incidents.length;
-
-      // Threat level
-      const pct = Math.min(open * 20, 100);
-      document.getElementById("threat-fill").style.width = pct + "%";
-      const lvl = pct === 0 ? "LOW — No active threats" : pct <= 40 ? "MODERATE — Monitor situation" : pct <= 70 ? "HIGH — Immediate attention required" : "CRITICAL — Emergency response needed";
-      document.getElementById("threat-status").textContent = lvl;
-      document.getElementById("threat-fill").className = "threat-fill " + (pct === 0 ? "green" : pct <= 40 ? "amber" : "red");
-
-      // Recent incidents
-      const el = document.getElementById("dash-incidents-list");
-      const recent = [...incidents].sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,5);
-      el.innerHTML = recent.length ? recent.map(i => `
-        <div class="feed-item">
-          <span class="severity-dot ${i.severity}"></span>
-          <div class="feed-info"><strong>${i.type}</strong><small>${i.location}</small></div>
-          <span class="status-badge ${i.status}">${i.status}</span>
-        </div>`).join("") : '<div class="empty-state">No incidents logged yet.</div>';
-
-      // Guards
-      const gel = document.getElementById("dash-guards-list");
-      gel.innerHTML = guards.length ? guards.map(g => `
-        <div class="feed-item">
-          <div class="guard-avatar">${g.name.charAt(0)}</div>
-          <div class="feed-info"><strong>${g.name}</strong><small>${g.zone || "Unassigned"}</small></div>
-          <span class="status-badge ${g.status}">${g.status}</span>
-        </div>`).join("") : '<div class="empty-state">No guards added yet.</div>';
+    // INCIDENTS
+    function renderIncidents(){
+      const filter=document.getElementById("incident-filter").value;
+      const list=filter==="all"?incidents:incidents.filter(i=>i.status===filter);
+      const tbody=document.getElementById("incidents-table-body");
+      if(!list.length){tbody.innerHTML=`<tr><td colspan="7" class="empty-cell">No incidents found.</td></tr>`;return;}
+      tbody.innerHTML=list.map((inc,idx)=>`<tr><td class="mono">#${String(idx+1).padStart(4,"0")}</td><td>${inc.createdAt?.toDate?.().toLocaleString("en-GB")||"—"}</td><td>${inc.type}</td><td>${inc.location}</td><td><span class="severity-badge ${inc.severity}">${inc.severity}</span></td><td><span class="status-badge ${inc.status}">${inc.status}</span></td><td><button class="tbl-btn" onclick="window.resolveIncident('${inc.id}')">Resolve</button><button class="tbl-btn danger" onclick="window.deleteIncident('${inc.id}')">Del</button></td></tr>`).join("");
     }
+    document.getElementById("incident-filter").addEventListener("change",renderIncidents);
+    document.getElementById("new-incident-btn").addEventListener("click",()=>{openModal("LOG INCIDENT",`<div class="field-group"><label>INCIDENT TYPE</label><select id="m-type" class="filter-select full"><option>Forced Entry</option><option>Trespassing</option><option>Theft</option><option>Vandalism</option><option>Assault</option><option>Suspicious Activity</option><option>Other</option></select></div><div class="field-group"><label>LOCATION / ZONE</label><input type="text" id="m-location" placeholder="e.g. Gate B, Block 3"/></div><div class="field-group"><label>SEVERITY</label><select id="m-severity" class="filter-select full"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div><div class="field-group"><label>DESCRIPTION</label><textarea id="m-desc" rows="3" placeholder="Brief description..."></textarea></div><button class="btn-primary" onclick="window.submitIncident()"><span>SUBMIT INCIDENT</span></button>`);});
 
-    // ─── INCIDENTS ───────────────────────────────────────
-    function renderIncidents() {
-      const filter = document.getElementById("incident-filter").value;
-      const list = filter === "all" ? incidents : incidents.filter(i => i.status === filter);
-      const tbody = document.getElementById("incidents-table-body");
-      if (!list.length) {
-        tbody.innerHTML = `<tr><td colspan="7" class="empty-cell">No incidents found.</td></tr>`;
-        return;
-      }
-      tbody.innerHTML = list.map((inc, idx) => `
-        <tr>
-          <td class="mono">#${String(idx+1).padStart(4,"0")}</td>
-          <td>${inc.createdAt?.toDate?.().toLocaleString("en-GB") || "—"}</td>
-          <td>${inc.type}</td>
-          <td>${inc.location}</td>
-          <td><span class="severity-badge ${inc.severity}">${inc.severity}</span></td>
-          <td><span class="status-badge ${inc.status}">${inc.status}</span></td>
-          <td>
-            <button class="tbl-btn" onclick="window.resolveIncident('${inc.id}')">Resolve</button>
-            <button class="tbl-btn danger" onclick="window.deleteIncident('${inc.id}')">Del</button>
-          </td>
-        </tr>`).join("");
-    }
+```
+window.submitIncident=async()=>{await addDoc(collection(db,"incidents"),{type:document.getElementById("m-type").value,location:document.getElementById("m-location").value||"Unknown",severity:document.getElementById("m-severity").value,description:document.getElementById("m-desc").value,status:"open",uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
+window.resolveIncident=async(id)=>{await updateDoc(doc(db,"incidents",id),{status:"resolved"});};
+window.deleteIncident=async(id)=>{if(confirm("Delete incident?"))await deleteDoc(doc(db,"incidents",id));};
 
-    document.getElementById("incident-filter").addEventListener("change", renderIncidents);
+// ENROUTE
+function renderEnroutes(){
+  const tbody=document.getElementById("enroute-table-body");
+  if(!enroutes.length){tbody.innerHTML=`<tr><td colspan="7" class="empty-cell">No units dispatched.</td></tr>`;return;}
+  tbody.innerHTML=[...enroutes].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map((e,idx)=>`<tr><td class="mono">UNIT-${String(idx+1).padStart(2,"0")}</td><td>${e.guard}</td><td>${e.destination}</td><td>${e.createdAt?.toDate?.().toLocaleTimeString("en-GB")||"—"}</td><td>${e.eta||"—"}</td><td><span class="status-badge ${e.status==="enroute"?"investigating":e.status==="on-scene"?"open":"resolved"}">${e.status.toUpperCase()}</span></td><td><button class="tbl-btn" onclick="window.updateEnroute('${e.id}','on-scene')">On Scene</button><button class="tbl-btn" onclick="window.updateEnroute('${e.id}','cleared')">Clear</button><button class="tbl-btn danger" onclick="window.deleteEnroute('${e.id}')">Del</button></td></tr>`).join("");
+}
+document.getElementById("new-enroute-btn").addEventListener("click",()=>{const go=guards.map(g=>`<option>${g.name}</option>`).join("")||"<option>No guards added</option>";openModal("DISPATCH UNIT",`<div class="field-group"><label>GUARD / UNIT</label><select id="m-eguard" class="filter-select full">${go}</select></div><div class="field-group"><label>DESTINATION</label><input type="text" id="m-edest" placeholder="e.g. Gate A, Block 3"/></div><div class="field-group"><label>ETA</label><input type="text" id="m-eeta" placeholder="e.g. 5 mins"/></div><div class="field-group"><label>NOTES</label><textarea id="m-enotes" rows="2" placeholder="Dispatch notes..."></textarea></div><button class="btn-primary" onclick="window.submitEnroute()"><span>DISPATCH UNIT</span></button>`);});
+window.submitEnroute=async()=>{await addDoc(collection(db,"enroutes"),{guard:document.getElementById("m-eguard").value,destination:document.getElementById("m-edest").value||"Unknown",eta:document.getElementById("m-eeta").value,notes:document.getElementById("m-enotes").value,status:"enroute",uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
+window.updateEnroute=async(id,status)=>{await updateDoc(doc(db,"enroutes",id),{status});};
+window.deleteEnroute=async(id)=>{if(confirm("Remove dispatch?"))await deleteDoc(doc(db,"enroutes",id));};
 
-    document.getElementById("new-incident-btn").addEventListener("click", () => {
-      openModal("LOG INCIDENT", `
-        <div class="field-group"><label>INCIDENT TYPE</label>
-          <select id="m-type" class="filter-select full">
-            <option>Forced Entry</option><option>Trespassing</option><option>Theft</option>
-            <option>Vandalism</option><option>Assault</option><option>Suspicious Activity</option><option>Other</option>
-          </select></div>
-        <div class="field-group"><label>LOCATION / ZONE</label><input type="text" id="m-location" placeholder="e.g. Gate B, Block 3"/></div>
-        <div class="field-group"><label>SEVERITY</label>
-          <select id="m-severity" class="filter-select full">
-            <option value="low">Low</option><option value="medium">Medium</option>
-            <option value="high">High</option><option value="critical">Critical</option>
-          </select></div>
-        <div class="field-group"><label>DESCRIPTION</label><textarea id="m-desc" rows="3" placeholder="Brief description of the incident..."></textarea></div>
-        <button class="btn-primary" onclick="window.submitIncident()"><span>SUBMIT INCIDENT</span></button>
-      `);
-    });
+// GUARDS
+function renderGuards(){
+  const grid=document.getElementById("guards-grid");
+  if(!guards.length){grid.innerHTML='<div class="empty-state full">No guards added yet.</div>';return;}
+  grid.innerHTML=guards.map(g=>`<div class="guard-card"><div class="gc-avatar">${g.name.charAt(0)}</div><div class="gc-name">${g.name}</div><div class="gc-zone">${g.zone||"Unassigned"}</div><div class="gc-shift">${g.shift||"—"}</div><span class="status-badge ${g.status}">${g.status}</span><div class="gc-actions"><button class="tbl-btn" onclick="window.toggleGuard('${g.id}','${g.status}')">${g.status==="on-duty"?"Off Duty":"On Duty"}</button><button class="tbl-btn danger" onclick="window.deleteGuard('${g.id}')">Remove</button></div></div>`).join("");
+}
+document.getElementById("new-guard-btn").addEventListener("click",()=>{openModal("ADD GUARD",`<div class="field-group"><label>FULL NAME</label><input type="text" id="m-gname" placeholder="Officer Name"/></div><div class="field-group"><label>BADGE / ID</label><input type="text" id="m-gbadge" placeholder="e.g. SS-001"/></div><div class="field-group"><label>ASSIGNED ZONE</label><input type="text" id="m-gzone" placeholder="e.g. Perimeter, Gate A"/></div><div class="field-group"><label>SHIFT</label><select id="m-gshift" class="filter-select full"><option>Day (06:00–18:00)</option><option>Night (18:00–06:00)</option><option>Rotating</option></select></div><button class="btn-primary" onclick="window.submitGuard()"><span>ADD GUARD</span></button>`);});
+window.submitGuard=async()=>{await addDoc(collection(db,"guards"),{name:document.getElementById("m-gname").value||"Unknown",badge:document.getElementById("m-gbadge").value,zone:document.getElementById("m-gzone").value,shift:document.getElementById("m-gshift").value,status:"on-duty",uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
+window.toggleGuard=async(id,status)=>{await updateDoc(doc(db,"guards",id),{status:status==="on-duty"?"off-duty":"on-duty"});};
+window.deleteGuard=async(id)=>{if(confirm("Remove guard?"))await deleteDoc(doc(db,"guards",id));};
 
-    window.submitIncident = async () => {
-      const data = {
-        type: document.getElementById("m-type").value,
-        location: document.getElementById("m-location").value || "Unknown",
-        severity: document.getElementById("m-severity").value,
-        description: document.getElementById("m-desc").value,
-        status: "open",
-        uid: currentUser.uid,
-        createdAt: serverTimestamp()
-      };
-      await addDoc(collection(db, "incidents"), data);
-      closeModal();
-    };
+// TIMESHEETS
+function renderTimesheets(){
+  const tbody=document.getElementById("timesheet-table-body");
+  if(!timesheets.length){tbody.innerHTML=`<tr><td colspan="8" class="empty-cell">No timesheet entries yet.</td></tr>`;return;}
+  tbody.innerHTML=[...timesheets].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map(t=>{
+    let hours="—";
+    if(t.clockIn&&t.clockOut){const [ih,im]=t.clockIn.split(":").map(Number);const [oh,om]=t.clockOut.split(":").map(Number);let diff=(oh*60+om)-(ih*60+im);if(diff<0)diff+=1440;hours=(diff/60).toFixed(1)+"h";}
+    return `<tr><td>${t.guard}</td><td>${t.date||"—"}</td><td class="mono">${t.clockIn||"—"}</td><td class="mono">${t.clockOut||"Active"}</td><td><strong>${hours}</strong></td><td>${t.shift||"—"}</td><td><span class="status-badge ${t.clockOut?"resolved":"open"}">${t.clockOut?"COMPLETE":"ACTIVE"}</span></td><td>${!t.clockOut?`<button class="tbl-btn" onclick="window.clockOut('${t.id}')">Clock Out</button>`:""}<button class="tbl-btn danger" onclick="window.deleteTimesheet('${t.id}')">Del</button></td></tr>`;
+  }).join("");
+}
+document.getElementById("new-timesheet-btn").addEventListener("click",()=>{
+  const go=guards.map(g=>`<option>${g.name}</option>`).join("")||"<option>No guards added</option>";
+  const now=new Date();
+  openModal("CLOCK IN",`<div class="field-group"><label>GUARD</label><select id="m-tguard" class="filter-select full">${go}</select></div><div class="field-group"><label>DATE</label><input type="date" id="m-tdate" value="${now.toISOString().split('T')[0]}"/></div><div class="field-group"><label>CLOCK IN TIME</label><input type="time" id="m-tclockin" value="${now.toTimeString().slice(0,5)}"/></div><div class="field-group"><label>SHIFT</label><select id="m-tshift" class="filter-select full"><option>Day (06:00–18:00)</option><option>Night (18:00–06:00)</option><option>Rotating</option></select></div><button class="btn-primary" onclick="window.submitTimesheet()"><span>CLOCK IN</span></button>`);
+});
+window.submitTimesheet=async()=>{await addDoc(collection(db,"timesheets"),{guard:document.getElementById("m-tguard").value,date:document.getElementById("m-tdate").value,clockIn:document.getElementById("m-tclockin").value,clockOut:null,shift:document.getElementById("m-tshift").value,uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
+window.clockOut=async(id)=>{await updateDoc(doc(db,"timesheets",id),{clockOut:new Date().toTimeString().slice(0,5)});};
+window.deleteTimesheet=async(id)=>{if(confirm("Delete entry?"))await deleteDoc(doc(db,"timesheets",id));};
 
-    window.resolveIncident = async (id) => {
-      await updateDoc(doc(db, "incidents", id), { status: "resolved" });
-    };
-    window.deleteIncident = async (id) => {
-      if (confirm("Delete this incident?")) await deleteDoc(doc(db, "incidents", id));
-    };
+// ACCESS LOGS
+function renderAccessLogs(){
+  const tbody=document.getElementById("access-table-body");
+  if(!accessLogs.length){tbody.innerHTML=`<tr><td colspan="5" class="empty-cell">No access entries logged.</td></tr>`;return;}
+  tbody.innerHTML=[...accessLogs].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map(a=>`<tr><td class="mono">${a.createdAt?.toDate?.().toLocaleTimeString("en-GB")||"—"}</td><td>${a.person}</td><td>${a.zone}</td><td>${a.method}</td><td><span class="status-badge ${a.granted?"resolved":"open"}">${a.granted?"GRANTED":"DENIED"}</span></td></tr>`).join("");
+}
+document.getElementById("new-access-btn").addEventListener("click",()=>{openModal("LOG ACCESS ENTRY",`<div class="field-group"><label>PERSON / ID</label><input type="text" id="m-aperson" placeholder="Name or Badge ID"/></div><div class="field-group"><label>ZONE</label><input type="text" id="m-azone" placeholder="e.g. Main Gate"/></div><div class="field-group"><label>METHOD</label><select id="m-amethod" class="filter-select full"><option>Key Card</option><option>PIN</option><option>Biometric</option><option>Manual Override</option><option>Visitor Pass</option></select></div><div class="field-group"><label>ACCESS</label><select id="m-agranted" class="filter-select full"><option value="true">Granted</option><option value="false">Denied</option></select></div><button class="btn-primary" onclick="window.submitAccess()"><span>LOG ENTRY</span></button>`);});
+window.submitAccess=async()=>{await addDoc(collection(db,"access_logs"),{person:document.getElementById("m-aperson").value||"Unknown",zone:document.getElementById("m-azone").value||"Unknown",method:document.getElementById("m-amethod").value,granted:document.getElementById("m-agranted").value==="true",uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
 
-    // ─── GUARDS ──────────────────────────────────────────
-    function renderGuards() {
-      const grid = document.getElementById("guards-grid");
-      if (!guards.length) {
-        grid.innerHTML = '<div class="empty-state full">No guards added yet.</div>';
-        return;
-      }
-      grid.innerHTML = guards.map(g => `
-        <div class="guard-card">
-          <div class="gc-avatar">${g.name.charAt(0)}</div>
-          <div class="gc-name">${g.name}</div>
-          <div class="gc-zone">${g.zone || "Unassigned"}</div>
-          <div class="gc-shift">${g.shift || "—"}</div>
-          <span class="status-badge ${g.status}">${g.status}</span>
-          <div class="gc-actions">
-            <button class="tbl-btn" onclick="window.toggleGuard('${g.id}','${g.status}')">${g.status === "on-duty" ? "Off Duty" : "On Duty"}</button>
-            <button class="tbl-btn danger" onclick="window.deleteGuard('${g.id}')">Remove</button>
-          </div>
-        </div>`).join("");
-    }
+// PATROL
+function renderPatrols(){
+  const tbody=document.getElementById("patrol-table-body");
+  if(!patrols.length){tbody.innerHTML=`<tr><td colspan="6" class="empty-cell">No patrol checkpoints logged.</td></tr>`;return;}
+  tbody.innerHTML=[...patrols].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map(p=>`<tr><td class="mono">${p.createdAt?.toDate?.().toLocaleTimeString("en-GB")||"—"}</td><td>${p.guard}</td><td>${p.checkpoint}</td><td>${p.zone}</td><td>${p.notes||"—"}</td><td><span class="status-badge resolved">CHECKED</span></td></tr>`).join("");
+}
+document.getElementById("new-patrol-btn").addEventListener("click",()=>{const go=guards.map(g=>`<option>${g.name}</option>`).join("")||"<option>No guards added</option>";openModal("LOG CHECKPOINT",`<div class="field-group"><label>GUARD</label><select id="m-pguard" class="filter-select full">${go}</select></div><div class="field-group"><label>CHECKPOINT</label><input type="text" id="m-pcheckpoint" placeholder="e.g. North Gate"/></div><div class="field-group"><label>ZONE</label><input type="text" id="m-pzone" placeholder="e.g. Perimeter"/></div><div class="field-group"><label>NOTES</label><textarea id="m-pnotes" rows="2" placeholder="Observations..."></textarea></div><button class="btn-primary" onclick="window.submitPatrol()"><span>LOG CHECKPOINT</span></button>`);});
+window.submitPatrol=async()=>{await addDoc(collection(db,"patrols"),{guard:document.getElementById("m-pguard").value,checkpoint:document.getElementById("m-pcheckpoint").value||"Unknown",zone:document.getElementById("m-pzone").value||"Unknown",notes:document.getElementById("m-pnotes").value,uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
 
-    document.getElementById("new-guard-btn").addEventListener("click", () => {
-      openModal("ADD GUARD", `
-        <div class="field-group"><label>FULL NAME</label><input type="text" id="m-gname" placeholder="Officer Name"/></div>
-        <div class="field-group"><label>ASSIGNED ZONE</label><input type="text" id="m-gzone" placeholder="e.g. Perimeter, Gate A"/></div>
-        <div class="field-group"><label>SHIFT</label>
-          <select id="m-gshift" class="filter-select full">
-            <option>Day (06:00–18:00)</option><option>Night (18:00–06:00)</option><option>Rotating</option>
-          </select></div>
-        <button class="btn-primary" onclick="window.submitGuard()"><span>ADD GUARD</span></button>
-      `);
-    });
+// ALERTS
+function renderAlerts(){
+  const el=document.getElementById("alerts-list");
+  if(!alerts.length){el.innerHTML='<div class="empty-state">No alerts. System nominal.</div>';return;}
+  el.innerHTML=[...alerts].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map(a=>`<div class="alert-item ${a.type}"><div class="alert-icon">${a.type==="critical"?"🚨":a.type==="warning"?"⚠️":"ℹ️"}</div><div class="alert-body"><div class="alert-title">${a.title}</div><div class="alert-msg">${a.message}</div><div class="alert-time">${a.createdAt?.toDate?.().toLocaleString("en-GB")||"—"}</div></div><button class="alert-dismiss" onclick="window.dismissAlert('${a.id}')">✕</button></div>`).join("");
+}
+function updateAlertBadge(){const badge=document.getElementById("alert-badge");badge.textContent=alerts.length;alerts.length>0?badge.classList.remove("hidden"):badge.classList.add("hidden");}
+document.getElementById("new-alert-btn").addEventListener("click",()=>{openModal("CREATE ALERT",`<div class="field-group"><label>TYPE</label><select id="m-atype" class="filter-select full"><option value="info">Info</option><option value="warning">Warning</option><option value="critical">Critical</option></select></div><div class="field-group"><label>TITLE</label><input type="text" id="m-atitle" placeholder="Alert title"/></div><div class="field-group"><label>MESSAGE</label><textarea id="m-amessage" rows="3" placeholder="Alert details..."></textarea></div><button class="btn-primary" onclick="window.submitAlert()"><span>SEND ALERT</span></button>`);});
+window.submitAlert=async()=>{await addDoc(collection(db,"alerts"),{type:document.getElementById("m-atype").value,title:document.getElementById("m-atitle").value||"Alert",message:document.getElementById("m-amessage").value,uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
+window.dismissAlert=async(id)=>{await deleteDoc(doc(db,"alerts",id));};
+document.getElementById("clear-alerts-btn").addEventListener("click",async()=>{if(confirm("Clear all alerts?"))for(const a of alerts)await deleteDoc(doc(db,"alerts",a.id));});
 
-    window.submitGuard = async () => {
-      const data = {
-        name: document.getElementById("m-gname").value || "Unknown",
-        zone: document.getElementById("m-gzone").value,
-        shift: document.getElementById("m-gshift").value,
-        status: "on-duty",
-        uid: currentUser.uid,
-        createdAt: serverTimestamp()
-      };
-      await addDoc(collection(db, "guards"), data);
-      closeModal();
-    };
+// SOS
+document.getElementById("sos-btn").addEventListener("click",()=>document.getElementById("sos-overlay").classList.remove("hidden"));
+document.getElementById("sos-cancel").addEventListener("click",()=>document.getElementById("sos-overlay").classList.add("hidden"));
+document.getElementById("sos-confirm").addEventListener("click",async()=>{
+  const type=document.getElementById("sos-type").value;
+  const location=document.getElementById("sos-location").value||"Unknown";
+  const details=document.getElementById("sos-details").value;
+  await addDoc(collection(db,"alerts"),{type:"critical",title:`🚨 SOS: ${type}`,message:`Location: ${location}. ${details}`,uid:currentUser.uid,createdAt:serverTimestamp()});
+  await addDoc(collection(db,"incidents"),{type:`SOS — ${type}`,location,severity:"critical",description:details,status:"open",uid:currentUser.uid,createdAt:serverTimestamp()});
+  document.getElementById("sos-overlay").classList.add("hidden");
+  ["sos-location","sos-details"].forEach(id=>document.getElementById(id).value="");
+  switchView("alerts");
+  alert("🚨 SOS ALERT SENT!");
+});
 
-    window.toggleGuard = async (id, status) => {
-      await updateDoc(doc(db, "guards", id), { status: status === "on-duty" ? "off-duty" : "on-duty" });
-    };
-    window.deleteGuard = async (id) => {
-      if (confirm("Remove this guard?")) await deleteDoc(doc(db, "guards", id));
-    };
+// REPORTS
+document.getElementById("gen-report-btn").addEventListener("click",()=>{
+  const type=document.getElementById("report-type").value;
+  const now=new Date().toLocaleString("en-GB");
+  const el=document.getElementById("reports-list");
+  const item=document.createElement("div"); item.className="feed-item";
+  item.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00f5c4" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="feed-info"><strong>${type}</strong><small>Generated ${now}</small></div>`;
+  el.querySelector(".empty-state")?.remove(); el.prepend(item);
+});
 
-    // ─── ACCESS LOGS ─────────────────────────────────────
-    function renderAccessLogs() {
-      const tbody = document.getElementById("access-table-body");
-      if (!accessLogs.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="empty-cell">No access entries logged.</td></tr>`;
-        return;
-      }
-      const sorted = [...accessLogs].sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-      tbody.innerHTML = sorted.map(a => `
-        <tr>
-          <td class="mono">${a.createdAt?.toDate?.().toLocaleTimeString("en-GB") || "—"}</td>
-          <td>${a.person}</td>
-          <td>${a.zone}</td>
-          <td>${a.method}</td>
-          <td><span class="status-badge ${a.granted ? 'resolved' : 'open'}">${a.granted ? "GRANTED" : "DENIED"}</span></td>
-        </tr>`).join("");
-    }
+// MODAL
+function openModal(title,bodyHTML){document.getElementById("modal-title").textContent=title;document.getElementById("modal-body").innerHTML=bodyHTML;document.getElementById("modal-overlay").classList.remove("hidden");}
+function closeModal(){document.getElementById("modal-overlay").classList.add("hidden");}
+document.getElementById("modal-close").addEventListener("click",closeModal);
+document.getElementById("modal-overlay").addEventListener("click",e=>{if(e.target===document.getElementById("modal-overlay"))closeModal();});
+```
 
-    document.getElementById("new-access-btn").addEventListener("click", () => {
-      openModal("LOG ACCESS ENTRY", `
-        <div class="field-group"><label>PERSON / ID</label><input type="text" id="m-aperson" placeholder="Name or Badge ID"/></div>
-        <div class="field-group"><label>ZONE</label><input type="text" id="m-azone" placeholder="e.g. Server Room, Main Gate"/></div>
-        <div class="field-group"><label>METHOD</label>
-          <select id="m-amethod" class="filter-select full">
-            <option>Key Card</option><option>PIN</option><option>Biometric</option><option>Manual Override</option><option>Visitor Pass</option>
-          </select></div>
-        <div class="field-group"><label>ACCESS</label>
-          <select id="m-agranted" class="filter-select full">
-            <option value="true">Granted</option><option value="false">Denied</option>
-          </select></div>
-        <button class="btn-primary" onclick="window.submitAccess()"><span>LOG ENTRY</span></button>
-      `);
-    });
-
-    window.submitAccess = async () => {
-      const data = {
-        person: document.getElementById("m-aperson").value || "Unknown",
-        zone: document.getElementById("m-azone").value || "Unknown",
-        method: document.getElementById("m-amethod").value,
-        granted: document.getElementById("m-agranted").value === "true",
-        uid: currentUser.uid,
-        createdAt: serverTimestamp()
-      };
-      await addDoc(collection(db, "access_logs"), data);
-      closeModal();
-    };
-
-    // ─── REPORTS ─────────────────────────────────────────
-    document.getElementById("gen-report-btn").addEventListener("click", () => {
-      const type = document.getElementById("report-type").value;
-      const now = new Date().toLocaleString("en-GB");
-      const el = document.getElementById("reports-list");
-      const item = document.createElement("div");
-      item.className = "feed-item";
-      item.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00f5c4" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        <div class="feed-info"><strong>${type}</strong><small>Generated ${now}</small></div>`;
-      el.querySelector(".empty-state")?.remove();
-      el.prepend(item);
-    });
-
-    // ─── MODAL ───────────────────────────────────────────
-    function openModal(title, bodyHTML) {
-      document.getElementById("modal-title").textContent = title;
-      document.getElementById("modal-body").innerHTML = bodyHTML;
-      document.getElementById("modal-overlay").classList.remove("hidden");
-    }
-    function closeModal() {
-      document.getElementById("modal-overlay").classList.add("hidden");
-    }
-    document.getElementById("modal-close").addEventListener("click", closeModal);
-    document.getElementById("modal-overlay").addEventListener("click", e => {
-      if (e.target === document.getElementById("modal-overlay")) closeModal();
-    });
   </script>
 </body>
 </html>
