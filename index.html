@@ -1,586 +1,2667 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ShieldSync — Security Management</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ShieldSync</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #080c12;
+    --bg-card: #0e1420;
+    --bg-card2: #121826;
+    --border: rgba(255,255,255,0.07);
+    --border-accent: rgba(0,255,180,0.2);
+    --accent: #00ffb4;
+    --accent-dim: rgba(0,255,180,0.12);
+    --red: #ff3b3b;
+    --red-dim: rgba(255,59,59,0.15);
+    --amber: #f5a623;
+    --amber-dim: rgba(245,166,35,0.15);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59,130,246,0.15);
+    --teal: #14b8a6;
+    --text-primary: #f0f4f8;
+    --text-secondary: #6b7a90;
+    --text-muted: #3d4a5c;
+    --sos: #ff2d55;
+  }
+
+- { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+background: var(–bg-deep);
+font-family: ‘Inter’, sans-serif;
+color: var(–text-primary);
+min-height: 100vh;
+display: flex;
+justify-content: center;
+align-items: flex-start;
+}
+
+.phone-shell {
+width: 100%;
+max-width: 390px;
+min-height: 100vh;
+position: relative;
+overflow: hidden;
+background: var(–bg-deep);
+}
+
+/* ========== SCREENS ========== */
+.screen {
+position: absolute;
+inset: 0;
+display: flex;
+flex-direction: column;
+opacity: 0;
+pointer-events: none;
+transform: translateY(20px);
+transition: opacity 0.35s ease, transform 0.35s ease;
+overflow-y: auto;
+overflow-x: hidden;
+-webkit-overflow-scrolling: touch;
+}
+.screen.active {
+opacity: 1;
+pointer-events: all;
+transform: translateY(0);
+}
+
+/* ========== LOGIN ========== */
+#screen-login {
+background: var(–bg-deep);
+justify-content: center;
+padding: 48px 28px 40px;
+gap: 0;
+}
+
+.login-brand {
+text-align: center;
+margin-bottom: 48px;
+}
+.brand-shield {
+width: 72px;
+height: 72px;
+background: linear-gradient(135deg, #0e1420, #1a2540);
+border: 1.5px solid var(–border-accent);
+border-radius: 20px;
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0 auto 20px;
+position: relative;
+box-shadow: 0 0 40px rgba(0,255,180,0.08);
+}
+.brand-shield svg { width: 36px; height: 36px; }
+.brand-name {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 28px;
+font-weight: 700;
+letter-spacing: 3px;
+color: var(–text-primary);
+}
+.brand-sub {
+font-size: 11px;
+letter-spacing: 2px;
+color: var(–text-secondary);
+margin-top: 4px;
+}
+
+.login-form { display: flex; flex-direction: column; gap: 16px; }
+
+.field-group { display: flex; flex-direction: column; gap: 8px; }
+.field-label {
+font-size: 10px;
+letter-spacing: 2px;
+color: var(–text-secondary);
+font-weight: 500;
+}
+.field-input {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 14px 16px;
+color: var(–text-primary);
+font-family: ‘Inter’, sans-serif;
+font-size: 15px;
+outline: none;
+transition: border-color 0.2s;
+width: 100%;
+}
+.field-input:focus { border-color: var(–accent); }
+.field-input::placeholder { color: var(–text-muted); }
+
+.forgot-link {
+text-align: right;
+font-size: 12px;
+color: var(–accent);
+cursor: pointer;
+letter-spacing: 0.5px;
+margin-top: -4px;
+}
+
+.btn-primary {
+background: var(–accent);
+color: #000;
+border: none;
+border-radius: 12px;
+padding: 16px;
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 15px;
+font-weight: 700;
+letter-spacing: 2px;
+cursor: pointer;
+margin-top: 8px;
+transition: opacity 0.2s, transform 0.1s;
+}
+.btn-primary:active { opacity: 0.85; transform: scale(0.98); }
+
+.demo-banner {
+background: var(–amber-dim);
+border: 1px solid rgba(245,166,35,0.3);
+border-radius: 10px;
+padding: 12px 16px;
+display: flex;
+align-items: flex-start;
+gap: 10px;
+margin-top: 24px;
+}
+.demo-dot {
+width: 8px; height: 8px;
+background: var(–amber);
+border-radius: 50%;
+flex-shrink: 0;
+margin-top: 4px;
+}
+.demo-text { font-size: 12px; color: var(–amber); line-height: 1.5; }
+.demo-text strong { font-weight: 600; display: block; margin-bottom: 2px; }
+.demo-checklist { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.demo-check { font-size: 11px; color: rgba(245,166,35,0.8); display: flex; gap: 6px; }
+.demo-check span:first-child { color: var(–accent); }
+
+/* ========== RESET PASSWORD ========== */
+#screen-reset {
+background: var(–bg-deep);
+justify-content: center;
+padding: 48px 28px 40px;
+}
+
+.back-btn {
+display: flex; align-items: center; gap: 8px;
+font-size: 13px; color: var(–text-secondary);
+cursor: pointer; margin-bottom: 40px;
+background: none; border: none;
+}
+.back-btn:hover { color: var(–accent); }
+
+.reset-header { margin-bottom: 36px; }
+.reset-title {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 26px; font-weight: 700;
+letter-spacing: 1px;
+margin-bottom: 8px;
+}
+.reset-sub { font-size: 13px; color: var(–text-secondary); line-height: 1.6; }
+
+.reset-steps {
+display: flex; gap: 8px; margin-bottom: 32px;
+}
+.step-dot {
+flex: 1; height: 3px; border-radius: 2px;
+background: var(–bg-card2);
+transition: background 0.3s;
+}
+.step-dot.done { background: var(–accent); }
+
+.reset-stage { display: none; }
+.reset-stage.active { display: flex; flex-direction: column; gap: 16px; }
+
+.success-box {
+background: var(–accent-dim);
+border: 1px solid var(–border-accent);
+border-radius: 16px;
+padding: 32px 24px;
+text-align: center;
+}
+.success-icon {
+width: 56px; height: 56px;
+background: var(–accent);
+border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+margin: 0 auto 16px;
+font-size: 24px;
+}
+.success-title {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 20px; font-weight: 700;
+letter-spacing: 1px; margin-bottom: 8px;
+}
+.success-sub { font-size: 13px; color: var(–text-secondary); line-height: 1.6; }
+
+/* ========== HOME ========== */
+#screen-home {
+padding-bottom: 100px;
+}
+
+.topbar {
+display: flex; align-items: center; justify-content: space-between;
+padding: 16px 20px 12px;
+background: var(–bg-deep);
+position: sticky; top: 0; z-index: 10;
+border-bottom: 1px solid var(–border);
+}
+.topbar-brand {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 20px; font-weight: 700;
+letter-spacing: 2px; color: var(–text-primary);
+}
+.topbar-brand span { color: var(–accent); }
+.topbar-right { display: flex; gap: 12px; align-items: center; }
+.notif-btn {
+width: 36px; height: 36px;
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+cursor: pointer; position: relative;
+}
+.notif-badge {
+position: absolute; top: 6px; right: 6px;
+width: 8px; height: 8px;
+background: var(–red);
+border-radius: 50%;
+border: 1.5px solid var(–bg-deep);
+}
+.avatar {
+width: 36px; height: 36px;
+background: linear-gradient(135deg, var(–teal), var(–blue));
+border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 14px; font-weight: 700; color: #fff;
+cursor: pointer;
+}
+
+.home-content { padding: 20px 16px 0; display: flex; flex-direction: column; gap: 16px; }
+
+/* Greeting */
+.greeting { padding: 0 4px; }
+.greeting-time {
+font-size: 11px; letter-spacing: 2px; color: var(–text-secondary); margin-bottom: 4px;
+}
+.greeting-name {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 22px; font-weight: 700; letter-spacing: 1px;
+}
+
+/* Stats grid */
+.stats-grid {
+display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.stat-card {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 16px;
+display: flex; align-items: center; gap: 14px;
+cursor: pointer;
+transition: border-color 0.2s;
+}
+.stat-card:active { opacity: 0.8; }
+.stat-card.alert-card { border-color: rgba(255,59,59,0.3); background: linear-gradient(135deg, #0e1420, #1a0d0d); }
+.stat-icon {
+width: 40px; height: 40px; border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+flex-shrink: 0;
+}
+.stat-icon.red { background: var(–red-dim); }
+.stat-icon.blue { background: var(–blue-dim); }
+.stat-icon.teal { background: rgba(20,184,166,0.15); }
+.stat-icon.amber { background: var(–amber-dim); }
+.stat-num {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 26px; font-weight: 700; line-height: 1;
+margin-bottom: 2px;
+}
+.stat-num.red { color: var(–red); }
+.stat-label { font-size: 9px; letter-spacing: 1.5px; color: var(–text-secondary); }
+
+/* Enroute + Arrival Panel */
+.enroute-panel {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 16px;
+overflow: hidden;
+}
+.panel-header {
+display: flex; align-items: center; justify-content: space-between;
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+}
+.panel-title {
+font-size: 10px; letter-spacing: 2px; color: var(–text-secondary); font-weight: 500;
+}
+.panel-action {
+font-size: 11px; color: var(–accent); cursor: pointer; letter-spacing: 0.5px;
+}
+.enroute-tabs {
+display: flex;
+border-bottom: 1px solid var(–border);
+}
+.etab {
+flex: 1; padding: 10px;
+text-align: center;
+font-size: 11px; letter-spacing: 1.5px;
+color: var(–text-secondary);
+cursor: pointer;
+border-bottom: 2px solid transparent;
+transition: all 0.2s;
+}
+.etab.active { color: var(–accent); border-bottom-color: var(–accent); }
+
+.enroute-empty {
+padding: 24px 16px;
+text-align: center;
+font-size: 13px; color: var(–text-muted);
+font-style: italic;
+}
+
+.unit-row {
+display: flex; align-items: center; gap: 12px;
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+}
+.unit-row:last-child { border-bottom: none; }
+.unit-avatar {
+width: 36px; height: 36px; border-radius: 10px;
+background: var(–blue-dim);
+display: flex; align-items: center; justify-content: center;
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 13px; font-weight: 700; color: var(–blue);
+}
+.unit-info { flex: 1; }
+.unit-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.unit-dest { font-size: 11px; color: var(–text-secondary); }
+.unit-eta {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 13px; font-weight: 600;
+color: var(–accent);
+letter-spacing: 1px;
+}
+
+/* Recent Incidents */
+.incidents-panel {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 16px;
+overflow: hidden;
+}
+.incident-row {
+display: flex; align-items: center; gap: 12px;
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+cursor: pointer;
+}
+.incident-row:last-child { border-bottom: none; }
+.incident-dot {
+width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.incident-dot.open { background: var(–red); box-shadow: 0 0 8px var(–red); }
+.incident-dot.resolved { background: var(–accent); }
+.incident-info { flex: 1; }
+.incident-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.incident-sub { font-size: 11px; color: var(–text-secondary); }
+.incident-badge {
+font-size: 9px; letter-spacing: 1.5px; font-weight: 600;
+padding: 4px 8px; border-radius: 6px;
+border: 1px solid;
+}
+.incident-badge.open { color: var(–red); border-color: rgba(255,59,59,0.4); background: var(–red-dim); }
+.incident-badge.resolved { color: var(–accent); border-color: var(–border-accent); background: var(–accent-dim); }
+
+/* Threat Level */
+.threat-panel {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 16px;
+}
+.threat-bar-wrap {
+position: relative; margin: 14px 0 10px;
+}
+.threat-labels {
+display: flex; justify-content: space-between;
+margin-bottom: 8px;
+}
+.threat-lbl { font-size: 9px; letter-spacing: 1px; color: var(–text-muted); }
+.threat-bar-bg {
+height: 6px; border-radius: 3px;
+background: linear-gradient(to right, #22c55e, #f5a623, #ef4444, #7f1d1d);
+position: relative; overflow: hidden;
+}
+.threat-marker {
+position: absolute; top: -4px;
+width: 14px; height: 14px;
+background: #fff;
+border-radius: 50%;
+box-shadow: 0 0 8px rgba(245,166,35,0.8);
+left: 28%;
+transform: translateX(-50%);
+}
+.threat-status {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 13px; font-weight: 600;
+letter-spacing: 1px; color: var(–amber);
+margin-top: 12px;
+}
+
+/* ========== BOTTOM NAV ========== */
+.bottom-nav {
+position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+width: 100%; max-width: 390px;
+background: rgba(8,12,18,0.95);
+backdrop-filter: blur(20px);
+border-top: 1px solid var(–border);
+display: flex; align-items: center;
+padding: 8px 0 24px;
+z-index: 100;
+}
+.nav-item {
+flex: 1; display: flex; flex-direction: column;
+align-items: center; gap: 4px;
+cursor: pointer; padding: 8px 0;
+opacity: 0.4; transition: opacity 0.2s;
+}
+.nav-item.active { opacity: 1; }
+.nav-icon { width: 22px; height: 22px; }
+.nav-label { font-size: 9px; letter-spacing: 1.5px; color: var(–text-secondary); }
+.nav-item.active .nav-label { color: var(–accent); }
+
+.sos-btn {
+flex-shrink: 0;
+width: 56px; height: 56px;
+background: var(–sos);
+border-radius: 50%;
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+cursor: pointer;
+box-shadow: 0 0 20px rgba(255,45,85,0.4);
+margin-bottom: 8px;
+transition: transform 0.1s;
+}
+.sos-btn:active { transform: scale(0.92); }
+.sos-label { font-size: 8px; letter-spacing: 1px; font-weight: 700; color: #fff; margin-top: 2px; }
+
+/* ========== BURGER MENU ========== */
+.menu-overlay {
+position: fixed; inset: 0;
+background: rgba(0,0,0,0.6);
+z-index: 200;
+opacity: 0; pointer-events: none;
+transition: opacity 0.3s;
+}
+.menu-overlay.open { opacity: 1; pointer-events: all; }
+
+.menu-sheet {
+position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+width: 100%; max-width: 390px;
+background: var(–bg-card2);
+border-radius: 24px 24px 0 0;
+border: 1px solid var(–border);
+z-index: 201;
+padding: 20px 20px 48px;
+transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.menu-sheet.open { transform: translateX(-50%) translateY(0); }
+
+.menu-handle {
+width: 40px; height: 4px;
+background: var(–border);
+border-radius: 2px;
+margin: 0 auto 20px;
+}
+.menu-header {
+display: flex; align-items: center; justify-content: space-between;
+margin-bottom: 20px;
+}
+.menu-title { font-size: 10px; letter-spacing: 2px; color: var(–text-secondary); }
+.menu-close { cursor: pointer; color: var(–text-secondary); font-size: 18px; line-height: 1; }
+
+.menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.menu-item {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 14px;
+padding: 18px 12px;
+display: flex; flex-direction: column;
+align-items: center; gap: 10px;
+cursor: pointer;
+transition: border-color 0.2s;
+}
+.menu-item:active { opacity: 0.7; }
+.menu-item:hover { border-color: var(–border-accent); }
+.menu-item-label { font-size: 12px; color: var(–text-secondary); }
+
+/* Section divider */
+.section-divider {
+height: 1px; background: var(–border);
+margin: 4px 0 8px;
+}
+.menu-section-title {
+font-size: 9px; letter-spacing: 2px; color: var(–text-muted);
+margin-bottom: 10px; padding: 0 2px;
+}
+
+/* ========== SOS MODAL ========== */
+.sos-modal {
+position: fixed; inset: 0;
+background: rgba(0,0,0,0.8);
+z-index: 300;
+display: flex; align-items: center; justify-content: center;
+padding: 24px;
+opacity: 0; pointer-events: none;
+transition: opacity 0.25s;
+}
+.sos-modal.open { opacity: 1; pointer-events: all; }
+.sos-card {
+background: var(–bg-card2);
+border: 1px solid rgba(255,45,85,0.3);
+border-radius: 24px;
+padding: 32px 24px;
+width: 100%; text-align: center;
+}
+.sos-card-icon {
+width: 72px; height: 72px;
+background: rgba(255,45,85,0.15);
+border: 2px solid rgba(255,45,85,0.4);
+border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+margin: 0 auto 20px;
+animation: pulse-red 1.5s infinite;
+}
+@keyframes pulse-red {
+0%, 100% { box-shadow: 0 0 0 0 rgba(255,45,85,0.4); }
+50% { box-shadow: 0 0 0 16px rgba(255,45,85,0); }
+}
+.sos-card-title {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 22px; font-weight: 700; letter-spacing: 1px;
+color: var(–sos); margin-bottom: 8px;
+}
+.sos-card-sub { font-size: 13px; color: var(–text-secondary); margin-bottom: 28px; line-height: 1.6; }
+.sos-btn-row { display: flex; gap: 12px; }
+.btn-danger {
+flex: 1; background: var(–sos);
+color: #fff; border: none; border-radius: 12px;
+padding: 14px; font-family: ‘Rajdhani’, sans-serif;
+font-size: 14px; font-weight: 700; letter-spacing: 1.5px;
+cursor: pointer;
+}
+.btn-ghost {
+flex: 1; background: transparent;
+color: var(–text-secondary);
+border: 1px solid var(–border);
+border-radius: 12px; padding: 14px;
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 14px; font-weight: 600; letter-spacing: 1px;
+cursor: pointer;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+from { opacity:0; transform: translateY(12px); }
+to { opacity:1; transform: translateY(0); }
+}
+.stat-card { animation: fadeInUp 0.4s ease both; }
+.stat-card:nth-child(1) { animation-delay: 0.05s; }
+.stat-card:nth-child(2) { animation-delay: 0.1s; }
+.stat-card:nth-child(3) { animation-delay: 0.15s; }
+.stat-card:nth-child(4) { animation-delay: 0.2s; }
+
+.pulse-dot {
+display: inline-block;
+width: 8px; height: 8px;
+background: var(–red);
+border-radius: 50%;
+animation: pulse-dot 1.5s infinite;
+}
+@keyframes pulse-dot {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.3; }
+}
+
+/* ========== ONBOARDING ========== */
+#screen-onboarding {
+background: var(–bg-deep);
+padding-bottom: 40px;
+}
+
+.ob-header {
+padding: 56px 24px 24px;
+background: linear-gradient(180deg, rgba(0,255,180,0.04) 0%, transparent 100%);
+border-bottom: 1px solid var(–border);
+}
+.ob-eyebrow {
+font-size: 10px; letter-spacing: 2.5px; color: var(–accent);
+margin-bottom: 8px; font-weight: 500;
+}
+.ob-title {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 24px; font-weight: 700; letter-spacing: 1px;
+margin-bottom: 6px;
+}
+.ob-sub {
+font-size: 13px; color: var(–text-secondary); line-height: 1.6;
+}
+
+/* Progress track */
+.ob-progress {
+padding: 20px 24px 0;
+}
+.ob-progress-track {
+display: flex; align-items: center; gap: 0;
+margin-bottom: 12px;
+}
+.ob-step-bubble {
+width: 28px; height: 28px; border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 12px; font-weight: 700;
+flex-shrink: 0;
+transition: all 0.3s;
+border: 1.5px solid var(–border);
+background: var(–bg-card2);
+color: var(–text-muted);
+cursor: pointer;
+position: relative; z-index: 1;
+}
+.ob-step-bubble.done {
+background: var(–accent); border-color: var(–accent);
+color: #000;
+}
+.ob-step-bubble.active {
+background: var(–bg-card); border-color: var(–accent);
+color: var(–accent);
+box-shadow: 0 0 12px rgba(0,255,180,0.3);
+}
+.ob-step-line {
+flex: 1; height: 2px;
+background: var(–border);
+transition: background 0.4s;
+}
+.ob-step-line.done { background: var(–accent); }
+
+.ob-progress-labels {
+display: flex; justify-content: space-between;
+}
+.ob-prog-lbl {
+font-size: 8px; letter-spacing: 1px; color: var(–text-muted);
+text-align: center; width: 28px;
+}
+.ob-prog-lbl.active { color: var(–accent); }
+.ob-prog-lbl.done { color: var(–text-secondary); }
+
+/* Steps */
+.ob-steps-wrap {
+padding: 20px 24px 0;
+}
+.ob-step { display: none; flex-direction: column; gap: 16px; }
+.ob-step.active { display: flex; }
+
+.ob-step-header { margin-bottom: 4px; }
+.ob-step-num {
+font-size: 10px; letter-spacing: 2px; color: var(–text-secondary); margin-bottom: 6px;
+}
+.ob-step-title {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 20px; font-weight: 700; letter-spacing: 0.5px;
+}
+.ob-step-desc {
+font-size: 13px; color: var(–text-secondary); line-height: 1.6; margin-top: 4px;
+}
+
+/* Info card */
+.ob-info-card {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 14px;
+padding: 16px;
+display: flex; gap: 12px; align-items: flex-start;
+}
+.ob-info-icon {
+width: 36px; height: 36px; border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+flex-shrink: 0;
+}
+.ob-info-text { flex: 1; }
+.ob-info-label { font-size: 10px; letter-spacing: 1.5px; color: var(–text-secondary); margin-bottom: 4px; }
+.ob-info-value { font-size: 14px; font-weight: 500; }
+.ob-info-sub { font-size: 12px; color: var(–text-secondary); margin-top: 2px; }
+
+/* Status tag */
+.ob-status {
+display: inline-flex; align-items: center; gap: 6px;
+padding: 5px 10px; border-radius: 20px;
+font-size: 10px; letter-spacing: 1.5px; font-weight: 600;
+}
+.ob-status.verified { background: var(–accent-dim); color: var(–accent); border: 1px solid var(–border-accent); }
+.ob-status.pending { background: var(–amber-dim); color: var(–amber); border: 1px solid rgba(245,166,35,0.3); }
+
+/* Billing plans */
+.billing-plans { display: flex; flex-direction: column; gap: 10px; }
+.plan-card {
+background: var(–bg-card);
+border: 1.5px solid var(–border);
+border-radius: 14px;
+padding: 16px;
+cursor: pointer;
+transition: border-color 0.2s, background 0.2s;
+display: flex; align-items: flex-start; gap: 14px;
+}
+.plan-card.selected {
+border-color: var(–accent);
+background: linear-gradient(135deg, var(–bg-card), rgba(0,255,180,0.04));
+}
+.plan-radio {
+width: 18px; height: 18px; border-radius: 50%;
+border: 1.5px solid var(–border);
+margin-top: 2px; flex-shrink: 0;
+display: flex; align-items: center; justify-content: center;
+transition: all 0.2s;
+}
+.plan-card.selected .plan-radio {
+border-color: var(–accent);
+background: var(–accent);
+}
+.plan-radio-dot {
+width: 8px; height: 8px; border-radius: 50%;
+background: #000; opacity: 0;
+transition: opacity 0.2s;
+}
+.plan-card.selected .plan-radio-dot { opacity: 1; }
+.plan-info { flex: 1; }
+.plan-name {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 16px; font-weight: 700; letter-spacing: 0.5px;
+margin-bottom: 2px;
+}
+.plan-price { font-size: 13px; color: var(–accent); font-weight: 600; margin-bottom: 6px; }
+.plan-features { display: flex; flex-direction: column; gap: 3px; }
+.plan-feat { font-size: 11px; color: var(–text-secondary); display: flex; gap: 6px; }
+.plan-feat span:first-child { color: var(–accent); }
+.plan-badge {
+font-size: 9px; letter-spacing: 1px; padding: 3px 8px;
+border-radius: 10px; background: var(–accent); color: #000;
+font-weight: 700; align-self: flex-start;
+}
+
+/* Guard list */
+.guard-list { display: flex; flex-direction: column; gap: 10px; }
+.guard-row {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 14px 16px;
+display: flex; align-items: center; gap: 12px;
+}
+.guard-av {
+width: 36px; height: 36px; border-radius: 10px;
+background: linear-gradient(135deg, var(–teal), var(–blue));
+display: flex; align-items: center; justify-content: center;
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.guard-info { flex: 1; }
+.guard-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.guard-role { font-size: 11px; color: var(–text-secondary); }
+.guard-status-dot {
+width: 8px; height: 8px; border-radius: 50%;
+background: var(–accent);
+}
+
+.add-guard-btn {
+background: var(–bg-card);
+border: 1.5px dashed rgba(0,255,180,0.25);
+border-radius: 12px;
+padding: 14px 16px;
+display: flex; align-items: center; justify-content: center;
+gap: 8px;
+cursor: pointer;
+color: var(–accent);
+font-size: 13px; font-weight: 500;
+transition: border-color 0.2s;
+}
+.add-guard-btn:hover { border-color: var(–accent); }
+
+/* Site locations */
+.site-list { display: flex; flex-direction: column; gap: 10px; }
+.site-row {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 14px 16px;
+display: flex; align-items: center; gap: 12px;
+}
+.site-icon {
+width: 36px; height: 36px; border-radius: 10px;
+background: rgba(59,130,246,0.15);
+display: flex; align-items: center; justify-content: center;
+flex-shrink: 0;
+}
+.site-info { flex: 1; }
+.site-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.site-addr { font-size: 11px; color: var(–text-secondary); }
+.site-zones {
+font-size: 10px; letter-spacing: 1px; color: var(–accent);
+background: var(–accent-dim); padding: 2px 8px; border-radius: 8px;
+}
+
+/* Final launch card */
+.launch-card {
+background: linear-gradient(135deg, rgba(0,255,180,0.06), rgba(0,255,180,0.02));
+border: 1px solid var(–border-accent);
+border-radius: 20px;
+padding: 28px 20px;
+text-align: center;
+}
+.launch-shield {
+width: 64px; height: 64px;
+background: var(–accent);
+border-radius: 18px;
+display: flex; align-items: center; justify-content: center;
+margin: 0 auto 16px;
+box-shadow: 0 0 30px rgba(0,255,180,0.3);
+}
+.launch-title {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 22px; font-weight: 700; letter-spacing: 1px;
+margin-bottom: 8px;
+}
+.launch-sub {
+font-size: 13px; color: var(–text-secondary); line-height: 1.6;
+margin-bottom: 20px;
+}
+.launch-checklist { display: flex; flex-direction: column; gap: 8px; text-align: left; margin-bottom: 20px; }
+.launch-check {
+display: flex; align-items: center; gap: 10px;
+font-size: 13px; color: var(–text-primary);
+}
+.lcheck-icon {
+width: 20px; height: 20px; border-radius: 50%;
+background: var(–accent); display: flex; align-items: center;
+justify-content: center; flex-shrink: 0;
+font-size: 11px; color: #000; font-weight: 700;
+}
+
+.ob-btn-row { display: flex; gap: 10px; }
+.btn-secondary {
+flex: 0 0 auto;
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 14px 18px;
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 14px; font-weight: 600; letter-spacing: 1px;
+color: var(–text-secondary);
+cursor: pointer;
+transition: border-color 0.2s;
+}
+.btn-secondary:hover { border-color: var(–border-accent); color: var(–text-primary); }
+
+.ob-skip {
+text-align: center; font-size: 12px; color: var(–text-muted);
+cursor: pointer; margin-top: 4px;
+}
+.ob-skip:hover { color: var(–text-secondary); }
+
+/* ========== PATROL SCREEN ========== */
+#screen-patrol { padding-bottom: 100px; }
+
+.patrol-topbar {
+display: flex; align-items: center; justify-content: space-between;
+padding: 16px 20px 12px;
+background: var(–bg-deep);
+position: sticky; top: 0; z-index: 10;
+border-bottom: 1px solid var(–border);
+}
+.patrol-title {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 20px; font-weight: 700; letter-spacing: 2px;
+}
+.patrol-session-badge {
+display: flex; align-items: center; gap: 6px;
+background: var(–accent-dim); border: 1px solid var(–border-accent);
+border-radius: 20px; padding: 5px 12px;
+font-size: 10px; letter-spacing: 1.5px; color: var(–accent); font-weight: 600;
+}
+.session-dot {
+width: 6px; height: 6px; border-radius: 50%;
+background: var(–accent);
+animation: pulse-session 1.5s infinite;
+}
+@keyframes pulse-session {
+0%,100%{opacity:1;} 50%{opacity:0.3;}
+}
+
+.patrol-content { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+/* Live Map */
+.map-container {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 16px;
+overflow: hidden;
+position: relative;
+}
+.map-header {
+display: flex; align-items: center; justify-content: space-between;
+padding: 12px 16px;
+border-bottom: 1px solid var(–border);
+}
+.map-title { font-size: 10px; letter-spacing: 2px; color: var(–text-secondary); }
+.map-live {
+display: flex; align-items: center; gap: 5px;
+font-size: 10px; color: var(–red); letter-spacing: 1px; font-weight: 600;
+}
+.map-live-dot {
+width: 6px; height: 6px; border-radius: 50%; background: var(–red);
+animation: pulse-session 1s infinite;
+}
+.map-canvas {
+width: 100%; height: 220px;
+background: #0a1628;
+position: relative; overflow: hidden;
+}
+/* Grid lines for map feel */
+.map-canvas::before {
+content: ‘’;
+position: absolute; inset: 0;
+background-image:
+linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+background-size: 30px 30px;
+}
+.map-site-boundary {
+position: absolute;
+border: 1.5px solid rgba(0,255,180,0.3);
+border-radius: 8px;
+background: rgba(0,255,180,0.03);
+top: 20px; left: 20px; right: 20px; bottom: 20px;
+}
+.map-zone {
+position: absolute;
+border: 1px solid rgba(59,130,246,0.4);
+border-radius: 4px;
+background: rgba(59,130,246,0.05);
+display: flex; align-items: center; justify-content: center;
+font-size: 8px; letter-spacing: 1px; color: rgba(59,130,246,0.7);
+cursor: pointer;
+transition: background 0.3s;
+}
+.map-zone.scanned {
+border-color: rgba(0,255,180,0.6);
+background: rgba(0,255,180,0.08);
+color: var(–accent);
+}
+.map-zone.active-zone {
+border-color: var(–amber);
+background: rgba(245,166,35,0.1);
+color: var(–amber);
+animation: zone-pulse 2s infinite;
+}
+@keyframes zone-pulse {
+0%,100%{background:rgba(245,166,35,0.08);}
+50%{background:rgba(245,166,35,0.18);}
+}
+.guard-dot {
+position: absolute;
+width: 14px; height: 14px;
+border-radius: 50%;
+background: var(–accent);
+border: 2px solid #fff;
+box-shadow: 0 0 12px rgba(0,255,180,0.6);
+transition: left 2s ease, top 2s ease;
+z-index: 5;
+}
+.guard-dot::after {
+content: ‘’;
+position: absolute;
+inset: -4px;
+border-radius: 50%;
+border: 1.5px solid rgba(0,255,180,0.4);
+animation: guard-ring 2s infinite;
+}
+@keyframes guard-ring {
+0%{transform:scale(1);opacity:1;}
+100%{transform:scale(2);opacity:0;}
+}
+.guard-dot-label {
+position: absolute;
+top: -18px; left: 50%;
+transform: translateX(-50%);
+font-size: 8px; font-weight: 700;
+background: rgba(0,0,0,0.8);
+color: var(–accent);
+padding: 2px 5px; border-radius: 4px;
+white-space: nowrap; letter-spacing: 0.5px;
+}
+.map-legend {
+display: flex; gap: 12px; padding: 10px 16px;
+border-top: 1px solid var(–border);
+}
+.legend-item {
+display: flex; align-items: center; gap: 5px;
+font-size: 10px; color: var(–text-secondary);
+}
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* Patrol progress */
+.patrol-progress-card {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 16px;
+}
+.pp-header {
+display: flex; align-items: center; justify-content: space-between;
+margin-bottom: 14px;
+}
+.pp-title { font-size: 10px; letter-spacing: 2px; color: var(–text-secondary); }
+.pp-count {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 14px; font-weight: 700;
+color: var(–accent);
+}
+.pp-bar-bg {
+height: 6px; background: var(–bg-card2); border-radius: 3px; overflow: hidden;
+margin-bottom: 14px;
+}
+.pp-bar-fill {
+height: 100%; border-radius: 3px;
+background: linear-gradient(90deg, var(–accent), #00d4a0);
+transition: width 0.6s ease;
+}
+.pp-timer {
+display: flex; justify-content: space-between;
+font-size: 11px; color: var(–text-secondary);
+}
+.pp-timer-val { font-family: ‘Rajdhani’, sans-serif; color: var(–text-primary); font-size: 13px; font-weight: 600; }
+
+/* Checkpoints */
+.checkpoints-panel {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 16px;
+overflow: hidden;
+}
+.cp-header {
+display: flex; align-items: center; justify-content: space-between;
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+}
+.cp-filter-row {
+display: flex; gap: 8px; padding: 10px 16px;
+border-bottom: 1px solid var(–border);
+overflow-x: auto;
+}
+.cp-filter {
+padding: 5px 12px; border-radius: 20px;
+font-size: 10px; letter-spacing: 1px; font-weight: 600;
+border: 1px solid var(–border);
+color: var(–text-secondary);
+cursor: pointer; white-space: nowrap;
+transition: all 0.2s;
+}
+.cp-filter.active {
+background: var(–accent-dim);
+border-color: var(–border-accent);
+color: var(–accent);
+}
+.checkpoint-row {
+display: flex; align-items: center; gap: 12px;
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+cursor: pointer;
+transition: background 0.2s;
+}
+.checkpoint-row:last-child { border-bottom: none; }
+.checkpoint-row:active { background: rgba(255,255,255,0.02); }
+.cp-icon {
+width: 40px; height: 40px; border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+flex-shrink: 0; font-size: 16px;
+}
+.cp-icon.scanned { background: var(–accent-dim); }
+.cp-icon.pending { background: var(–bg-card2); }
+.cp-icon.overdue { background: var(–red-dim); }
+.cp-icon.active-cp { background: var(–amber-dim); }
+.cp-info { flex: 1; }
+.cp-name { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+.cp-meta { font-size: 11px; color: var(–text-secondary); }
+.cp-right { text-align: right; }
+.cp-time {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 13px; font-weight: 600;
+margin-bottom: 3px;
+}
+.cp-time.scanned { color: var(–accent); }
+.cp-time.overdue { color: var(–red); }
+.cp-time.pending { color: var(–text-muted); }
+.cp-badge {
+font-size: 9px; letter-spacing: 1px; padding: 2px 7px;
+border-radius: 6px; font-weight: 600; border: 1px solid;
+}
+.cp-badge.scanned { color: var(–accent); border-color: rgba(0,255,180,0.3); background: var(–accent-dim); }
+.cp-badge.pending { color: var(–text-muted); border-color: var(–border); background: transparent; }
+.cp-badge.overdue { color: var(–red); border-color: rgba(255,59,59,0.3); background: var(–red-dim); }
+.cp-badge.active-cp { color: var(–amber); border-color: rgba(245,166,35,0.3); background: var(–amber-dim); }
+
+/* Scan button */
+.scan-fab {
+position: fixed;
+bottom: 100px; right: 20px;
+width: 56px; height: 56px;
+background: linear-gradient(135deg, var(–accent), #00d4a0);
+border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+box-shadow: 0 4px 20px rgba(0,255,180,0.4);
+cursor: pointer;
+z-index: 50;
+transition: transform 0.2s;
+max-width: 390px;
+}
+.scan-fab:active { transform: scale(0.92); }
+
+/* QR Scanner Modal */
+.scanner-modal {
+position: fixed; inset: 0;
+background: #000;
+z-index: 400;
+display: flex; flex-direction: column;
+opacity: 0; pointer-events: none;
+transition: opacity 0.3s;
+}
+.scanner-modal.open { opacity: 1; pointer-events: all; }
+.scanner-topbar {
+display: flex; align-items: center; justify-content: space-between;
+padding: 56px 20px 16px;
+background: rgba(0,0,0,0.8);
+}
+.scanner-close {
+width: 36px; height: 36px;
+background: rgba(255,255,255,0.1);
+border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+cursor: pointer; font-size: 18px; color: #fff;
+}
+.scanner-title {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 16px; font-weight: 700; letter-spacing: 1px; color: #fff;
+}
+.scanner-mode-toggle {
+display: flex; gap: 8px;
+}
+.mode-btn {
+padding: 6px 12px; border-radius: 20px;
+font-size: 10px; letter-spacing: 1px; font-weight: 600;
+border: 1px solid rgba(255,255,255,0.2);
+color: rgba(255,255,255,0.5);
+cursor: pointer; background: transparent;
+transition: all 0.2s;
+}
+.mode-btn.active {
+background: var(–accent); border-color: var(–accent); color: #000;
+}
+.scanner-viewport {
+flex: 1; position: relative; overflow: hidden;
+background: #0a0a0a;
+display: flex; align-items: center; justify-content: center;
+}
+.scanner-grid {
+position: absolute; inset: 0;
+background-image:
+linear-gradient(rgba(0,255,180,0.04) 1px, transparent 1px),
+linear-gradient(90deg, rgba(0,255,180,0.04) 1px, transparent 1px);
+background-size: 40px 40px;
+}
+.scan-frame {
+width: 220px; height: 220px;
+position: relative; z-index: 2;
+}
+.scan-corner {
+position: absolute;
+width: 24px; height: 24px;
+border-color: var(–accent);
+border-style: solid;
+}
+.scan-corner.tl { top:0;left:0; border-width:3px 0 0 3px; border-radius:4px 0 0 0; }
+.scan-corner.tr { top:0;right:0; border-width:3px 3px 0 0; border-radius:0 4px 0 0; }
+.scan-corner.bl { bottom:0;left:0; border-width:0 0 3px 3px; border-radius:0 0 0 4px; }
+.scan-corner.br { bottom:0;right:0; border-width:0 3px 3px 0; border-radius:0 0 4px 0; }
+.scan-line {
+position: absolute; left: 0; right: 0; height: 2px;
+background: linear-gradient(90deg, transparent, var(–accent), transparent);
+animation: scan-sweep 2s ease-in-out infinite;
+z-index: 3;
+}
+@keyframes scan-sweep {
+0%{top:0;} 50%{top:calc(100% - 2px);} 100%{top:0;}
+}
+.scanner-label {
+position: absolute; bottom: -32px; left: 50%;
+transform: translateX(-50%);
+font-size: 12px; color: rgba(255,255,255,0.5);
+white-space: nowrap;
+}
+.nfc-zone {
+width: 160px; height: 160px;
+border-radius: 50%;
+border: 2px solid rgba(0,255,180,0.3);
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+gap: 12px; z-index: 2;
+animation: nfc-pulse 2s infinite;
+}
+@keyframes nfc-pulse {
+0%,100%{box-shadow:0 0 0 0 rgba(0,255,180,0.3);}
+50%{box-shadow:0 0 0 20px rgba(0,255,180,0);}
+}
+.nfc-label {
+font-size: 13px; color: rgba(255,255,255,0.6); text-align: center; line-height: 1.5;
+}
+.scanner-footer {
+background: rgba(0,0,0,0.9);
+padding: 20px 24px 40px;
+display: flex; flex-direction: column; gap: 12px;
+}
+.scanner-cp-info {
+background: rgba(255,255,255,0.05);
+border: 1px solid rgba(255,255,255,0.08);
+border-radius: 12px; padding: 14px 16px;
+display: flex; align-items: center; gap: 12px;
+}
+.scanner-cp-icon {
+width: 40px; height: 40px; border-radius: 10px;
+background: var(–accent-dim);
+display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.scanner-cp-name { font-size: 14px; font-weight: 500; color: #fff; margin-bottom: 3px; }
+.scanner-cp-zone { font-size: 11px; color: rgba(255,255,255,0.4); }
+.btn-scan-confirm {
+background: var(–accent); color: #000;
+border: none; border-radius: 12px;
+padding: 16px; font-family: ‘Rajdhani’, sans-serif;
+font-size: 15px; font-weight: 700; letter-spacing: 2px;
+cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+/* Scan success overlay */
+.scan-success {
+position: absolute; inset: 0;
+background: rgba(0,255,180,0.12);
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+gap: 16px; z-index: 10;
+opacity: 0; pointer-events: none;
+transition: opacity 0.3s;
+}
+.scan-success.show { opacity: 1; }
+.scan-success-icon {
+width: 80px; height: 80px; border-radius: 50%;
+background: var(–accent);
+display: flex; align-items: center; justify-content: center;
+font-size: 36px; color: #000;
+animation: success-pop 0.4s ease;
+}
+@keyframes success-pop {
+0%{transform:scale(0.5);} 70%{transform:scale(1.1);} 100%{transform:scale(1);}
+}
+.scan-success-text {
+font-family: ‘Rajdhani’, sans-serif;
+font-size: 20px; font-weight: 700; letter-spacing: 1px; color: var(–accent);
+}
+.scan-success-sub { font-size: 13px; color: rgba(255,255,255,0.6); }
+
+/* Guard status strip */
+.guard-status-strip {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 16px;
+overflow: hidden;
+}
+.gss-header {
+display: flex; align-items: center; justify-content: space-between;
+padding: 12px 16px; border-bottom: 1px solid var(–border);
+}
+.guard-status-row {
+display: flex; align-items: center; gap: 10px;
+padding: 12px 16px; border-bottom: 1px solid var(–border);
+}
+.guard-status-row:last-child { border-bottom: none; }
+.gsr-av {
+width: 34px; height: 34px; border-radius: 9px;
+display: flex; align-items: center; justify-content: center;
+font-family: ‘Rajdhani’, sans-serif; font-size: 12px; font-weight: 700;
+flex-shrink: 0;
+}
+.gsr-info { flex: 1; }
+.gsr-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.gsr-loc { font-size: 10px; color: var(–text-secondary); }
+.gsr-status {
+font-size: 9px; letter-spacing: 1.5px; font-weight: 600;
+padding: 3px 8px; border-radius: 6px; border: 1px solid;
+}
+.gsr-status.on-patrol { color: var(–accent); border-color: rgba(0,255,180,0.3); background: var(–accent-dim); }
+.gsr-status.enroute { color: var(–blue); border-color: rgba(59,130,246,0.3); background: var(–blue-dim); }
+.gsr-status.break { color: var(–amber); border-color: rgba(245,166,35,0.3); background: var(–amber-dim); }
+.gsr-status.offline { color: var(–text-muted); border-color: var(–border); background: transparent; }
+
+/* Missed checkpoint alert */
+.missed-alert {
+background: var(–red-dim);
+border: 1px solid rgba(255,59,59,0.3);
+border-radius: 14px;
+padding: 14px 16px;
+display: flex; gap: 12px; align-items: flex-start;
+}
+.missed-alert-icon {
+width: 36px; height: 36px; border-radius: 10px;
+background: var(–red-dim);
+display: flex; align-items: center; justify-content: center;
+flex-shrink: 0; font-size: 16px;
+}
+.missed-alert-title { font-size: 13px; font-weight: 600; color: var(–red); margin-bottom: 3px; }
+.missed-alert-sub { font-size: 11px; color: rgba(255,59,59,0.7); line-height: 1.5; }
+.missed-alert-action {
+font-size: 11px; color: var(–red); font-weight: 600;
+letter-spacing: 1px; margin-top: 8px; cursor: pointer;
+}
+
+</style>
 </head>
 <body>
+<div class="phone-shell">
 
-  <!-- AUTH SCREEN -->
-  <div id="auth-screen" class="screen active">
-    <div class="auth-bg"><div class="grid-overlay"></div><div class="scan-line"></div></div>
-    <div class="auth-container">
-      <div class="brand">
-        <div class="shield-icon">
-          <svg viewBox="0 0 40 46" fill="none"><path d="M20 2L4 9v12c0 10.5 6.8 20.3 16 23 9.2-2.7 16-12.5 16-23V9L20 2z" fill="url(#sg)" stroke="#00f5c4" stroke-width="1.5"/><defs><linearGradient id="sg" x1="20" y1="2" x2="20" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#00f5c4" stop-opacity="0.3"/><stop offset="1" stop-color="#003d2e" stop-opacity="0.8"/></linearGradient></defs></svg>
-        </div>
-        <h1 class="logo-text">SHIELD<span>SYNC</span></h1>
-        <p class="logo-sub">SECURITY MANAGEMENT PLATFORM</p>
+  <!-- ========== LOGIN SCREEN ========== -->
+
+  <div class="screen active" id="screen-login">
+    <div class="login-brand">
+      <div class="brand-shield">
+        <svg viewBox="0 0 36 36" fill="none">
+          <path d="M18 3L4 9v10c0 7.7 5.9 14.9 14 17 8.1-2.1 14-9.3 14-17V9L18 3z" fill="rgba(0,255,180,0.1)" stroke="#00ffb4" stroke-width="1.5"/>
+          <path d="M13 18l3.5 3.5L23 14" stroke="#00ffb4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
-      <div class="auth-card" id="login-card">
-        <div class="card-header"><span class="card-tag">SECURE LOGIN</span><h2>Access Portal</h2></div>
-        <div id="auth-error" class="auth-error hidden"></div>
-        <div class="field-group"><label>EMAIL ADDRESS</label><input type="email" id="login-email" placeholder="operator@shieldsync.io" autocomplete="email"/></div>
-        <div class="field-group"><label>PASSWORD</label><input type="password" id="login-password" placeholder="••••••••••" autocomplete="current-password"/></div>
-        <div class="remember-row"><label class="remember-label"><input type="checkbox" id="remember-me"/> Remember me</label></div>
-        <button class="btn-primary" id="login-btn"><span>AUTHENTICATE</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
-        <p class="auth-switch">New operator? <a href="#" id="show-register">Create account</a></p>
-      </div>
-      <div class="auth-card hidden" id="register-card">
-        <div class="card-header"><span class="card-tag">NEW OPERATOR</span><h2>Register Account</h2></div>
-        <div id="reg-error" class="auth-error hidden"></div>
-        <div class="field-group"><label>FULL NAME</label><input type="text" id="reg-name" placeholder="John Shield"/></div>
-        <div class="field-group"><label>EMAIL ADDRESS</label><input type="email" id="reg-email" placeholder="operator@shieldsync.io"/></div>
-        <div class="field-group"><label>PASSWORD</label><input type="password" id="reg-password" placeholder="Min 8 characters"/></div>
-        <button class="btn-primary" id="register-btn"><span>CREATE ACCOUNT</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
-        <p class="auth-switch">Already registered? <a href="#" id="show-login">Sign in</a></p>
-      </div>
+      <div class="brand-name">SHIELD<span style="color:var(--accent)">SYNC</span></div>
+      <div class="brand-sub">SECURITY OPERATIONS PLATFORM</div>
+    </div>
+
+```
+<div class="login-form">
+  <div class="field-group">
+    <div class="field-label">EMAIL / BADGE ID</div>
+    <input class="field-input" type="email" placeholder="officer@unit.com" />
+  </div>
+  <div class="field-group">
+    <div class="field-label">PASSWORD</div>
+    <input class="field-input" type="password" placeholder="••••••••" />
+  </div>
+  <div class="forgot-link" onclick="showScreen('screen-reset')">Forgot password?</div>
+  <button class="btn-primary" onclick="showScreen('screen-home')">SIGN IN</button>
+</div>
+
+<div class="demo-banner">
+  <div class="demo-dot"></div>
+  <div class="demo-text">
+    <strong>⚠ DEMO MODE ACTIVE</strong>
+    You are currently on a demo account. To move to a live production account, you need:
+    <div class="demo-checklist">
+      <div class="demo-check"><span>✓</span> Organization verified</div>
+      <div class="demo-check"><span>✓</span> Admin account created</div>
+      <div class="demo-check"><span>○</span> Billing plan selected</div>
+      <div class="demo-check"><span>○</span> Guards onboarded</div>
+      <div class="demo-check"><span>○</span> Site locations configured</div>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ========== RESET PASSWORD SCREEN ========== -->
+
+  <div class="screen" id="screen-reset">
+    <div style="padding: 60px 28px 40px; flex:1;">
+      <button class="back-btn" onclick="showScreen('screen-login')">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Back to login
+      </button>
+
+```
+  <div class="reset-steps">
+    <div class="step-dot done" id="step1"></div>
+    <div class="step-dot" id="step2"></div>
+    <div class="step-dot" id="step3"></div>
+  </div>
+
+  <div class="reset-header">
+    <div class="reset-title">RESET PASSWORD</div>
+    <div class="reset-sub" id="reset-sub-text">Enter your email address and we'll send you a secure reset link.</div>
+  </div>
+
+  <!-- Stage 1: Email -->
+  <div class="reset-stage active" id="stage-1">
+    <div class="field-group">
+      <div class="field-label">EMAIL / BADGE ID</div>
+      <input class="field-input" type="email" placeholder="officer@unit.com" id="reset-email" />
+    </div>
+    <button class="btn-primary" onclick="resetStep2()">SEND RESET LINK</button>
+  </div>
+
+  <!-- Stage 2: OTP -->
+  <div class="reset-stage" id="stage-2">
+    <div style="background:var(--accent-dim); border:1px solid var(--border-accent); border-radius:12px; padding:14px 16px; font-size:13px; color:var(--accent); line-height:1.5;">
+      📧 Reset link sent. Enter the 6-digit code from your email.
+    </div>
+    <div class="field-group">
+      <div class="field-label">VERIFICATION CODE</div>
+      <input class="field-input" type="number" placeholder="000000" style="letter-spacing:4px; font-size:20px; text-align:center;" />
+    </div>
+    <button class="btn-primary" onclick="resetStep3()">VERIFY CODE</button>
+    <div style="text-align:center; font-size:12px; color:var(--text-secondary); margin-top:4px;">
+      Didn't get it? <span style="color:var(--accent); cursor:pointer;">Resend code</span>
     </div>
   </div>
 
-  <!-- MAIN APP -->
-  <div id="app-screen" class="screen hidden">
-    <aside class="sidebar">
-      <div class="sidebar-brand">
-        <div class="shield-icon-sm"><svg viewBox="0 0 40 46" fill="none"><path d="M20 2L4 9v12c0 10.5 6.8 20.3 16 23 9.2-2.7 16-12.5 16-23V9L20 2z" fill="url(#sg2)" stroke="#00f5c4" stroke-width="1.5"/><defs><linearGradient id="sg2" x1="20" y1="2" x2="20" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#00f5c4" stop-opacity="0.3"/><stop offset="1" stop-color="#003d2e" stop-opacity="0.8"/></linearGradient></defs></svg></div>
-        <span>SHIELDSYNC</span>
-      </div>
-      <nav class="sidebar-nav">
-        <a class="nav-item active" data-view="dashboard"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
-        <a class="nav-item" data-view="incidents"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Incidents</a>
-        <a class="nav-item" data-view="enroute"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Enroute</a>
-        <a class="nav-item" data-view="guards"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Guard Roster</a>
-        <a class="nav-item" data-view="timesheet"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Timesheets</a>
-        <a class="nav-item" data-view="access"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Access Control</a>
-        <a class="nav-item" data-view="patrol"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Patrol Log</a>
-        <a class="nav-item" data-view="alerts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>Alerts <span id="alert-badge" class="alert-badge hidden">0</span></a>
-        <a class="nav-item" data-view="reports"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Reports</a>
-      </nav>
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <div class="user-avatar" id="user-avatar">OP</div>
-          <div class="user-details"><span id="user-name-display">Operator</span><span id="user-email-display">—</span></div>
-        </div>
-        <button class="btn-logout" id="logout-btn" title="Sign out"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
-      </div>
-    </aside>
-
-    <main class="main-content">
-      <div class="topbar">
-        <div class="topbar-left">
-          <h2 id="view-title">Dashboard</h2>
-          <div class="status-pill"><span class="pulse"></span>LIVE</div>
-        </div>
-        <div class="topbar-right">
-          <div class="topbar-datetime">
-            <div class="clock" id="live-clock">00:00:00</div>
-            <div class="date-display" id="live-date">—</div>
-          </div>
-          <button class="sos-btn" id="sos-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            SOS
-          </button>
-        </div>
-      </div>
-
-      <!-- DASHBOARD -->
-      <div id="view-dashboard" class="view active">
-        <div class="stats-grid">
-          <div class="stat-card accent">
-            <div class="stat-icon red"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div>
-            <div class="stat-body"><div class="stat-value" id="stat-open">0</div><div class="stat-label">OPEN INCIDENTS</div></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-            <div class="stat-body"><div class="stat-value" id="stat-enroute">0</div><div class="stat-label">UNITS ENROUTE</div></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-            <div class="stat-body"><div class="stat-value" id="stat-guards">0</div><div class="stat-label">ACTIVE GUARDS</div></div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon amber"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
-            <div class="stat-body"><div class="stat-value" id="stat-access">0</div><div class="stat-label">ACCESS ENTRIES TODAY</div></div>
-          </div>
-        </div>
-        <div class="dash-grid">
-          <div class="panel">
-            <div class="panel-header"><span>RECENT INCIDENTS</span><a href="#" class="panel-link" data-view="incidents">View all →</a></div>
-            <div id="dash-incidents-list" class="feed-list"><div class="empty-state">No incidents logged yet.</div></div>
-          </div>
-          <div class="panel">
-            <div class="panel-header"><span>THREAT LEVEL</span></div>
-            <div class="threat-meter">
-              <div class="threat-labels"><span>LOW</span><span>MODERATE</span><span>HIGH</span><span>CRITICAL</span></div>
-              <div class="threat-bar"><div class="threat-fill green" id="threat-fill"></div></div>
-              <div class="threat-status" id="threat-status">LOW — No active threats</div>
-            </div>
-            <div class="panel-header" style="margin-top:24px"><span>UNITS ENROUTE</span></div>
-            <div id="dash-enroute-list" class="feed-list"><div class="empty-state">No units dispatched.</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- INCIDENTS -->
-      <div id="view-incidents" class="view hidden">
-        <div class="view-toolbar">
-          <button class="btn-primary sm" id="new-incident-btn">+ LOG INCIDENT</button>
-          <select id="incident-filter" class="filter-select"><option value="all">All Status</option><option value="open">Open</option><option value="investigating">Investigating</option><option value="resolved">Resolved</option></select>
-        </div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead><tr><th>ID</th><th>DATE/TIME</th><th>TYPE</th><th>LOCATION</th><th>SEVERITY</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
-            <tbody id="incidents-table-body"><tr><td colspan="7" class="empty-cell">No incidents logged.</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ENROUTE -->
-      <div id="view-enroute" class="view hidden">
-        <div class="view-toolbar"><button class="btn-primary sm" id="new-enroute-btn">+ DISPATCH UNIT</button></div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead><tr><th>UNIT #</th><th>GUARD</th><th>DESTINATION</th><th>DISPATCHED</th><th>ETA</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
-            <tbody id="enroute-table-body"><tr><td colspan="7" class="empty-cell">No units dispatched.</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- GUARDS -->
-      <div id="view-guards" class="view hidden">
-        <div class="view-toolbar"><button class="btn-primary sm" id="new-guard-btn">+ ADD GUARD</button></div>
-        <div class="cards-grid" id="guards-grid"><div class="empty-state full">No guards added yet.</div></div>
-      </div>
-
-      <!-- TIMESHEETS -->
-      <div id="view-timesheet" class="view hidden">
-        <div class="view-toolbar"><button class="btn-primary sm" id="new-timesheet-btn">+ CLOCK IN</button></div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead><tr><th>GUARD</th><th>DATE</th><th>CLOCK IN</th><th>CLOCK OUT</th><th>HOURS</th><th>SHIFT</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
-            <tbody id="timesheet-table-body"><tr><td colspan="8" class="empty-cell">No timesheet entries yet.</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ACCESS CONTROL -->
-      <div id="view-access" class="view hidden">
-        <div class="view-toolbar"><button class="btn-primary sm" id="new-access-btn">+ LOG ENTRY</button></div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead><tr><th>TIME</th><th>PERSON</th><th>ZONE</th><th>METHOD</th><th>STATUS</th></tr></thead>
-            <tbody id="access-table-body"><tr><td colspan="5" class="empty-cell">No access entries logged.</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- PATROL LOG -->
-      <div id="view-patrol" class="view hidden">
-        <div class="view-toolbar"><button class="btn-primary sm" id="new-patrol-btn">+ LOG CHECKPOINT</button></div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead><tr><th>TIME</th><th>GUARD</th><th>CHECKPOINT</th><th>ZONE</th><th>NOTES</th><th>STATUS</th></tr></thead>
-            <tbody id="patrol-table-body"><tr><td colspan="6" class="empty-cell">No patrol checkpoints logged.</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ALERTS -->
-      <div id="view-alerts" class="view hidden">
-        <div class="view-toolbar">
-          <button class="btn-primary sm" id="new-alert-btn">+ CREATE ALERT</button>
-          <button class="btn-secondary sm" id="clear-alerts-btn">Clear All</button>
-        </div>
-        <div id="alerts-list" class="alerts-feed"><div class="empty-state">No alerts. System nominal.</div></div>
-      </div>
-
-      <!-- REPORTS -->
-      <div id="view-reports" class="view hidden">
-        <div class="reports-grid">
-          <div class="panel">
-            <div class="panel-header"><span>GENERATE REPORT</span></div>
-            <div class="report-form">
-              <div class="field-group"><label>REPORT TYPE</label><select id="report-type" class="filter-select full"><option>Incident Summary</option><option>Guard Activity</option><option>Access Log</option><option>Timesheet Summary</option><option>Full Security Audit</option></select></div>
-              <div class="field-group"><label>DATE RANGE</label><select class="filter-select full"><option>Last 7 days</option><option>Last 30 days</option><option>This month</option></select></div>
-              <button class="btn-primary" id="gen-report-btn"><span>GENERATE REPORT</span></button>
-            </div>
-          </div>
-          <div class="panel">
-            <div class="panel-header"><span>RECENT REPORTS</span></div>
-            <div id="reports-list" class="feed-list"><div class="empty-state">No reports generated yet.</div></div>
-          </div>
-        </div>
-      </div>
-    </main>
+  <!-- Stage 3: New Password -->
+  <div class="reset-stage" id="stage-3">
+    <div class="field-group">
+      <div class="field-label">NEW PASSWORD</div>
+      <input class="field-input" type="password" placeholder="Min. 8 characters" />
+    </div>
+    <div class="field-group">
+      <div class="field-label">CONFIRM NEW PASSWORD</div>
+      <input class="field-input" type="password" placeholder="Repeat password" />
+    </div>
+    <button class="btn-primary" onclick="resetDone()">SET NEW PASSWORD</button>
   </div>
 
-  <!-- MOBILE TOPBAR -->
-  <div class="mobile-topbar" id="mobile-topbar">
-    <div class="mobile-topbar-brand">⬡ SHIELDSYNC</div>
-    <div class="mobile-topbar-right">
+  <!-- Stage 4: Success -->
+  <div class="reset-stage" id="stage-4">
+    <div class="success-box">
+      <div class="success-icon">✓</div>
+      <div class="success-title">PASSWORD UPDATED</div>
+      <div class="success-sub">Your password has been reset successfully. You can now sign in with your new password.</div>
+    </div>
+    <button class="btn-primary" onclick="showScreen('screen-login')" style="margin-top:8px;">BACK TO LOGIN</button>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ========== HOME SCREEN ========== -->
+
+  <div class="screen" id="screen-home">
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="topbar-brand">SHIELD<span>SYNC</span></div>
+      <div class="topbar-right">
+        <div class="notif-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <div class="notif-badge"></div>
+        </div>
+        <div class="avatar">JD</div>
+      </div>
+    </div>
+
+```
+<div class="home-content">
+  <!-- Greeting -->
+  <div class="greeting">
+    <div class="greeting-time">SUNDAY · 08:16 · SHIFT ACTIVE</div>
+    <div class="greeting-name">Good Morning, Officer</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card alert-card">
+      <div class="stat-icon red">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff3b3b" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
       <div>
-        <div class="mobile-clock" id="mobile-clock">00:00:00</div>
-        <div class="mobile-date" id="mobile-date">—</div>
+        <div class="stat-num red">1</div>
+        <div class="stat-label">OPEN INCIDENTS</div>
       </div>
-      <button class="mobile-logout" id="mobile-logout-btn" title="Sign out">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-      </button>
     </div>
-  </div>
-
-  <!-- MOBILE BOTTOM NAV -->
-  <nav class="mobile-nav" id="mobile-nav">
-    <div class="mobile-nav-items">
-      <button class="mobile-nav-item active" data-view="dashboard">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        HOME
-      </button>
-      <button class="mobile-nav-item" data-view="incidents">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        INCIDENTS
-      </button>
-      <button class="mobile-sos-btn" id="mobile-sos-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <span class="mobile-sos-label">SOS</span>
-      </button>
-      <button class="mobile-nav-item" data-view="patrol">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        PATROL
-      </button>
-      <button class="mobile-nav-item" data-view="more">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        MORE
-      </button>
-    </div>
-  </nav>
-
-  <!-- MOBILE MORE MENU -->
-  <div id="mobile-more-menu" class="modal-overlay hidden">
-    <div class="mobile-more-panel">
-      <div class="mobile-more-header">
-        <span>MENU</span>
-        <button id="mobile-more-close">✕</button>
+    <div class="stat-card">
+      <div class="stat-icon blue">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
       </div>
-      <div class="mobile-more-grid">
-        <button class="mobile-more-item" data-view="enroute">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Enroute
-        </button>
-        <button class="mobile-more-item" data-view="guards">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-          Guards
-        </button>
-        <button class="mobile-more-item" data-view="timesheet">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          Timesheets
-        </button>
-        <button class="mobile-more-item" data-view="access">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-          Access
-        </button>
-        <button class="mobile-more-item" data-view="alerts">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-          Alerts
-        </button>
-        <button class="mobile-more-item" data-view="reports">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Reports
-        </button>
+      <div>
+        <div class="stat-num">0</div>
+        <div class="stat-label">UNITS ENROUTE</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon teal">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-num">0</div>
+        <div class="stat-label">ACTIVE GUARDS</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon amber">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-num">0</div>
+        <div class="stat-label">ACCESS TODAY</div>
       </div>
     </div>
   </div>
 
-  <!-- SOS MODAL -->
-  <div id="sos-overlay" class="modal-overlay hidden">
-    <div class="modal sos-modal">
-      <div class="sos-header"><div class="sos-icon-big">⚠</div><h2>SOS EMERGENCY</h2><p>This will log a critical incident and trigger an emergency alert.</p></div>
-      <div class="modal-body">
-        <div class="field-group"><label>EMERGENCY TYPE</label><select id="sos-type" class="filter-select full"><option>Officer Down</option><option>Active Threat</option><option>Medical Emergency</option><option>Fire</option><option>Forced Entry</option><option>Evacuation Required</option></select></div>
-        <div class="field-group"><label>YOUR LOCATION</label><input type="text" id="sos-location" placeholder="Your current location"/></div>
-        <div class="field-group"><label>DETAILS</label><textarea id="sos-details" rows="2" placeholder="Brief description..."></textarea></div>
-        <div class="sos-actions">
-          <button class="btn-sos-confirm" id="sos-confirm">🚨 SEND SOS ALERT</button>
-          <button class="btn-cancel" id="sos-cancel">Cancel</button>
+  <!-- Enroute + Arrival Panel (NEW - above incidents) -->
+  <div class="enroute-panel">
+    <div class="panel-header">
+      <div class="panel-title">UNITS STATUS</div>
+      <div class="panel-action">Dispatch →</div>
+    </div>
+    <div class="enroute-tabs">
+      <div class="etab active" onclick="switchTab(this, 'enroute-content')">ENROUTE</div>
+      <div class="etab" onclick="switchTab(this, 'arrival-content')">ARRIVAL</div>
+      <div class="etab" onclick="switchTab(this, 'onsite-content')">ON SITE</div>
+    </div>
+    <div id="enroute-content">
+      <div class="enroute-empty">No units dispatched.</div>
+    </div>
+    <div id="arrival-content" style="display:none;">
+      <div class="unit-row">
+        <div class="unit-avatar">K9</div>
+        <div class="unit-info">
+          <div class="unit-name">Unit K9 — Martinez</div>
+          <div class="unit-dest">→ Gate B, North Perimeter</div>
+        </div>
+        <div class="unit-eta">ETA 4m</div>
+      </div>
+    </div>
+    <div id="onsite-content" style="display:none;">
+      <div class="enroute-empty">No units on site.</div>
+    </div>
+  </div>
+
+  <!-- Recent Incidents -->
+  <div class="incidents-panel">
+    <div class="panel-header">
+      <div class="panel-title">RECENT INCIDENTS</div>
+      <div class="panel-action">View all →</div>
+    </div>
+    <div class="incident-row">
+      <div class="incident-dot open"></div>
+      <div class="incident-info">
+        <div class="incident-title">SOS — Officer Down</div>
+        <div class="incident-sub">Location Unknown · Just now</div>
+      </div>
+      <div class="incident-badge open">OPEN</div>
+    </div>
+    <div class="incident-row">
+      <div class="incident-dot resolved"></div>
+      <div class="incident-info">
+        <div class="incident-title">Perimeter Breach — Gate A</div>
+        <div class="incident-sub">North Entrance · 2h ago</div>
+      </div>
+      <div class="incident-badge resolved">CLOSED</div>
+    </div>
+  </div>
+
+  <!-- Threat Level -->
+  <div class="threat-panel">
+    <div class="panel-title">THREAT LEVEL</div>
+    <div class="threat-bar-wrap">
+      <div class="threat-labels">
+        <span class="threat-lbl">LOW</span>
+        <span class="threat-lbl">MODERATE</span>
+        <span class="threat-lbl">HIGH</span>
+        <span class="threat-lbl">CRITICAL</span>
+      </div>
+      <div class="threat-bar-bg">
+        <div class="threat-marker"></div>
+      </div>
+    </div>
+    <div class="threat-status">⚠ MODERATE — Monitor situation</div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <div class="nav-item active">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+      <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+    </svg>
+    <div class="nav-label" style="color:var(--accent)">HOME</div>
+  </div>
+  <div class="nav-item">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+    </svg>
+    <div class="nav-label">INCIDENTS</div>
+  </div>
+  <div style="flex:1; display:flex; justify-content:center; align-items:center;">
+    <div class="sos-btn" onclick="openSOS()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <div class="sos-label">SOS</div>
+    </div>
+  </div>
+  <div class="nav-item" onclick="showPatrol()">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+    </svg>
+    <div class="nav-label">PATROL</div>
+  </div>
+  <div class="nav-item" onclick="openMenu()">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+    <div class="nav-label">MORE</div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ========== ONBOARDING SCREEN ========== -->
+
+  <div class="screen" id="screen-onboarding">
+    <div class="ob-header">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <button class="back-btn" style="margin-bottom:0;" onclick="showScreen('screen-home')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Back
+        </button>
+        <div class="ob-status pending">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--amber);"></div>
+          DEMO MODE
+        </div>
+      </div>
+      <div class="ob-eyebrow">SETUP WIZARD</div>
+      <div class="ob-title">Go Live Checklist</div>
+      <div class="ob-sub">Complete all 5 steps to activate your production account and leave demo mode.</div>
+    </div>
+
+```
+<div class="ob-progress">
+  <div class="ob-progress-track">
+    <div class="ob-step-bubble done" onclick="goToObStep(1)">&#10003;</div>
+    <div class="ob-step-line done" id="ob-line-1"></div>
+    <div class="ob-step-bubble done" onclick="goToObStep(2)">&#10003;</div>
+    <div class="ob-step-line" id="ob-line-2"></div>
+    <div class="ob-step-bubble active" id="ob-bubble-3" onclick="goToObStep(3)">3</div>
+    <div class="ob-step-line" id="ob-line-3"></div>
+    <div class="ob-step-bubble" id="ob-bubble-4" onclick="goToObStep(4)">4</div>
+    <div class="ob-step-line" id="ob-line-4"></div>
+    <div class="ob-step-bubble" id="ob-bubble-5" onclick="goToObStep(5)">5</div>
+  </div>
+  <div class="ob-progress-labels">
+    <div class="ob-prog-lbl done">ORG</div>
+    <div class="ob-prog-lbl done">ADMIN</div>
+    <div class="ob-prog-lbl active" id="ob-lbl-3">BILLING</div>
+    <div class="ob-prog-lbl" id="ob-lbl-4">GUARDS</div>
+    <div class="ob-prog-lbl" id="ob-lbl-5">SITES</div>
+  </div>
+</div>
+
+<div class="ob-steps-wrap">
+
+  <!-- STEP 1: Org Verified -->
+  <div class="ob-step" id="ob-step-1">
+    <div class="ob-step-header">
+      <div class="ob-step-num">STEP 1 OF 5</div>
+      <div class="ob-step-title">Organisation Verified</div>
+      <div class="ob-step-desc">Your organisation has been verified and your account is registered in the ShieldSync network.</div>
+    </div>
+    <div class="ob-info-card">
+      <div class="ob-info-icon" style="background:var(--accent-dim);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div class="ob-info-text">
+        <div class="ob-info-label">ORGANISATION</div>
+        <div class="ob-info-value">Apex Security Group</div>
+        <div class="ob-info-sub">Registered · Business · United States</div>
+      </div>
+      <div class="ob-status verified">&#10003; VERIFIED</div>
+    </div>
+    <div class="ob-info-card">
+      <div class="ob-info-icon" style="background:var(--accent-dim);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a2 2 0 011.72-2.09h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+        </svg>
+      </div>
+      <div class="ob-info-text">
+        <div class="ob-info-label">CONTACT</div>
+        <div class="ob-info-value">+1 (555) 000-0000</div>
+        <div class="ob-info-sub">admin@apexsecurity.com</div>
+      </div>
+    </div>
+    <div class="ob-btn-row">
+      <button class="btn-primary" style="flex:1; margin-top:0;" onclick="goToObStep(2)">NEXT &#8594;</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Admin Account -->
+  <div class="ob-step" id="ob-step-2">
+    <div class="ob-step-header">
+      <div class="ob-step-num">STEP 2 OF 5</div>
+      <div class="ob-step-title">Admin Account Created</div>
+      <div class="ob-step-desc">Your primary admin account has been set up with full system permissions.</div>
+    </div>
+    <div class="ob-info-card">
+      <div class="ob-info-icon" style="background:rgba(20,184,166,0.15);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div class="ob-info-text">
+        <div class="ob-info-label">PRIMARY ADMIN</div>
+        <div class="ob-info-value">John Doe</div>
+        <div class="ob-info-sub">john.doe@apexsecurity.com · Super Admin</div>
+      </div>
+      <div class="ob-status verified">&#10003; ACTIVE</div>
+    </div>
+    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:14px 16px;">
+      <div style="font-size:10px; letter-spacing:1.5px; color:var(--text-secondary); margin-bottom:10px;">PERMISSIONS ENABLED</div>
+      <div style="display:flex; flex-wrap:wrap; gap:6px;">
+        <span style="font-size:11px; background:var(--bg-card2); border:1px solid var(--border); border-radius:8px; padding:4px 10px;">Incidents</span>
+        <span style="font-size:11px; background:var(--bg-card2); border:1px solid var(--border); border-radius:8px; padding:4px 10px;">Guards</span>
+        <span style="font-size:11px; background:var(--bg-card2); border:1px solid var(--border); border-radius:8px; padding:4px 10px;">Dispatch</span>
+        <span style="font-size:11px; background:var(--bg-card2); border:1px solid var(--border); border-radius:8px; padding:4px 10px;">Reports</span>
+        <span style="font-size:11px; background:var(--bg-card2); border:1px solid var(--border); border-radius:8px; padding:4px 10px;">Billing</span>
+        <span style="font-size:11px; background:var(--bg-card2); border:1px solid var(--border); border-radius:8px; padding:4px 10px;">Settings</span>
+      </div>
+    </div>
+    <div class="ob-btn-row">
+      <button class="btn-secondary" onclick="goToObStep(1)">&#8592; BACK</button>
+      <button class="btn-primary" style="flex:1; margin-top:0;" onclick="goToObStep(3)">NEXT &#8594;</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Billing Plan -->
+  <div class="ob-step active" id="ob-step-3">
+    <div class="ob-step-header">
+      <div class="ob-step-num">STEP 3 OF 5</div>
+      <div class="ob-step-title">Select Billing Plan</div>
+      <div class="ob-step-desc">Choose the plan that fits your operation. You can upgrade any time.</div>
+    </div>
+    <div class="billing-plans">
+      <div class="plan-card" onclick="selectPlan(this)">
+        <div class="plan-radio"><div class="plan-radio-dot"></div></div>
+        <div class="plan-info">
+          <div class="plan-name">STARTER</div>
+          <div class="plan-price">$49 / month</div>
+          <div class="plan-features">
+            <div class="plan-feat"><span>&#10003;</span> Up to 5 guards</div>
+            <div class="plan-feat"><span>&#10003;</span> 1 site location</div>
+            <div class="plan-feat"><span>&#10003;</span> Basic incident reports</div>
+            <div class="plan-feat"><span>&#10003;</span> Email support</div>
+          </div>
+        </div>
+      </div>
+      <div class="plan-card selected" onclick="selectPlan(this)">
+        <div class="plan-radio"><div class="plan-radio-dot"></div></div>
+        <div class="plan-info">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">
+            <div class="plan-name">PROFESSIONAL</div>
+            <div class="plan-badge">POPULAR</div>
+          </div>
+          <div class="plan-price">$149 / month</div>
+          <div class="plan-features">
+            <div class="plan-feat"><span>&#10003;</span> Up to 25 guards</div>
+            <div class="plan-feat"><span>&#10003;</span> Up to 5 site locations</div>
+            <div class="plan-feat"><span>&#10003;</span> Full incident + patrol reports</div>
+            <div class="plan-feat"><span>&#10003;</span> Real-time dispatch + SOS</div>
+            <div class="plan-feat"><span>&#10003;</span> Priority support</div>
+          </div>
+        </div>
+      </div>
+      <div class="plan-card" onclick="selectPlan(this)">
+        <div class="plan-radio"><div class="plan-radio-dot"></div></div>
+        <div class="plan-info">
+          <div class="plan-name">ENTERPRISE</div>
+          <div class="plan-price">Custom pricing</div>
+          <div class="plan-features">
+            <div class="plan-feat"><span>&#10003;</span> Unlimited guards</div>
+            <div class="plan-feat"><span>&#10003;</span> Unlimited sites</div>
+            <div class="plan-feat"><span>&#10003;</span> API access + integrations</div>
+            <div class="plan-feat"><span>&#10003;</span> Dedicated account manager</div>
+            <div class="plan-feat"><span>&#10003;</span> SLA guarantee</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ob-btn-row">
+      <button class="btn-secondary" onclick="goToObStep(2)">&#8592; BACK</button>
+      <button class="btn-primary" style="flex:1; margin-top:0;" onclick="goToObStep(4)">CONFIRM PLAN &#8594;</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Guards -->
+  <div class="ob-step" id="ob-step-4">
+    <div class="ob-step-header">
+      <div class="ob-step-num">STEP 4 OF 5</div>
+      <div class="ob-step-title">Onboard Guards</div>
+      <div class="ob-step-desc">Add your security personnel. They'll receive an invite to the ShieldSync Guard app.</div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div class="field-group">
+        <div class="field-label">GUARD FULL NAME</div>
+        <input class="field-input" type="text" placeholder="Full name" id="guard-name-input" />
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div class="field-group" style="flex:1;">
+          <div class="field-label">EMAIL</div>
+          <input class="field-input" type="email" placeholder="guard@unit.com" id="guard-email-input" />
+        </div>
+        <div class="field-group" style="flex:0 0 110px;">
+          <div class="field-label">ROLE</div>
+          <select class="field-input" id="guard-role-input" style="appearance:none; -webkit-appearance:none;">
+            <option>Officer</option>
+            <option>Supervisor</option>
+            <option>K9 Unit</option>
+            <option>Patrol</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" style="margin-top:0;" onclick="addGuard()">+ ADD GUARD</button>
+    </div>
+    <div class="guard-list" id="guard-list">
+      <div class="guard-row">
+        <div class="guard-av">MS</div>
+        <div class="guard-info">
+          <div class="guard-name">Mike Santos</div>
+          <div class="guard-role">Officer · Invite pending</div>
+        </div>
+        <div class="guard-status-dot" style="background:var(--amber);"></div>
+      </div>
+      <div class="guard-row">
+        <div class="guard-av">LR</div>
+        <div class="guard-info">
+          <div class="guard-name">Lisa Rodriguez</div>
+          <div class="guard-role">Supervisor · Invite pending</div>
+        </div>
+        <div class="guard-status-dot" style="background:var(--amber);"></div>
+      </div>
+    </div>
+    <div id="guard-count-text" style="font-size:11px; color:var(--text-secondary); text-align:center; margin-top:-4px;">
+      2 guards added · Invites send when you go live
+    </div>
+    <div class="ob-btn-row">
+      <button class="btn-secondary" onclick="goToObStep(3)">&#8592; BACK</button>
+      <button class="btn-primary" style="flex:1; margin-top:0;" onclick="goToObStep(5)">NEXT &#8594;</button>
+    </div>
+    <div class="ob-skip" onclick="goToObStep(5)">Skip for now</div>
+  </div>
+
+  <!-- STEP 5: Site Locations -->
+  <div class="ob-step" id="ob-step-5">
+    <div class="ob-step-header">
+      <div class="ob-step-num">STEP 5 OF 5</div>
+      <div class="ob-step-title">Configure Sites</div>
+      <div class="ob-step-desc">Add the physical locations your guards will patrol. Each site can have multiple zones.</div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div class="field-group">
+        <div class="field-label">SITE NAME</div>
+        <input class="field-input" type="text" placeholder="e.g. Main Campus, Warehouse B" id="site-name-input" />
+      </div>
+      <div class="field-group">
+        <div class="field-label">ADDRESS</div>
+        <input class="field-input" type="text" placeholder="Full street address" id="site-addr-input" />
+      </div>
+      <div class="field-group">
+        <div class="field-label">ZONES</div>
+        <select class="field-input" id="site-zones-input" style="appearance:none; -webkit-appearance:none;">
+          <option>1 zone</option>
+          <option>2 zones</option>
+          <option selected>3 zones</option>
+          <option>4+ zones</option>
+        </select>
+      </div>
+      <button class="btn-primary" style="margin-top:0;" onclick="addSite()">+ ADD SITE</button>
+    </div>
+    <div class="site-list" id="site-list">
+      <div class="site-row">
+        <div class="site-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </div>
+        <div class="site-info">
+          <div class="site-name">Main Campus</div>
+          <div class="site-addr">1200 Security Blvd, Austin TX</div>
+        </div>
+        <div class="site-zones">3 ZONES</div>
+      </div>
+    </div>
+    <div class="ob-btn-row" style="margin-top:4px;">
+      <button class="btn-secondary" onclick="goToObStep(4)">&#8592; BACK</button>
+      <button class="btn-primary" style="flex:1; margin-top:0;" onclick="goToObStep(6)">FINISH SETUP &#8594;</button>
+    </div>
+    <div class="ob-skip" onclick="goToObStep(6)">Skip for now</div>
+  </div>
+
+  <!-- STEP 6: Launch -->
+  <div class="ob-step" id="ob-step-6">
+    <div class="launch-card">
+      <div class="launch-shield">
+        <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
+          <path d="M18 3L4 9v10c0 7.7 5.9 14.9 14 17 8.1-2.1 14-9.3 14-17V9L18 3z" fill="rgba(0,0,0,0.15)" stroke="#000" stroke-width="1.5"/>
+          <path d="M13 18l3.5 3.5L23 14" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="launch-title">READY TO GO LIVE</div>
+      <div class="launch-sub">All setup steps complete. Activate your production account — your team will be notified instantly.</div>
+      <div class="launch-checklist">
+        <div class="launch-check"><div class="lcheck-icon">&#10003;</div> Organisation verified</div>
+        <div class="launch-check"><div class="lcheck-icon">&#10003;</div> Admin account configured</div>
+        <div class="launch-check"><div class="lcheck-icon">&#10003;</div> Billing plan selected</div>
+        <div class="launch-check"><div class="lcheck-icon">&#10003;</div> Guards onboarded &amp; invited</div>
+        <div class="launch-check"><div class="lcheck-icon">&#10003;</div> Site locations configured</div>
+      </div>
+    </div>
+    <button class="btn-primary" style="margin-top:0; background:linear-gradient(135deg,#00ffb4,#00d4a0); font-size:16px; padding:18px; letter-spacing:3px;" onclick="goLive()">
+      &#128640; ACTIVATE LIVE ACCOUNT
+    </button>
+    <div style="text-align:center; font-size:11px; color:var(--text-muted); margin-top:8px; line-height:1.6;">
+      By activating you agree to the ShieldSync Terms of Service.<br>Your first billing cycle starts today.
+    </div>
+  </div>
+
+</div>
+```
+
+  </div>
+
+  <!-- ========== PATROL SCREEN ========== -->
+
+  <div class="screen" id="screen-patrol">
+    <div class="patrol-topbar">
+      <div class="patrol-title">PATROL</div>
+      <div class="patrol-session-badge">
+        <div class="session-dot"></div>
+        SESSION ACTIVE
+      </div>
+    </div>
+
+```
+<div class="patrol-content">
+
+  <!-- Missed alert -->
+  <div class="missed-alert">
+    <div class="missed-alert-icon">&#9888;</div>
+    <div>
+      <div class="missed-alert-title">OVERDUE: Loading Bay — East</div>
+      <div class="missed-alert-sub">Checkpoint not scanned in 78 minutes. Required every 60 min. Guard: Santos.</div>
+      <div class="missed-alert-action">DISPATCH UNIT &#8594;</div>
+    </div>
+  </div>
+
+  <!-- Live Map -->
+  <div class="map-container">
+    <div class="map-header">
+      <div class="map-title">LIVE GUARD MAP — MAIN CAMPUS</div>
+      <div class="map-live"><div class="map-live-dot"></div> LIVE</div>
+    </div>
+    <div class="map-canvas" id="map-canvas">
+      <div class="map-site-boundary"></div>
+      <!-- Zones -->
+      <div class="map-zone scanned" style="top:28px;left:28px;width:70px;height:55px;">CP-01</div>
+      <div class="map-zone scanned" style="top:28px;left:108px;width:70px;height:55px;">CP-02</div>
+      <div class="map-zone active-zone" style="top:28px;left:188px;width:70px;height:55px;">CP-03</div>
+      <div class="map-zone pending" style="top:93px;left:28px;width:70px;height:55px;">CP-04</div>
+      <div class="map-zone pending" style="top:93px;left:108px;width:70px;height:55px;">CP-05</div>
+      <div class="map-zone pending" style="top:93px;left:188px;width:70px;height:55px;">CP-06</div>
+      <div class="map-zone pending" style="top:158px;left:28px;width:70px;height:45px;">CP-07</div>
+      <div class="map-zone overdue" style="top:158px;left:108px;width:70px;height:45px; border-color:rgba(255,59,59,0.6);background:rgba(255,59,59,0.08);color:var(--red);">CP-08</div>
+      <div class="map-zone pending" style="top:158px;left:188px;width:35px;height:45px;">CP-09</div>
+      <div class="map-zone pending" style="top:158px;left:233px;width:35px;height:45px;">CP-10</div>
+      <!-- Guard dots -->
+      <div class="guard-dot" id="guard-dot-1" style="left:210px;top:44px;">
+        <div class="guard-dot-label">SANTOS</div>
+      </div>
+      <div class="guard-dot" id="guard-dot-2" style="left:50px;top:105px;background:#3b82f6;box-shadow:0 0 12px rgba(59,130,246,0.6);">
+        <div class="guard-dot-label" style="color:#3b82f6;">RODRIGUEZ</div>
+      </div>
+    </div>
+    <div class="map-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent);"></div>Scanned</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--amber);"></div>Active</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red);"></div>Overdue</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--text-muted);"></div>Pending</div>
+    </div>
+  </div>
+
+  <!-- Patrol Progress -->
+  <div class="patrol-progress-card">
+    <div class="pp-header">
+      <div class="pp-title">PATROL PROGRESS</div>
+      <div class="pp-count" id="pp-count">2 / 10 CHECKPOINTS</div>
+    </div>
+    <div class="pp-bar-bg">
+      <div class="pp-bar-fill" id="pp-bar" style="width:20%;"></div>
+    </div>
+    <div class="pp-timer">
+      <div>
+        <div style="margin-bottom:2px;">ELAPSED</div>
+        <div class="pp-timer-val" id="patrol-timer">00:42:17</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="margin-bottom:2px;">COMPLETION</div>
+        <div class="pp-timer-val" style="color:var(--accent);" id="pp-pct">20%</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="margin-bottom:2px;">EST. REMAINING</div>
+        <div class="pp-timer-val">02:49:00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Guard Status -->
+  <div class="guard-status-strip">
+    <div class="gss-header">
+      <div class="panel-title">GUARD STATUS</div>
+      <div class="panel-action">Manage &#8594;</div>
+    </div>
+    <div class="guard-status-row">
+      <div class="gsr-av" style="background:linear-gradient(135deg,var(--teal),var(--blue));">MS</div>
+      <div class="gsr-info">
+        <div class="gsr-name">Mike Santos</div>
+        <div class="gsr-loc">&#128205; Zone CP-03 · Battery 84%</div>
+      </div>
+      <div class="gsr-status on-patrol">ON PATROL</div>
+    </div>
+    <div class="guard-status-row">
+      <div class="gsr-av" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">LR</div>
+      <div class="gsr-info">
+        <div class="gsr-name">Lisa Rodriguez</div>
+        <div class="gsr-loc">&#128205; Zone CP-04 · Battery 61%</div>
+      </div>
+      <div class="gsr-status on-patrol">ON PATROL</div>
+    </div>
+    <div class="guard-status-row">
+      <div class="gsr-av" style="background:linear-gradient(135deg,#f59e0b,#d97706);">TK</div>
+      <div class="gsr-info">
+        <div class="gsr-name">Tom Kwon</div>
+        <div class="gsr-loc">&#128205; Break room · 15 min</div>
+      </div>
+      <div class="gsr-status break">ON BREAK</div>
+    </div>
+    <div class="guard-status-row">
+      <div class="gsr-av" style="background:var(--bg-card2); color:var(--text-muted);">JB</div>
+      <div class="gsr-info">
+        <div class="gsr-name">James Burke</div>
+        <div class="gsr-loc">Last seen 23 min ago</div>
+      </div>
+      <div class="gsr-status offline">OFFLINE</div>
+    </div>
+  </div>
+
+  <!-- Checkpoints List -->
+  <div class="checkpoints-panel">
+    <div class="cp-header">
+      <div class="panel-title">CHECKPOINTS (10)</div>
+      <div class="panel-action" onclick="openScanner()">+ SCAN</div>
+    </div>
+    <div class="cp-filter-row">
+      <div class="cp-filter active" onclick="filterCp(this,'all')">ALL</div>
+      <div class="cp-filter" onclick="filterCp(this,'pending')">PENDING</div>
+      <div class="cp-filter" onclick="filterCp(this,'scanned')">SCANNED</div>
+      <div class="cp-filter" onclick="filterCp(this,'overdue')">OVERDUE</div>
+    </div>
+    <div id="cp-list">
+      <div class="checkpoint-row" data-status="scanned" onclick="openScanner()">
+        <div class="cp-icon scanned">&#128275;</div>
+        <div class="cp-info">
+          <div class="cp-name">Main Entrance — Gate A</div>
+          <div class="cp-meta">CP-01 · NFC Tag · North Zone</div>
+        </div>
+        <div class="cp-right">
+          <div class="cp-time scanned">08:12 AM</div>
+          <div class="cp-badge scanned">SCANNED</div>
+        </div>
+      </div>
+      <div class="checkpoint-row" data-status="scanned" onclick="openScanner()">
+        <div class="cp-icon scanned">&#128275;</div>
+        <div class="cp-info">
+          <div class="cp-name">Parking Level B2</div>
+          <div class="cp-meta">CP-02 · QR Code · West Zone</div>
+        </div>
+        <div class="cp-right">
+          <div class="cp-time scanned">08:31 AM</div>
+          <div class="cp-badge scanned">SCANNED</div>
+        </div>
+      </div>
+      <div class="checkpoint-row" data-status="active" onclick="openScanner()">
+        <div class="cp-icon active-cp">&#128270;</div>
+        <div class="cp-info">
+          <div class="cp-name">Server Room — Floor 3</div>
+          <div class="cp-meta">CP-03 · NFC Tag · East Zone</div>
+        </div>
+        <div class="cp-right">
+          <div class="cp-time pending">NOW</div>
+          <div class="cp-badge active-cp">ACTIVE</div>
+        </div>
+      </div>
+      <div class="checkpoint-row" data-status="overdue" onclick="openScanner()">
+        <div class="cp-icon overdue">&#9888;</div>
+        <div class="cp-info">
+          <div class="cp-name">Loading Bay — East</div>
+          <div class="cp-meta">CP-08 · QR Code · South Zone</div>
+        </div>
+        <div class="cp-right">
+          <div class="cp-time overdue">+78 MIN</div>
+          <div class="cp-badge overdue">OVERDUE</div>
+        </div>
+      </div>
+      <div class="checkpoint-row" data-status="pending" onclick="openScanner()">
+        <div class="cp-icon pending">&#9711;</div>
+        <div class="cp-info">
+          <div class="cp-name">Rooftop Access — Stairwell C</div>
+          <div class="cp-meta">CP-04 · NFC Tag · North Zone</div>
+        </div>
+        <div class="cp-right">
+          <div class="cp-time pending">—</div>
+          <div class="cp-badge pending">PENDING</div>
+        </div>
+      </div>
+      <div class="checkpoint-row" data-status="pending" onclick="openScanner()">
+        <div class="cp-icon pending">&#9711;</div>
+        <div class="cp-info">
+          <div class="cp-name">Fire Exit — South Wing</div>
+          <div class="cp-meta">CP-05 · QR Code · South Zone</div>
+        </div>
+        <div class="cp-right">
+          <div class="cp-time pending">—</div>
+          <div class="cp-badge pending">PENDING</div>
+        </div>
+      </div>
+      <div class="checkpoint-row" data-status="pending" onclick="openScanner()">
+        <div class="cp-icon pending">&#9711;</div>
+        <div class="cp-info">
+          <div class="cp-name">CCTV Room — Basement</div>
+          <div class="cp-meta">CP-06 · NFC Tag · West Zone</div>
+        </div>
+        <div class="cp-right">
+          <div class="cp-time pending">—</div>
+          <div class="cp-badge pending">PENDING</div>
+        </div>
+      </div>
+      <div class="checkpoint-row" data-status="pending" onclick="openScanner()">
+        <div class="cp-icon pending">&#9711;</div>
+        <div class="cp-info">
+          <div class="cp-name">Generator Room — Rear</div>
+          <div class="cp-meta">CP-07 · QR Code · South Zone</div>
+        </div>
+        <div class="cp-right">
+          <div class="cp-time pending">—</div>
+          <div class="cp-badge pending">PENDING</div>
+        </div>
+      </div>
+      <div class="checkpoint-row" data-status="pending" onclick="openScanner()">
+        <div class="cp-icon pending">&#9711;</div>
+        <div class="cp-info">
+          <div class="cp-name">Reception Lobby</div>
+          <div class="cp-meta">CP-09 · NFC Tag · Central Zone</div>
+        </div>
+        <div class="cp-right">
+          <div class="cp-time pending">—</div>
+          <div class="cp-badge pending">PENDING</div>
+        </div>
+      </div>
+      <div class="checkpoint-row" data-status="pending" onclick="openScanner()">
+        <div class="cp-icon pending">&#9711;</div>
+        <div class="cp-info">
+          <div class="cp-name">Executive Floor — Level 8</div>
+          <div class="cp-meta">CP-10 · NFC Tag · North Zone</div>
+        </div>
+        <div class="cp-right">
+          <div class="cp-time pending">—</div>
+          <div class="cp-badge pending">PENDING</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MAIN MODAL -->
-  <div id="modal-overlay" class="modal-overlay hidden">
-    <div class="modal" id="modal-box">
-      <div class="modal-header"><h3 id="modal-title">Modal</h3><button class="modal-close" id="modal-close">✕</button></div>
-      <div class="modal-body" id="modal-body"></div>
+</div>
+
+<!-- Floating scan button -->
+<div class="scan-fab" onclick="openScanner()">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
+    <rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/>
+    <rect x="3" y="16" width="5" height="5" rx="1"/>
+    <path d="M16 16h5v5h-5zM16 11h5M11 16v5M11 11h5v5h-5M11 3v5M3 11h5"/>
+  </svg>
+</div>
+```
+
+  </div>
+
+  <!-- ========== QR / NFC SCANNER MODAL ========== -->
+
+  <div class="scanner-modal" id="scanner-modal">
+    <div class="scanner-topbar">
+      <div class="scanner-close" onclick="closeScanner()">&#10005;</div>
+      <div class="scanner-title">SCAN CHECKPOINT</div>
+      <div class="scanner-mode-toggle">
+        <button class="mode-btn active" id="mode-qr" onclick="setScanMode('qr')">QR</button>
+        <button class="mode-btn" id="mode-nfc" onclick="setScanMode('nfc')">NFC</button>
+      </div>
+    </div>
+
+```
+<div class="scanner-viewport">
+  <div class="scanner-grid"></div>
+
+  <!-- QR mode -->
+  <div id="qr-view" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
+    <div class="scan-frame">
+      <div class="scan-corner tl"></div>
+      <div class="scan-corner tr"></div>
+      <div class="scan-corner bl"></div>
+      <div class="scan-corner br"></div>
+      <div class="scan-line"></div>
+      <div class="scanner-label">Point camera at QR code tag</div>
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, where, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  <!-- NFC mode -->
+  <div id="nfc-view" style="display:none;align-items:center;justify-content:center;width:100%;height:100%;flex-direction:column;gap:16px;">
+    <div class="nfc-zone">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5">
+        <path d="M6 6a8 8 0 000 12M18 6a8 8 0 010 12M9 9a4 4 0 000 6M15 9a4 4 0 010 6M12 11v2"/>
+      </svg>
+      <div class="nfc-label">Hold phone near<br>NFC tag</div>
+    </div>
+  </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyB8h2Pmz2Yv7Z137ElTFpcWKSeS6cRQ6T0",
-      authDomain: "shieldsync-1ffe0.firebaseapp.com",
-      projectId: "shieldsync-1ffe0",
-      storageBucket: "shieldsync-1ffe0.firebasestorage.app",
-      messagingSenderId: "850242395820",
-      appId: "1:850242395820:web:a74eecd0216edd97e68909"
-    };
+  <!-- Success overlay -->
+  <div class="scan-success" id="scan-success">
+    <div class="scan-success-icon">&#10003;</div>
+    <div class="scan-success-text">CHECKPOINT LOGGED</div>
+    <div class="scan-success-sub" id="scan-success-cp">Server Room — Floor 3</div>
+  </div>
+</div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+<div class="scanner-footer">
+  <div class="scanner-cp-info">
+    <div class="scanner-cp-icon">&#128270;</div>
+    <div>
+      <div class="scanner-cp-name">Server Room — Floor 3</div>
+      <div class="scanner-cp-zone">CP-03 · East Zone · Required every 60 min</div>
+    </div>
+  </div>
+  <button class="btn-scan-confirm" onclick="simulateScan()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    CONFIRM SCAN
+  </button>
+</div>
+```
 
-    let currentUser = null;
-    let incidents=[], guards=[], accessLogs=[], enroutes=[], timesheets=[], patrols=[], alerts=[];
+  </div>
 
-    // CLOCK
-    function updateClock() {
-      const now = new Date();
-      const t = now.toLocaleTimeString("en-GB");
-      const d = now.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
-      document.getElementById("live-clock").textContent = t;
-      document.getElementById("live-date").textContent = d;
-      const mc = document.getElementById("mobile-clock");
-      const md = document.getElementById("mobile-date");
-      if(mc) mc.textContent = t;
-      if(md) md.textContent = d;
-    }
-    setInterval(updateClock,1000); updateClock();
+  <!-- ========== BURGER MENU OVERLAY ========== -->
 
-    // NAV
-    function switchView(view) {
-      if(view==="more") {
-        document.getElementById("mobile-more-menu").classList.remove("hidden");
-        return;
+  <div class="menu-overlay" id="menu-overlay" onclick="closeMenu()"></div>
+  <div class="menu-sheet" id="menu-sheet">
+    <div class="menu-handle"></div>
+    <div class="menu-header">
+      <div class="menu-title">MENU</div>
+      <div class="menu-close" onclick="closeMenu()">✕</div>
+    </div>
+    <div class="menu-section-title">OPERATIONS</div>
+    <div class="menu-grid">
+      <div class="menu-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <div class="menu-item-label">Enroute</div>
+      </div>
+      <div class="menu-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="1.5">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+        <div class="menu-item-label">Guards</div>
+      </div>
+      <div class="menu-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.5">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <div class="menu-item-label">Timesheets</div>
+      </div>
+      <div class="menu-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="1.5">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        <div class="menu-item-label">Access</div>
+      </div>
+      <div class="menu-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.5">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+        <div class="menu-item-label">Alerts</div>
+      </div>
+      <div class="menu-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.5">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        </svg>
+        <div class="menu-item-label">Reports</div>
+      </div>
+    </div>
+    <div style="margin-top: 16px; background: var(--amber-dim); border: 1px solid rgba(245,166,35,0.25); border-radius:12px; padding:12px 14px;">
+      <div style="font-size:10px; letter-spacing:1.5px; color:var(--amber); font-weight:600; margin-bottom:6px;">DEMO MODE</div>
+      <div style="font-size:12px; color:rgba(245,166,35,0.7); line-height:1.5;">Complete org setup to go live. Missing: billing plan, guards onboarded, site locations.</div>
+    </div>
+  </div>
+
+  <!-- ========== SOS MODAL ========== -->
+
+  <div class="sos-modal" id="sos-modal">
+    <div class="sos-card">
+      <div class="sos-card-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ff2d55" stroke-width="2.5">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <div class="sos-card-title">EMERGENCY SOS</div>
+      <div class="sos-card-sub">This will immediately alert all available units and dispatch command. Your location will be shared.</div>
+      <div class="sos-btn-row">
+        <button class="btn-ghost" onclick="closeSOS()">CANCEL</button>
+        <button class="btn-danger" onclick="closeSOS()">SEND SOS</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById(id).scrollTop = 0;
+  }
+
+  // Reset password steps
+  function resetStep2() {
+    const email = document.getElementById('reset-email').value;
+    document.getElementById('stage-1').classList.remove('active');
+    document.getElementById('stage-2').classList.add('active');
+    document.getElementById('step2').classList.add('done');
+    document.getElementById('reset-sub-text').textContent = 'Enter the 6-digit verification code sent to your email.';
+  }
+
+  function resetStep3() {
+    document.getElementById('stage-2').classList.remove('active');
+    document.getElementById('stage-3').classList.add('active');
+    document.getElementById('step3').classList.add('done');
+    document.getElementById('reset-sub-text').textContent = 'Choose a strong password for your account.';
+  }
+
+  function resetDone() {
+    document.getElementById('stage-3').classList.remove('active');
+    document.getElementById('stage-4').classList.add('active');
+    document.getElementById('reset-sub-text').textContent = 'All done!';
+  }
+
+  // Menu
+  function openMenu() {
+    document.getElementById('menu-overlay').classList.add('open');
+    document.getElementById('menu-sheet').classList.add('open');
+  }
+  function closeMenu() {
+    document.getElementById('menu-overlay').classList.remove('open');
+    document.getElementById('menu-sheet').classList.remove('open');
+  }
+
+  // SOS
+  function openSOS() {
+    document.getElementById('sos-modal').classList.add('open');
+  }
+  function closeSOS() {
+    document.getElementById('sos-modal').classList.remove('open');
+  }
+
+  // Enroute tabs
+  function switchTab(el, contentId) {
+    document.querySelectorAll('.etab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    ['enroute-content', 'arrival-content', 'onsite-content'].forEach(id => {
+      document.getElementById(id).style.display = id === contentId ? 'block' : 'none';
+    });
+  }
+
+  // ========== ONBOARDING ==========
+  function goToObStep(step) {
+    document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById('ob-step-' + step);
+    if (el) el.classList.add('active');
+    updateObProgress(step);
+    document.getElementById('screen-onboarding').scrollTop = 0;
+  }
+
+  function updateObProgress(step) {
+    [3,4,5].forEach(s => {
+      const b = document.getElementById('ob-bubble-' + s);
+      if (!b) return;
+      b.classList.remove('done','active');
+      if (step > s) { b.classList.add('done'); b.innerHTML = '&#10003;'; }
+      else if (step === s) { b.classList.add('active'); b.innerHTML = s; }
+      else { b.innerHTML = s; }
+    });
+    [2,3,4].forEach(s => {
+      const l = document.getElementById('ob-line-' + s);
+      if (l) l.classList.toggle('done', step > s + 1);
+    });
+    [3,4,5].forEach(s => {
+      const l = document.getElementById('ob-lbl-' + s);
+      if (!l) return;
+      l.className = 'ob-prog-lbl' + (step > s ? ' done' : step === s ? ' active' : '');
+    });
+  }
+
+  function selectPlan(card) {
+    document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  }
+
+  let guardCount = 2;
+  function addGuard() {
+    const name = document.getElementById('guard-name-input').value.trim();
+    const email = document.getElementById('guard-email-input').value.trim();
+    const role = document.getElementById('guard-role-input').value;
+    if (!name) return;
+    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    const row = document.createElement('div');
+    row.className = 'guard-row';
+    row.innerHTML = '<div class="guard-av">' + initials + '</div>' +
+      '<div class="guard-info"><div class="guard-name">' + name + '</div>' +
+      '<div class="guard-role">' + role + ' &middot; ' + (email || 'No email') + '</div></div>' +
+      '<div class="guard-status-dot" style="background:var(--amber);"></div>';
+    document.getElementById('guard-list').appendChild(row);
+    guardCount++;
+    document.getElementById('guard-count-text').textContent = guardCount + ' guards added · Invites send when you go live';
+    document.getElementById('guard-name-input').value = '';
+    document.getElementById('guard-email-input').value = '';
+  }
+
+  let siteCount = 1;
+  function addSite() {
+    const name = document.getElementById('site-name-input').value.trim();
+    const addr = document.getElementById('site-addr-input').value.trim();
+    const zones = document.getElementById('site-zones-input').value;
+    if (!name) return;
+    const row = document.createElement('div');
+    row.className = 'site-row';
+    row.innerHTML = '<div class="site-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>' +
+      '<div class="site-info"><div class="site-name">' + name + '</div><div class="site-addr">' + (addr || 'Address not set') + '</div></div>' +
+      '<div class="site-zones">' + zones.toUpperCase() + '</div>';
+    document.getElementById('site-list').appendChild(row);
+    siteCount++;
+    document.getElementById('site-name-input').value = '';
+    document.getElementById('site-addr-input').value = '';
+  }
+
+  function goLive() {
+    showScreen('screen-home');
+    document.querySelectorAll('.demo-banner').forEach(b => {
+      b.style.background = 'rgba(0,255,180,0.08)';
+      b.style.borderColor = 'rgba(0,255,180,0.3)';
+      b.innerHTML = '<div style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;"></div>' +
+        '<div style="font-size:12px;color:var(--accent);line-height:1.5;"><strong style="font-weight:600;display:block;margin-bottom:2px;">&#127881; LIVE ACCOUNT ACTIVE</strong>All systems operational. Welcome to ShieldSync production.</div>';
+    });
+  }
+
+
+  // ========== PATROL ==========
+  let scanMode = 'qr';
+  let scannedCount = 2;
+  let patrolSeconds = 2537; // 42:17
+
+  function showPatrol() {
+    showScreen('screen-patrol');
+  }
+
+  function openScanner() {
+    document.getElementById('scanner-modal').classList.add('open');
+  }
+  function closeScanner() {
+    document.getElementById('scanner-modal').classList.remove('open');
+    document.getElementById('scan-success').classList.remove('show');
+  }
+
+  function setScanMode(mode) {
+    scanMode = mode;
+    document.getElementById('mode-qr').classList.toggle('active', mode === 'qr');
+    document.getElementById('mode-nfc').classList.toggle('active', mode === 'nfc');
+    document.getElementById('qr-view').style.display = mode === 'qr' ? 'flex' : 'none';
+    document.getElementById('nfc-view').style.display = mode === 'nfc' ? 'flex' : 'none';
+  }
+
+  function simulateScan() {
+    const successEl = document.getElementById('scan-success');
+    successEl.classList.add('show');
+    scannedCount++;
+    updatePatrolProgress();
+    // mark CP-03 row as scanned in list
+    const rows = document.querySelectorAll('.checkpoint-row');
+    rows.forEach(r => {
+      if (r.querySelector('.cp-name') && r.querySelector('.cp-name').textContent.includes('Server Room')) {
+        r.querySelector('.cp-icon').className = 'cp-icon scanned';
+        r.querySelector('.cp-icon').textContent = String.fromCharCode(128275);
+        r.querySelector('.cp-time').className = 'cp-time scanned';
+        r.querySelector('.cp-time').textContent = new Date().toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'});
+        r.querySelector('.cp-badge').className = 'cp-badge scanned';
+        r.querySelector('.cp-badge').textContent = 'SCANNED';
+        r.dataset.status = 'scanned';
       }
-      document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));
-      document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-      document.querySelectorAll(".mobile-nav-item").forEach(n=>n.classList.remove("active"));
-      document.getElementById("view-"+view)?.classList.remove("hidden");
-      document.querySelector(`.nav-item[data-view="${view}"]`)?.classList.add("active");
-      document.querySelector(`.mobile-nav-item[data-view="${view}"]`)?.classList.add("active");
-      const titles={dashboard:"Dashboard",incidents:"Incidents",enroute:"Enroute",guards:"Guard Roster",timesheet:"Timesheets",access:"Access Control",patrol:"Patrol Log",alerts:"Alerts",reports:"Reports"};
-      const titleEl = document.getElementById("view-title");
-      if(titleEl) titleEl.textContent = titles[view]||view;
-      document.getElementById("mobile-more-menu")?.classList.add("hidden");
-      if(view==="dashboard") refreshDashboard();
-      window.scrollTo(0,0);
-    }
-    document.querySelectorAll(".nav-item").forEach(item=>item.addEventListener("click",e=>{e.preventDefault();switchView(item.dataset.view);}));
-    document.querySelectorAll(".mobile-nav-item").forEach(item=>item.addEventListener("click",()=>switchView(item.dataset.view)));
-    document.querySelectorAll(".mobile-more-item").forEach(item=>item.addEventListener("click",()=>switchView(item.dataset.view)));
-    document.querySelectorAll(".panel-link").forEach(link=>link.addEventListener("click",e=>{e.preventDefault();switchView(link.dataset.view);}));
-    document.getElementById("mobile-more-close")?.addEventListener("click",()=>document.getElementById("mobile-more-menu").classList.add("hidden"));
-    document.getElementById("mobile-more-menu")?.addEventListener("click",e=>{if(e.target===document.getElementById("mobile-more-menu"))document.getElementById("mobile-more-menu").classList.add("hidden");});
-
-    // MOBILE SOS
-    document.getElementById("mobile-sos-btn")?.addEventListener("click",()=>document.getElementById("sos-overlay").classList.remove("hidden"));
-    document.getElementById("mobile-logout-btn")?.addEventListener("click",()=>signOut(auth));
-
-    // AUTH
-    document.getElementById("show-register").addEventListener("click",e=>{e.preventDefault();document.getElementById("login-card").classList.add("hidden");document.getElementById("register-card").classList.remove("hidden");});
-    document.getElementById("show-login").addEventListener("click",e=>{e.preventDefault();document.getElementById("register-card").classList.add("hidden");document.getElementById("login-card").classList.remove("hidden");});
-
-    async function doLogin() {
-      const email=document.getElementById("login-email").value.trim();
-      const pass=document.getElementById("login-password").value;
-      const remember=document.getElementById("remember-me").checked;
-      const errEl=document.getElementById("auth-error"); errEl.classList.add("hidden");
-      if(!email||!pass){errEl.textContent="Please enter email and password.";errEl.classList.remove("hidden");return;}
-      try {
-        await setPersistence(auth,remember?browserLocalPersistence:browserSessionPersistence);
-        await signInWithEmailAndPassword(auth,email,pass);
-      } catch(e){errEl.textContent=friendlyError(e.code);errEl.classList.remove("hidden");}
-    }
-    document.getElementById("login-btn").addEventListener("click", doLogin);
-    document.getElementById("login-password").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
-
-    document.getElementById("register-btn").addEventListener("click",async()=>{
-      const name=document.getElementById("reg-name").value.trim();
-      const email=document.getElementById("reg-email").value.trim();
-      const pass=document.getElementById("reg-password").value;
-      const errEl=document.getElementById("reg-error"); errEl.classList.add("hidden");
-      if(!email||!pass){errEl.textContent="Please fill in all fields.";errEl.classList.remove("hidden");return;}
-      try{const cred=await createUserWithEmailAndPassword(auth,email,pass);if(name)await updateProfile(cred.user,{displayName:name});}
-      catch(e){errEl.textContent=friendlyError(e.code);errEl.classList.remove("hidden");}
     });
-    document.getElementById("logout-btn").addEventListener("click",()=>signOut(auth));
+    // update map zone
+    const zones = document.querySelectorAll('.map-zone');
+    if (zones[2]) { zones[2].classList.remove('active-zone'); zones[2].classList.add('scanned'); }
+    setTimeout(closeScanner, 2000);
+  }
 
-    onAuthStateChanged(auth,user=>{
-      currentUser=user;
-      if(user){
-        document.getElementById("auth-screen").classList.add("hidden");
-        document.getElementById("app-screen").classList.remove("hidden");
-        document.getElementById("mobile-topbar").classList.remove("hidden");
-        document.getElementById("mobile-nav").classList.remove("hidden");
-        const name=user.displayName||"Operator";
-        document.getElementById("user-name-display").textContent=name;
-        document.getElementById("user-email-display").textContent=user.email;
-        document.getElementById("user-avatar").textContent=name.charAt(0).toUpperCase();
-        loadData();
-      } else {
-        document.getElementById("auth-screen").classList.remove("hidden");
-        document.getElementById("app-screen").classList.add("hidden");
-      }
+  function updatePatrolProgress() {
+    const pct = Math.round((scannedCount / 10) * 100);
+    document.getElementById('pp-bar').style.width = pct + '%';
+    document.getElementById('pp-count').textContent = scannedCount + ' / 10 CHECKPOINTS';
+    document.getElementById('pp-pct').textContent = pct + '%';
+  }
+
+  function filterCp(btn, filter) {
+    document.querySelectorAll('.cp-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.checkpoint-row').forEach(row => {
+      const st = row.dataset.status;
+      if (filter === 'all') row.style.display = 'flex';
+      else if (filter === 'scanned') row.style.display = st === 'scanned' ? 'flex' : 'none';
+      else if (filter === 'pending') row.style.display = (st === 'pending' || st === 'active') ? 'flex' : 'none';
+      else if (filter === 'overdue') row.style.display = st === 'overdue' ? 'flex' : 'none';
     });
-    function friendlyError(code){const map={"auth/invalid-email":"Invalid email address.","auth/user-not-found":"No account found with this email.","auth/wrong-password":"Incorrect password.","auth/email-already-in-use":"Email already registered.","auth/weak-password":"Password must be at least 6 characters.","auth/invalid-credential":"Invalid email or password.","auth/too-many-requests":"Too many attempts. Try again later."};return map[code]||"Authentication failed. Please try again.";}
+  }
 
-    // LOAD DATA
-    function loadData(){
-      if(!currentUser)return; const uid=currentUser.uid;
-      onSnapshot(query(collection(db,"incidents"),where("uid","==",uid)),snap=>{incidents=snap.docs.map(d=>({id:d.id,...d.data()}));renderIncidents();refreshDashboard();});
-      onSnapshot(query(collection(db,"guards"),where("uid","==",uid)),snap=>{guards=snap.docs.map(d=>({id:d.id,...d.data()}));renderGuards();refreshDashboard();});
-      onSnapshot(query(collection(db,"access_logs"),where("uid","==",uid)),snap=>{accessLogs=snap.docs.map(d=>({id:d.id,...d.data()}));renderAccessLogs();refreshDashboard();});
-      onSnapshot(query(collection(db,"enroutes"),where("uid","==",uid)),snap=>{enroutes=snap.docs.map(d=>({id:d.id,...d.data()}));renderEnroutes();refreshDashboard();});
-      onSnapshot(query(collection(db,"timesheets"),where("uid","==",uid)),snap=>{timesheets=snap.docs.map(d=>({id:d.id,...d.data()}));renderTimesheets();});
-      onSnapshot(query(collection(db,"patrols"),where("uid","==",uid)),snap=>{patrols=snap.docs.map(d=>({id:d.id,...d.data()}));renderPatrols();});
-      onSnapshot(query(collection(db,"alerts"),where("uid","==",uid)),snap=>{alerts=snap.docs.map(d=>({id:d.id,...d.data()}));renderAlerts();updateAlertBadge();});
-    }
+  // Patrol timer
+  function tickPatrolTimer() {
+    patrolSeconds++;
+    const h = Math.floor(patrolSeconds / 3600);
+    const m = Math.floor((patrolSeconds % 3600) / 60);
+    const s = patrolSeconds % 60;
+    const timerEl = document.getElementById('patrol-timer');
+    if (timerEl) timerEl.textContent =
+      String(h).padStart(2,'0') + ':' +
+      String(m).padStart(2,'0') + ':' +
+      String(s).padStart(2,'0');
+  }
+  setInterval(tickPatrolTimer, 1000);
 
-    // DASHBOARD
-    function refreshDashboard(){
-      const open=incidents.filter(i=>i.status==="open").length;
-      const activeGuards=guards.filter(g=>g.status==="on-duty").length;
-      const activeEn=enroutes.filter(e=>e.status==="enroute").length;
-      const today=new Date().toDateString();
-      const todayAccess=accessLogs.filter(a=>a.createdAt?.toDate?.().toDateString()===today).length;
-      document.getElementById("stat-open").textContent=open;
-      document.getElementById("stat-guards").textContent=activeGuards;
-      document.getElementById("stat-enroute").textContent=activeEn;
-      document.getElementById("stat-access").textContent=todayAccess;
-      const pct=Math.min(open*20,100);
-      document.getElementById("threat-fill").style.width=pct+"%";
-      document.getElementById("threat-status").textContent=pct===0?"LOW — No active threats":pct<=40?"MODERATE — Monitor situation":pct<=70?"HIGH — Immediate attention required":"CRITICAL — Emergency response needed";
-      document.getElementById("threat-fill").className="threat-fill "+(pct===0?"green":pct<=40?"amber":"red");
-      const el=document.getElementById("dash-incidents-list");
-      const recent=[...incidents].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,5);
-      el.innerHTML=recent.length?recent.map(i=>`<div class="feed-item"><span class="severity-dot ${i.severity}"></span><div class="feed-info"><strong>${i.type}</strong><small>${i.location}</small></div><span class="status-badge ${i.status}">${i.status}</span></div>`).join(""):'<div class="empty-state">No incidents logged yet.</div>';
-      const gel=document.getElementById("dash-enroute-list");
-      const enList=enroutes.filter(e=>e.status==="enroute").slice(0,4);
-      gel.innerHTML=enList.length?enList.map(e=>`<div class="feed-item"><div class="guard-avatar">${(e.guard||"U").charAt(0)}</div><div class="feed-info"><strong>${e.guard}</strong><small>→ ${e.destination}</small></div><span class="status-badge investigating">ENROUTE</span></div>`).join(""):'<div class="empty-state">No units dispatched.</div>';
+  // Simulate guard movement on map
+  let guardAngle = 0;
+  function animateGuards() {
+    guardAngle += 0.012;
+    const g1 = document.getElementById('guard-dot-1');
+    const g2 = document.getElementById('guard-dot-2');
+    if (g1) {
+      const x = 195 + Math.sin(guardAngle) * 18;
+      const y = 44 + Math.cos(guardAngle * 0.7) * 10;
+      g1.style.left = x + 'px';
+      g1.style.top = y + 'px';
     }
+    if (g2) {
+      const x = 50 + Math.sin(guardAngle * 0.8 + 1) * 12;
+      const y = 105 + Math.cos(guardAngle) * 15;
+      g2.style.left = x + 'px';
+      g2.style.top = y + 'px';
+    }
+    requestAnimationFrame(animateGuards);
+  }
+  animateGuards();
 
-    // INCIDENTS
-    function renderIncidents(){
-      const filter=document.getElementById("incident-filter").value;
-      const list=filter==="all"?incidents:incidents.filter(i=>i.status===filter);
-      const tbody=document.getElementById("incidents-table-body");
-      if(!list.length){tbody.innerHTML=`<tr><td colspan="7" class="empty-cell">No incidents found.</td></tr>`;return;}
-      tbody.innerHTML=list.map((inc,idx)=>`<tr><td class="mono">#${String(idx+1).padStart(4,"0")}</td><td>${inc.createdAt?.toDate?.().toLocaleString("en-GB")||"—"}</td><td>${inc.type}</td><td>${inc.location}</td><td><span class="severity-badge ${inc.severity}">${inc.severity}</span></td><td><span class="status-badge ${inc.status}">${inc.status}</span></td><td><button class="tbl-btn" onclick="window.resolveIncident('${inc.id}')">Resolve</button><button class="tbl-btn danger" onclick="window.deleteIncident('${inc.id}')">Del</button></td></tr>`).join("");
-    }
-    document.getElementById("incident-filter").addEventListener("change",renderIncidents);
-    document.getElementById("new-incident-btn").addEventListener("click",()=>{openModal("LOG INCIDENT",`<div class="field-group"><label>INCIDENT TYPE</label><select id="m-type" class="filter-select full"><option>Forced Entry</option><option>Trespassing</option><option>Theft</option><option>Vandalism</option><option>Assault</option><option>Suspicious Activity</option><option>Other</option></select></div><div class="field-group"><label>LOCATION / ZONE</label><input type="text" id="m-location" placeholder="e.g. Gate B, Block 3"/></div><div class="field-group"><label>SEVERITY</label><select id="m-severity" class="filter-select full"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div><div class="field-group"><label>DESCRIPTION</label><textarea id="m-desc" rows="3" placeholder="Brief description..."></textarea></div><button class="btn-primary" onclick="window.submitIncident()"><span>SUBMIT INCIDENT</span></button>`);});
-    window.submitIncident=async()=>{await addDoc(collection(db,"incidents"),{type:document.getElementById("m-type").value,location:document.getElementById("m-location").value||"Unknown",severity:document.getElementById("m-severity").value,description:document.getElementById("m-desc").value,status:"open",uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
-    window.resolveIncident=async(id)=>{await updateDoc(doc(db,"incidents",id),{status:"resolved"});};
-    window.deleteIncident=async(id)=>{if(confirm("Delete incident?"))await deleteDoc(doc(db,"incidents",id));};
-
-    // ENROUTE
-    function renderEnroutes(){
-      const tbody=document.getElementById("enroute-table-body");
-      if(!enroutes.length){tbody.innerHTML=`<tr><td colspan="7" class="empty-cell">No units dispatched.</td></tr>`;return;}
-      tbody.innerHTML=[...enroutes].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map((e,idx)=>`<tr><td class="mono">UNIT-${String(idx+1).padStart(2,"0")}</td><td>${e.guard}</td><td>${e.destination}</td><td>${e.createdAt?.toDate?.().toLocaleTimeString("en-GB")||"—"}</td><td>${e.eta||"—"}</td><td><span class="status-badge ${e.status==="enroute"?"investigating":e.status==="on-scene"?"open":"resolved"}">${e.status.toUpperCase()}</span></td><td><button class="tbl-btn" onclick="window.updateEnroute('${e.id}','on-scene')">On Scene</button><button class="tbl-btn" onclick="window.updateEnroute('${e.id}','cleared')">Clear</button><button class="tbl-btn danger" onclick="window.deleteEnroute('${e.id}')">Del</button></td></tr>`).join("");
-    }
-    document.getElementById("new-enroute-btn").addEventListener("click",()=>{const go=guards.map(g=>`<option>${g.name}</option>`).join("")||"<option>No guards added</option>";openModal("DISPATCH UNIT",`<div class="field-group"><label>GUARD / UNIT</label><select id="m-eguard" class="filter-select full">${go}</select></div><div class="field-group"><label>DESTINATION</label><input type="text" id="m-edest" placeholder="e.g. Gate A, Block 3"/></div><div class="field-group"><label>ETA</label><input type="text" id="m-eeta" placeholder="e.g. 5 mins"/></div><div class="field-group"><label>NOTES</label><textarea id="m-enotes" rows="2" placeholder="Dispatch notes..."></textarea></div><button class="btn-primary" onclick="window.submitEnroute()"><span>DISPATCH UNIT</span></button>`);});
-    window.submitEnroute=async()=>{await addDoc(collection(db,"enroutes"),{guard:document.getElementById("m-eguard").value,destination:document.getElementById("m-edest").value||"Unknown",eta:document.getElementById("m-eeta").value,notes:document.getElementById("m-enotes").value,status:"enroute",uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
-    window.updateEnroute=async(id,status)=>{await updateDoc(doc(db,"enroutes",id),{status});};
-    window.deleteEnroute=async(id)=>{if(confirm("Remove dispatch?"))await deleteDoc(doc(db,"enroutes",id));};
-
-    // GUARDS
-    function renderGuards(){
-      const grid=document.getElementById("guards-grid");
-      if(!guards.length){grid.innerHTML='<div class="empty-state full">No guards added yet.</div>';return;}
-      grid.innerHTML=guards.map(g=>`<div class="guard-card"><div class="gc-avatar">${g.name.charAt(0)}</div><div class="gc-name">${g.name}</div><div class="gc-zone">${g.zone||"Unassigned"}</div><div class="gc-shift">${g.shift||"—"}</div><span class="status-badge ${g.status}">${g.status}</span><div class="gc-actions"><button class="tbl-btn" onclick="window.toggleGuard('${g.id}','${g.status}')">${g.status==="on-duty"?"Off Duty":"On Duty"}</button><button class="tbl-btn danger" onclick="window.deleteGuard('${g.id}')">Remove</button></div></div>`).join("");
-    }
-    document.getElementById("new-guard-btn").addEventListener("click",()=>{openModal("ADD GUARD",`<div class="field-group"><label>FULL NAME</label><input type="text" id="m-gname" placeholder="Officer Name"/></div><div class="field-group"><label>BADGE / ID</label><input type="text" id="m-gbadge" placeholder="e.g. SS-001"/></div><div class="field-group"><label>ASSIGNED ZONE</label><input type="text" id="m-gzone" placeholder="e.g. Perimeter, Gate A"/></div><div class="field-group"><label>SHIFT</label><select id="m-gshift" class="filter-select full"><option>Day (06:00–18:00)</option><option>Night (18:00–06:00)</option><option>Rotating</option></select></div><button class="btn-primary" onclick="window.submitGuard()"><span>ADD GUARD</span></button>`);});
-    window.submitGuard=async()=>{await addDoc(collection(db,"guards"),{name:document.getElementById("m-gname").value||"Unknown",badge:document.getElementById("m-gbadge").value,zone:document.getElementById("m-gzone").value,shift:document.getElementById("m-gshift").value,status:"on-duty",uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
-    window.toggleGuard=async(id,status)=>{await updateDoc(doc(db,"guards",id),{status:status==="on-duty"?"off-duty":"on-duty"});};
-    window.deleteGuard=async(id)=>{if(confirm("Remove guard?"))await deleteDoc(doc(db,"guards",id));};
-
-    // TIMESHEETS
-    function renderTimesheets(){
-      const tbody=document.getElementById("timesheet-table-body");
-      if(!timesheets.length){tbody.innerHTML=`<tr><td colspan="8" class="empty-cell">No timesheet entries yet.</td></tr>`;return;}
-      tbody.innerHTML=[...timesheets].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map(t=>{
-        let hours="—";
-        if(t.clockIn&&t.clockOut){const [ih,im]=t.clockIn.split(":").map(Number);const [oh,om]=t.clockOut.split(":").map(Number);let diff=(oh*60+om)-(ih*60+im);if(diff<0)diff+=1440;hours=(diff/60).toFixed(1)+"h";}
-        return `<tr><td>${t.guard}</td><td>${t.date||"—"}</td><td class="mono">${t.clockIn||"—"}</td><td class="mono">${t.clockOut||"Active"}</td><td><strong>${hours}</strong></td><td>${t.shift||"—"}</td><td><span class="status-badge ${t.clockOut?"resolved":"open"}">${t.clockOut?"COMPLETE":"ACTIVE"}</span></td><td>${!t.clockOut?`<button class="tbl-btn" onclick="window.clockOut('${t.id}')">Clock Out</button>`:""}<button class="tbl-btn danger" onclick="window.deleteTimesheet('${t.id}')">Del</button></td></tr>`;
-      }).join("");
-    }
-    document.getElementById("new-timesheet-btn").addEventListener("click",()=>{
-      const go=guards.map(g=>`<option>${g.name}</option>`).join("")||"<option>No guards added</option>";
-      const now=new Date();
-      openModal("CLOCK IN",`<div class="field-group"><label>GUARD</label><select id="m-tguard" class="filter-select full">${go}</select></div><div class="field-group"><label>DATE</label><input type="date" id="m-tdate" value="${now.toISOString().split('T')[0]}"/></div><div class="field-group"><label>CLOCK IN TIME</label><input type="time" id="m-tclockin" value="${now.toTimeString().slice(0,5)}"/></div><div class="field-group"><label>SHIFT</label><select id="m-tshift" class="filter-select full"><option>Day (06:00–18:00)</option><option>Night (18:00–06:00)</option><option>Rotating</option></select></div><button class="btn-primary" onclick="window.submitTimesheet()"><span>CLOCK IN</span></button>`);
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.demo-banner').forEach(b => {
+      b.style.cursor = 'pointer';
+      b.addEventListener('click', function() {
+        showScreen('screen-onboarding');
+        goToObStep(3);
+      });
     });
-    window.submitTimesheet=async()=>{await addDoc(collection(db,"timesheets"),{guard:document.getElementById("m-tguard").value,date:document.getElementById("m-tdate").value,clockIn:document.getElementById("m-tclockin").value,clockOut:null,shift:document.getElementById("m-tshift").value,uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
-    window.clockOut=async(id)=>{await updateDoc(doc(db,"timesheets",id),{clockOut:new Date().toTimeString().slice(0,5)});};
-    window.deleteTimesheet=async(id)=>{if(confirm("Delete entry?"))await deleteDoc(doc(db,"timesheets",id));};
+  });
+</script>
 
-    // ACCESS LOGS
-    function renderAccessLogs(){
-      const tbody=document.getElementById("access-table-body");
-      if(!accessLogs.length){tbody.innerHTML=`<tr><td colspan="5" class="empty-cell">No access entries logged.</td></tr>`;return;}
-      tbody.innerHTML=[...accessLogs].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map(a=>`<tr><td class="mono">${a.createdAt?.toDate?.().toLocaleTimeString("en-GB")||"—"}</td><td>${a.person}</td><td>${a.zone}</td><td>${a.method}</td><td><span class="status-badge ${a.granted?"resolved":"open"}">${a.granted?"GRANTED":"DENIED"}</span></td></tr>`).join("");
-    }
-    document.getElementById("new-access-btn").addEventListener("click",()=>{openModal("LOG ACCESS ENTRY",`<div class="field-group"><label>PERSON / ID</label><input type="text" id="m-aperson" placeholder="Name or Badge ID"/></div><div class="field-group"><label>ZONE</label><input type="text" id="m-azone" placeholder="e.g. Main Gate"/></div><div class="field-group"><label>METHOD</label><select id="m-amethod" class="filter-select full"><option>Key Card</option><option>PIN</option><option>Biometric</option><option>Manual Override</option><option>Visitor Pass</option></select></div><div class="field-group"><label>ACCESS</label><select id="m-agranted" class="filter-select full"><option value="true">Granted</option><option value="false">Denied</option></select></div><button class="btn-primary" onclick="window.submitAccess()"><span>LOG ENTRY</span></button>`);});
-    window.submitAccess=async()=>{await addDoc(collection(db,"access_logs"),{person:document.getElementById("m-aperson").value||"Unknown",zone:document.getElementById("m-azone").value||"Unknown",method:document.getElementById("m-amethod").value,granted:document.getElementById("m-agranted").value==="true",uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
-
-    // PATROL
-    function renderPatrols(){
-      const tbody=document.getElementById("patrol-table-body");
-      if(!patrols.length){tbody.innerHTML=`<tr><td colspan="6" class="empty-cell">No patrol checkpoints logged.</td></tr>`;return;}
-      tbody.innerHTML=[...patrols].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map(p=>`<tr><td class="mono">${p.createdAt?.toDate?.().toLocaleTimeString("en-GB")||"—"}</td><td>${p.guard}</td><td>${p.checkpoint}</td><td>${p.zone}</td><td>${p.notes||"—"}</td><td><span class="status-badge resolved">CHECKED</span></td></tr>`).join("");
-    }
-    document.getElementById("new-patrol-btn").addEventListener("click",()=>{const go=guards.map(g=>`<option>${g.name}</option>`).join("")||"<option>No guards added</option>";openModal("LOG CHECKPOINT",`<div class="field-group"><label>GUARD</label><select id="m-pguard" class="filter-select full">${go}</select></div><div class="field-group"><label>CHECKPOINT</label><input type="text" id="m-pcheckpoint" placeholder="e.g. North Gate"/></div><div class="field-group"><label>ZONE</label><input type="text" id="m-pzone" placeholder="e.g. Perimeter"/></div><div class="field-group"><label>NOTES</label><textarea id="m-pnotes" rows="2" placeholder="Observations..."></textarea></div><button class="btn-primary" onclick="window.submitPatrol()"><span>LOG CHECKPOINT</span></button>`);});
-    window.submitPatrol=async()=>{await addDoc(collection(db,"patrols"),{guard:document.getElementById("m-pguard").value,checkpoint:document.getElementById("m-pcheckpoint").value||"Unknown",zone:document.getElementById("m-pzone").value||"Unknown",notes:document.getElementById("m-pnotes").value,uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
-
-    // ALERTS
-    function renderAlerts(){
-      const el=document.getElementById("alerts-list");
-      if(!alerts.length){el.innerHTML='<div class="empty-state">No alerts. System nominal.</div>';return;}
-      el.innerHTML=[...alerts].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map(a=>`<div class="alert-item ${a.type}"><div class="alert-icon">${a.type==="critical"?"🚨":a.type==="warning"?"⚠️":"ℹ️"}</div><div class="alert-body"><div class="alert-title">${a.title}</div><div class="alert-msg">${a.message}</div><div class="alert-time">${a.createdAt?.toDate?.().toLocaleString("en-GB")||"—"}</div></div><button class="alert-dismiss" onclick="window.dismissAlert('${a.id}')">✕</button></div>`).join("");
-    }
-    function updateAlertBadge(){const badge=document.getElementById("alert-badge");badge.textContent=alerts.length;alerts.length>0?badge.classList.remove("hidden"):badge.classList.add("hidden");}
-    document.getElementById("new-alert-btn").addEventListener("click",()=>{openModal("CREATE ALERT",`<div class="field-group"><label>TYPE</label><select id="m-atype" class="filter-select full"><option value="info">Info</option><option value="warning">Warning</option><option value="critical">Critical</option></select></div><div class="field-group"><label>TITLE</label><input type="text" id="m-atitle" placeholder="Alert title"/></div><div class="field-group"><label>MESSAGE</label><textarea id="m-amessage" rows="3" placeholder="Alert details..."></textarea></div><button class="btn-primary" onclick="window.submitAlert()"><span>SEND ALERT</span></button>`);});
-    window.submitAlert=async()=>{await addDoc(collection(db,"alerts"),{type:document.getElementById("m-atype").value,title:document.getElementById("m-atitle").value||"Alert",message:document.getElementById("m-amessage").value,uid:currentUser.uid,createdAt:serverTimestamp()});closeModal();};
-    window.dismissAlert=async(id)=>{await deleteDoc(doc(db,"alerts",id));};
-    document.getElementById("clear-alerts-btn").addEventListener("click",async()=>{if(confirm("Clear all alerts?"))for(const a of alerts)await deleteDoc(doc(db,"alerts",a.id));});
-
-    // SOS
-    document.getElementById("sos-btn").addEventListener("click",()=>document.getElementById("sos-overlay").classList.remove("hidden"));
-    document.getElementById("sos-cancel").addEventListener("click",()=>document.getElementById("sos-overlay").classList.add("hidden"));
-    document.getElementById("sos-confirm").addEventListener("click",async()=>{
-      const type=document.getElementById("sos-type").value;
-      const location=document.getElementById("sos-location").value||"Unknown";
-      const details=document.getElementById("sos-details").value;
-      await addDoc(collection(db,"alerts"),{type:"critical",title:`🚨 SOS: ${type}`,message:`Location: ${location}. ${details}`,uid:currentUser.uid,createdAt:serverTimestamp()});
-      await addDoc(collection(db,"incidents"),{type:`SOS — ${type}`,location,severity:"critical",description:details,status:"open",uid:currentUser.uid,createdAt:serverTimestamp()});
-      document.getElementById("sos-overlay").classList.add("hidden");
-      ["sos-location","sos-details"].forEach(id=>document.getElementById(id).value="");
-      switchView("alerts");
-      alert("🚨 SOS ALERT SENT!");
-    });
-
-    // REPORTS
-    document.getElementById("gen-report-btn").addEventListener("click",()=>{
-      const type=document.getElementById("report-type").value;
-      const now=new Date().toLocaleString("en-GB");
-      const el=document.getElementById("reports-list");
-      const item=document.createElement("div"); item.className="feed-item";
-      item.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00f5c4" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="feed-info"><strong>${type}</strong><small>Generated ${now}</small></div>`;
-      el.querySelector(".empty-state")?.remove(); el.prepend(item);
-    });
-
-    // MODAL
-    function openModal(title,bodyHTML){document.getElementById("modal-title").textContent=title;document.getElementById("modal-body").innerHTML=bodyHTML;document.getElementById("modal-overlay").classList.remove("hidden");}
-    function closeModal(){document.getElementById("modal-overlay").classList.add("hidden");}
-    document.getElementById("modal-close").addEventListener("click",closeModal);
-    document.getElementById("modal-overlay").addEventListener("click",e=>{if(e.target===document.getElementById("modal-overlay"))closeModal();});
-  </script>
 </body>
 </html>
