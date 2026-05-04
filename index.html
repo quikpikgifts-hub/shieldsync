@@ -1935,23 +1935,23 @@ border-radius: 6px; padding: 3px 8px;
   </div>
 </div>
 
-<!-- Bottom Nav -->
-<div class="bottom-nav">
-  <div class="nav-item active">
+<!-- Bottom Nav - FIXED: persists across all screens via fixed position -->
+<div class="bottom-nav" id="main-bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="navTo('home')">
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
       <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
     </svg>
-    <div class="nav-label" style="color:var(--accent)">HOME</div>
+    <div class="nav-label">HOME</div>
   </div>
-  <div class="nav-item">
+  <div class="nav-item" id="nav-incidents" onclick="navTo('incidents')">
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
     </svg>
     <div class="nav-label">INCIDENTS</div>
   </div>
   <div style="flex:1; display:flex; justify-content:center; align-items:center;">
-    <div class="sos-btn" onclick="openSOS()">
+    <div class="sos-btn" id="main-sos-btn" onclick="openSOS()">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
         <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
         <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
@@ -1959,13 +1959,13 @@ border-radius: 6px; padding: 3px 8px;
       <div class="sos-label">SOS</div>
     </div>
   </div>
-  <div class="nav-item" onclick="showPatrol()">
+  <div class="nav-item" id="nav-patrol" onclick="navTo('patrol')">
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
     </svg>
     <div class="nav-label">PATROL</div>
   </div>
-  <div class="nav-item" onclick="openMenu()">
+  <div class="nav-item" id="nav-more" onclick="openMenu()">
     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
     </svg>
@@ -2295,10 +2295,20 @@ border-radius: 6px; padding: 3px 8px;
 
   <div class="screen" id="screen-patrol">
     <div class="patrol-topbar">
-      <div class="patrol-title">PATROL</div>
-      <div class="patrol-session-badge">
-        <div class="session-dot"></div>
-        SESSION ACTIVE
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div onclick="navTo('home')" style="width:34px;height:34px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <div class="patrol-title">PATROL</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div class="patrol-session-badge">
+          <div class="session-dot"></div>
+          ACTIVE
+        </div>
+        <div onclick="openEndPatrol()" style="background:var(--red-dim);border:1px solid rgba(255,59,59,0.3);border-radius:10px;padding:6px 12px;font-size:10px;letter-spacing:1.5px;color:var(--red);font-weight:700;cursor:pointer;">END</div>
       </div>
     </div>
 
@@ -2620,6 +2630,99 @@ border-radius: 6px; padding: 3px 8px;
 
   </div>
 
+  <!-- ========== END PATROL MODAL ========== -->
+
+  <div class="share-modal" id="end-patrol-modal" onclick="closeEndPatrol()">
+    <div class="share-sheet" onclick="event.stopPropagation()" style="padding-bottom:40px;">
+      <div class="share-handle"></div>
+      <div style="text-align:center; margin-bottom:20px;">
+        <div style="width:56px;height:56px;border-radius:16px;background:var(--accent-dim);border:1px solid var(--border-accent);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px;">&#128682;</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;margin-bottom:6px;">END PATROL SESSION</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">Choose your next action. Your patrol log will be saved automatically.</div>
+      </div>
+
+```
+  <!-- Patrol summary -->
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;">
+    <div style="font-size:10px;letter-spacing:1.5px;color:var(--text-secondary);margin-bottom:12px;">PATROL SUMMARY</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;">
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--accent);" id="ep-scanned">2</div>
+        <div style="font-size:10px;color:var(--text-secondary);letter-spacing:1px;">SCANNED</div>
+      </div>
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--red);" id="ep-missed">1</div>
+        <div style="font-size:10px;color:var(--text-secondary);letter-spacing:1px;">MISSED</div>
+      </div>
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;" id="ep-time">00:00</div>
+        <div style="font-size:10px;color:var(--text-secondary);letter-spacing:1px;">DURATION</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes field -->
+  <div style="margin-bottom:14px;">
+    <div style="font-size:10px;letter-spacing:2px;color:var(--text-secondary);margin-bottom:8px;">PATROL NOTES (OPTIONAL)</div>
+    <textarea class="field-input" rows="3" placeholder="Any incidents, observations, or handover notes..." style="resize:none;height:80px;"></textarea>
+  </div>
+
+  <!-- Action buttons -->
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <button onclick="returnToBase()" style="background:var(--accent);color:#000;border:none;border-radius:12px;padding:16px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+      &#127968; RETURN TO BASE
+    </button>
+    <button onclick="handoverPatrol()" style="background:var(--blue-dim);color:#3b82f6;border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:14px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+      &#128101; HANDOVER TO NEXT GUARD
+    </button>
+    <button onclick="closeEndPatrol()" style="background:transparent;color:var(--text-secondary);border:1px solid var(--border);border-radius:12px;padding:14px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;cursor:pointer;">
+      CONTINUE PATROL
+    </button>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ========== HANDOVER MODAL ========== -->
+
+  <div class="share-modal" id="handover-modal" onclick="closeHandover()">
+    <div class="share-sheet" onclick="event.stopPropagation()">
+      <div class="share-handle"></div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;margin-bottom:6px;">&#128101; HANDOVER PATROL</div>
+      <div style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6;">Select the next guard to take over this patrol route. They will be notified instantly.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <div onclick="selectHandover(this)" style="background:var(--bg-card);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;">
+          <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;">TK</div>
+          <div style="flex:1;"><div style="font-size:14px;font-weight:500;">Tom Kwon</div><div style="font-size:11px;color:var(--text-secondary);">Officer · On Break · Ready</div></div>
+          <div style="width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);" class="ho-radio"></div>
+        </div>
+        <div onclick="selectHandover(this)" style="background:var(--bg-card);border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;">
+          <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;">JB</div>
+          <div style="flex:1;"><div style="font-size:14px;font-weight:500;">James Burke</div><div style="font-size:11px;color:var(--text-secondary);">Patrol · Arriving in 8 min</div></div>
+          <div style="width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);" class="ho-radio"></div>
+        </div>
+      </div>
+      <button onclick="confirmHandover()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:12px;padding:16px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;">CONFIRM HANDOVER</button>
+    </div>
+  </div>
+
+  <!-- ========== RETURN TO BASE SUCCESS ========== -->
+
+  <div class="share-modal" id="return-modal">
+    <div style="background:var(--bg-card2);border:1px solid var(--border-accent);border-radius:24px;margin:24px;padding:32px 24px;text-align:center;max-width:342px;width:100%;">
+      <div style="width:72px;height:72px;border-radius:20px;background:var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px;box-shadow:0 0 30px rgba(0,255,180,0.3);">&#127968;</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:1px;margin-bottom:8px;">RETURNED TO BASE</div>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:24px;">Patrol session ended. Your report has been saved and supervisor has been notified.</div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:20px;display:flex;justify-content:space-around;">
+        <div style="text-align:center;"><div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--accent);" id="rtb-scanned">2</div><div style="font-size:10px;color:var(--text-secondary);">SCANNED</div></div>
+        <div style="text-align:center;"><div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--red);" id="rtb-missed">1</div><div style="font-size:10px;color:var(--text-secondary);">MISSED</div></div>
+        <div style="text-align:center;"><div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;" id="rtb-time">00:00</div><div style="font-size:10px;color:var(--text-secondary);">DURATION</div></div>
+      </div>
+      <button onclick="closeReturnModal()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:12px;padding:16px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;">GO TO HOME &#8594;</button>
+    </div>
+  </div>
+
   <!-- ========== BURGER MENU OVERLAY ========== -->
 
   <div class="menu-overlay" id="menu-overlay" onclick="closeMenu()"></div>
@@ -2933,6 +3036,85 @@ border-radius: 6px; padding: 3px 8px;
     setTimeout(() => { el.textContent = 'COPY'; }, 2000);
   }
 
+
+  // ========== NAV SYSTEM - fixed active state across all screens ==========
+  function navTo(tab) {
+    // Update active nav item
+    ['home','incidents','patrol','more'].forEach(t => {
+      const el = document.getElementById('nav-' + t);
+      if (el) el.classList.remove('active');
+    });
+    const activeEl = document.getElementById('nav-' + tab);
+    if (activeEl) activeEl.classList.add('active');
+
+    // Navigate to correct screen
+    if (tab === 'home') showScreen('screen-home');
+    else if (tab === 'patrol') { showScreen('screen-patrol'); }
+    else if (tab === 'incidents') showScreen('screen-home'); // placeholder
+    else if (tab === 'more') openMenu();
+  }
+
+  // ========== END PATROL FLOW ==========
+  function openEndPatrol() {
+    // Fill summary
+    const h = Math.floor(patrolSeconds / 3600);
+    const m = Math.floor((patrolSeconds % 3600) / 60);
+    const timeStr = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    document.getElementById('ep-scanned').textContent = scannedCount;
+    document.getElementById('ep-missed').textContent = 10 - scannedCount;
+    document.getElementById('ep-time').textContent = timeStr;
+    document.getElementById('end-patrol-modal').classList.add('open');
+  }
+  function closeEndPatrol() {
+    document.getElementById('end-patrol-modal').classList.remove('open');
+  }
+
+  function returnToBase() {
+    closeEndPatrol();
+    // Fill return modal summary
+    const h = Math.floor(patrolSeconds / 3600);
+    const m = Math.floor((patrolSeconds % 3600) / 60);
+    const timeStr = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    document.getElementById('rtb-scanned').textContent = scannedCount;
+    document.getElementById('rtb-missed').textContent = 10 - scannedCount;
+    document.getElementById('rtb-time').textContent = timeStr;
+    document.getElementById('return-modal').classList.add('open');
+  }
+
+  function closeReturnModal() {
+    document.getElementById('return-modal').classList.remove('open');
+    navTo('home');
+    // Reset patrol session
+    scannedCount = 2;
+    patrolSeconds = 2537;
+    updatePatrolProgress();
+  }
+
+  function handoverPatrol() {
+    closeEndPatrol();
+    document.getElementById('handover-modal').classList.add('open');
+  }
+  function closeHandover() {
+    document.getElementById('handover-modal').classList.remove('open');
+  }
+  function selectHandover(row) {
+    document.querySelectorAll('#handover-modal .ho-radio').forEach(r => {
+      r.style.background = 'transparent';
+      r.style.borderColor = 'var(--border)';
+    });
+    document.querySelectorAll('#handover-modal [onclick="selectHandover(this)"]').forEach(r => {
+      r.style.borderColor = 'var(--border)';
+    });
+    row.style.borderColor = 'var(--accent)';
+    const radio = row.querySelector('.ho-radio');
+    radio.style.background = 'var(--accent)';
+    radio.style.borderColor = 'var(--accent)';
+  }
+  function confirmHandover() {
+    closeHandover();
+    returnToBase();
+  }
+
   // ========== ONBOARDING ==========
   function goToObStep(step) {
     document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
@@ -3021,7 +3203,7 @@ border-radius: 6px; padding: 3px 8px;
   let patrolSeconds = 2537; // 42:17
 
   function showPatrol() {
-    showScreen('screen-patrol');
+    navTo('patrol');
   }
 
   function openScanner() {
