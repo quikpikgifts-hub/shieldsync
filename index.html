@@ -1562,6 +1562,187 @@ background: var(–bg-card2); border: 1px solid var(–border);
 border-radius: 6px; padding: 3px 8px;
 }
 
+/* ========== REPORTS SCREEN ========== */
+#screen-reports { padding-bottom: 100px; }
+
+.report-topbar {
+display: flex; align-items: center; justify-content: space-between;
+padding: 16px 20px 12px;
+background: var(–bg-deep);
+position: sticky; top: 0; z-index: 10;
+border-bottom: 1px solid var(–border);
+}
+.report-content { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+/* Role tabs */
+.report-role-tabs {
+display: flex; gap: 8px;
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 14px;
+padding: 6px;
+}
+.rr-tab {
+flex: 1; padding: 10px 8px; border-radius: 9px;
+text-align: center; cursor: pointer;
+font-size: 11px; letter-spacing: 1.5px; font-weight: 600;
+color: var(–text-secondary);
+transition: all 0.2s;
+}
+.rr-tab.active {
+background: var(–bg-card2);
+color: var(–accent);
+border: 1px solid var(–border-accent);
+}
+
+/* Report card */
+.report-card {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 16px;
+overflow: hidden;
+}
+.report-card-header {
+padding: 16px;
+border-bottom: 1px solid var(–border);
+display: flex; align-items: flex-start; justify-content: space-between;
+}
+.report-card-title {
+font-family: “Rajdhani”, sans-serif;
+font-size: 16px; font-weight: 700; letter-spacing: 0.5px;
+margin-bottom: 4px;
+}
+.report-card-meta { font-size: 11px; color: var(–text-secondary); }
+.report-type-badge {
+font-size: 9px; letter-spacing: 1.5px; font-weight: 700;
+padding: 4px 10px; border-radius: 8px; border: 1px solid;
+flex-shrink: 0;
+}
+.report-type-badge.guard { color: var(–teal); border-color: rgba(20,184,166,0.3); background: rgba(20,184,166,0.1); }
+.report-type-badge.supervisor { color: var(–blue); border-color: rgba(59,130,246,0.3); background: var(–blue-dim); }
+
+/* Section inside report */
+.rpt-section {
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+}
+.rpt-section:last-child { border-bottom: none; }
+.rpt-section-title {
+font-size: 9px; letter-spacing: 2px; color: var(–text-secondary);
+margin-bottom: 12px; font-weight: 500;
+}
+
+/* Stat row */
+.rpt-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.rpt-stat {
+background: var(–bg-card2); border-radius: 10px; padding: 12px 10px;
+text-align: center;
+}
+.rpt-stat-val {
+font-family: “Rajdhani”, sans-serif;
+font-size: 22px; font-weight: 700; line-height: 1; margin-bottom: 4px;
+}
+.rpt-stat-lbl { font-size: 9px; letter-spacing: 1px; color: var(–text-secondary); }
+
+/* Checkpoint log inside report */
+.rpt-cp-row {
+display: flex; align-items: center; gap: 10px;
+padding: 8px 0;
+border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.rpt-cp-row:last-child { border-bottom: none; }
+.rpt-cp-num {
+font-size: 10px; letter-spacing: 1px; color: var(–text-muted);
+width: 36px; flex-shrink: 0;
+}
+.rpt-cp-name { flex: 1; font-size: 13px; }
+.rpt-cp-time { font-size: 11px; color: var(–text-secondary); }
+.rpt-cp-status {
+font-size: 9px; letter-spacing: 1px; font-weight: 600;
+padding: 2px 7px; border-radius: 5px; border: 1px solid;
+}
+.rpt-cp-status.ok { color: var(–accent); border-color: rgba(0,255,180,0.3); background: var(–accent-dim); }
+.rpt-cp-status.miss { color: var(–red); border-color: rgba(255,59,59,0.3); background: var(–red-dim); }
+
+/* Incident log */
+.rpt-incident-row {
+display: flex; gap: 10px; align-items: flex-start;
+padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.rpt-incident-row:last-child { border-bottom: none; }
+.rpt-inc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.rpt-inc-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.rpt-inc-meta { font-size: 11px; color: var(–text-secondary); }
+
+/* Notes field in report */
+.rpt-notes {
+background: var(–bg-card2);
+border: 1px solid var(–border);
+border-radius: 10px;
+padding: 12px;
+font-size: 13px; color: var(–text-secondary);
+line-height: 1.6;
+font-style: italic;
+}
+
+/* Signature row */
+.rpt-sig-row {
+display: flex; align-items: center; gap: 12px;
+}
+.rpt-sig-avatar {
+width: 40px; height: 40px; border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+font-family: “Rajdhani”, sans-serif; font-size: 14px; font-weight: 700;
+flex-shrink: 0;
+}
+.rpt-sig-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.rpt-sig-role { font-size: 11px; color: var(–text-secondary); }
+.rpt-sig-time { margin-left: auto; font-size: 11px; color: var(–text-muted); text-align: right; }
+
+/* Action buttons */
+.report-actions {
+display: flex; gap: 10px; padding: 0 16px 16px;
+}
+.btn-export {
+flex: 1; background: var(–bg-card2);
+border: 1px solid var(–border);
+border-radius: 12px; padding: 13px;
+font-family: “Rajdhani”, sans-serif;
+font-size: 13px; font-weight: 700; letter-spacing: 1px;
+color: var(–text-secondary); cursor: pointer;
+display: flex; align-items: center; justify-content: center; gap: 6px;
+transition: border-color 0.2s;
+}
+.btn-export:hover { border-color: var(–border-accent); color: var(–accent); }
+.btn-submit-report {
+flex: 2; background: var(–accent); color: #000;
+border: none; border-radius: 12px; padding: 13px;
+font-family: “Rajdhani”, sans-serif;
+font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+cursor: pointer;
+display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+
+/* History list */
+.report-hist-row {
+display: flex; align-items: center; gap: 12px;
+padding: 13px 16px; border-bottom: 1px solid var(–border);
+cursor: pointer;
+}
+.report-hist-row:last-child { border-bottom: none; }
+.rhr-icon {
+width: 38px; height: 38px; border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+flex-shrink: 0; font-size: 16px;
+}
+.rhr-info { flex: 1; }
+.rhr-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.rhr-meta { font-size: 11px; color: var(–text-secondary); }
+.rhr-badge {
+font-size: 9px; letter-spacing: 1px; font-weight: 600;
+padding: 3px 8px; border-radius: 6px; border: 1px solid;
+}
+
 </style>
 </head>
 <body>
@@ -2630,6 +2811,440 @@ border-radius: 6px; padding: 3px 8px;
 
   </div>
 
+  <!-- ========== REPORTS SCREEN ========== -->
+
+  <div class="screen" id="screen-reports">
+    <div class="report-topbar">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div onclick="closeMenu();navTo('home');" style="width:34px;height:34px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:2px;">REPORTS</div>
+      </div>
+      <div style="font-size:11px;color:var(--accent);cursor:pointer;letter-spacing:1px;" onclick="showNewReport()">+ NEW</div>
+    </div>
+
+```
+<div class="report-content">
+
+  <!-- Role tabs -->
+  <div class="report-role-tabs">
+    <div class="rr-tab active" id="rr-guard" onclick="switchReportRole('guard')">&#128100; GUARD</div>
+    <div class="rr-tab" id="rr-supervisor" onclick="switchReportRole('supervisor')">&#128272; SUPERVISOR</div>
+    <div class="rr-tab" id="rr-history" onclick="switchReportRole('history')">&#128196; HISTORY</div>
+  </div>
+
+  <!-- ===== GUARD REPORT ===== -->
+  <div id="report-guard-view">
+
+    <!-- Current shift report -->
+    <div class="report-card">
+      <div class="report-card-header">
+        <div>
+          <div class="report-card-title">End-of-Shift Report</div>
+          <div class="report-card-meta">Guard · Sunday May 4, 2025 · Night Shift</div>
+        </div>
+        <div class="report-type-badge guard">GUARD</div>
+      </div>
+
+      <!-- Guard info -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">GUARD DETAILS</div>
+        <div class="rpt-sig-row">
+          <div class="rpt-sig-avatar" style="background:linear-gradient(135deg,var(--teal),var(--blue));">MS</div>
+          <div>
+            <div class="rpt-sig-name">Mike Santos</div>
+            <div class="rpt-sig-role">Officer · Badge #4421 · Main Campus</div>
+          </div>
+          <div class="rpt-sig-time">Shift: 22:00 – 06:00<br>8 hrs</div>
+        </div>
+      </div>
+
+      <!-- Patrol stats -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">PATROL SUMMARY</div>
+        <div class="rpt-stat-row">
+          <div class="rpt-stat">
+            <div class="rpt-stat-val" style="color:var(--accent);">9</div>
+            <div class="rpt-stat-lbl">SCANNED</div>
+          </div>
+          <div class="rpt-stat">
+            <div class="rpt-stat-val" style="color:var(--red);">1</div>
+            <div class="rpt-stat-lbl">MISSED</div>
+          </div>
+          <div class="rpt-stat">
+            <div class="rpt-stat-val">90%</div>
+            <div class="rpt-stat-lbl">COMPLETION</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;" class="rpt-stat-row">
+          <div class="rpt-stat">
+            <div class="rpt-stat-val">3</div>
+            <div class="rpt-stat-lbl">ROUNDS</div>
+          </div>
+          <div class="rpt-stat">
+            <div class="rpt-stat-val">07:42</div>
+            <div class="rpt-stat-lbl">DURATION</div>
+          </div>
+          <div class="rpt-stat">
+            <div class="rpt-stat-val" style="color:var(--amber);">1</div>
+            <div class="rpt-stat-lbl">INCIDENTS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Checkpoint log -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">CHECKPOINT LOG</div>
+        <div class="rpt-cp-row">
+          <div class="rpt-cp-num">CP-01</div>
+          <div class="rpt-cp-name">Main Entrance — Gate A</div>
+          <div class="rpt-cp-time">22:12</div>
+          <div class="rpt-cp-status ok">OK</div>
+        </div>
+        <div class="rpt-cp-row">
+          <div class="rpt-cp-num">CP-02</div>
+          <div class="rpt-cp-name">Parking Level B2</div>
+          <div class="rpt-cp-time">22:31</div>
+          <div class="rpt-cp-status ok">OK</div>
+        </div>
+        <div class="rpt-cp-row">
+          <div class="rpt-cp-num">CP-03</div>
+          <div class="rpt-cp-name">Server Room — Floor 3</div>
+          <div class="rpt-cp-time">22:48</div>
+          <div class="rpt-cp-status ok">OK</div>
+        </div>
+        <div class="rpt-cp-row">
+          <div class="rpt-cp-num">CP-04</div>
+          <div class="rpt-cp-name">Rooftop Access — Stairwell C</div>
+          <div class="rpt-cp-time">23:05</div>
+          <div class="rpt-cp-status ok">OK</div>
+        </div>
+        <div class="rpt-cp-row">
+          <div class="rpt-cp-num">CP-05</div>
+          <div class="rpt-cp-name">Fire Exit — South Wing</div>
+          <div class="rpt-cp-time">23:22</div>
+          <div class="rpt-cp-status ok">OK</div>
+        </div>
+        <div class="rpt-cp-row">
+          <div class="rpt-cp-num">CP-06</div>
+          <div class="rpt-cp-name">CCTV Room — Basement</div>
+          <div class="rpt-cp-time">23:40</div>
+          <div class="rpt-cp-status ok">OK</div>
+        </div>
+        <div class="rpt-cp-row">
+          <div class="rpt-cp-num">CP-07</div>
+          <div class="rpt-cp-name">Generator Room — Rear</div>
+          <div class="rpt-cp-time">00:01</div>
+          <div class="rpt-cp-status ok">OK</div>
+        </div>
+        <div class="rpt-cp-row">
+          <div class="rpt-cp-num">CP-08</div>
+          <div class="rpt-cp-name">Loading Bay — East</div>
+          <div class="rpt-cp-time">—</div>
+          <div class="rpt-cp-status miss">MISSED</div>
+        </div>
+        <div class="rpt-cp-row">
+          <div class="rpt-cp-num">CP-09</div>
+          <div class="rpt-cp-name">Reception Lobby</div>
+          <div class="rpt-cp-time">00:35</div>
+          <div class="rpt-cp-status ok">OK</div>
+        </div>
+        <div class="rpt-cp-row">
+          <div class="rpt-cp-num">CP-10</div>
+          <div class="rpt-cp-name">Executive Floor — Level 8</div>
+          <div class="rpt-cp-time">00:52</div>
+          <div class="rpt-cp-status ok">OK</div>
+        </div>
+      </div>
+
+      <!-- Incidents during shift -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">INCIDENTS DURING SHIFT</div>
+        <div class="rpt-incident-row">
+          <div class="rpt-inc-dot" style="background:var(--red);"></div>
+          <div>
+            <div class="rpt-inc-title">Suspicious vehicle — Parking B2</div>
+            <div class="rpt-inc-meta">23:15 · Reported to supervisor · Police notified</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guard observations -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">OBSERVATIONS & NOTES</div>
+        <div class="rpt-notes">Loading bay east door was found ajar at 00:20. Secured and reported. CCTV footage reviewed — no breach detected. Recommend door latch inspection.</div>
+      </div>
+
+      <!-- Handover notes -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">HANDOVER TO NEXT GUARD</div>
+        <div style="background:var(--amber-dim);border:1px solid rgba(245,166,35,0.25);border-radius:10px;padding:12px;">
+          <div style="font-size:11px;color:var(--amber);margin-bottom:6px;font-weight:600;letter-spacing:1px;">HANDOVER NOTES</div>
+          <div style="font-size:13px;color:rgba(245,166,35,0.85);line-height:1.6;">Loading bay door flagged for maintenance. Watch CP-08 closely. Client representative arriving at 07:30 main entrance.</div>
+        </div>
+        <div style="margin-top:12px;" class="rpt-sig-row">
+          <div class="rpt-sig-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706);">TK</div>
+          <div>
+            <div class="rpt-sig-name">Tom Kwon</div>
+            <div class="rpt-sig-role">Incoming Guard · Shift starts 06:00</div>
+          </div>
+          <div class="rpt-sig-time" style="color:var(--accent);">CONFIRMED</div>
+        </div>
+      </div>
+
+      <!-- Signature -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">SUBMITTED BY</div>
+        <div class="rpt-sig-row">
+          <div class="rpt-sig-avatar" style="background:linear-gradient(135deg,var(--teal),var(--blue));">MS</div>
+          <div>
+            <div class="rpt-sig-name">Mike Santos</div>
+            <div class="rpt-sig-role">Signed off · Badge #4421</div>
+          </div>
+          <div class="rpt-sig-time">06:03 AM<br>May 4 2025</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-actions">
+      <button class="btn-export" onclick="exportReport('pdf')">&#128196; PDF</button>
+      <button class="btn-export" onclick="exportReport('email')">&#9993; EMAIL</button>
+      <button class="btn-submit-report" onclick="submitReport()">&#10003; SUBMIT REPORT</button>
+    </div>
+  </div>
+
+  <!-- ===== SUPERVISOR REPORT ===== -->
+  <div id="report-supervisor-view" style="display:none;flex-direction:column;gap:14px;">
+
+    <div class="report-card">
+      <div class="report-card-header">
+        <div>
+          <div class="report-card-title">Supervisor Shift Report</div>
+          <div class="report-card-meta">Supervisor · Sunday May 4, 2025 · Night Shift</div>
+        </div>
+        <div class="report-type-badge supervisor">SUPERVISOR</div>
+      </div>
+
+      <!-- Supervisor info -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">SUPERVISOR DETAILS</div>
+        <div class="rpt-sig-row">
+          <div class="rpt-sig-avatar" style="background:linear-gradient(135deg,#3b82f6,#6366f1);">LR</div>
+          <div>
+            <div class="rpt-sig-name">Lisa Rodriguez</div>
+            <div class="rpt-sig-role">Supervisor · Badge #2201 · Main Campus</div>
+          </div>
+          <div class="rpt-sig-time">22:00 – 06:00<br>8 hrs</div>
+        </div>
+      </div>
+
+      <!-- Team overview -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">TEAM OVERVIEW</div>
+        <div class="rpt-stat-row">
+          <div class="rpt-stat">
+            <div class="rpt-stat-val" style="color:var(--accent);">4</div>
+            <div class="rpt-stat-lbl">GUARDS ON DUTY</div>
+          </div>
+          <div class="rpt-stat">
+            <div class="rpt-stat-val" style="color:var(--amber);">1</div>
+            <div class="rpt-stat-lbl">LATE CHECK-IN</div>
+          </div>
+          <div class="rpt-stat">
+            <div class="rpt-stat-val" style="color:var(--red);">1</div>
+            <div class="rpt-stat-lbl">INCIDENTS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guard patrol performance -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">GUARD PATROL PERFORMANCE</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:var(--bg-card2);border-radius:10px;padding:12px 14px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--teal),var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;">MS</div>
+              <div style="flex:1;font-size:13px;font-weight:500;">Mike Santos</div>
+              <div style="font-size:12px;color:var(--accent);font-weight:600;">90%</div>
+            </div>
+            <div style="height:4px;background:var(--bg-card);border-radius:2px;overflow:hidden;">
+              <div style="width:90%;height:100%;background:linear-gradient(90deg,var(--accent),#00d4a0);border-radius:2px;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--text-secondary);margin-top:5px;">9/10 checkpoints · 1 missed (CP-08)</div>
+          </div>
+          <div style="background:var(--bg-card2);border-radius:10px;padding:12px 14px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;">TK</div>
+              <div style="flex:1;font-size:13px;font-weight:500;">Tom Kwon</div>
+              <div style="font-size:12px;color:var(--accent);font-weight:600;">100%</div>
+            </div>
+            <div style="height:4px;background:var(--bg-card);border-radius:2px;overflow:hidden;">
+              <div style="width:100%;height:100%;background:linear-gradient(90deg,var(--accent),#00d4a0);border-radius:2px;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--text-secondary);margin-top:5px;">10/10 checkpoints · Full patrol completed</div>
+          </div>
+          <div style="background:var(--bg-card2);border-radius:10px;padding:12px 14px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;">JB</div>
+              <div style="flex:1;font-size:13px;font-weight:500;">James Burke</div>
+              <div style="font-size:12px;color:var(--amber);font-weight:600;">70%</div>
+            </div>
+            <div style="height:4px;background:var(--bg-card);border-radius:2px;overflow:hidden;">
+              <div style="width:70%;height:100%;background:linear-gradient(90deg,var(--amber),#d97706);border-radius:2px;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--text-secondary);margin-top:5px;">7/10 checkpoints · 3 missed · Late check-in 22:34</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Site patrol completion -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">SITE PATROL COMPLETION</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:12px;flex:1;">Main Campus</div>
+            <div style="font-size:12px;color:var(--accent);font-weight:600;width:36px;text-align:right;">87%</div>
+            <div style="flex:0 0 100px;height:4px;background:var(--bg-card2);border-radius:2px;overflow:hidden;">
+              <div style="width:87%;height:100%;background:var(--accent);border-radius:2px;"></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:12px;flex:1;">Parking Structure</div>
+            <div style="font-size:12px;color:var(--accent);font-weight:600;width:36px;text-align:right;">100%</div>
+            <div style="flex:0 0 100px;height:4px;background:var(--bg-card2);border-radius:2px;overflow:hidden;">
+              <div style="width:100%;height:100%;background:var(--accent);border-radius:2px;"></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:12px;flex:1;">Loading Bay</div>
+            <div style="font-size:12px;color:var(--red);font-weight:600;width:36px;text-align:right;">60%</div>
+            <div style="flex:0 0 100px;height:4px;background:var(--bg-card2);border-radius:2px;overflow:hidden;">
+              <div style="width:60%;height:100%;background:var(--red);border-radius:2px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Incidents -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">INCIDENTS LOG</div>
+        <div class="rpt-incident-row">
+          <div class="rpt-inc-dot" style="background:var(--red);"></div>
+          <div>
+            <div class="rpt-inc-title">Suspicious vehicle — Parking B2</div>
+            <div class="rpt-inc-meta">23:15 · Reported by Santos · Resolved · Police notified</div>
+          </div>
+        </div>
+        <div class="rpt-incident-row">
+          <div class="rpt-inc-dot" style="background:var(--amber);"></div>
+          <div>
+            <div class="rpt-inc-title">Loading bay door found ajar</div>
+            <div class="rpt-inc-meta">00:20 · Secured · Maintenance ticket raised</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supervisor notes -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">SUPERVISOR NOTES</div>
+        <div class="rpt-notes">Overall shift was satisfactory. Burke tardiness noted and will be addressed in morning briefing. Loading bay door issue escalated to facilities. Recommend CP-08 area coverage review for next shift rotation.</div>
+      </div>
+
+      <!-- Actions taken -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">ACTIONS TAKEN</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="width:20px;height:20px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;color:#000;font-weight:700;flex-shrink:0;margin-top:1px;">&#10003;</div>
+            <div style="font-size:13px;color:var(--text-secondary);">Police notified of suspicious vehicle — case #2024-0412</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="width:20px;height:20px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;color:#000;font-weight:700;flex-shrink:0;margin-top:1px;">&#10003;</div>
+            <div style="font-size:13px;color:var(--text-secondary);">Maintenance ticket raised for loading bay door latch</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start;">
+            <div style="width:20px;height:20px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:10px;color:#000;font-weight:700;flex-shrink:0;margin-top:1px;">!</div>
+            <div style="font-size:13px;color:var(--text-secondary);">Burke tardiness — verbal warning issued, documented</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supervisor signature -->
+      <div class="rpt-section">
+        <div class="rpt-section-title">SUPERVISOR SIGN-OFF</div>
+        <div class="rpt-sig-row">
+          <div class="rpt-sig-avatar" style="background:linear-gradient(135deg,#3b82f6,#6366f1);">LR</div>
+          <div>
+            <div class="rpt-sig-name">Lisa Rodriguez</div>
+            <div class="rpt-sig-role">Supervisor · Badge #2201</div>
+          </div>
+          <div class="rpt-sig-time">06:15 AM<br>May 4 2025</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-actions">
+      <button class="btn-export" onclick="exportReport('pdf')">&#128196; PDF</button>
+      <button class="btn-export" onclick="exportReport('email')">&#9993; EMAIL</button>
+      <button class="btn-submit-report" onclick="submitReport()">&#10003; SUBMIT REPORT</button>
+    </div>
+  </div>
+
+  <!-- ===== HISTORY ===== -->
+  <div id="report-history-view" style="display:none;">
+    <div class="report-card">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--text-secondary);">RECENT REPORTS</div>
+      </div>
+      <div class="report-hist-row">
+        <div class="rhr-icon" style="background:rgba(20,184,166,0.12);">&#128100;</div>
+        <div class="rhr-info">
+          <div class="rhr-title">Santos · End-of-Shift</div>
+          <div class="rhr-meta">May 4 · Night Shift · 9/10 checkpoints</div>
+        </div>
+        <div class="rhr-badge" style="color:var(--accent);border-color:rgba(0,255,180,0.3);background:var(--accent-dim);">FILED</div>
+      </div>
+      <div class="report-hist-row">
+        <div class="rhr-icon" style="background:var(--blue-dim);">&#128272;</div>
+        <div class="rhr-info">
+          <div class="rhr-title">Rodriguez · Supervisor Report</div>
+          <div class="rhr-meta">May 4 · Night Shift · 2 incidents</div>
+        </div>
+        <div class="rhr-badge" style="color:var(--accent);border-color:rgba(0,255,180,0.3);background:var(--accent-dim);">FILED</div>
+      </div>
+      <div class="report-hist-row">
+        <div class="rhr-icon" style="background:rgba(20,184,166,0.12);">&#128100;</div>
+        <div class="rhr-info">
+          <div class="rhr-title">Kwon · End-of-Shift</div>
+          <div class="rhr-meta">May 3 · Day Shift · 10/10 checkpoints</div>
+        </div>
+        <div class="rhr-badge" style="color:var(--accent);border-color:rgba(0,255,180,0.3);background:var(--accent-dim);">FILED</div>
+      </div>
+      <div class="report-hist-row">
+        <div class="rhr-icon" style="background:rgba(245,166,35,0.12);">&#128100;</div>
+        <div class="rhr-info">
+          <div class="rhr-title">Burke · End-of-Shift</div>
+          <div class="rhr-meta">May 3 · Night Shift · 7/10 checkpoints</div>
+        </div>
+        <div class="rhr-badge" style="color:var(--amber);border-color:rgba(245,166,35,0.3);background:var(--amber-dim);">FLAGGED</div>
+      </div>
+      <div class="report-hist-row">
+        <div class="rhr-icon" style="background:var(--blue-dim);">&#128272;</div>
+        <div class="rhr-info">
+          <div class="rhr-title">Rodriguez · Supervisor Report</div>
+          <div class="rhr-meta">May 3 · Day Shift · 0 incidents</div>
+        </div>
+        <div class="rhr-badge" style="color:var(--accent);border-color:rgba(0,255,180,0.3);background:var(--accent-dim);">FILED</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+```
+
+  </div>
+
   <!-- ========== END PATROL MODAL ========== -->
 
   <div class="share-modal" id="end-patrol-modal" onclick="closeEndPatrol()">
@@ -2764,7 +3379,7 @@ border-radius: 6px; padding: 3px 8px;
         </svg>
         <div class="menu-item-label">Alerts</div>
       </div>
-      <div class="menu-item">
+      <div class="menu-item" onclick="openReports()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.5">
           <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
         </svg>
@@ -3036,6 +3651,44 @@ border-radius: 6px; padding: 3px 8px;
     setTimeout(() => { el.textContent = 'COPY'; }, 2000);
   }
 
+
+
+  // ========== REPORTS ==========
+  function openReports() {
+    closeMenu();
+    showScreen('screen-reports');
+  }
+
+  function switchReportRole(role) {
+    ['guard','supervisor','history'].forEach(r => {
+      const tab = document.getElementById('rr-' + r);
+      const view = document.getElementById('report-' + r + '-view');
+      if (tab) tab.classList.toggle('active', r === role);
+      if (view) {
+        view.style.display = r === role ? (r === 'history' ? 'block' : 'flex') : 'none';
+        if (r === role && r !== 'history') view.style.flexDirection = 'column';
+        if (r === role && r !== 'history') view.style.gap = '14px';
+      }
+    });
+  }
+
+  function exportReport(type) {
+    const msg = type === 'pdf' ? 'PDF export will be available in the live version.' : 'Report will be emailed to supervisor@shieldsync.app';
+    alert(msg);
+  }
+
+  function submitReport() {
+    // Show success toast
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;padding:12px 24px;border-radius:12px;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;z-index:999;animation:fadeInUp 0.3s ease;box-shadow:0 4px 20px rgba(0,255,180,0.4);';
+    toast.textContent = '✓ REPORT SUBMITTED';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+  function showNewReport() {
+    switchReportRole('guard');
+  }
 
   // ========== NAV SYSTEM - fixed active state across all screens ==========
   function navTo(tab) {
