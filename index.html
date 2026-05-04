@@ -1743,6 +1743,203 @@ font-size: 9px; letter-spacing: 1px; font-weight: 600;
 padding: 3px 8px; border-radius: 6px; border: 1px solid;
 }
 
+/* ========== VEHICLE INSPECTION ========== */
+#screen-vehicle-inspection { padding-bottom: 40px; background: var(–bg-deep); }
+
+.vi-topbar {
+display: flex; align-items: center; justify-content: space-between;
+padding: 16px 20px 12px;
+background: var(–bg-deep);
+position: sticky; top: 0; z-index: 10;
+border-bottom: 1px solid var(–border);
+}
+
+.vi-progress-bar {
+display: flex; gap: 4px; padding: 12px 20px 0;
+}
+.vi-prog-seg {
+flex: 1; height: 3px; border-radius: 2px;
+background: var(–bg-card2);
+transition: background 0.3s;
+}
+.vi-prog-seg.done { background: var(–accent); }
+.vi-prog-seg.active { background: rgba(0,255,180,0.4); }
+
+.vi-content { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Steps */
+.vi-step { display: none; flex-direction: column; gap: 14px; }
+.vi-step.active { display: flex; }
+
+.vi-step-header { }
+.vi-step-eyebrow { font-size: 10px; letter-spacing: 2px; color: var(–text-secondary); margin-bottom: 6px; }
+.vi-step-title {
+font-family: “Rajdhani”, sans-serif;
+font-size: 20px; font-weight: 700; letter-spacing: 0.5px;
+margin-bottom: 4px;
+}
+.vi-step-desc { font-size: 13px; color: var(–text-secondary); line-height: 1.5; }
+
+/* Photo upload grid */
+.photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.photo-slot {
+aspect-ratio: 4/3;
+background: var(–bg-card);
+border: 1.5px dashed rgba(0,255,180,0.2);
+border-radius: 14px;
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+gap: 8px; cursor: pointer;
+transition: all 0.2s;
+position: relative; overflow: hidden;
+}
+.photo-slot:active { border-color: var(–accent); background: var(–accent-dim); }
+.photo-slot.has-photo { border-style: solid; border-color: var(–border-accent); }
+.photo-slot-icon { font-size: 24px; }
+.photo-slot-label { font-size: 10px; letter-spacing: 1.5px; color: var(–text-secondary); font-weight: 500; }
+.photo-preview {
+position: absolute; inset: 0;
+object-fit: cover; width: 100%; height: 100%;
+border-radius: 12px;
+}
+.photo-remove {
+position: absolute; top: 6px; right: 6px;
+width: 22px; height: 22px; border-radius: 50%;
+background: rgba(255,59,59,0.85);
+display: flex; align-items: center; justify-content: center;
+font-size: 11px; color: #fff; font-weight: 700;
+cursor: pointer; z-index: 2;
+}
+.photo-badge {
+position: absolute; bottom: 6px; left: 6px;
+background: rgba(0,0,0,0.7);
+border-radius: 6px; padding: 2px 7px;
+font-size: 9px; color: #fff; letter-spacing: 1px;
+}
+
+/* Full width photo slot */
+.photo-slot-wide {
+width: 100%; aspect-ratio: 16/7;
+background: var(–bg-card);
+border: 1.5px dashed rgba(0,255,180,0.2);
+border-radius: 14px;
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+gap: 8px; cursor: pointer;
+transition: all 0.2s; position: relative; overflow: hidden;
+}
+.photo-slot-wide.has-photo { border-style: solid; border-color: var(–border-accent); }
+
+/* Vehicle diagram */
+.vehicle-diagram {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 16px;
+position: relative;
+}
+.vd-title { font-size: 10px; letter-spacing: 2px; color: var(–text-secondary); margin-bottom: 14px; }
+.vd-car {
+width: 100%; max-width: 280px;
+margin: 0 auto; display: block;
+position: relative;
+}
+.damage-point {
+position: absolute;
+width: 24px; height: 24px; border-radius: 50%;
+border: 2px solid var(–border);
+background: var(–bg-card2);
+display: flex; align-items: center; justify-content: center;
+font-size: 11px; font-weight: 700; color: var(–text-muted);
+cursor: pointer; transition: all 0.2s;
+transform: translate(-50%, -50%);
+}
+.damage-point.marked {
+border-color: var(–red);
+background: var(–red-dim);
+color: var(–red);
+}
+.damage-point.ok {
+border-color: var(–accent);
+background: var(–accent-dim);
+color: var(–accent);
+}
+
+/* Condition checklist */
+.condition-list { display: flex; flex-direction: column; gap: 8px; }
+.condition-item {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 14px 16px;
+display: flex; align-items: center; gap: 12px;
+}
+.ci-icon { font-size: 18px; flex-shrink: 0; }
+.ci-info { flex: 1; }
+.ci-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+.ci-sub { font-size: 11px; color: var(–text-secondary); }
+.ci-toggle {
+display: flex; gap: 6px;
+}
+.ci-btn {
+padding: 5px 12px; border-radius: 8px;
+font-size: 10px; font-weight: 700; letter-spacing: 1px;
+border: 1px solid var(–border);
+cursor: pointer; background: transparent;
+color: var(–text-muted);
+transition: all 0.2s;
+}
+.ci-btn.ok-active { background: var(–accent-dim); border-color: var(–border-accent); color: var(–accent); }
+.ci-btn.fail-active { background: var(–red-dim); border-color: rgba(255,59,59,0.3); color: var(–red); }
+
+/* Summary card */
+.vi-summary-card {
+background: linear-gradient(135deg, rgba(0,255,180,0.06), rgba(0,255,180,0.02));
+border: 1px solid var(–border-accent);
+border-radius: 16px;
+padding: 20px;
+}
+.vi-summary-row {
+display: flex; justify-content: space-between; align-items: center;
+padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+font-size: 13px;
+}
+.vi-summary-row:last-child { border-bottom: none; }
+.vi-summary-key { color: var(–text-secondary); }
+.vi-summary-val { font-weight: 500; color: var(–text-primary); }
+.vi-photo-thumbs {
+display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;
+}
+.vi-thumb {
+width: 52px; height: 40px; border-radius: 7px;
+background: var(–bg-card);
+border: 1px solid var(–border);
+display: flex; align-items: center; justify-content: center;
+font-size: 16px; overflow: hidden; position: relative;
+}
+.vi-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Hidden file input */
+.file-input-hidden { display: none; }
+
+/* Plate input */
+.plate-input {
+background: var(–bg-card);
+border: 2px solid var(–border-accent);
+border-radius: 14px;
+padding: 18px 20px;
+color: var(–text-primary);
+font-family: “Rajdhani”, sans-serif;
+font-size: 28px; font-weight: 700;
+letter-spacing: 6px;
+text-align: center;
+outline: none; width: 100%;
+text-transform: uppercase;
+transition: border-color 0.2s;
+}
+.plate-input:focus { border-color: var(–accent); }
+.plate-input::placeholder { color: var(–text-muted); letter-spacing: 4px; font-size: 20px; }
+
 </style>
 </head>
 <body>
@@ -2811,6 +3008,382 @@ padding: 3px 8px; border-radius: 6px; border: 1px solid;
 
   </div>
 
+  <!-- ========== VEHICLE INSPECTION SCREEN ========== -->
+
+  <div class="screen" id="screen-vehicle-inspection">
+
+```
+<!-- Hidden file inputs -->
+<input type="file" accept="image/*" capture="environment" class="file-input-hidden" id="vi-file-input" onchange="handlePhotoUpload(event)">
+
+<div class="vi-topbar">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div onclick="skipVehicleInspection()" style="width:34px;height:34px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </div>
+    <div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1.5px;">VEHICLE INSPECTION</div>
+      <div style="font-size:10px;color:var(--text-secondary);letter-spacing:1px;">REQUIRED BEFORE PATROL</div>
+    </div>
+  </div>
+  <div style="font-size:11px;color:var(--text-secondary);letter-spacing:1px;" id="vi-step-counter">STEP 1 OF 4</div>
+</div>
+
+<!-- Progress -->
+<div class="vi-progress-bar">
+  <div class="vi-prog-seg active" id="vi-seg-1"></div>
+  <div class="vi-prog-seg" id="vi-seg-2"></div>
+  <div class="vi-prog-seg" id="vi-seg-3"></div>
+  <div class="vi-prog-seg" id="vi-seg-4"></div>
+</div>
+
+<div class="vi-content">
+
+  <!-- ── STEP 1: Vehicle Details ── -->
+  <div class="vi-step active" id="vi-step-1">
+    <div class="vi-step-header">
+      <div class="vi-step-eyebrow">STEP 1 OF 4</div>
+      <div class="vi-step-title">Vehicle Details</div>
+      <div class="vi-step-desc">Enter the patrol vehicle information before starting your shift.</div>
+    </div>
+
+    <!-- Plate number -->
+    <div class="field-group">
+      <div class="field-label">LICENSE PLATE</div>
+      <input class="plate-input" type="text" placeholder="ABC 1234" id="vi-plate" maxlength="10" />
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="field-group">
+        <div class="field-label">VEHICLE TYPE</div>
+        <select class="field-input" id="vi-type" style="appearance:none;-webkit-appearance:none;">
+          <option>Patrol Car</option>
+          <option>SUV</option>
+          <option>Van</option>
+          <option>Motorcycle</option>
+          <option>Golf Cart</option>
+          <option>On Foot</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <div class="field-label">VEHICLE ID</div>
+        <input class="field-input" type="text" placeholder="V-04" id="vi-vid" />
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="field-group">
+        <div class="field-label">MAKE / MODEL</div>
+        <input class="field-input" type="text" placeholder="Toyota Hilux" id="vi-make" />
+      </div>
+      <div class="field-group">
+        <div class="field-label">COLOR</div>
+        <input class="field-input" type="text" placeholder="White" id="vi-color" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">ASSIGNED GUARD</div>
+      <div style="background:var(--bg-card);border:1px solid var(--border-accent);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+        <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;">MS</div>
+        <div>
+          <div style="font-size:14px;font-weight:500;">Mike Santos</div>
+          <div style="font-size:11px;color:var(--text-secondary);">Badge #4421 · Night Shift</div>
+        </div>
+        <div style="margin-left:auto;" class="ob-status verified">&#10003; ACTIVE</div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">ODOMETER READING (KM)</div>
+      <input class="field-input" type="number" placeholder="84,220" id="vi-odometer" />
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">FUEL LEVEL</div>
+      <div style="display:flex;gap:8px;">
+        <div class="ci-btn" onclick="selectFuel(this,'Empty')" style="flex:1;text-align:center;padding:10px;">E</div>
+        <div class="ci-btn" onclick="selectFuel(this,'1/4')" style="flex:1;text-align:center;padding:10px;">1/4</div>
+        <div class="ci-btn ok-active" onclick="selectFuel(this,'1/2')" style="flex:1;text-align:center;padding:10px;" id="fuel-selected">1/2</div>
+        <div class="ci-btn" onclick="selectFuel(this,'3/4')" style="flex:1;text-align:center;padding:10px;">3/4</div>
+        <div class="ci-btn" onclick="selectFuel(this,'Full')" style="flex:1;text-align:center;padding:10px;">F</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" style="margin-top:4px;" onclick="viNextStep(2)">NEXT: EXTERIOR PHOTOS &#8594;</button>
+  </div>
+
+  <!-- ── STEP 2: Exterior Photos ── -->
+  <div class="vi-step" id="vi-step-2">
+    <div class="vi-step-header">
+      <div class="vi-step-eyebrow">STEP 2 OF 4</div>
+      <div class="vi-step-title">Exterior Photos</div>
+      <div class="vi-step-desc">Take photos of all 4 sides of the vehicle. Tap each slot to capture or upload.</div>
+    </div>
+
+    <!-- 4 angle shots -->
+    <div class="photo-grid">
+      <div class="photo-slot" id="slot-front" onclick="triggerPhoto('front')">
+        <div class="photo-slot-icon">&#128247;</div>
+        <div class="photo-slot-label">FRONT</div>
+      </div>
+      <div class="photo-slot" id="slot-rear" onclick="triggerPhoto('rear')">
+        <div class="photo-slot-icon">&#128247;</div>
+        <div class="photo-slot-label">REAR</div>
+      </div>
+      <div class="photo-slot" id="slot-left" onclick="triggerPhoto('left')">
+        <div class="photo-slot-icon">&#128247;</div>
+        <div class="photo-slot-label">LEFT SIDE</div>
+      </div>
+      <div class="photo-slot" id="slot-right" onclick="triggerPhoto('right')">
+        <div class="photo-slot-icon">&#128247;</div>
+        <div class="photo-slot-label">RIGHT SIDE</div>
+      </div>
+    </div>
+
+    <!-- Dashboard/interior -->
+    <div class="field-group">
+      <div class="field-label">DASHBOARD / INTERIOR (OPTIONAL)</div>
+      <div class="photo-slot-wide" id="slot-interior" onclick="triggerPhoto('interior')">
+        <div style="font-size:24px;">&#128247;</div>
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--text-secondary);">TAP TO CAPTURE INTERIOR</div>
+      </div>
+    </div>
+
+    <!-- Plate photo -->
+    <div class="field-group">
+      <div class="field-label">LICENSE PLATE PHOTO</div>
+      <div class="photo-slot-wide" id="slot-plate" onclick="triggerPhoto('plate')">
+        <div style="font-size:24px;">&#128663;</div>
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--text-secondary);">TAP TO CAPTURE PLATE</div>
+      </div>
+    </div>
+
+    <div id="photo-count-msg" style="text-align:center;font-size:12px;color:var(--text-secondary);">0 of 4 required photos taken</div>
+
+    <div style="display:flex;gap:10px;">
+      <button class="btn-secondary" onclick="viNextStep(1)">&#8592; BACK</button>
+      <button class="btn-primary" style="flex:1;margin-top:0;" onclick="viNextStep(3)">NEXT: DAMAGE CHECK &#8594;</button>
+    </div>
+    <div style="text-align:center;font-size:12px;color:var(--text-muted);cursor:pointer;" onclick="viNextStep(3)">Skip photos for now</div>
+  </div>
+
+  <!-- ── STEP 3: Damage / Condition Check ── -->
+  <div class="vi-step" id="vi-step-3">
+    <div class="vi-step-header">
+      <div class="vi-step-eyebrow">STEP 3 OF 4</div>
+      <div class="vi-step-title">Damage & Condition</div>
+      <div class="vi-step-desc">Tap any damage point on the vehicle diagram and check each system below.</div>
+    </div>
+
+    <!-- Vehicle top-down diagram -->
+    <div class="vehicle-diagram">
+      <div class="vd-title">TAP TO MARK DAMAGE POINTS</div>
+      <div style="position:relative;width:100%;height:200px;">
+        <!-- SVG top-down car outline -->
+        <svg viewBox="0 0 280 200" width="100%" height="200" style="display:block;">
+          <!-- Car body -->
+          <rect x="80" y="30" width="120" height="140" rx="20" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+          <!-- Windshield -->
+          <rect x="95" y="45" width="90" height="35" rx="6" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.3)" stroke-width="1"/>
+          <!-- Rear window -->
+          <rect x="95" y="120" width="90" height="30" rx="6" fill="rgba(59,130,246,0.1)" stroke="rgba(59,130,246,0.3)" stroke-width="1"/>
+          <!-- Doors -->
+          <line x1="80" y1="100" x2="200" y2="100" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="4,4"/>
+          <!-- Wheels -->
+          <rect x="60" y="45" width="22" height="36" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+          <rect x="198" y="45" width="22" height="36" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+          <rect x="60" y="119" width="22" height="36" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+          <rect x="198" y="119" width="22" height="36" rx="6" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+          <!-- Front bumper -->
+          <rect x="88" y="22" width="104" height="12" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+          <!-- Rear bumper -->
+          <rect x="88" y="166" width="104" height="12" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+          <!-- FRONT label -->
+          <text x="140" y="12" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.3)" letter-spacing="2" font-family="sans-serif">FRONT</text>
+          <!-- REAR label -->
+          <text x="140" y="195" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.3)" letter-spacing="2" font-family="sans-serif">REAR</text>
+        </svg>
+
+        <!-- Damage tap points -->
+        <div class="damage-point" id="dp-fl" style="left:22%;top:25%;" onclick="toggleDamage('dp-fl','Front Left')">!</div>
+        <div class="damage-point" id="dp-fr" style="left:78%;top:25%;" onclick="toggleDamage('dp-fr','Front Right')">!</div>
+        <div class="damage-point" id="dp-fc" style="left:50%;top:15%;" onclick="toggleDamage('dp-fc','Front Center')">!</div>
+        <div class="damage-point" id="dp-dl" style="left:22%;top:52%;" onclick="toggleDamage('dp-dl','Driver Door')">!</div>
+        <div class="damage-point" id="dp-pr" style="left:78%;top:52%;" onclick="toggleDamage('dp-pr','Passenger Door')">!</div>
+        <div class="damage-point" id="dp-rl" style="left:22%;top:78%;" onclick="toggleDamage('dp-rl','Rear Left')">!</div>
+        <div class="damage-point" id="dp-rr" style="left:78%;top:78%;" onclick="toggleDamage('dp-rr','Rear Right')">!</div>
+        <div class="damage-point" id="dp-rc" style="left:50%;top:88%;" onclick="toggleDamage('dp-rc','Rear Center')">!</div>
+      </div>
+
+      <div id="damage-notes-wrap" style="display:none;margin-top:12px;">
+        <div class="field-label" style="margin-bottom:8px;">DAMAGE NOTES</div>
+        <textarea class="field-input" id="damage-notes" rows="2" placeholder="Describe damage location and severity..." style="resize:none;height:64px;"></textarea>
+        <div style="margin-top:8px;">
+          <button onclick="triggerPhoto('damage')" style="background:var(--red-dim);border:1px solid rgba(255,59,59,0.3);color:var(--red);border-radius:10px;padding:8px 14px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;">&#128247; PHOTO OF DAMAGE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- System checklist -->
+    <div class="condition-list">
+      <div class="condition-item">
+        <div class="ci-icon">&#128161;</div>
+        <div class="ci-info">
+          <div class="ci-name">Lights & Indicators</div>
+          <div class="ci-sub">Head, tail, brake, indicators</div>
+        </div>
+        <div class="ci-toggle">
+          <button class="ci-btn ok-active" onclick="setCond(this,'ok')">OK</button>
+          <button class="ci-btn" onclick="setCond(this,'fail')">FAIL</button>
+        </div>
+      </div>
+      <div class="condition-item">
+        <div class="ci-icon">&#127981;</div>
+        <div class="ci-info">
+          <div class="ci-name">Tyres & Wheels</div>
+          <div class="ci-sub">Pressure, tread, visible damage</div>
+        </div>
+        <div class="ci-toggle">
+          <button class="ci-btn ok-active" onclick="setCond(this,'ok')">OK</button>
+          <button class="ci-btn" onclick="setCond(this,'fail')">FAIL</button>
+        </div>
+      </div>
+      <div class="condition-item">
+        <div class="ci-icon">&#128670;</div>
+        <div class="ci-info">
+          <div class="ci-name">Brakes</div>
+          <div class="ci-sub">Response, handbrake, no grinding</div>
+        </div>
+        <div class="ci-toggle">
+          <button class="ci-btn ok-active" onclick="setCond(this,'ok')">OK</button>
+          <button class="ci-btn" onclick="setCond(this,'fail')">FAIL</button>
+        </div>
+      </div>
+      <div class="condition-item">
+        <div class="ci-icon">&#128225;</div>
+        <div class="ci-info">
+          <div class="ci-name">Radio / Comms</div>
+          <div class="ci-sub">Two-way radio, phone mount</div>
+        </div>
+        <div class="ci-toggle">
+          <button class="ci-btn ok-active" onclick="setCond(this,'ok')">OK</button>
+          <button class="ci-btn" onclick="setCond(this,'fail')">FAIL</button>
+        </div>
+      </div>
+      <div class="condition-item">
+        <div class="ci-icon">&#129691;</div>
+        <div class="ci-info">
+          <div class="ci-name">Safety Equipment</div>
+          <div class="ci-sub">First aid kit, fire extinguisher, vest</div>
+        </div>
+        <div class="ci-toggle">
+          <button class="ci-btn ok-active" onclick="setCond(this,'ok')">OK</button>
+          <button class="ci-btn" onclick="setCond(this,'fail')">FAIL</button>
+        </div>
+      </div>
+      <div class="condition-item">
+        <div class="ci-icon">&#128267;</div>
+        <div class="ci-info">
+          <div class="ci-name">Torch / Equipment</div>
+          <div class="ci-sub">Flashlight charged, baton, cuffs</div>
+        </div>
+        <div class="ci-toggle">
+          <button class="ci-btn ok-active" onclick="setCond(this,'ok')">OK</button>
+          <button class="ci-btn" onclick="setCond(this,'fail')">FAIL</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;">
+      <button class="btn-secondary" onclick="viNextStep(2)">&#8592; BACK</button>
+      <button class="btn-primary" style="flex:1;margin-top:0;" onclick="viNextStep(4)">NEXT: REVIEW & SIGN &#8594;</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: Review & Sign Off ── -->
+  <div class="vi-step" id="vi-step-4">
+    <div class="vi-step-header">
+      <div class="vi-step-eyebrow">STEP 4 OF 4</div>
+      <div class="vi-step-title">Review & Sign Off</div>
+      <div class="vi-step-desc">Confirm all details are correct before starting your patrol.</div>
+    </div>
+
+    <div class="vi-summary-card">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:14px;">INSPECTION SUMMARY</div>
+      <div class="vi-summary-row">
+        <div class="vi-summary-key">Vehicle</div>
+        <div class="vi-summary-val" id="vs-vehicle">Toyota Hilux · White</div>
+      </div>
+      <div class="vi-summary-row">
+        <div class="vi-summary-key">Plate</div>
+        <div class="vi-summary-val" id="vs-plate" style="font-family:'Rajdhani',sans-serif;font-size:16px;letter-spacing:3px;">ABC 1234</div>
+      </div>
+      <div class="vi-summary-row">
+        <div class="vi-summary-key">Vehicle ID</div>
+        <div class="vi-summary-val" id="vs-vid">V-04</div>
+      </div>
+      <div class="vi-summary-row">
+        <div class="vi-summary-key">Odometer</div>
+        <div class="vi-summary-val" id="vs-odo">— km</div>
+      </div>
+      <div class="vi-summary-row">
+        <div class="vi-summary-key">Fuel Level</div>
+        <div class="vi-summary-val" id="vs-fuel">1/2</div>
+      </div>
+      <div class="vi-summary-row">
+        <div class="vi-summary-key">Damage Points</div>
+        <div class="vi-summary-val" id="vs-damage" style="color:var(--accent);">None</div>
+      </div>
+      <div class="vi-summary-row">
+        <div class="vi-summary-key">Photos Taken</div>
+        <div class="vi-summary-val" id="vs-photos">0</div>
+      </div>
+      <div class="vi-summary-row">
+        <div class="vi-summary-key">Condition</div>
+        <div class="vi-summary-val" style="color:var(--accent);">All Systems OK</div>
+      </div>
+
+      <!-- Photo thumbnails -->
+      <div style="margin-top:12px;">
+        <div style="font-size:10px;letter-spacing:1.5px;color:var(--text-secondary);margin-bottom:8px;">ATTACHED PHOTOS</div>
+        <div class="vi-photo-thumbs" id="vi-thumbs-row">
+          <div class="vi-thumb">&#128247;</div>
+          <div class="vi-thumb">&#128247;</div>
+          <div class="vi-thumb">&#128247;</div>
+          <div class="vi-thumb">&#128247;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guard sign off -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--text-secondary);margin-bottom:12px;">GUARD SIGN-OFF</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--teal),var(--blue));display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;">MS</div>
+        <div>
+          <div style="font-size:14px;font-weight:500;">Mike Santos</div>
+          <div style="font-size:11px;color:var(--text-secondary);">Badge #4421 · <span id="vi-signtime"></span></div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:1.6;background:var(--bg-card2);border-radius:10px;padding:12px;">
+        I confirm this vehicle inspection is accurate and the vehicle is in the described condition at the start of my patrol shift.
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;">
+      <button class="btn-secondary" onclick="viNextStep(3)">&#8592; BACK</button>
+      <button class="btn-primary" style="flex:1;margin-top:0;background:linear-gradient(135deg,var(--accent),#00d4a0);font-size:16px;letter-spacing:2px;" onclick="completeVehicleInspection()">
+        &#10003; SIGN OFF &amp; START PATROL
+      </button>
+    </div>
+  </div>
+
+</div>
+```
+
+  </div>
+
   <!-- ========== REPORTS SCREEN ========== -->
 
   <div class="screen" id="screen-reports">
@@ -3653,6 +4226,190 @@ padding: 3px 8px; border-radius: 6px; border: 1px solid;
 
 
 
+
+  // ========== VEHICLE INSPECTION ==========
+  let viCurrentStep = 1;
+  let viPhotos = {};
+  let viDamagePoints = [];
+  let viFuelLevel = '1/2';
+  let viCurrentSlot = null;
+
+  function openVehicleInspection() {
+    viCurrentStep = 1;
+    viPhotos = {};
+    viDamagePoints = [];
+    updateViProgress(1);
+    document.querySelectorAll('.vi-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('vi-step-1').classList.add('active');
+    // Set sign time
+    const now = new Date();
+    const t = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) + ' · ' + now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const el = document.getElementById('vi-signtime');
+    if (el) el.textContent = t;
+    showScreen('screen-vehicle-inspection');
+  }
+
+  function skipVehicleInspection() {
+    navTo('home');
+  }
+
+  function viNextStep(step) {
+    viCurrentStep = step;
+    document.querySelectorAll('.vi-step').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById('vi-step-' + step);
+    if (el) el.classList.add('active');
+    updateViProgress(step);
+    document.getElementById('screen-vehicle-inspection').scrollTop = 0;
+    document.getElementById('vi-step-counter').textContent = 'STEP ' + step + ' OF 4';
+
+    // Populate summary on step 4
+    if (step === 4) populateViSummary();
+  }
+
+  function updateViProgress(step) {
+    for (let i = 1; i <= 4; i++) {
+      const seg = document.getElementById('vi-seg-' + i);
+      if (!seg) continue;
+      seg.classList.remove('done','active');
+      if (i < step) seg.classList.add('done');
+      else if (i === step) seg.classList.add('active');
+    }
+  }
+
+  function selectFuel(btn, level) {
+    viFuelLevel = level;
+    document.querySelectorAll('#vi-step-1 .ci-btn').forEach(b => b.classList.remove('ok-active'));
+    btn.classList.add('ok-active');
+  }
+
+  // Photo upload
+  function triggerPhoto(slot) {
+    viCurrentSlot = slot;
+    document.getElementById('vi-file-input').click();
+  }
+
+  function handlePhotoUpload(e) {
+    const file = e.target.files[0];
+    if (!file || !viCurrentSlot) return;
+    const url = URL.createObjectURL(file);
+    viPhotos[viCurrentSlot] = url;
+
+    // Update slot UI
+    const slotId = 'slot-' + viCurrentSlot;
+    const slot = document.getElementById(slotId);
+    if (slot) {
+      slot.classList.add('has-photo');
+      slot.innerHTML = '<img class="photo-preview" src="' + url + '" />' +
+        '<div class="photo-remove" onclick="removePhoto(event,\'' + viCurrentSlot + '\')">&#10005;</div>' +
+        '<div class="photo-badge">' + viCurrentSlot.toUpperCase() + '</div>';
+    }
+    updatePhotoCount();
+    e.target.value = '';
+  }
+
+  function removePhoto(e, slot) {
+    e.stopPropagation();
+    delete viPhotos[slot];
+    const el = document.getElementById('slot-' + slot);
+    if (!el) return;
+    el.classList.remove('has-photo');
+    const isWide = el.classList.contains('photo-slot-wide');
+    el.innerHTML = isWide
+      ? '<div style="font-size:24px;">&#128247;</div><div style="font-size:10px;letter-spacing:1.5px;color:var(--text-secondary);">TAP TO CAPTURE</div>'
+      : '<div class="photo-slot-icon">&#128247;</div><div class="photo-slot-label">' + slot.toUpperCase() + '</div>';
+    el.onclick = function(){ triggerPhoto(slot); };
+    updatePhotoCount();
+  }
+
+  function updatePhotoCount() {
+    const required = ['front','rear','left','right'];
+    const taken = required.filter(s => viPhotos[s]).length;
+    const el = document.getElementById('photo-count-msg');
+    if (el) {
+      el.textContent = taken + ' of 4 required photos taken';
+      el.style.color = taken === 4 ? 'var(--accent)' : 'var(--text-secondary)';
+    }
+  }
+
+  // Damage points
+  function toggleDamage(id, label) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.classList.contains('marked')) {
+      el.classList.remove('marked');
+      el.innerHTML = '!';
+      viDamagePoints = viDamagePoints.filter(d => d !== label);
+    } else {
+      el.classList.add('marked');
+      el.innerHTML = '&#10005;';
+      viDamagePoints.push(label);
+    }
+    const wrap = document.getElementById('damage-notes-wrap');
+    if (wrap) wrap.style.display = viDamagePoints.length > 0 ? 'block' : 'none';
+  }
+
+  // Condition buttons
+  function setCond(btn, state) {
+    const toggle = btn.closest('.ci-toggle');
+    toggle.querySelectorAll('.ci-btn').forEach(b => b.classList.remove('ok-active','fail-active'));
+    btn.classList.add(state === 'ok' ? 'ok-active' : 'fail-active');
+  }
+
+  function populateViSummary() {
+    const plate = document.getElementById('vi-plate');
+    const make = document.getElementById('vi-make');
+    const color = document.getElementById('vi-color');
+    const vid = document.getElementById('vi-vid');
+    const odo = document.getElementById('vi-odometer');
+
+    if (plate) document.getElementById('vs-plate').textContent = plate.value || 'ABC 1234';
+    if (make && color) document.getElementById('vs-vehicle').textContent = (make.value || 'Toyota Hilux') + ' · ' + (color.value || 'White');
+    if (vid) document.getElementById('vs-vid').textContent = vid.value || 'V-04';
+    if (odo) document.getElementById('vs-odo').textContent = (odo.value || '—') + ' km';
+    document.getElementById('vs-fuel').textContent = viFuelLevel;
+    document.getElementById('vs-damage').textContent = viDamagePoints.length > 0 ? viDamagePoints.join(', ') : 'None';
+    document.getElementById('vs-damage').style.color = viDamagePoints.length > 0 ? 'var(--red)' : 'var(--accent)';
+
+    const photoCount = Object.keys(viPhotos).length;
+    document.getElementById('vs-photos').textContent = photoCount;
+
+    // Thumbs
+    const thumbRow = document.getElementById('vi-thumbs-row');
+    if (thumbRow) {
+      thumbRow.innerHTML = '';
+      const slots = ['front','rear','left','right','interior','plate','damage'];
+      slots.forEach(s => {
+        if (viPhotos[s]) {
+          const d = document.createElement('div');
+          d.className = 'vi-thumb';
+          d.innerHTML = '<img src="' + viPhotos[s] + '" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">';
+          thumbRow.appendChild(d);
+        }
+      });
+      if (thumbRow.children.length === 0) {
+        thumbRow.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">No photos attached</div>';
+      }
+    }
+  }
+
+  function completeVehicleInspection() {
+    // Show success toast then go to patrol
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-card2);border:1px solid var(--border-accent);border-radius:20px;padding:28px 32px;text-align:center;z-index:999;min-width:260px;';
+    toast.innerHTML = '<div style="font-size:40px;margin-bottom:12px;">&#128663;</div>' +
+      '<div style="font-family:Rajdhani,sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;color:var(--accent);margin-bottom:6px;">INSPECTION COMPLETE</div>' +
+      '<div style="font-size:12px;color:var(--text-secondary);">Starting patrol session...</div>';
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+      showScreen('screen-patrol');
+      // Set active nav to patrol
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      const pn = document.getElementById('nav-patrol');
+      if (pn) pn.classList.add('active');
+    }, 2000);
+  }
+
   // ========== REPORTS ==========
   function openReports() {
     closeMenu();
@@ -3702,7 +4459,7 @@ padding: 3px 8px; border-radius: 6px; border: 1px solid;
 
     // Navigate to correct screen
     if (tab === 'home') showScreen('screen-home');
-    else if (tab === 'patrol') { showScreen('screen-patrol'); }
+    else if (tab === 'patrol') { openVehicleInspection(); }
     else if (tab === 'incidents') showScreen('screen-home'); // placeholder
     else if (tab === 'more') openMenu();
   }
