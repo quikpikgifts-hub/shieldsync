@@ -4,6 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#080c12">
 <title>ShieldSync</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -30,6 +32,7 @@
 
 - { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
+html { background: #080c12; color-scheme: dark; }
 body {
 background: var(–bg-deep);
 font-family: ‘Inter’, sans-serif;
@@ -38,6 +41,12 @@ min-height: 100vh;
 display: flex;
 justify-content: center;
 align-items: flex-start;
+-webkit-font-smoothing: antialiased;
+}
+input, select, textarea {
+color-scheme: dark;
+background: var(–bg-card);
+color: var(–text-primary);
 }
 
 .phone-shell {
@@ -82,31 +91,40 @@ text-align: center;
 margin-bottom: 48px;
 }
 .brand-shield {
-width: 72px;
-height: 72px;
-background: linear-gradient(135deg, #0e1420, #1a2540);
+width: 88px;
+height: 88px;
+background: linear-gradient(145deg, #0d1f35, #0e1420);
 border: 1.5px solid var(–border-accent);
-border-radius: 20px;
+border-radius: 24px;
 display: flex;
 align-items: center;
 justify-content: center;
-margin: 0 auto 20px;
+margin: 0 auto 22px;
 position: relative;
-box-shadow: 0 0 40px rgba(0,255,180,0.08);
+box-shadow: 0 0 0 8px rgba(0,255,180,0.04), 0 0 40px rgba(0,255,180,0.12), 0 8px 32px rgba(0,0,0,0.4);
+animation: logo-breathe 4s ease-in-out infinite;
 }
-.brand-shield svg { width: 36px; height: 36px; }
+@keyframes logo-breathe {
+0%,100%{ box-shadow: 0 0 0 8px rgba(0,255,180,0.04), 0 0 40px rgba(0,255,180,0.12), 0 8px 32px rgba(0,0,0,0.4); }
+50%{ box-shadow: 0 0 0 12px rgba(0,255,180,0.07), 0 0 60px rgba(0,255,180,0.2), 0 8px 32px rgba(0,0,0,0.4); }
+}
+.brand-shield svg { width: 48px; height: 48px; }
 .brand-name {
 font-family: ‘Rajdhani’, sans-serif;
-font-size: 28px;
+font-size: 32px;
 font-weight: 700;
-letter-spacing: 3px;
+letter-spacing: 4px;
 color: var(–text-primary);
 }
+.brand-tagline {
+display: flex; align-items: center; gap: 10px;
+margin-top: 6px; justify-content: center;
+}
+.brand-tagline-line { flex: 1; height: 1px; background: var(–border); max-width: 40px; }
 .brand-sub {
-font-size: 11px;
-letter-spacing: 2px;
+font-size: 10px;
+letter-spacing: 2.5px;
 color: var(–text-secondary);
-margin-top: 4px;
 }
 
 .login-form { display: flex; flex-direction: column; gap: 16px; }
@@ -1379,6 +1397,171 @@ font-size: 11px; color: var(–red); font-weight: 600;
 letter-spacing: 1px; margin-top: 8px; cursor: pointer;
 }
 
+/* ========== ROLE SELECTOR ========== */
+.role-selector { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.role-label { font-size: 10px; letter-spacing: 2px; color: var(–text-secondary); font-weight: 500; margin-bottom: 2px; }
+
+.role-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.role-card {
+background: var(–bg-card);
+border: 1.5px solid var(–border);
+border-radius: 12px;
+padding: 12px;
+cursor: pointer;
+transition: all 0.2s;
+display: flex; flex-direction: column; gap: 6px;
+}
+.role-card:active { transform: scale(0.97); }
+.role-card.selected { border-color: var(–accent); background: linear-gradient(135deg, var(–bg-card), rgba(0,255,180,0.05)); }
+.role-card-icon {
+width: 32px; height: 32px; border-radius: 8px;
+display: flex; align-items: center; justify-content: center;
+font-size: 16px;
+}
+.role-card-name { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; }
+.role-card-desc { font-size: 10px; color: var(–text-secondary); line-height: 1.4; }
+.role-card.selected .role-card-name { color: var(–accent); }
+.role-selected-badge {
+position: absolute; top: 8px; right: 8px;
+width: 16px; height: 16px; border-radius: 50%;
+background: var(–accent);
+display: none; align-items: center; justify-content: center;
+font-size: 9px; color: #000; font-weight: 700;
+}
+.role-card.selected .role-selected-badge { display: flex; }
+.role-card { position: relative; }
+
+/* ========== ROLE BANNER (top of home) ========== */
+.role-banner {
+display: flex; align-items: center; gap: 8px;
+padding: 8px 16px;
+font-size: 11px; letter-spacing: 1px; font-weight: 600;
+border-bottom: 1px solid var(–border);
+}
+.role-banner-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* ========== SHARE / LIVE TEST MODAL ========== */
+.share-modal {
+position: fixed; inset: 0;
+background: rgba(0,0,0,0.75);
+z-index: 500;
+display: flex; align-items: flex-end; justify-content: center;
+opacity: 0; pointer-events: none;
+transition: opacity 0.3s;
+}
+.share-modal.open { opacity: 1; pointer-events: all; }
+.share-sheet {
+background: var(–bg-card2);
+border: 1px solid var(–border);
+border-radius: 24px 24px 0 0;
+width: 100%; max-width: 390px;
+padding: 20px 20px 48px;
+transform: translateY(100%);
+transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+}
+.share-modal.open .share-sheet { transform: translateY(0); }
+.share-handle { width: 40px; height: 4px; background: var(–border); border-radius: 2px; margin: 0 auto 20px; }
+.share-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.share-title { font-family: “Rajdhani”, sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.share-sub { font-size: 12px; color: var(–text-secondary); margin-bottom: 20px; line-height: 1.5; }
+
+.share-role-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.share-role-row {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 14px 16px;
+display: flex; align-items: center; gap: 12px;
+}
+.srl-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.srl-info { flex: 1; }
+.srl-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.srl-creds { font-size: 11px; color: var(–text-secondary); font-family: monospace; }
+.srl-copy {
+font-size: 10px; letter-spacing: 1px; color: var(–accent);
+background: var(–accent-dim); border: 1px solid var(–border-accent);
+border-radius: 6px; padding: 4px 10px; cursor: pointer; font-weight: 600;
+transition: opacity 0.2s;
+}
+.srl-copy:active { opacity: 0.6; }
+
+.share-link-box {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 14px 16px;
+display: flex; align-items: center; gap: 10px;
+margin-bottom: 12px;
+}
+.share-link-url { flex: 1; font-size: 12px; color: var(–text-secondary); font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.share-copy-btn {
+background: var(–accent); color: #000;
+border: none; border-radius: 8px;
+padding: 8px 14px; font-family: “Rajdhani”, sans-serif;
+font-size: 12px; font-weight: 700; letter-spacing: 1px;
+cursor: pointer; flex-shrink: 0;
+transition: opacity 0.2s;
+}
+.share-copy-btn:active { opacity: 0.8; }
+
+.share-instructions {
+background: var(–blue-dim);
+border: 1px solid rgba(59,130,246,0.2);
+border-radius: 10px; padding: 12px 14px;
+font-size: 12px; color: rgba(59,130,246,0.9); line-height: 1.6;
+}
+
+/* ========== GUARD-ONLY VIEW ========== */
+.guard-only { display: none; }
+.guard-mode .admin-only,
+.guard-mode .supervisor-only { display: none !important; }
+.guard-mode .guard-only { display: flex !important; }
+
+.client-mode .admin-only,
+.client-mode .supervisor-only,
+.client-mode .guard-only { display: none !important; }
+
+/* Share button in topbar */
+.share-topbar-btn {
+width: 36px; height: 36px;
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+cursor: pointer;
+}
+
+/* Guard patrol card - simplified home */
+.guard-patrol-card {
+background: linear-gradient(135deg, rgba(0,255,180,0.08), rgba(0,255,180,0.02));
+border: 1px solid var(–border-accent);
+border-radius: 16px;
+padding: 20px;
+display: flex; flex-direction: column; gap: 14px;
+}
+.guard-shift-info { display: flex; gap: 10px; }
+.guard-shift-item { flex: 1; background: var(–bg-card); border-radius: 10px; padding: 12px; }
+.gsi-label { font-size: 9px; letter-spacing: 1.5px; color: var(–text-secondary); margin-bottom: 4px; }
+.gsi-value { font-family: “Rajdhani”, sans-serif; font-size: 18px; font-weight: 700; }
+
+/* Client read-only card */
+.client-report-card {
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 16px;
+overflow: hidden;
+}
+.client-report-header {
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+display: flex; align-items: center; justify-content: space-between;
+}
+.readonly-badge {
+font-size: 9px; letter-spacing: 1.5px; color: var(–text-secondary);
+background: var(–bg-card2); border: 1px solid var(–border);
+border-radius: 6px; padding: 3px 8px;
+}
+
 </style>
 </head>
 <body>
@@ -1389,27 +1572,110 @@ letter-spacing: 1px; margin-top: 8px; cursor: pointer;
   <div class="screen active" id="screen-login">
     <div class="login-brand">
       <div class="brand-shield">
-        <svg viewBox="0 0 36 36" fill="none">
-          <path d="M18 3L4 9v10c0 7.7 5.9 14.9 14 17 8.1-2.1 14-9.3 14-17V9L18 3z" fill="rgba(0,255,180,0.1)" stroke="#00ffb4" stroke-width="1.5"/>
-          <path d="M13 18l3.5 3.5L23 14" stroke="#00ffb4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer shield -->
+          <path d="M24 4L6 11.5v13C6 34.8 14 43.2 24 46c10-2.8 18-11.2 18-21.5v-13L24 4z"
+            fill="url(#shield-grad)" stroke="url(#stroke-grad)" stroke-width="1.2"/>
+          <!-- Inner shield highlight -->
+          <path d="M24 8L9 14.5v11.7C9 34 15.9 41.1 24 43.5c8.1-2.4 15-9.5 15-17.3V14.5L24 8z"
+            fill="rgba(0,255,180,0.06)" stroke="rgba(0,255,180,0.15)" stroke-width="0.8"/>
+          <!-- Sync signal arcs -->
+          <path d="M17 22a8 8 0 000 4" stroke="#00ffb4" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+          <path d="M31 22a8 8 0 010 4" stroke="#00ffb4" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+          <!-- Check mark -->
+          <path d="M17.5 24.5l4 4 9-9" stroke="#00ffb4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Corner accent dots -->
+          <circle cx="24" cy="10" r="1.2" fill="rgba(0,255,180,0.4)"/>
+          <defs>
+            <linearGradient id="shield-grad" x1="6" y1="4" x2="42" y2="46" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="rgba(0,255,180,0.15)"/>
+              <stop offset="100%" stop-color="rgba(0,100,80,0.05)"/>
+            </linearGradient>
+            <linearGradient id="stroke-grad" x1="6" y1="4" x2="42" y2="46" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#00ffb4"/>
+              <stop offset="100%" stop-color="#00a878"/>
+            </linearGradient>
+          </defs>
         </svg>
       </div>
       <div class="brand-name">SHIELD<span style="color:var(--accent)">SYNC</span></div>
-      <div class="brand-sub">SECURITY OPERATIONS PLATFORM</div>
+      <div class="brand-tagline">
+        <div class="brand-tagline-line"></div>
+        <div class="brand-sub">SECURITY OPERATIONS PLATFORM</div>
+        <div class="brand-tagline-line"></div>
+      </div>
     </div>
 
 ```
 <div class="login-form">
   <div class="field-group">
     <div class="field-label">EMAIL / BADGE ID</div>
-    <input class="field-input" type="email" placeholder="officer@unit.com" />
+    <input class="field-input" type="email" placeholder="officer@unit.com" id="login-email" />
   </div>
   <div class="field-group">
     <div class="field-label">PASSWORD</div>
-    <input class="field-input" type="password" placeholder="••••••••" />
+    <input class="field-input" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" id="login-pass" />
   </div>
   <div class="forgot-link" onclick="showScreen('screen-reset')">Forgot password?</div>
-  <button class="btn-primary" onclick="showScreen('screen-home')">SIGN IN</button>
+
+  <!-- Role selector -->
+  <div class="role-selector">
+    <div class="role-label">SIGN IN AS</div>
+    <div class="role-cards">
+      <div class="role-card selected" id="role-admin" onclick="selectRole('admin')">
+        <div class="role-selected-badge">&#10003;</div>
+        <div class="role-card-icon" style="background:rgba(0,255,180,0.12);">&#128737;</div>
+        <div class="role-card-name">Admin</div>
+        <div class="role-card-desc">Full access, billing, settings</div>
+      </div>
+      <div class="role-card" id="role-supervisor" onclick="selectRole('supervisor')">
+        <div class="role-selected-badge">&#10003;</div>
+        <div class="role-card-icon" style="background:rgba(59,130,246,0.15);">&#128272;</div>
+        <div class="role-card-name">Supervisor</div>
+        <div class="role-card-desc">Dispatch, incidents, guards</div>
+      </div>
+      <div class="role-card" id="role-guard" onclick="selectRole('guard')">
+        <div class="role-selected-badge">&#10003;</div>
+        <div class="role-card-icon" style="background:rgba(20,184,166,0.15);">&#128100;</div>
+        <div class="role-card-name">Guard</div>
+        <div class="role-card-desc">Patrol, checkpoints, SOS</div>
+      </div>
+      <div class="role-card" id="role-client" onclick="selectRole('client')">
+        <div class="role-selected-badge">&#10003;</div>
+        <div class="role-card-icon" style="background:rgba(245,166,35,0.15);">&#128202;</div>
+        <div class="role-card-name">Client</div>
+        <div class="role-card-desc">Read-only reports &amp; status</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="signInWithRole()">SIGN IN</button>
+
+  <!-- Quick test logins -->
+  <div style="background:var(--bg-card2); border:1px solid var(--border); border-radius:12px; padding:12px 14px;">
+    <div style="font-size:10px; letter-spacing:1.5px; color:var(--text-secondary); margin-bottom:10px;">&#128640; QUICK TEST LOGINS</div>
+    <div style="display:flex; flex-direction:column; gap:6px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; color:var(--text-secondary);">admin@shieldsync.app</span>
+        <span style="font-size:11px; font-family:monospace; color:var(--accent); cursor:pointer;" onclick="fillLogin('admin@shieldsync.app','Admin1234!','admin')">USE &#8594;</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; color:var(--text-secondary);">supervisor@shieldsync.app</span>
+        <span style="font-size:11px; font-family:monospace; color:#3b82f6; cursor:pointer;" onclick="fillLogin('supervisor@shieldsync.app','Super1234!','supervisor')">USE &#8594;</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; color:var(--text-secondary);">guard@shieldsync.app</span>
+        <span style="font-size:11px; font-family:monospace; color:#14b8a6; cursor:pointer;" onclick="fillLogin('guard@shieldsync.app','Guard1234!','guard')">USE &#8594;</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:12px; color:var(--text-secondary);">client@shieldsync.app</span>
+        <span style="font-size:11px; font-family:monospace; color:var(--amber); cursor:pointer;" onclick="fillLogin('client@shieldsync.app','Client1234!','client')">USE &#8594;</span>
+      </div>
+    </div>
+    <div style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px; display:flex; justify-content:center;">
+      <span style="font-size:11px; color:var(--accent); cursor:pointer; letter-spacing:1px;" onclick="openShareModal()">&#128279; SEND LIVE TEST LINK</span>
+    </div>
+  </div>
 </div>
 
 <div class="demo-banner">
@@ -1509,19 +1775,38 @@ letter-spacing: 1px; margin-top: 8px; cursor: pointer;
   <div class="screen" id="screen-home">
     <!-- Top bar -->
     <div class="topbar">
-      <div class="topbar-brand">SHIELD<span>SYNC</span></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:30px;height:30px;background:linear-gradient(135deg,#0d1f35,#0e1420);border:1px solid rgba(0,255,180,0.25);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
+            <path d="M24 4L6 11.5v13C6 34.8 14 43.2 24 46c10-2.8 18-11.2 18-21.5v-13L24 4z" fill="rgba(0,255,180,0.12)" stroke="#00ffb4" stroke-width="2"/>
+            <path d="M17.5 24.5l4 4 9-9" stroke="#00ffb4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="topbar-brand">SHIELD<span>SYNC</span></div>
+      </div>
       <div class="topbar-right">
+        <div class="share-topbar-btn" onclick="openShareModal()" title="Share test link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </div>
         <div class="notif-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
           </svg>
           <div class="notif-badge"></div>
         </div>
-        <div class="avatar">JD</div>
+        <div class="avatar" id="home-avatar">AD</div>
       </div>
     </div>
 
 ```
+<div class="role-banner" id="role-banner" style="background:rgba(0,255,180,0.06); color:var(--accent);">
+  <div class="role-banner-dot" style="background:var(--accent);"></div>
+  <span id="role-banner-text">SUPER ADMIN — Full Access</span>
+  <span style="margin-left:auto; font-size:10px; color:var(--text-muted); cursor:pointer;" onclick="showScreen('screen-login')">Switch role</span>
+</div>
 <div class="home-content">
   <!-- Greeting -->
   <div class="greeting">
@@ -2408,6 +2693,66 @@ letter-spacing: 1px; margin-top: 8px; cursor: pointer;
     </div>
   </div>
 
+  <!-- ========== SHARE / LIVE TEST MODAL ========== -->
+
+  <div class="share-modal" id="share-modal" onclick="closeShareModal()">
+    <div class="share-sheet" onclick="event.stopPropagation()">
+      <div class="share-handle"></div>
+      <div class="share-title-row">
+        <div class="share-title">&#128279; SEND LIVE TEST</div>
+        <div style="cursor:pointer;color:var(--text-secondary);font-size:18px;" onclick="closeShareModal()">&#10005;</div>
+      </div>
+      <div class="share-sub">Share the link below with testers. Each role has its own login — they tap "USE" on the login screen to auto-fill their credentials.</div>
+
+```
+  <div class="share-role-list">
+    <div class="share-role-row">
+      <div class="srl-icon" style="background:rgba(0,255,180,0.12);">&#128737;</div>
+      <div class="srl-info">
+        <div class="srl-name" style="color:var(--accent);">Admin</div>
+        <div class="srl-creds">admin@shieldsync.app · Admin1234!</div>
+      </div>
+      <div class="srl-copy" onclick="copyText('admin@shieldsync.app | Admin1234!', this)">COPY</div>
+    </div>
+    <div class="share-role-row">
+      <div class="srl-icon" style="background:rgba(59,130,246,0.15);">&#128272;</div>
+      <div class="srl-info">
+        <div class="srl-name" style="color:#3b82f6;">Supervisor</div>
+        <div class="srl-creds">supervisor@shieldsync.app · Super1234!</div>
+      </div>
+      <div class="srl-copy" onclick="copyText('supervisor@shieldsync.app | Super1234!', this)">COPY</div>
+    </div>
+    <div class="share-role-row">
+      <div class="srl-icon" style="background:rgba(20,184,166,0.15);">&#128100;</div>
+      <div class="srl-info">
+        <div class="srl-name" style="color:#14b8a6;">Guard</div>
+        <div class="srl-creds">guard@shieldsync.app · Guard1234!</div>
+      </div>
+      <div class="srl-copy" onclick="copyText('guard@shieldsync.app | Guard1234!', this)">COPY</div>
+    </div>
+    <div class="share-role-row">
+      <div class="srl-icon" style="background:rgba(245,166,35,0.15);">&#128202;</div>
+      <div class="srl-info">
+        <div class="srl-name" style="color:var(--amber);">Client</div>
+        <div class="srl-creds">client@shieldsync.app · Client1234!</div>
+      </div>
+      <div class="srl-copy" onclick="copyText('client@shieldsync.app | Client1234!', this)">COPY</div>
+    </div>
+  </div>
+
+  <div class="share-link-box">
+    <div class="share-link-url" id="share-url-display">shieldsync-app.vercel.app</div>
+    <button class="share-copy-btn" onclick="copyShareLink()">COPY LINK</button>
+  </div>
+
+  <div class="share-instructions">
+    &#128161; <strong>How testers use it:</strong> Open the link &#8594; tap a role card or use a quick login &#8594; tap SIGN IN. Each role sees a different dashboard. Share this whole panel as a screenshot too.
+  </div>
+</div>
+```
+
+  </div>
+
 </div>
 
 <script>
@@ -2464,6 +2809,128 @@ letter-spacing: 1px; margin-top: 8px; cursor: pointer;
     ['enroute-content', 'arrival-content', 'onsite-content'].forEach(id => {
       document.getElementById(id).style.display = id === contentId ? 'block' : 'none';
     });
+  }
+
+
+  // ========== ROLE SYSTEM ==========
+  let currentRole = 'admin';
+
+  const roleConfig = {
+    admin: {
+      label: 'SUPER ADMIN — Full Access',
+      bannerBg: 'rgba(0,255,180,0.06)',
+      bannerColor: 'var(--accent)',
+      dotColor: 'var(--accent)',
+      avatar: 'AD',
+      avatarBg: 'linear-gradient(135deg,var(--teal),var(--blue))',
+      screen: 'screen-home'
+    },
+    supervisor: {
+      label: 'SUPERVISOR — Operations Access',
+      bannerBg: 'rgba(59,130,246,0.06)',
+      bannerColor: '#3b82f6',
+      dotColor: '#3b82f6',
+      avatar: 'SV',
+      avatarBg: 'linear-gradient(135deg,#3b82f6,#6366f1)',
+      screen: 'screen-home'
+    },
+    guard: {
+      label: 'GUARD — Patrol Access Only',
+      bannerBg: 'rgba(20,184,166,0.06)',
+      bannerColor: '#14b8a6',
+      dotColor: '#14b8a6',
+      avatar: 'GD',
+      avatarBg: 'linear-gradient(135deg,#14b8a6,#06b6d4)',
+      screen: 'screen-patrol'
+    },
+    client: {
+      label: 'CLIENT — Read Only View',
+      bannerBg: 'rgba(245,166,35,0.06)',
+      bannerColor: 'var(--amber)',
+      dotColor: 'var(--amber)',
+      avatar: 'CL',
+      avatarBg: 'linear-gradient(135deg,#f5a623,#d97706)',
+      screen: 'screen-home'
+    }
+  };
+
+  function selectRole(role) {
+    currentRole = role;
+    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('role-' + role).classList.add('selected');
+  }
+
+  function fillLogin(email, pass, role) {
+    document.getElementById('login-email').value = email;
+    document.getElementById('login-pass').value = pass;
+    selectRole(role);
+  }
+
+  function signInWithRole() {
+    const cfg = roleConfig[currentRole];
+
+    // Update role banner
+    const banner = document.getElementById('role-banner');
+    banner.style.background = cfg.bannerBg;
+    banner.style.color = cfg.bannerColor;
+    document.getElementById('role-banner-text').textContent = cfg.label;
+    banner.querySelector('.role-banner-dot').style.background = cfg.dotColor;
+
+    // Update avatar
+    const av = document.getElementById('home-avatar');
+    if (av) { av.textContent = cfg.avatar; av.style.background = cfg.avatarBg; }
+
+    // Apply role-based nav visibility
+    applyRoleNav(currentRole);
+
+    // Go to correct screen
+    showScreen(cfg.screen);
+  }
+
+  function applyRoleNav(role) {
+    const shell = document.querySelector('.phone-shell');
+    shell.classList.remove('guard-mode','client-mode','supervisor-mode','admin-mode');
+    shell.classList.add(role + '-mode');
+
+    // Hide/show SOS based on role
+    const sosBtnWrap = document.querySelector('.sos-btn');
+    // Guard + Supervisor can use SOS, admin + client cannot trigger it from field
+    const bottomItems = document.querySelectorAll('.nav-item');
+
+    // Hide billing/onboarding for non-admins
+    const demoBanners = document.querySelectorAll('.demo-banner');
+    demoBanners.forEach(b => {
+      b.style.display = (role === 'admin') ? 'flex' : 'none';
+    });
+
+    // Client: hide SOS button
+    if (sosBtnWrap) {
+      sosBtnWrap.style.opacity = (role === 'client') ? '0.3' : '1';
+      sosBtnWrap.style.pointerEvents = (role === 'client') ? 'none' : 'all';
+    }
+  }
+
+  // Share modal
+  function openShareModal() {
+    document.getElementById('share-modal').classList.add('open');
+    // Set current URL
+    const url = window.location.href.split('?')[0];
+    document.getElementById('share-url-display').textContent = url;
+  }
+  function closeShareModal() {
+    document.getElementById('share-modal').classList.remove('open');
+  }
+  function copyShareLink() {
+    const url = window.location.href.split('?')[0];
+    navigator.clipboard.writeText(url).catch(() => {});
+    const btn = document.querySelector('.share-copy-btn');
+    btn.textContent = 'COPIED!';
+    setTimeout(() => { btn.textContent = 'COPY LINK'; }, 2000);
+  }
+  function copyText(text, el) {
+    navigator.clipboard.writeText(text).catch(() => {});
+    el.textContent = 'COPIED!';
+    setTimeout(() => { el.textContent = 'COPY'; }, 2000);
   }
 
   // ========== ONBOARDING ==========
