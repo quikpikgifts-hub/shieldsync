@@ -4345,13 +4345,79 @@ transition: border-color 0.2s;
 
   </div>
 
+  <!-- ========== GLOBAL BOTTOM NAV (outside all screens) ========== -->
+
+```
+<div class="bottom-nav" id="main-bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="navTo('home')">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+      <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+    </svg>
+    <div class="nav-label">HOME</div>
+  </div>
+  <div class="nav-item" id="nav-incidents" onclick="navTo('incidents')">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+    </svg>
+    <div class="nav-label">INCIDENTS</div>
+  </div>
+  <div style="flex:1; display:flex; justify-content:center; align-items:center;">
+    <div class="sos-btn" id="main-sos-btn" onclick="openSOS()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <div class="sos-label">SOS</div>
+    </div>
+  </div>
+  <div class="nav-item" id="nav-patrol" onclick="navTo('patrol')">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+    </svg>
+    <div class="nav-label">PATROL</div>
+  </div>
+  <div class="nav-item" id="nav-more" onclick="openMenu()">
+    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+    <div class="nav-label">MORE</div>
+  </div>
+</div>
+```
+
 </div>
 
 <script>
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.getElementById(id).scrollTop = 0;
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('active');
+      el.scrollTop = 0;
+    }
+    // Show/hide global bottom nav
+    const hideNavScreens = ['screen-login','screen-reset','screen-onboarding','screen-vehicle-inspection'];
+    const nav = document.getElementById('main-bottom-nav');
+    if (nav) nav.style.display = hideNavScreens.includes(id) ? 'none' : 'flex';
+    // Sync active nav tab
+    const navMap = {
+      'screen-home': 'nav-home',
+      'screen-incidents': 'nav-incidents',
+      'screen-patrol': 'nav-patrol',
+      'screen-guards': null,
+      'screen-alerts': null,
+      'screen-timesheets': null,
+      'screen-access': null,
+      'screen-reports': null,
+      'screen-settings': null,
+    };
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const activeNav = navMap[id];
+    if (activeNav) {
+      const navEl = document.getElementById(activeNav);
+      if (navEl) navEl.classList.add('active');
+    }
   }
 
   // Reset password steps
@@ -4537,6 +4603,7 @@ transition: border-color 0.2s;
   function performLogout() {
     document.getElementById('logout-modal').classList.remove('open');
     // Reset role
+    patrolSessionStarted = false;
     currentRole = 'admin';
     selectRole('admin');
     // Clear inputs
@@ -4717,6 +4784,7 @@ transition: border-color 0.2s;
   }
 
   function completeVehicleInspection() {
+    patrolSessionStarted = true;
     // Show success toast then go to patrol
     const toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-card2);border:1px solid var(--border-accent);border-radius:20px;padding:28px 32px;text-align:center;z-index:999;min-width:260px;';
@@ -4783,7 +4851,7 @@ transition: border-color 0.2s;
 
     // Navigate to correct screen
     if (tab === 'home') showScreen('screen-home');
-    else if (tab === 'patrol') { openVehicleInspection(); }
+    else if (tab === 'patrol') { if(!patrolSessionStarted) { openVehicleInspection(); } else { showScreen('screen-patrol'); } }
     else if (tab === 'incidents') showScreen('screen-incidents');
     else if (tab === 'more') openMenu();
   }
@@ -4817,6 +4885,7 @@ transition: border-color 0.2s;
 
   function closeReturnModal() {
     document.getElementById('return-modal').classList.remove('open');
+    patrolSessionStarted = false;
     navTo('home');
     // Reset patrol session
     scannedCount = 2;
@@ -4935,6 +5004,7 @@ transition: border-color 0.2s;
   let scanMode = 'qr';
   let scannedCount = 2;
   let patrolSeconds = 2537; // 42:17
+  let patrolSessionStarted = false;
 
   function showPatrol() {
     navTo('patrol');
@@ -5036,6 +5106,10 @@ transition: border-color 0.2s;
   animateGuards();
 
   document.addEventListener('DOMContentLoaded', function() {
+    // Hide nav on login screen initially
+    const nav = document.getElementById('main-bottom-nav');
+    if (nav) nav.style.display = 'none';
+
     document.querySelectorAll('.demo-banner').forEach(b => {
       b.style.cursor = 'pointer';
       b.addEventListener('click', function() {
