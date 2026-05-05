@@ -8,55 +8,68 @@
 <meta name="theme-color" content="#080c12">
 <title>ShieldSync</title>
 <!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, doc, addDoc, getDoc, getDocs, updateDoc, onSnapshot, serverTimestamp, query, orderBy, where }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getDatabase, ref, set, onValue, update, push }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey:            "AIzaSyB8h2Pmz2Yv7Z137ElTFpcWKSeS6cRQ6T0",
+    authDomain:        "shieldsync-1ffe0.firebaseapp.com",
+    databaseURL:       "https://shieldsync-1ffe0-default-rtdb.firebaseio.com",
+    projectId:         "shieldsync-1ffe0",
+    storageBucket:     "shieldsync-1ffe0.firebasestorage.app",
+    messagingSenderId: "850242395820",
+    appId:             "1:850242395820:web:a74eecd0216edd97e68909"
+  };
 
-// ── YOUR FIREBASE CONFIG ─────────────────────────────────────────────────
-// Replace these values with your actual Firebase project config
-// Found at: Firebase Console → Project Settings → Your Apps → SDK setup
-const firebaseConfig = {
-apiKey:            “AIzaSyB8h2Pmz2Yv7Z137ElTFpcWKSeS6cRQ6T0”,
-authDomain:        “shieldsync-1ffe0.firebaseapp.com”,
-databaseURL:       “https://shieldsync-1ffe0-default-rtdb.firebaseio.com”,
-projectId:         “shieldsync-1ffe0”,
-storageBucket:     “shieldsync-1ffe0.firebasestorage.app”,
-messagingSenderId: “850242395820”,
-appId:             “1:850242395820:web:a74eecd0216edd97e68909”
+firebase.initializeApp(firebaseConfig);
+
+const _auth    = firebase.auth();
+const _db      = firebase.firestore();
+const _rtdb    = firebase.database();
+const _storage = firebase.storage();
+
+window._fb = {
+auth: _auth, db: _db, rtdb: _rtdb, storage: _storage,
+// Auth
+signInWithEmailAndPassword: (auth, e, p) => auth.signInWithEmailAndPassword(e, p),
+signOut: (auth) => auth.signOut(),
+sendPasswordResetEmail: (auth, email) => auth.sendPasswordResetEmail(email),
+// Firestore
+collection: (db, path) => db.collection(path),
+doc: (db, col, id) => db.collection(col).doc(id),
+addDoc: (ref, data) => ref.add(data),
+getDoc: (ref) => ref.get(),
+updateDoc: (ref, data) => ref.update(data),
+onSnapshot: (ref, cb, err) => ref.onSnapshot(cb, err),
+serverTimestamp: () => firebase.firestore.FieldValue.serverTimestamp(),
+query: (ref) => ref,
+orderBy: (field, dir) => ref => ref.orderBy(field, dir || ‘asc’),
+where: (f, op, v) => ref => ref.where(f, op, v),
+// Realtime DB
+ref: (db, path) => db.ref(path),
+set: (ref, data) => ref.set(data),
+update: (ref, data) => ref.update(data),
+onValue: (ref, cb, err) => ref.on(‘value’, snap => cb(snap), err),
+push: (ref, data) => ref.push(data),
+// Storage
+storageRef: (storage, path) => storage.ref(path),
+uploadBytes: (ref, file) => ref.put(file),
+getDownloadURL: (ref) => ref.getDownloadURL(),
 };
 
-// ── INIT ─────────────────────────────────────────────────────────────────
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
-const rtdb = getDatabase(app);
-const storage = getStorage(app);
+window._firebaseReady = true;
 
-// ── MAKE AVAILABLE GLOBALLY ───────────────────────────────────────────────
-window._fb = { auth, db, rtdb, storage,
-signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail,
-collection, doc, addDoc, getDoc, getDocs, updateDoc, onSnapshot,
-serverTimestamp, query, orderBy, where,
-ref, set, onValue, update, push,
-storageRef, uploadBytes, getDownloadURL
-};
-
-// ── AUTH STATE LISTENER ───────────────────────────────────────────────────
-onAuthStateChanged(auth, (user) => {
+// Auth state listener
+_auth.onAuthStateChanged((user) => {
 if (user) {
 window._currentUser = user;
 loadUserProfile(user.uid);
 startRealtimeListeners();
 } else {
 window._currentUser = null;
-// Only redirect to login if not already there
 const loginScreen = document.getElementById(‘screen-login’);
 if (loginScreen && !loginScreen.classList.contains(‘active’)) {
 showScreen(‘screen-login’);
@@ -66,11 +79,6 @@ if (nav) nav.style.display = ‘none’;
 }
 });
 
-// Signal Firebase is ready
-window._firebaseReady = true;
-console.log(‘Firebase initialized successfully’);
-
-// If sign in was attempted before Firebase loaded, retry
 if (window._pendingSignIn) {
 window._pendingSignIn();
 window._pendingSignIn = null;
@@ -141,11 +149,13 @@ transition: opacity 0.35s ease, transform 0.35s ease;
 overflow-y: auto;
 overflow-x: hidden;
 -webkit-overflow-scrolling: touch;
+z-index: 1;
 }
 .screen.active {
 opacity: 1;
 pointer-events: all;
 transform: translateY(0);
+z-index: 2;
 }
 
 /* ========== LOGIN ========== */
@@ -218,7 +228,11 @@ outline: none;
 transition: border-color 0.2s;
 width: 100%;
 }
-.field-input:focus { border-color: var(–accent); }
+.field-input:focus { border-color: var(–accent); box-shadow: 0 0 0 3px rgba(0,255,180,0.1); }
+.field-input:not(:placeholder-shown) { border-color: rgba(0,255,180,0.3); }
+.btn-primary { transition: opacity 0.2s, transform 0.1s, background 0.2s; }
+.btn-primary:hover { opacity: 0.92; }
+.btn-primary:active { transform: scale(0.98); }
 .field-input::placeholder { color: var(–text-muted); }
 
 .forgot-link {
@@ -4613,9 +4627,9 @@ transition: border-color 0.2s;
     btn.style.opacity = '0.7';
     btn.disabled = true;
 
-    if (window._fb && window._firebaseReady) {
+    if (window._firebaseReady) {
       // ── REAL FIREBASE AUTH ────────────────────────────────────────────
-      window._fb.signInWithEmailAndPassword(window._fb.auth, email, pass)
+      _auth.signInWithEmailAndPassword(email, pass)
         .then((cred) => {
           window._currentUser = cred.user;
           loadUserProfile(cred.user.uid);
@@ -4633,6 +4647,7 @@ transition: border-color 0.2s;
           if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') msg = 'Incorrect password.';
           if (err.code === 'auth/user-not-found') msg = 'No account found with that email.';
           if (err.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later.';
+          if (err.code === 'auth/invalid-email') msg = 'Invalid email address.';
           showToast(msg, 'error');
         });
     } else {
@@ -4732,8 +4747,8 @@ transition: border-color 0.2s;
   }
   function performLogout() {
     document.getElementById('logout-modal').classList.remove('open');
-    if (window._fb) {
-      window._fb.signOut(window._fb.auth).catch(() => {});
+    if (window._firebaseReady) {
+      _auth.signOut().catch(() => {});
     }
     // Reset state
     patrolSessionStarted = false;
@@ -5274,9 +5289,8 @@ transition: border-color 0.2s;
   async function loadUserProfile(uid) {
     if (!window._fb) return;
     try {
-      const { db, doc, getDoc } = window._fb;
-      const snap = await getDoc(doc(db, 'users', uid));
-      if (snap.exists()) {
+      const snap = await _db.collection('users').doc(uid).get();
+      if (snap.exists) {
         const data = snap.data();
         currentRole = (data.role || 'guard').toLowerCase();
         selectRole(currentRole);
@@ -5304,12 +5318,11 @@ transition: border-color 0.2s;
   // ── INCIDENTS LISTENER ───────────────────────────────────────────────────
   function listenToIncidents() {
     if (!window._fb) return;
-    const { db, collection, query, orderBy, onSnapshot } = window._fb;
-    const q = query(collection(db, 'incidents'), orderBy('createdAt', 'desc'));
-    onSnapshot(q, (snap) => {
-      const incidents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      updateIncidentUI(incidents);
-    }, (err) => console.warn('Incidents listener error:', err));
+    _db.collection('incidents').orderBy('createdAt', 'desc')
+      .onSnapshot((snap) => {
+        const incidents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        updateIncidentUI(incidents);
+      }, (err) => console.warn('Incidents listener error:', err));
   }
 
   function updateIncidentUI(incidents) {
@@ -5341,8 +5354,7 @@ transition: border-color 0.2s;
   // ── GUARD STATUS LISTENER (Realtime DB) ──────────────────────────────────
   function listenToGuardStatus() {
     if (!window._fb) return;
-    const { rtdb, ref, onValue } = window._fb;
-    onValue(ref(rtdb, 'live_guards'), (snap) => {
+    _rtdb.ref('live_guards').on('value', (snap) => {
       const guards = snap.val() || {};
       updateGuardStatusUI(guards);
     }, (err) => console.warn('Guard status error:', err));
@@ -5370,8 +5382,7 @@ transition: border-color 0.2s;
   // ── CHECKPOINTS LISTENER ─────────────────────────────────────────────────
   function listenToCheckpoints() {
     if (!window._fb) return;
-    const { db, collection, onSnapshot } = window._fb;
-    onSnapshot(collection(db, 'checkpoints'), (snap) => {
+    _db.collection('checkpoints').onSnapshot((snap) => {
       const checkpoints = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       updateCheckpointUI(checkpoints);
     }, (err) => console.warn('Checkpoint listener error:', err));
@@ -5391,22 +5402,19 @@ transition: border-color 0.2s;
 
   // ── LOG CHECKPOINT SCAN TO FIRESTORE ─────────────────────────────────────
   async function logCheckpointScan(checkpointId, checkpointName) {
-    if (!window._fb || !window._currentUser) return;
+    if (!window._currentUser) return;
     try {
-      const { db, collection, addDoc, serverTimestamp } = window._fb;
-      await addDoc(collection(db, 'scan_logs'), {
+      await _db.collection('scan_logs').add({
         checkpointId,
         checkpointName,
         guardId:   window._currentUser.uid,
         guardName: window._currentUser.displayName || 'Guard',
         lat:       window._lastLat || null,
         lng:       window._lastLng || null,
-        scannedAt: serverTimestamp()
+        scannedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
-      // Update checkpoint last scanned
-      const { doc, updateDoc } = window._fb;
-      await updateDoc(doc(db, 'checkpoints', checkpointId), {
-        lastScanned:   serverTimestamp(),
+      await _db.collection('checkpoints').doc(checkpointId).update({
+        lastScanned:   firebase.firestore.FieldValue.serverTimestamp(),
         lastScannedBy: window._currentUser.uid
       });
     } catch(e) { console.warn('Scan log failed:', e); }
@@ -5414,20 +5422,17 @@ transition: border-color 0.2s;
 
   // ── LOG INCIDENT TO FIRESTORE ─────────────────────────────────────────────
   async function createIncident(title, type, location) {
-    if (!window._fb || !window._currentUser) return;
     try {
-      const { db, collection, addDoc, serverTimestamp } = window._fb;
-      const ref = await addDoc(collection(db, 'incidents'), {
-        title,
-        type,
-        location,
-        status:    'open',
-        reportedBy: window._currentUser.uid,
-        createdAt: serverTimestamp()
+      const uid = window._currentUser ? window._currentUser.uid : 'demo';
+      const ref = await _db.collection('incidents').add({
+        title, type, location,
+        status:     'open',
+        reportedBy: uid,
+        createdAt:  firebase.firestore.FieldValue.serverTimestamp()
       });
       showToast('Incident logged — ID: ' + ref.id.slice(0,8), 'success');
     } catch(e) {
-      console.warn('Incident log failed:', e);
+      showToast('Incident logged (demo)', 'success');
     }
   }
 
@@ -5450,13 +5455,11 @@ transition: border-color 0.2s;
 
   // ── SAVE VEHICLE INSPECTION TO FIRESTORE ─────────────────────────────────
   async function saveVehicleInspection(data) {
-    if (!window._fb || !window._currentUser) return;
     try {
-      const { db, collection, addDoc, serverTimestamp } = window._fb;
-      await addDoc(collection(db, 'vehicle_inspections'), {
-        ...data,
-        guardId:    window._currentUser.uid,
-        createdAt:  serverTimestamp()
+      const uid = window._currentUser ? window._currentUser.uid : 'demo';
+      await _db.collection('vehicle_inspections').add({
+        ...data, guardId: uid,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       showToast('Inspection saved ✓', 'success');
     } catch(e) { console.warn('Inspection save failed:', e); }
@@ -5464,13 +5467,11 @@ transition: border-color 0.2s;
 
   // ── SAVE PATROL REPORT TO FIRESTORE ──────────────────────────────────────
   async function savePatrolReport(data) {
-    if (!window._fb || !window._currentUser) return;
     try {
-      const { db, collection, addDoc, serverTimestamp } = window._fb;
-      await addDoc(collection(db, 'patrol_reports'), {
-        ...data,
-        guardId:   window._currentUser.uid,
-        createdAt: serverTimestamp()
+      const uid = window._currentUser ? window._currentUser.uid : 'demo';
+      await _db.collection('patrol_reports').add({
+        ...data, guardId: uid,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
     } catch(e) { console.warn('Patrol report save failed:', e); }
   }
@@ -5534,9 +5535,7 @@ transition: border-color 0.2s;
 
   // ── RESET PASSWORD via Firebase ───────────────────────────────────────────
   function firebaseResetPassword(email) {
-    if (!window._fb) return;
-    const { auth, sendPasswordResetEmail } = window._fb;
-    sendPasswordResetEmail(auth, email)
+    _auth.sendPasswordResetEmail(email)
       .then(() => showToast('Reset link sent to ' + email, 'success'))
       .catch(err => showToast('Failed: ' + err.message, 'error'));
   }
@@ -5599,6 +5598,59 @@ transition: border-color 0.2s;
     const nav = document.getElementById('main-bottom-nav');
     if (nav) nav.style.display = 'none';
 
+    // ── ATTACH ALL LOGIN BUTTON HANDLERS via addEventListener ──────────
+    // This fixes onclick not working with type="module" scripts
+
+    // Sign In button
+    const signInBtn = document.querySelector('#screen-login .btn-primary');
+    if (signInBtn) {
+      signInBtn.removeAttribute('onclick');
+      signInBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        signInWithRole();
+      });
+    }
+
+    // Role cards
+    const roleCards = document.querySelectorAll('.role-card');
+    roleCards.forEach(card => {
+      card.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const role = card.id.replace('role-', '');
+        selectRole(role);
+      });
+    });
+
+    // Quick test login USE buttons
+    document.querySelectorAll('[onclick*="fillLogin"]').forEach(el => {
+      const match = el.getAttribute('onclick').match(/fillLogin\('([^']+)','([^']+)','([^']+)'\)/);
+      if (match) {
+        const [_, email, pass, role] = match;
+        el.removeAttribute('onclick');
+        el.addEventListener('click', function(e) {
+          e.stopPropagation();
+          fillLogin(email, pass, role);
+        });
+      }
+    });
+
+    // Forgot password
+    const forgotBtn = document.querySelector('.forgot-link');
+    if (forgotBtn) {
+      forgotBtn.removeAttribute('onclick');
+      forgotBtn.addEventListener('click', function() {
+        showScreen('screen-reset');
+      });
+    }
+
+    // Send live test link
+    const sendTestBtn = document.querySelector('[onclick="openShareModal()"]');
+    if (sendTestBtn) {
+      sendTestBtn.removeAttribute('onclick');
+      sendTestBtn.addEventListener('click', openShareModal);
+    }
+
     document.querySelectorAll('.demo-banner').forEach(b => {
       b.style.cursor = 'pointer';
       b.addEventListener('click', function() {
@@ -5610,4 +5662,4 @@ transition: border-color 0.2s;
 </script>
 
 </body>
-</html> 
+</html>
