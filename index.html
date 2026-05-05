@@ -7,84 +7,6 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#080c12">
 <title>ShieldSync</title>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey:            "AIzaSyB8h2Pmz2Yv7Z137ElTFpcWKSeS6cRQ6T0",
-    authDomain:        "shieldsync-1ffe0.firebaseapp.com",
-    databaseURL:       "https://shieldsync-1ffe0-default-rtdb.firebaseio.com",
-    projectId:         "shieldsync-1ffe0",
-    storageBucket:     "shieldsync-1ffe0.firebasestorage.app",
-    messagingSenderId: "850242395820",
-    appId:             "1:850242395820:web:a74eecd0216edd97e68909"
-  };
-
-firebase.initializeApp(firebaseConfig);
-
-const _auth    = firebase.auth();
-const _db      = firebase.firestore();
-const _rtdb    = firebase.database();
-const _storage = firebase.storage();
-
-window._fb = {
-auth: _auth, db: _db, rtdb: _rtdb, storage: _storage,
-// Auth
-signInWithEmailAndPassword: (auth, e, p) => auth.signInWithEmailAndPassword(e, p),
-signOut: (auth) => auth.signOut(),
-sendPasswordResetEmail: (auth, email) => auth.sendPasswordResetEmail(email),
-// Firestore
-collection: (db, path) => db.collection(path),
-doc: (db, col, id) => db.collection(col).doc(id),
-addDoc: (ref, data) => ref.add(data),
-getDoc: (ref) => ref.get(),
-updateDoc: (ref, data) => ref.update(data),
-onSnapshot: (ref, cb, err) => ref.onSnapshot(cb, err),
-serverTimestamp: () => firebase.firestore.FieldValue.serverTimestamp(),
-query: (ref) => ref,
-orderBy: (field, dir) => ref => ref.orderBy(field, dir || ‘asc’),
-where: (f, op, v) => ref => ref.where(f, op, v),
-// Realtime DB
-ref: (db, path) => db.ref(path),
-set: (ref, data) => ref.set(data),
-update: (ref, data) => ref.update(data),
-onValue: (ref, cb, err) => ref.on(‘value’, snap => cb(snap), err),
-push: (ref, data) => ref.push(data),
-// Storage
-storageRef: (storage, path) => storage.ref(path),
-uploadBytes: (ref, file) => ref.put(file),
-getDownloadURL: (ref) => ref.getDownloadURL(),
-};
-
-window._firebaseReady = true;
-
-// Auth state listener
-_auth.onAuthStateChanged((user) => {
-if (user) {
-window._currentUser = user;
-loadUserProfile(user.uid);
-startRealtimeListeners();
-} else {
-window._currentUser = null;
-const loginScreen = document.getElementById(‘screen-login’);
-if (loginScreen && !loginScreen.classList.contains(‘active’)) {
-showScreen(‘screen-login’);
-const nav = document.getElementById(‘main-bottom-nav’);
-if (nav) nav.style.display = ‘none’;
-}
-}
-});
-
-if (window._pendingSignIn) {
-window._pendingSignIn();
-window._pendingSignIn = null;
-}
-</script>
-
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -5612,6 +5534,95 @@ transition: border-color 0.2s;
       });
     });
   });
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey:            "AIzaSyB8h2Pmz2Yv7Z137ElTFpcWKSeS6cRQ6T0",
+    authDomain:        "shieldsync-1ffe0.firebaseapp.com",
+    databaseURL:       "https://shieldsync-1ffe0-default-rtdb.firebaseio.com",
+    projectId:         "shieldsync-1ffe0",
+    storageBucket:     "shieldsync-1ffe0.firebasestorage.app",
+    messagingSenderId: "850242395820",
+    appId:             "1:850242395820:web:a74eecd0216edd97e68909"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  const _auth    = firebase.auth();
+  const _db      = firebase.firestore();
+  const _rtdb    = firebase.database();
+  const _storage = firebase.storage();
+
+  window._fb = {
+    auth: _auth, db: _db, rtdb: _rtdb, storage: _storage,
+    // Auth
+    signInWithEmailAndPassword: (auth, e, p) => auth.signInWithEmailAndPassword(e, p),
+    signOut: (auth) => auth.signOut(),
+    sendPasswordResetEmail: (auth, email) => auth.sendPasswordResetEmail(email),
+    // Firestore
+    collection: (db, path) => db.collection(path),
+    doc: (db, col, id) => db.collection(col).doc(id),
+    addDoc: (ref, data) => ref.add(data),
+    getDoc: (ref) => ref.get(),
+    updateDoc: (ref, data) => ref.update(data),
+    onSnapshot: (ref, cb, err) => ref.onSnapshot(cb, err),
+    serverTimestamp: () => firebase.firestore.FieldValue.serverTimestamp(),
+    query: (ref) => ref,
+    orderBy: (field, dir) => ref => ref.orderBy(field, dir || 'asc'),
+    where: (f, op, v) => ref => ref.where(f, op, v),
+    // Realtime DB
+    ref: (db, path) => db.ref(path),
+    set: (ref, data) => ref.set(data),
+    update: (ref, data) => ref.update(data),
+    onValue: (ref, cb, err) => ref.on('value', snap => cb(snap), err),
+    push: (ref, data) => ref.push(data),
+    // Storage
+    storageRef: (storage, path) => storage.ref(path),
+    uploadBytes: (ref, file) => ref.put(file),
+    getDownloadURL: (ref) => ref.getDownloadURL(),
+  };
+
+  window._firebaseReady = true;
+  console.log('Firebase initialized successfully');
+  
+  // If sign in was attempted before Firebase loaded, retry
+  if (window._pendingSignIn) {
+    window._pendingSignIn();
+    window._pendingSignIn = null;
+  }
+
+  // Auth state listener
+  _auth.onAuthStateChanged((user) => {
+    if (user) {
+      window._currentUser = user;
+      loadUserProfile(user.uid);
+      startRealtimeListeners();
+    } else {
+      window._currentUser = null;
+      const loginScreen = document.getElementById('screen-login');
+      if (loginScreen && !loginScreen.classList.contains('active')) {
+        showScreen('screen-login');
+        const nav = document.getElementById('main-bottom-nav');
+        if (nav) nav.style.display = 'none';
+      }
+    }
+  });
+
+  if (window._pendingSignIn) {
+    window._pendingSignIn();
+    window._pendingSignIn = null;
+  }
 </script>
 
 </body>
