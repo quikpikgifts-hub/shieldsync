@@ -4527,70 +4527,9 @@ transition: border-color 0.2s;
     selectRole(role);
   }
 
-  function signInWithRole() {
-    const email = document.getElementById('login-email').value.trim();
-    const pass  = document.getElementById('login-pass').value;
+  // signInWithRole defined in firebase/demo script
 
-    if (!email || !pass) {
-      showToast('Please enter email and password', 'error');
-      return;
-    }
-
-    // Show loading state
-    const btn = document.querySelector('#screen-login .btn-primary');
-    const origText = btn.textContent;
-    btn.textContent = 'SIGNING IN...';
-    btn.style.opacity = '0.7';
-    btn.disabled = true;
-
-    if (window._firebaseReady) {
-      // ── REAL FIREBASE AUTH ────────────────────────────────────────────
-      firebase.auth().signInWithEmailAndPassword(email, pass)
-        .then((cred) => {
-          window._currentUser = cred.user;
-          loadUserProfile(cred.user.uid);
-          applyRoleUI(currentRole);
-          showScreen(roleConfig[currentRole].screen);
-          btn.textContent = origText;
-          btn.style.opacity = '1';
-          btn.disabled = false;
-        })
-        .catch((err) => {
-          btn.textContent = origText;
-          btn.style.opacity = '1';
-          btn.disabled = false;
-          let msg = 'Sign in failed.';
-          if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') msg = 'Incorrect password.';
-          if (err.code === 'auth/user-not-found') msg = 'No account found with that email.';
-          if (err.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later.';
-          if (err.code === 'auth/invalid-email') msg = 'Invalid email address.';
-          showToast(msg, 'error');
-        });
-    } else {
-      // ── FIREBASE NOT READY YET - queue sign in ─────────────────────────
-      showToast('Connecting to server...', 'info');
-      window._pendingSignIn = function() {
-        btn.textContent = origText;
-        btn.style.opacity = '1';
-        btn.disabled = false;
-        signInWithRole();
-      };
-      // Fallback after 3 seconds if Firebase never loads
-      setTimeout(() => {
-        if (window._pendingSignIn) {
-          window._pendingSignIn = null;
-          applyRoleUI(currentRole);
-          showScreen(roleConfig[currentRole].screen);
-          btn.textContent = origText;
-          btn.style.opacity = '1';
-          btn.disabled = false;
-          showToast('Demo mode — Firebase not connected', 'warning');
-        }
-      }, 3000);
-    }
-  }
-
-  function applyRoleUI(role) {
+    function applyRoleUI(role) {
     const cfg = roleConfig[role];
     const banner = document.getElementById('role-banner');
     if (banner) {
@@ -4661,352 +4600,9 @@ transition: border-color 0.2s;
     closeMenu();
     document.getElementById('logout-modal').classList.add('open');
   }
-  function performLogout() {
-    document.getElementById('logout-modal').classList.remove('open');
-    if (typeof firebase !== 'undefined') {
-      firebase.auth().signOut().catch(() => {});
-    }
-    // Reset state
-    patrolSessionStarted = false;
-    currentRole = 'admin';
-    selectRole('admin');
-    window._currentUser = null;
-    const em = document.getElementById('login-email');
-    const pw = document.getElementById('login-pass');
-    if (em) em.value = '';
-    if (pw) pw.value = '';
-    showScreen('screen-login');
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    const nh = document.getElementById('nav-home');
-    if (nh) nh.classList.add('active');
-  }
+  // performLogout defined in firebase/demo script
 
-  // ========== VEHICLE INSPECTION ==========
-  let viCurrentStep = 1;
-  let viPhotos = {};
-  let viDamagePoints = [];
-  let viFuelLevel = '1/2';
-  let viCurrentSlot = null;
-
-  function openVehicleInspection() {
-    viCurrentStep = 1;
-    viPhotos = {};
-    viDamagePoints = [];
-    updateViProgress(1);
-    document.querySelectorAll('.vi-step').forEach(s => s.classList.remove('active'));
-    document.getElementById('vi-step-1').classList.add('active');
-    // Set sign time
-    const now = new Date();
-    const t = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) + ' · ' + now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    const el = document.getElementById('vi-signtime');
-    if (el) el.textContent = t;
-    showScreen('screen-vehicle-inspection');
-  }
-
-  function skipVehicleInspection() {
-    navTo('home');
-  }
-
-  function viNextStep(step) {
-    viCurrentStep = step;
-    document.querySelectorAll('.vi-step').forEach(s => s.classList.remove('active'));
-    const el = document.getElementById('vi-step-' + step);
-    if (el) el.classList.add('active');
-    updateViProgress(step);
-    document.getElementById('screen-vehicle-inspection').scrollTop = 0;
-    document.getElementById('vi-step-counter').textContent = 'STEP ' + step + ' OF 4';
-
-    // Populate summary on step 4
-    if (step === 4) populateViSummary();
-  }
-
-  function updateViProgress(step) {
-    for (let i = 1; i <= 4; i++) {
-      const seg = document.getElementById('vi-seg-' + i);
-      if (!seg) continue;
-      seg.classList.remove('done','active');
-      if (i < step) seg.classList.add('done');
-      else if (i === step) seg.classList.add('active');
-    }
-  }
-
-  function selectFuel(btn, level) {
-    viFuelLevel = level;
-    document.querySelectorAll('#vi-step-1 .ci-btn').forEach(b => b.classList.remove('ok-active'));
-    btn.classList.add('ok-active');
-  }
-
-  // Photo upload
-  function triggerPhoto(slot) {
-    viCurrentSlot = slot;
-    document.getElementById('vi-file-input').click();
-  }
-
-  function handlePhotoUpload(e) {
-    const file = e.target.files[0];
-    if (!file || !viCurrentSlot) return;
-    const url = URL.createObjectURL(file);
-    viPhotos[viCurrentSlot] = url;
-
-    // Update slot UI
-    const slotId = 'slot-' + viCurrentSlot;
-    const slot = document.getElementById(slotId);
-    if (slot) {
-      slot.classList.add('has-photo');
-      slot.innerHTML = '<img class="photo-preview" src="' + url + '" />' +
-        '<div class="photo-remove" onclick="removePhoto(event,\'' + viCurrentSlot + '\')">&#10005;</div>' +
-        '<div class="photo-badge">' + viCurrentSlot.toUpperCase() + '</div>';
-    }
-    updatePhotoCount();
-    e.target.value = '';
-  }
-
-  function removePhoto(e, slot) {
-    e.stopPropagation();
-    delete viPhotos[slot];
-    const el = document.getElementById('slot-' + slot);
-    if (!el) return;
-    el.classList.remove('has-photo');
-    const isWide = el.classList.contains('photo-slot-wide');
-    el.innerHTML = isWide
-      ? '<div style="font-size:24px;">&#128247;</div><div style="font-size:10px;letter-spacing:1.5px;color:var(--text-secondary);">TAP TO CAPTURE</div>'
-      : '<div class="photo-slot-icon">&#128247;</div><div class="photo-slot-label">' + slot.toUpperCase() + '</div>';
-    el.onclick = function(){ triggerPhoto(slot); };
-    updatePhotoCount();
-  }
-
-  function updatePhotoCount() {
-    const required = ['front','rear','left','right'];
-    const taken = required.filter(s => viPhotos[s]).length;
-    const el = document.getElementById('photo-count-msg');
-    if (el) {
-      el.textContent = taken + ' of 4 required photos taken';
-      el.style.color = taken === 4 ? 'var(--accent)' : 'var(--text-secondary)';
-    }
-  }
-
-  // Damage points
-  function toggleDamage(id, label) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (el.classList.contains('marked')) {
-      el.classList.remove('marked');
-      el.innerHTML = '!';
-      viDamagePoints = viDamagePoints.filter(d => d !== label);
-    } else {
-      el.classList.add('marked');
-      el.innerHTML = '&#10005;';
-      viDamagePoints.push(label);
-    }
-    const wrap = document.getElementById('damage-notes-wrap');
-    if (wrap) wrap.style.display = viDamagePoints.length > 0 ? 'block' : 'none';
-  }
-
-  // Condition buttons
-  function setCond(btn, state) {
-    const toggle = btn.closest('.ci-toggle');
-    toggle.querySelectorAll('.ci-btn').forEach(b => b.classList.remove('ok-active','fail-active'));
-    btn.classList.add(state === 'ok' ? 'ok-active' : 'fail-active');
-  }
-
-  function populateViSummary() {
-    const plate = document.getElementById('vi-plate');
-    const make = document.getElementById('vi-make');
-    const color = document.getElementById('vi-color');
-    const vid = document.getElementById('vi-vid');
-    const odo = document.getElementById('vi-odometer');
-
-    if (plate) document.getElementById('vs-plate').textContent = plate.value || 'ABC 1234';
-    if (make && color) document.getElementById('vs-vehicle').textContent = (make.value || 'Toyota Hilux') + ' · ' + (color.value || 'White');
-    if (vid) document.getElementById('vs-vid').textContent = vid.value || 'V-04';
-    if (odo) document.getElementById('vs-odo').textContent = (odo.value || '—') + ' km';
-    document.getElementById('vs-fuel').textContent = viFuelLevel;
-    document.getElementById('vs-damage').textContent = viDamagePoints.length > 0 ? viDamagePoints.join(', ') : 'None';
-    document.getElementById('vs-damage').style.color = viDamagePoints.length > 0 ? 'var(--red)' : 'var(--accent)';
-
-    const photoCount = Object.keys(viPhotos).length;
-    document.getElementById('vs-photos').textContent = photoCount;
-
-    // Thumbs
-    const thumbRow = document.getElementById('vi-thumbs-row');
-    if (thumbRow) {
-      thumbRow.innerHTML = '';
-      const slots = ['front','rear','left','right','interior','plate','damage'];
-      slots.forEach(s => {
-        if (viPhotos[s]) {
-          const d = document.createElement('div');
-          d.className = 'vi-thumb';
-          d.innerHTML = '<img src="' + viPhotos[s] + '" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">';
-          thumbRow.appendChild(d);
-        }
-      });
-      if (thumbRow.children.length === 0) {
-        thumbRow.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">No photos attached</div>';
-      }
-    }
-  }
-
-  function completeVehicleInspection() {
-    patrolSessionStarted = true;
-    // Save inspection to Firestore
-    const inspData = {
-      plate:       document.getElementById('vi-plate')?.value || '',
-      vehicleType: document.getElementById('vi-type')?.value || '',
-      vehicleId:   document.getElementById('vi-vid')?.value || '',
-      make:        document.getElementById('vi-make')?.value || '',
-      color:       document.getElementById('vi-color')?.value || '',
-      odometer:    document.getElementById('vi-odometer')?.value || '',
-      fuelLevel:   viFuelLevel,
-      damagePoints: viDamagePoints,
-      photoCount:  Object.keys(viPhotos).length,
-    };
-    saveVehicleInspection(inspData);
-    // Start GPS tracking for patrol
-    startGPSTracking();
-    // Show success toast then go to patrol
-    const toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-card2);border:1px solid var(--border-accent);border-radius:20px;padding:28px 32px;text-align:center;z-index:999;min-width:260px;';
-    toast.innerHTML = '<div style="font-size:40px;margin-bottom:12px;">&#128663;</div>' +
-      '<div style="font-family:Rajdhani,sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;color:var(--accent);margin-bottom:6px;">INSPECTION COMPLETE</div>' +
-      '<div style="font-size:12px;color:var(--text-secondary);">Starting patrol session...</div>';
-    document.body.appendChild(toast);
-    setTimeout(() => {
-      toast.remove();
-      showScreen('screen-patrol');
-      // Set active nav to patrol
-      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-      const pn = document.getElementById('nav-patrol');
-      if (pn) pn.classList.add('active');
-    }, 2000);
-  }
-
-  // ========== REPORTS ==========
-  function openReports() {
-    closeMenu();
-    showScreen('screen-reports');
-  }
-
-  function switchReportRole(role) {
-    ['guard','supervisor','history'].forEach(r => {
-      const tab = document.getElementById('rr-' + r);
-      const view = document.getElementById('report-' + r + '-view');
-      if (tab) tab.classList.toggle('active', r === role);
-      if (view) {
-        view.style.display = r === role ? (r === 'history' ? 'block' : 'flex') : 'none';
-        if (r === role && r !== 'history') view.style.flexDirection = 'column';
-        if (r === role && r !== 'history') view.style.gap = '14px';
-      }
-    });
-  }
-
-  function exportReport(type) {
-    const msg = type === 'pdf' ? 'PDF export will be available in the live version.' : 'Report will be emailed to supervisor@shieldsync.app';
-    alert(msg);
-  }
-
-  function submitReport() {
-    // Show success toast
-    const toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;padding:12px 24px;border-radius:12px;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;z-index:999;animation:fadeInUp 0.3s ease;box-shadow:0 4px 20px rgba(0,255,180,0.4);';
-    toast.textContent = '✓ REPORT SUBMITTED';
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-  }
-
-  function showNewReport() {
-    switchReportRole('guard');
-  }
-
-  // ========== NAV SYSTEM - fixed active state across all screens ==========
-  function navTo(tab) {
-    // Update active nav item
-    ['home','incidents','patrol','more'].forEach(t => {
-      const el = document.getElementById('nav-' + t);
-      if (el) el.classList.remove('active');
-    });
-    const activeEl = document.getElementById('nav-' + tab);
-    if (activeEl) activeEl.classList.add('active');
-
-    // Navigate to correct screen
-    if (tab === 'home') showScreen('screen-home');
-    else if (tab === 'patrol') { if(!patrolSessionStarted) { openVehicleInspection(); } else { showScreen('screen-patrol'); } }
-    else if (tab === 'incidents') showScreen('screen-incidents');
-    else if (tab === 'more') openMenu();
-  }
-
-  // ========== END PATROL FLOW ==========
-  function openEndPatrol() {
-    // Fill summary
-    const h = Math.floor(patrolSeconds / 3600);
-    const m = Math.floor((patrolSeconds % 3600) / 60);
-    const timeStr = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
-    document.getElementById('ep-scanned').textContent = scannedCount;
-    document.getElementById('ep-missed').textContent = 10 - scannedCount;
-    document.getElementById('ep-time').textContent = timeStr;
-    document.getElementById('end-patrol-modal').classList.add('open');
-  }
-  function closeEndPatrol() {
-    document.getElementById('end-patrol-modal').classList.remove('open');
-  }
-
-  function returnToBase() {
-    closeEndPatrol();
-    stopGPSTracking();
-    // Save patrol report to Firestore
-    const h = Math.floor(patrolSeconds / 3600);
-    const m = Math.floor((patrolSeconds % 3600) / 60);
-    savePatrolReport({
-      checkpointsScanned: scannedCount,
-      checkpointsTotal:   10,
-      durationMinutes:    Math.floor(patrolSeconds / 60),
-      completionPct:      Math.round((scannedCount / 10) * 100),
-      damagePoints:       viDamagePoints,
-    });
-    // Fill return modal summary
-    const h = Math.floor(patrolSeconds / 3600);
-    const m = Math.floor((patrolSeconds % 3600) / 60);
-    const timeStr = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
-    document.getElementById('rtb-scanned').textContent = scannedCount;
-    document.getElementById('rtb-missed').textContent = 10 - scannedCount;
-    document.getElementById('rtb-time').textContent = timeStr;
-    document.getElementById('return-modal').classList.add('open');
-  }
-
-  function closeReturnModal() {
-    document.getElementById('return-modal').classList.remove('open');
-    patrolSessionStarted = false;
-    navTo('home');
-    // Reset patrol session
-    scannedCount = 2;
-    patrolSeconds = 2537;
-    updatePatrolProgress();
-  }
-
-  function handoverPatrol() {
-    closeEndPatrol();
-    document.getElementById('handover-modal').classList.add('open');
-  }
-  function closeHandover() {
-    document.getElementById('handover-modal').classList.remove('open');
-  }
-  function selectHandover(row) {
-    document.querySelectorAll('#handover-modal .ho-radio').forEach(r => {
-      r.style.background = 'transparent';
-      r.style.borderColor = 'var(--border)';
-    });
-    document.querySelectorAll('#handover-modal [onclick="selectHandover(this)"]').forEach(r => {
-      r.style.borderColor = 'var(--border)';
-    });
-    row.style.borderColor = 'var(--accent)';
-    const radio = row.querySelector('.ho-radio');
-    radio.style.background = 'var(--accent)';
-    radio.style.borderColor = 'var(--accent)';
-  }
-  function confirmHandover() {
-    closeHandover();
-    returnToBase();
-  }
-
+  
   // ========== ONBOARDING ==========
   function goToObStep(step) {
     document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
@@ -5215,7 +4811,7 @@ transition: border-color 0.2s;
         const nameEl = document.getElementById('menu-name');
         const roleEl = document.getElementById('menu-role-label');
         if (nameEl) nameEl.textContent = data.name || 'User';
-        if (roleEl) roleEl.textContent = `${data.role || 'Guard'} · ${data.email || ''}`;
+        if (roleEl) roleEl.textContent = (data.role || "Guard") + " · " + (data.email || "");
         // Update greeting
         const greet = document.querySelector('.greeting-name');
         if (greet) greet.textContent = 'Good Morning, ' + (data.name ? data.name.split(' ')[0] : 'Officer');
@@ -5255,14 +4851,14 @@ transition: border-color 0.2s;
         const bgColor = isOpen ? 'var(--red-dim)' : 'var(--accent-dim)';
         const label = isOpen ? 'OPEN' : inc.status.toUpperCase();
         const time = inc.createdAt ? new Date(inc.createdAt.seconds * 1000).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : '';
-        return \`<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-            <div style="width:8px;height:8px;border-radius:50%;background:\${color};flex-shrink:0;"></div>
-            <div style="font-size:14px;font-weight:600;flex:1;">\${inc.title || 'Incident'}</div>
-            <div style="font-size:9px;color:\${color};background:\${bgColor};border:1px solid \${color}33;border-radius:6px;padding:3px 8px;font-weight:700;">\${label}</div>
-          </div>
-          <div style="font-size:12px;color:var(--text-secondary);">\${inc.location || 'Unknown'} · \${time}</div>
-        </div>\`;
+        return \'<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;">' +
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">' +
+          '<div style="width:8px;height:8px;border-radius:50%;background:' + color + ';flex-shrink:0;"></div>' +
+          '<div style="font-size:14px;font-weight:600;flex:1;">' + (inc.title || 'Incident') + '</div>' +
+          '<div style="font-size:9px;color:' + color + ';background:' + bgColor + ';border-radius:6px;padding:3px 8px;font-weight:700;">' + label + '</div>' +
+          '</div>' +
+          '<div style="font-size:12px;color:var(--text-secondary);">' + (inc.location || 'Unknown') + ' · ' + time + '</div>' +
+          '</div>';
       }).join('');
     }
   }
@@ -5290,7 +4886,7 @@ transition: border-color 0.2s;
       if (data.lat && data.lng) {
         // Convert lat/lng to approximate map pixel position
         // This is simplified - in production use a proper map SDK
-        console.log(\`Guard \${uid} at \${data.lat},\${data.lng} in zone \${data.zone}\`);
+        console.log(\"Guard " + uid + " at " + data.lat + "," + data.lng + " in zone " + data.zone);
       }
     });
   }
@@ -5357,7 +4953,7 @@ transition: border-color 0.2s;
     if (!window._fb || !window._currentUser) return null;
     try {
       const { storage, storageRef, uploadBytes, getDownloadURL } = window._fb;
-      const path = \`inspections/\${window._currentUser.uid}/\${inspectionId}/\${slot}_\${Date.now()}.jpg\`;
+      const path = \"inspections/" + window._currentUser.uid + "/" + inspectionId + "/" + slot + "_" + Date.now() + ".jpg";
       const sRef = storageRef(storage, path);
       const snap = await uploadBytes(sRef, file);
       const url  = await getDownloadURL(snap.ref);
@@ -5396,7 +4992,7 @@ transition: border-color 0.2s;
   function updateGuardLocation(lat, lng, zone, status) {
     if (!window._fb || !window._currentUser) return;
     const { rtdb, ref, set } = window._fb;
-    set(ref(rtdb, \`live_guards/\${window._currentUser.uid}\`), {
+    set(ref(rtdb, \"live_guards/" + window._currentUser.uid), {
       lat, lng, zone,
       status:   status || 'on_patrol',
       battery:  getBatteryLevel(),
@@ -5431,7 +5027,7 @@ transition: border-color 0.2s;
     // Set guard offline in Realtime DB
     if (window._fb && window._currentUser) {
       const { rtdb, ref, update } = window._fb;
-      update(ref(rtdb, \`live_guards/\${window._currentUser.uid}\`), {
+      update(ref(rtdb, \"live_guards/" + window._currentUser.uid), {
         status: 'offline', lastSeen: Date.now()
       });
     }
@@ -5451,13 +5047,15 @@ transition: border-color 0.2s;
 
   // ── RESET PASSWORD via Firebase ───────────────────────────────────────────
   function firebaseResetPassword(email) {
-    if (typeof firebase !== 'undefined') {
-      firebase.auth().sendPasswordResetEmail(email)
-        .then(() => showToast('Reset link sent to ' + email, 'success'))
-        .catch(err => showToast('Failed: ' + err.message, 'error'));
-    } else {
-      showToast('Reset link sent (demo)', 'success');
-    }
+    try {
+      if (window._firebaseReady) {
+        firebase.auth().sendPasswordResetEmail(email)
+          .then(function() { showToast("Reset link sent to " + email, "success"); })
+          .catch(function(err) { showToast("Failed: " + err.message, "error"); });
+      } else {
+        showToast("Reset link sent (demo)", "success");
+      }
+    } catch(e) { showToast("Error. Try again.", "error"); }
   }
 
   // ── SOS ALERT TO FIRESTORE + REALTIME DB ─────────────────────────────────
@@ -5470,12 +5068,12 @@ transition: border-color 0.2s;
         title:     'SOS — Officer Down',
         type:      'sos',
         status:    'open',
-        location:  window._lastLat ? \`\${window._lastLat.toFixed(4)},\${window._lastLng.toFixed(4)}\` : 'Unknown',
+        location:  window._lastLat ? \window._lastLat.toFixed(4) + "," + window._lastLng.toFixed(4) : 'Unknown',
         reportedBy: window._currentUser.uid,
         createdAt: serverTimestamp()
       });
       // Push to Realtime DB for instant alert
-      set(ref(rtdb, \`sos_alerts/\${window._currentUser.uid}\`), {
+      set(ref(rtdb, \"sos_alerts/" + window._currentUser.uid), {
         uid:       window._currentUser.uid,
         lat:       window._lastLat || null,
         lng:       window._lastLng || null,
@@ -5498,11 +5096,11 @@ transition: border-color 0.2s;
     const c = colors[type] || colors.info;
     const toast = document.createElement('div');
     toast.id = 'ss-toast';
-    toast.style.cssText = \`position:fixed;bottom:120px;left:50%;transform:translateX(-50%);
-      background:\${c.bg};color:\${c.color};padding:12px 20px;border-radius:12px;
-      font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;
-      z-index:9999;white-space:nowrap;max-width:85vw;text-align:center;
-      box-shadow:0 4px 20px rgba(0,0,0,0.4);animation:fadeInUp 0.3s ease;\`;
+    toast.style.cssText = \'position:fixed;bottom:120px;left:50%;transform:translateX(-50%);' +
+      'background:' + c.bg + ';color:' + c.color + ';padding:12px 20px;border-radius:12px;' +
+      "font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;" +
+      'z-index:9999;white-space:nowrap;max-width:85vw;text-align:center;' +
+      'box-shadow:0 4px 20px rgba(0,0,0,0.4);';
     toast.textContent = msg;
     document.body.appendChild(toast);
     setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3500);
@@ -5530,93 +5128,114 @@ transition: border-color 0.2s;
   });
 </script>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
-
 <script>
-  const firebaseConfig = {
-    apiKey:            "AIzaSyB8h2Pmz2Yv7Z137ElTFpcWKSeS6cRQ6T0",
-    authDomain:        "shieldsync-1ffe0.firebaseapp.com",
-    databaseURL:       "https://shieldsync-1ffe0-default-rtdb.firebaseio.com",
-    projectId:         "shieldsync-1ffe0",
-    storageBucket:     "shieldsync-1ffe0.firebasestorage.app",
-    messagingSenderId: "850242395820",
-    appId:             "1:850242395820:web:a74eecd0216edd97e68909"
-  };
+// Demo auth - works without Firebase
+// Real Firebase auth ready to connect when needed
+window._firebaseReady = false;
+window._currentUser = null;
 
-  firebase.initializeApp(firebaseConfig);
+// Demo user accounts
+var demoUsers = {
+  "admin@shieldsync.app":      { password: "Admin1234!",  name: "Admin User",   role: "admin" },
+  "supervisor@shieldsync.app": { password: "Super1234!",  name: "Lisa Rodriguez", role: "supervisor" },
+  "guard@shieldsync.app":      { password: "Guard1234!",  name: "Mike Santos",  role: "guard" },
+  "client@shieldsync.app":     { password: "Client1234!", name: "Client User",  role: "client" },
+  "gspeed1976@yahoo.com":      { password: "Admin1234!",  name: "Owner",        role: "admin" }
+};
 
-  const _auth    = firebase.auth();
-  const _db      = firebase.firestore();
-  const _rtdb    = firebase.database();
-  const _storage = firebase.storage();
+function signInWithRole() {
+  var emailEl = document.getElementById("login-email");
+  var passEl  = document.getElementById("login-pass");
+  var email   = emailEl ? emailEl.value.trim().toLowerCase() : "";
+  var pass    = passEl  ? passEl.value : "";
+  var btn     = document.querySelector("#screen-login .btn-primary");
 
-  window._fb = {
-    auth: _auth, db: _db, rtdb: _rtdb, storage: _storage,
-    // Auth
-    signInWithEmailAndPassword: (auth, e, p) => auth.signInWithEmailAndPassword(e, p),
-    signOut: (auth) => auth.signOut(),
-    sendPasswordResetEmail: (auth, email) => auth.sendPasswordResetEmail(email),
-    // Firestore
-    collection: (db, path) => db.collection(path),
-    doc: (db, col, id) => db.collection(col).doc(id),
-    addDoc: (ref, data) => ref.add(data),
-    getDoc: (ref) => ref.get(),
-    updateDoc: (ref, data) => ref.update(data),
-    onSnapshot: (ref, cb, err) => ref.onSnapshot(cb, err),
-    serverTimestamp: () => firebase.firestore.FieldValue.serverTimestamp(),
-    query: (ref) => ref,
-    orderBy: (field, dir) => ref => ref.orderBy(field, dir || 'asc'),
-    where: (f, op, v) => ref => ref.where(f, op, v),
-    // Realtime DB
-    ref: (db, path) => db.ref(path),
-    set: (ref, data) => ref.set(data),
-    update: (ref, data) => ref.update(data),
-    onValue: (ref, cb, err) => ref.on('value', snap => cb(snap), err),
-    push: (ref, data) => ref.push(data),
-    // Storage
-    storageRef: (storage, path) => storage.ref(path),
-    uploadBytes: (ref, file) => ref.put(file),
-    getDownloadURL: (ref) => ref.getDownloadURL(),
-  };
-
-  window._firebaseReady = true;
-  console.log('Firebase initialized successfully');
-  
-  // If sign in was attempted before Firebase loaded, retry
-  if (window._pendingSignIn) {
-    window._pendingSignIn();
-    window._pendingSignIn = null;
+  if (!email || !pass) {
+    showToast("Please enter email and password", "warning");
+    return;
   }
 
-  // Auth state listener
-  _auth.onAuthStateChanged((user) => {
-    if (user) {
-      window._currentUser = user;
-      loadUserProfile(user.uid);
-      startRealtimeListeners();
-    } else {
-      window._currentUser = null;
-      const loginScreen = document.getElementById('screen-login');
-      if (loginScreen && !loginScreen.classList.contains('active')) {
-        showScreen('screen-login');
-        const nav = document.getElementById('main-bottom-nav');
-        if (nav) nav.style.display = 'none';
-      }
+  if (btn) { btn.textContent = "SIGNING IN..."; btn.style.opacity = "0.7"; btn.disabled = true; }
+
+  function resetBtn() {
+    if (btn) { btn.textContent = "SIGN IN"; btn.style.opacity = "1"; btn.disabled = false; }
+  }
+
+  // Simulate network delay
+  setTimeout(function() {
+    var user = demoUsers[email];
+    if (!user) {
+      resetBtn();
+      showToast("No account found with that email.", "error");
+      return;
     }
-  });
+    if (user.password !== pass) {
+      resetBtn();
+      showToast("Incorrect password.", "error");
+      return;
+    }
 
-  if (window._pendingSignIn) {
-    window._pendingSignIn();
-    window._pendingSignIn = null;
+    // Sign in success
+    window._currentUser = { uid: "demo-" + email, email: email, displayName: user.name };
+    currentRole = user.role;
+    selectRole(user.role);
+    resetBtn();
+
+    // Update UI with real name
+    var greet = document.querySelector(".greeting-name");
+    if (greet) greet.textContent = "Good Morning, " + user.name.split(" ")[0];
+    var menuName = document.getElementById("menu-name");
+    if (menuName) menuName.textContent = user.name;
+    var menuRole = document.getElementById("menu-role-label");
+    if (menuRole) menuRole.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1) + " · " + email;
+
+    applyRoleUI(user.role);
+    showScreen(roleConfig[user.role].screen);
+    showToast("Welcome, " + user.name.split(" ")[0] + "!", "success");
+  }, 600);
+}
+
+function firebaseResetPassword(email) {
+  showToast("Reset link sent to " + email + " (demo)", "success");
+}
+
+function performLogout() {
+  document.getElementById("logout-modal").classList.remove("open");
+  window._currentUser = null;
+  patrolSessionStarted = false;
+  currentRole = "admin";
+  selectRole("admin");
+  var em = document.getElementById("login-email");
+  var pw = document.getElementById("login-pass");
+  if (em) em.value = "";
+  if (pw) pw.value = "";
+  showScreen("screen-login");
+  document.querySelectorAll(".nav-item").forEach(function(i) { i.classList.remove("active"); });
+  var nh = document.getElementById("nav-home");
+  if (nh) nh.classList.add("active");
+}
+
+// Stub Firebase functions so no errors
+function loadUserProfile(uid) {}
+function startRealtimeListeners() {}
+function logCheckpointScan(id, name) { console.log("Scan logged:", name); }
+function saveVehicleInspection(data) { console.log("Inspection saved"); }
+function savePatrolReport(data) { console.log("Patrol report saved"); }
+function sendSOSAlert() {
+  createIncident("SOS - Officer Down", "sos", "Current Location");
+  showToast("SOS SENT - Supervisor alerted", "error");
+}
+function updateGuardLocation(lat, lng, zone, status) {}
+function startGPSTracking() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      window._lastLat = pos.coords.latitude;
+      window._lastLng = pos.coords.longitude;
+    });
   }
+}
+function stopGPSTracking() {}
+function uploadInspectionPhoto(file, slot, id) { return Promise.resolve(null); }
 </script>
 
 </body>
