@@ -7,6 +7,62 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#080c12">
 <title>ShieldSync</title>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, doc, addDoc, getDoc, getDocs, updateDoc, onSnapshot, serverTimestamp, query, orderBy, where }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getDatabase, ref, set, onValue, update, push }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+// ── YOUR FIREBASE CONFIG ─────────────────────────────────────────────────
+// Replace these values with your actual Firebase project config
+// Found at: Firebase Console → Project Settings → Your Apps → SDK setup
+const firebaseConfig = {
+apiKey:            “AIzaSyB8h2Pmz2Yv7Z137ElTFpcWKSeS6cRQ6T0”,
+authDomain:        “shieldsync-1ffe0.firebaseapp.com”,
+databaseURL:       “https://shieldsync-1ffe0-default-rtdb.firebaseio.com”,
+projectId:         “shieldsync-1ffe0”,
+storageBucket:     “shieldsync-1ffe0.firebasestorage.app”,
+messagingSenderId: “850242395820”,
+appId:             “1:850242395820:web:a74eecd0216edd97e68909”
+};
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const rtdb = getDatabase(app);
+const storage = getStorage(app);
+
+// ── MAKE AVAILABLE GLOBALLY ───────────────────────────────────────────────
+window._fb = { auth, db, rtdb, storage,
+signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail,
+collection, doc, addDoc, getDoc, getDocs, updateDoc, onSnapshot,
+serverTimestamp, query, orderBy, where,
+ref, set, onValue, update, push,
+storageRef, uploadBytes, getDownloadURL
+};
+
+// ── AUTH STATE LISTENER ───────────────────────────────────────────────────
+onAuthStateChanged(auth, (user) => {
+if (user) {
+window._currentUser = user;
+loadUserProfile(user.uid);
+startRealtimeListeners();
+} else {
+window._currentUser = null;
+showScreen(‘screen-login’);
+const nav = document.getElementById(‘main-bottom-nav’);
+if (nav) nav.style.display = ‘none’;
+}
+});
+</script>
+
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -3002,8 +3058,8 @@ transition: border-color 0.2s;
     </div>
   </div>
 
+</div>
   <!-- ========== GUARDS SCREEN ========== -->
-
   <div class="screen" id="screen-guards">
     <div class="report-topbar">
       <div style="display:flex;align-items:center;gap:10px;">
@@ -4280,7 +4336,7 @@ transition: border-color 0.2s;
       <div class="sos-card-sub">This will immediately alert all available units and dispatch command. Your location will be shared.</div>
       <div class="sos-btn-row">
         <button class="btn-ghost" onclick="closeSOS()">CANCEL</button>
-        <button class="btn-danger" onclick="closeSOS()">SEND SOS</button>
+        <button class="btn-danger" onclick="closeSOS();sendSOSAlert();">SEND SOS</button>
       </div>
     </div>
   </div>
@@ -4422,11 +4478,14 @@ transition: border-color 0.2s;
 
   // Reset password steps
   function resetStep2() {
-    const email = document.getElementById('reset-email').value;
+    const email = document.getElementById('reset-email').value.trim();
+    if (!email) { showToast('Please enter your email', 'warning'); return; }
+    // Send real Firebase reset email
+    firebaseResetPassword(email);
     document.getElementById('stage-1').classList.remove('active');
     document.getElementById('stage-2').classList.add('active');
     document.getElementById('step2').classList.add('done');
-    document.getElementById('reset-sub-text').textContent = 'Enter the 6-digit verification code sent to your email.';
+    document.getElementById('reset-sub-text').textContent = 'Check your email for the reset link. Click it to set a new password.';
   }
 
   function resetStep3() {
@@ -4525,24 +4584,69 @@ transition: border-color 0.2s;
   }
 
   function signInWithRole() {
-    const cfg = roleConfig[currentRole];
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-pass').value;
 
-    // Update role banner
+    if (!email || !pass) {
+      showToast('Please enter email and password', 'error');
+      return;
+    }
+
+    // Show loading state
+    const btn = document.querySelector('#screen-login .btn-primary');
+    const origText = btn.textContent;
+    btn.textContent = 'SIGNING IN...';
+    btn.style.opacity = '0.7';
+    btn.disabled = true;
+
+    if (window._fb) {
+      // ── REAL FIREBASE AUTH ────────────────────────────────────────────
+      window._fb.signInWithEmailAndPassword(window._fb.auth, email, pass)
+        .then((cred) => {
+          window._currentUser = cred.user;
+          loadUserProfile(cred.user.uid);
+          applyRoleUI(currentRole);
+          showScreen(roleConfig[currentRole].screen);
+          btn.textContent = origText;
+          btn.style.opacity = '1';
+          btn.disabled = false;
+        })
+        .catch((err) => {
+          btn.textContent = origText;
+          btn.style.opacity = '1';
+          btn.disabled = false;
+          let msg = 'Sign in failed.';
+          if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') msg = 'Incorrect password.';
+          if (err.code === 'auth/user-not-found') msg = 'No account found with that email.';
+          if (err.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later.';
+          showToast(msg, 'error');
+        });
+    } else {
+      // ── DEMO FALLBACK (no Firebase config yet) ─────────────────────────
+      setTimeout(() => {
+        applyRoleUI(currentRole);
+        showScreen(roleConfig[currentRole].screen);
+        btn.textContent = origText;
+        btn.style.opacity = '1';
+        btn.disabled = false;
+      }, 800);
+    }
+  }
+
+  function applyRoleUI(role) {
+    const cfg = roleConfig[role];
     const banner = document.getElementById('role-banner');
-    banner.style.background = cfg.bannerBg;
-    banner.style.color = cfg.bannerColor;
-    document.getElementById('role-banner-text').textContent = cfg.label;
-    banner.querySelector('.role-banner-dot').style.background = cfg.dotColor;
-
-    // Update avatar
+    if (banner) {
+      banner.style.background = cfg.bannerBg;
+      banner.style.color = cfg.bannerColor;
+      document.getElementById('role-banner-text').textContent = cfg.label;
+      banner.querySelector('.role-banner-dot').style.background = cfg.dotColor;
+    }
     const av = document.getElementById('home-avatar');
     if (av) { av.textContent = cfg.avatar; av.style.background = cfg.avatarBg; }
-
-    // Apply role-based nav visibility
-    applyRoleNav(currentRole);
-
-    // Go to correct screen
-    showScreen(cfg.screen);
+    const menuAv = document.getElementById('menu-avatar');
+    if (menuAv) { menuAv.textContent = cfg.avatar; menuAv.style.background = cfg.avatarBg; }
+    applyRoleNav(role);
   }
 
   function applyRoleNav(role) {
@@ -4602,17 +4706,19 @@ transition: border-color 0.2s;
   }
   function performLogout() {
     document.getElementById('logout-modal').classList.remove('open');
-    // Reset role
+    if (window._fb) {
+      window._fb.signOut(window._fb.auth).catch(() => {});
+    }
+    // Reset state
     patrolSessionStarted = false;
     currentRole = 'admin';
     selectRole('admin');
-    // Clear inputs
+    window._currentUser = null;
     const em = document.getElementById('login-email');
     const pw = document.getElementById('login-pass');
     if (em) em.value = '';
     if (pw) pw.value = '';
     showScreen('screen-login');
-    // Reset nav
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
     const nh = document.getElementById('nav-home');
     if (nh) nh.classList.add('active');
@@ -4785,6 +4891,21 @@ transition: border-color 0.2s;
 
   function completeVehicleInspection() {
     patrolSessionStarted = true;
+    // Save inspection to Firestore
+    const inspData = {
+      plate:       document.getElementById('vi-plate')?.value || '',
+      vehicleType: document.getElementById('vi-type')?.value || '',
+      vehicleId:   document.getElementById('vi-vid')?.value || '',
+      make:        document.getElementById('vi-make')?.value || '',
+      color:       document.getElementById('vi-color')?.value || '',
+      odometer:    document.getElementById('vi-odometer')?.value || '',
+      fuelLevel:   viFuelLevel,
+      damagePoints: viDamagePoints,
+      photoCount:  Object.keys(viPhotos).length,
+    };
+    saveVehicleInspection(inspData);
+    // Start GPS tracking for patrol
+    startGPSTracking();
     // Show success toast then go to patrol
     const toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-card2);border:1px solid var(--border-accent);border-radius:20px;padding:28px 32px;text-align:center;z-index:999;min-width:260px;';
@@ -4873,6 +4994,17 @@ transition: border-color 0.2s;
 
   function returnToBase() {
     closeEndPatrol();
+    stopGPSTracking();
+    // Save patrol report to Firestore
+    const h = Math.floor(patrolSeconds / 3600);
+    const m = Math.floor((patrolSeconds % 3600) / 60);
+    savePatrolReport({
+      checkpointsScanned: scannedCount,
+      checkpointsTotal:   10,
+      durationMinutes:    Math.floor(patrolSeconds / 60),
+      completionPct:      Math.round((scannedCount / 10) * 100),
+      damagePoints:       viDamagePoints,
+    });
     // Fill return modal summary
     const h = Math.floor(patrolSeconds / 3600);
     const m = Math.floor((patrolSeconds % 3600) / 60);
@@ -5031,6 +5163,8 @@ transition: border-color 0.2s;
     successEl.classList.add('show');
     scannedCount++;
     updatePatrolProgress();
+    // Log to Firestore
+    logCheckpointScan('cp-03', 'Server Room — Floor 3');
     // mark CP-03 row as scanned in list
     const rows = document.querySelectorAll('.checkpoint-row');
     rows.forEach(r => {
@@ -5104,6 +5238,335 @@ transition: border-color 0.2s;
     requestAnimationFrame(animateGuards);
   }
   animateGuards();
+
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // FIREBASE UTILITIES
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Load user profile from Firestore
+  async function loadUserProfile(uid) {
+    if (!window._fb) return;
+    try {
+      const { db, doc, getDoc } = window._fb;
+      const snap = await getDoc(doc(db, 'users', uid));
+      if (snap.exists()) {
+        const data = snap.data();
+        currentRole = (data.role || 'guard').toLowerCase();
+        selectRole(currentRole);
+        applyRoleUI(currentRole);
+        // Update menu profile
+        const nameEl = document.getElementById('menu-name');
+        const roleEl = document.getElementById('menu-role-label');
+        if (nameEl) nameEl.textContent = data.name || 'User';
+        if (roleEl) roleEl.textContent = `${data.role || 'Guard'} · ${data.email || ''}`;
+        // Update greeting
+        const greet = document.querySelector('.greeting-name');
+        if (greet) greet.textContent = 'Good Morning, ' + (data.name ? data.name.split(' ')[0] : 'Officer');
+      }
+    } catch(e) { console.warn('Profile load failed:', e); }
+  }
+
+  // Start all Firestore real-time listeners
+  function startRealtimeListeners() {
+    if (!window._fb) return;
+    listenToIncidents();
+    listenToGuardStatus();
+    listenToCheckpoints();
+  }
+
+  // ── INCIDENTS LISTENER ───────────────────────────────────────────────────
+  function listenToIncidents() {
+    if (!window._fb) return;
+    const { db, collection, query, orderBy, onSnapshot } = window._fb;
+    const q = query(collection(db, 'incidents'), orderBy('createdAt', 'desc'));
+    onSnapshot(q, (snap) => {
+      const incidents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      updateIncidentUI(incidents);
+    }, (err) => console.warn('Incidents listener error:', err));
+  }
+
+  function updateIncidentUI(incidents) {
+    // Update home stat card
+    const openCount = incidents.filter(i => i.status === 'open').length;
+    const statEl = document.querySelector('.stat-num.red');
+    if (statEl) statEl.textContent = openCount;
+    // Update incidents screen list
+    const incList = document.getElementById('incidents-live-list');
+    if (incList && incidents.length > 0) {
+      incList.innerHTML = incidents.slice(0, 10).map(inc => {
+        const isOpen = inc.status === 'open';
+        const color = isOpen ? 'var(--red)' : 'var(--accent)';
+        const bgColor = isOpen ? 'var(--red-dim)' : 'var(--accent-dim)';
+        const label = isOpen ? 'OPEN' : inc.status.toUpperCase();
+        const time = inc.createdAt ? new Date(inc.createdAt.seconds * 1000).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}) : '';
+        return \`<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:\${color};flex-shrink:0;"></div>
+            <div style="font-size:14px;font-weight:600;flex:1;">\${inc.title || 'Incident'}</div>
+            <div style="font-size:9px;color:\${color};background:\${bgColor};border:1px solid \${color}33;border-radius:6px;padding:3px 8px;font-weight:700;">\${label}</div>
+          </div>
+          <div style="font-size:12px;color:var(--text-secondary);">\${inc.location || 'Unknown'} · \${time}</div>
+        </div>\`;
+      }).join('');
+    }
+  }
+
+  // ── GUARD STATUS LISTENER (Realtime DB) ──────────────────────────────────
+  function listenToGuardStatus() {
+    if (!window._fb) return;
+    const { rtdb, ref, onValue } = window._fb;
+    onValue(ref(rtdb, 'live_guards'), (snap) => {
+      const guards = snap.val() || {};
+      updateGuardStatusUI(guards);
+    }, (err) => console.warn('Guard status error:', err));
+  }
+
+  function updateGuardStatusUI(guards) {
+    const activeCount = Object.values(guards).filter(g => g.status === 'on_patrol').length;
+    // Update home stat
+    document.querySelectorAll('.stat-label').forEach(el => {
+      if (el.textContent === 'ACTIVE GUARDS') {
+        const num = el.previousElementSibling;
+        if (num) num.textContent = activeCount;
+      }
+    });
+    // Update guard dots on map
+    Object.entries(guards).forEach(([uid, data]) => {
+      if (data.lat && data.lng) {
+        // Convert lat/lng to approximate map pixel position
+        // This is simplified - in production use a proper map SDK
+        console.log(\`Guard \${uid} at \${data.lat},\${data.lng} in zone \${data.zone}\`);
+      }
+    });
+  }
+
+  // ── CHECKPOINTS LISTENER ─────────────────────────────────────────────────
+  function listenToCheckpoints() {
+    if (!window._fb) return;
+    const { db, collection, onSnapshot } = window._fb;
+    onSnapshot(collection(db, 'checkpoints'), (snap) => {
+      const checkpoints = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      updateCheckpointUI(checkpoints);
+    }, (err) => console.warn('Checkpoint listener error:', err));
+  }
+
+  function updateCheckpointUI(checkpoints) {
+    const scanned = checkpoints.filter(c => c.lastScanned).length;
+    // Update progress bar
+    const pct = Math.round((scanned / Math.max(checkpoints.length, 1)) * 100);
+    const bar = document.getElementById('pp-bar');
+    const pctEl = document.getElementById('pp-pct');
+    const countEl = document.getElementById('pp-count');
+    if (bar) bar.style.width = pct + '%';
+    if (pctEl) pctEl.textContent = pct + '%';
+    if (countEl) countEl.textContent = scanned + ' / ' + checkpoints.length + ' CHECKPOINTS';
+  }
+
+  // ── LOG CHECKPOINT SCAN TO FIRESTORE ─────────────────────────────────────
+  async function logCheckpointScan(checkpointId, checkpointName) {
+    if (!window._fb || !window._currentUser) return;
+    try {
+      const { db, collection, addDoc, serverTimestamp } = window._fb;
+      await addDoc(collection(db, 'scan_logs'), {
+        checkpointId,
+        checkpointName,
+        guardId:   window._currentUser.uid,
+        guardName: window._currentUser.displayName || 'Guard',
+        lat:       window._lastLat || null,
+        lng:       window._lastLng || null,
+        scannedAt: serverTimestamp()
+      });
+      // Update checkpoint last scanned
+      const { doc, updateDoc } = window._fb;
+      await updateDoc(doc(db, 'checkpoints', checkpointId), {
+        lastScanned:   serverTimestamp(),
+        lastScannedBy: window._currentUser.uid
+      });
+    } catch(e) { console.warn('Scan log failed:', e); }
+  }
+
+  // ── LOG INCIDENT TO FIRESTORE ─────────────────────────────────────────────
+  async function createIncident(title, type, location) {
+    if (!window._fb || !window._currentUser) return;
+    try {
+      const { db, collection, addDoc, serverTimestamp } = window._fb;
+      const ref = await addDoc(collection(db, 'incidents'), {
+        title,
+        type,
+        location,
+        status:    'open',
+        reportedBy: window._currentUser.uid,
+        createdAt: serverTimestamp()
+      });
+      showToast('Incident logged — ID: ' + ref.id.slice(0,8), 'success');
+    } catch(e) {
+      console.warn('Incident log failed:', e);
+    }
+  }
+
+  // ── UPLOAD VEHICLE INSPECTION PHOTO TO STORAGE ───────────────────────────
+  async function uploadInspectionPhoto(file, slot, inspectionId) {
+    if (!window._fb || !window._currentUser) return null;
+    try {
+      const { storage, storageRef, uploadBytes, getDownloadURL } = window._fb;
+      const path = \`inspections/\${window._currentUser.uid}/\${inspectionId}/\${slot}_\${Date.now()}.jpg\`;
+      const sRef = storageRef(storage, path);
+      const snap = await uploadBytes(sRef, file);
+      const url  = await getDownloadURL(snap.ref);
+      showToast('Photo uploaded ✓', 'success');
+      return url;
+    } catch(e) {
+      console.warn('Photo upload failed:', e);
+      return null;
+    }
+  }
+
+  // ── SAVE VEHICLE INSPECTION TO FIRESTORE ─────────────────────────────────
+  async function saveVehicleInspection(data) {
+    if (!window._fb || !window._currentUser) return;
+    try {
+      const { db, collection, addDoc, serverTimestamp } = window._fb;
+      await addDoc(collection(db, 'vehicle_inspections'), {
+        ...data,
+        guardId:    window._currentUser.uid,
+        createdAt:  serverTimestamp()
+      });
+      showToast('Inspection saved ✓', 'success');
+    } catch(e) { console.warn('Inspection save failed:', e); }
+  }
+
+  // ── SAVE PATROL REPORT TO FIRESTORE ──────────────────────────────────────
+  async function savePatrolReport(data) {
+    if (!window._fb || !window._currentUser) return;
+    try {
+      const { db, collection, addDoc, serverTimestamp } = window._fb;
+      await addDoc(collection(db, 'patrol_reports'), {
+        ...data,
+        guardId:   window._currentUser.uid,
+        createdAt: serverTimestamp()
+      });
+    } catch(e) { console.warn('Patrol report save failed:', e); }
+  }
+
+  // ── UPDATE GUARD LIVE LOCATION (Realtime DB) ──────────────────────────────
+  function updateGuardLocation(lat, lng, zone, status) {
+    if (!window._fb || !window._currentUser) return;
+    const { rtdb, ref, set } = window._fb;
+    set(ref(rtdb, \`live_guards/\${window._currentUser.uid}\`), {
+      lat, lng, zone,
+      status:   status || 'on_patrol',
+      battery:  getBatteryLevel(),
+      lastSeen: Date.now()
+    });
+  }
+
+  // ── GPS TRACKING ──────────────────────────────────────────────────────────
+  let _gpsWatcher = null;
+  function startGPSTracking() {
+    if (!navigator.geolocation) return;
+    _gpsWatcher = navigator.geolocation.watchPosition(
+      (pos) => {
+        window._lastLat = pos.coords.latitude;
+        window._lastLng = pos.coords.longitude;
+        updateGuardLocation(
+          pos.coords.latitude,
+          pos.coords.longitude,
+          detectZone(pos.coords.latitude, pos.coords.longitude),
+          'on_patrol'
+        );
+      },
+      (err) => console.warn('GPS error:', err),
+      { enableHighAccuracy: true, maximumAge: 15000, timeout: 10000 }
+    );
+  }
+  function stopGPSTracking() {
+    if (_gpsWatcher !== null) {
+      navigator.geolocation.clearWatch(_gpsWatcher);
+      _gpsWatcher = null;
+    }
+    // Set guard offline in Realtime DB
+    if (window._fb && window._currentUser) {
+      const { rtdb, ref, update } = window._fb;
+      update(ref(rtdb, \`live_guards/\${window._currentUser.uid}\`), {
+        status: 'offline', lastSeen: Date.now()
+      });
+    }
+  }
+
+  // Zone detection based on GPS (replace with actual site boundary coordinates)
+  function detectZone(lat, lng) {
+    // In production: compare against site zone polygons from Firestore
+    // Placeholder returns zone name
+    return 'CP-03';
+  }
+
+  function getBatteryLevel() {
+    // Navigator Battery API where available
+    return 84; // placeholder
+  }
+
+  // ── RESET PASSWORD via Firebase ───────────────────────────────────────────
+  function firebaseResetPassword(email) {
+    if (!window._fb) return;
+    const { auth, sendPasswordResetEmail } = window._fb;
+    sendPasswordResetEmail(auth, email)
+      .then(() => showToast('Reset link sent to ' + email, 'success'))
+      .catch(err => showToast('Failed: ' + err.message, 'error'));
+  }
+
+  // ── SOS ALERT TO FIRESTORE + REALTIME DB ─────────────────────────────────
+  async function sendSOSAlert() {
+    if (!window._fb || !window._currentUser) return;
+    try {
+      const { db, collection, addDoc, serverTimestamp, rtdb, ref, set } = window._fb;
+      // Create incident in Firestore
+      await addDoc(collection(db, 'incidents'), {
+        title:     'SOS — Officer Down',
+        type:      'sos',
+        status:    'open',
+        location:  window._lastLat ? \`\${window._lastLat.toFixed(4)},\${window._lastLng.toFixed(4)}\` : 'Unknown',
+        reportedBy: window._currentUser.uid,
+        createdAt: serverTimestamp()
+      });
+      // Push to Realtime DB for instant alert
+      set(ref(rtdb, \`sos_alerts/\${window._currentUser.uid}\`), {
+        uid:       window._currentUser.uid,
+        lat:       window._lastLat || null,
+        lng:       window._lastLng || null,
+        timestamp: Date.now()
+      });
+      showToast('SOS SENT — Supervisor alerted', 'error');
+    } catch(e) { console.warn('SOS failed:', e); }
+  }
+
+  // ── TOAST NOTIFICATION ────────────────────────────────────────────────────
+  function showToast(msg, type) {
+    const existing = document.getElementById('ss-toast');
+    if (existing) existing.remove();
+    const colors = {
+      success: { bg: 'var(--accent)',   color: '#000' },
+      error:   { bg: 'var(--red)',      color: '#fff' },
+      info:    { bg: 'var(--blue)',     color: '#fff' },
+      warning: { bg: 'var(--amber)',    color: '#000' }
+    };
+    const c = colors[type] || colors.info;
+    const toast = document.createElement('div');
+    toast.id = 'ss-toast';
+    toast.style.cssText = \`position:fixed;bottom:120px;left:50%;transform:translateX(-50%);
+      background:\${c.bg};color:\${c.color};padding:12px 20px;border-radius:12px;
+      font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;
+      z-index:9999;white-space:nowrap;max-width:85vw;text-align:center;
+      box-shadow:0 4px 20px rgba(0,0,0,0.4);animation:fadeInUp 0.3s ease;\`;
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3500);
+  }
+
+  // ── WIRE SOS button to Firebase ──────────────────────────────────────────
+  // Override closeSOS to also trigger real SOS
+  const _origCloseSOS = typeof closeSOS === 'function' ? closeSOS : null;
+
 
   document.addEventListener('DOMContentLoaded', function() {
     // Hide nav on login screen initially
