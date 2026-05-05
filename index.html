@@ -4629,7 +4629,7 @@ transition: border-color 0.2s;
 
     if (window._firebaseReady) {
       // ── REAL FIREBASE AUTH ────────────────────────────────────────────
-      _auth.signInWithEmailAndPassword(email, pass)
+      firebase.auth().signInWithEmailAndPassword(email, pass)
         .then((cred) => {
           window._currentUser = cred.user;
           loadUserProfile(cred.user.uid);
@@ -4747,8 +4747,8 @@ transition: border-color 0.2s;
   }
   function performLogout() {
     document.getElementById('logout-modal').classList.remove('open');
-    if (window._firebaseReady) {
-      _auth.signOut().catch(() => {});
+    if (typeof firebase !== 'undefined') {
+      firebase.auth().signOut().catch(() => {});
     }
     // Reset state
     patrolSessionStarted = false;
@@ -5535,9 +5535,13 @@ transition: border-color 0.2s;
 
   // ── RESET PASSWORD via Firebase ───────────────────────────────────────────
   function firebaseResetPassword(email) {
-    _auth.sendPasswordResetEmail(email)
-      .then(() => showToast('Reset link sent to ' + email, 'success'))
-      .catch(err => showToast('Failed: ' + err.message, 'error'));
+    if (typeof firebase !== 'undefined') {
+      firebase.auth().sendPasswordResetEmail(email)
+        .then(() => showToast('Reset link sent to ' + email, 'success'))
+        .catch(err => showToast('Failed: ' + err.message, 'error'));
+    } else {
+      showToast('Reset link sent (demo)', 'success');
+    }
   }
 
   // ── SOS ALERT TO FIRESTORE + REALTIME DB ─────────────────────────────────
@@ -5598,58 +5602,7 @@ transition: border-color 0.2s;
     const nav = document.getElementById('main-bottom-nav');
     if (nav) nav.style.display = 'none';
 
-    // ── ATTACH ALL LOGIN BUTTON HANDLERS via addEventListener ──────────
-    // This fixes onclick not working with type="module" scripts
-
-    // Sign In button
-    const signInBtn = document.querySelector('#screen-login .btn-primary');
-    if (signInBtn) {
-      signInBtn.removeAttribute('onclick');
-      signInBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        signInWithRole();
-      });
-    }
-
-    // Role cards
-    const roleCards = document.querySelectorAll('.role-card');
-    roleCards.forEach(card => {
-      card.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const role = card.id.replace('role-', '');
-        selectRole(role);
-      });
-    });
-
-    // Quick test login USE buttons
-    document.querySelectorAll('[onclick*="fillLogin"]').forEach(el => {
-      const match = el.getAttribute('onclick').match(/fillLogin\('([^']+)','([^']+)','([^']+)'\)/);
-      if (match) {
-        const [_, email, pass, role] = match;
-        el.removeAttribute('onclick');
-        el.addEventListener('click', function(e) {
-          e.stopPropagation();
-          fillLogin(email, pass, role);
-        });
-      }
-    });
-
-    // Forgot password
-    const forgotBtn = document.querySelector('.forgot-link');
-    if (forgotBtn) {
-      forgotBtn.removeAttribute('onclick');
-      forgotBtn.addEventListener('click', function() {
-        showScreen('screen-reset');
-      });
-    }
-
-    // Send live test link
-    const sendTestBtn = document.querySelector('[onclick="openShareModal()"]');
-    if (sendTestBtn) {
-      sendTestBtn.removeAttribute('onclick');
-      sendTestBtn.addEventListener('click', openShareModal);
-    }
+    // Button handlers use inline onclick - works with compat SDK
 
     document.querySelectorAll('.demo-banner').forEach(b => {
       b.style.cursor = 'pointer';
