@@ -83,9 +83,16 @@ z-index: 2;
 /* ========== LOGIN ========== */
 #screen-login {
 background: var(–bg-deep);
-justify-content: center;
-padding: 48px 28px 40px;
+justify-content: flex-start;
+padding: 0;
 gap: 0;
+overflow-y: auto;
+}
+#screen-login .login-brand {
+padding-top: 60px;
+}
+#screen-login .login-form {
+padding: 0 28px 40px;
 }
 
 .login-brand {
@@ -168,7 +175,7 @@ margin-top: -4px;
 
 .btn-primary {
 background: var(–accent);
-color: #000;
+color: #000 !important;
 border: none;
 border-radius: 12px;
 padding: 16px;
@@ -178,9 +185,12 @@ font-weight: 700;
 letter-spacing: 2px;
 cursor: pointer;
 margin-top: 8px;
-transition: opacity 0.2s, transform 0.1s;
+transition: opacity 0.2s, transform 0.1s, background 0.2s;
+-webkit-appearance: none;
+width: 100%;
 }
 .btn-primary:active { opacity: 0.85; transform: scale(0.98); }
+.btn-primary:hover { opacity: 0.9; }
 
 .demo-banner {
 background: var(–amber-dim);
@@ -488,7 +498,8 @@ width: 100%; max-width: 390px;
 background: rgba(8,12,18,0.95);
 backdrop-filter: blur(20px);
 border-top: 1px solid var(–border);
-display: flex; align-items: center;
+display: none;
+align-items: center;
 padding: 8px 0 24px;
 z-index: 100;
 }
@@ -1954,32 +1965,13 @@ transition: border-color 0.2s;
   <!-- ========== LOGIN SCREEN ========== -->
 
   <div class="screen active" id="screen-login">
+    <div style="padding: 0 28px;">
     <div class="login-brand">
       <div class="brand-shield">
         <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Outer shield -->
           <path d="M24 4L6 11.5v13C6 34.8 14 43.2 24 46c10-2.8 18-11.2 18-21.5v-13L24 4z"
-            fill="url(#shield-grad)" stroke="url(#stroke-grad)" stroke-width="1.2"/>
-          <!-- Inner shield highlight -->
-          <path d="M24 8L9 14.5v11.7C9 34 15.9 41.1 24 43.5c8.1-2.4 15-9.5 15-17.3V14.5L24 8z"
-            fill="rgba(0,255,180,0.06)" stroke="rgba(0,255,180,0.15)" stroke-width="0.8"/>
-          <!-- Sync signal arcs -->
-          <path d="M17 22a8 8 0 000 4" stroke="#00ffb4" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-          <path d="M31 22a8 8 0 010 4" stroke="#00ffb4" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-          <!-- Check mark -->
-          <path d="M17.5 24.5l4 4 9-9" stroke="#00ffb4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          <!-- Corner accent dots -->
-          <circle cx="24" cy="10" r="1.2" fill="rgba(0,255,180,0.4)"/>
-          <defs>
-            <linearGradient id="shield-grad" x1="6" y1="4" x2="42" y2="46" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="rgba(0,255,180,0.15)"/>
-              <stop offset="100%" stop-color="rgba(0,100,80,0.05)"/>
-            </linearGradient>
-            <linearGradient id="stroke-grad" x1="6" y1="4" x2="42" y2="46" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#00ffb4"/>
-              <stop offset="100%" stop-color="#00a878"/>
-            </linearGradient>
-          </defs>
+            fill="rgba(0,255,180,0.1)" stroke="#00ffb4" stroke-width="1.5"/>
+          <path d="M17.5 24.5l4 4 9-9" stroke="#00ffb4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
       <div class="brand-name">SHIELD<span style="color:var(--accent)">SYNC</span></div>
@@ -2061,8 +2053,10 @@ transition: border-color 0.2s;
     </div>
   </div>
 </div>
+</div>
 
-<div class="demo-banner">
+<div style="padding: 0 28px 40px;">
+<div class="demo-banner" style="margin: 0;">
   <div class="demo-dot"></div>
   <div class="demo-text">
     <strong>⚠ DEMO MODE ACTIVE</strong>
