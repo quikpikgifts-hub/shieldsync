@@ -56,11 +56,25 @@ loadUserProfile(user.uid);
 startRealtimeListeners();
 } else {
 window._currentUser = null;
+// Only redirect to login if not already there
+const loginScreen = document.getElementById(‘screen-login’);
+if (loginScreen && !loginScreen.classList.contains(‘active’)) {
 showScreen(‘screen-login’);
 const nav = document.getElementById(‘main-bottom-nav’);
 if (nav) nav.style.display = ‘none’;
 }
+}
 });
+
+// Signal Firebase is ready
+window._firebaseReady = true;
+console.log(‘Firebase initialized successfully’);
+
+// If sign in was attempted before Firebase loaded, retry
+if (window._pendingSignIn) {
+window._pendingSignIn();
+window._pendingSignIn = null;
+}
 </script>
 
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -4599,7 +4613,7 @@ transition: border-color 0.2s;
     btn.style.opacity = '0.7';
     btn.disabled = true;
 
-    if (window._fb) {
+    if (window._fb && window._firebaseReady) {
       // ── REAL FIREBASE AUTH ────────────────────────────────────────────
       window._fb.signInWithEmailAndPassword(window._fb.auth, email, pass)
         .then((cred) => {
@@ -4622,14 +4636,26 @@ transition: border-color 0.2s;
           showToast(msg, 'error');
         });
     } else {
-      // ── DEMO FALLBACK (no Firebase config yet) ─────────────────────────
-      setTimeout(() => {
-        applyRoleUI(currentRole);
-        showScreen(roleConfig[currentRole].screen);
+      // ── FIREBASE NOT READY YET - queue sign in ─────────────────────────
+      showToast('Connecting to server...', 'info');
+      window._pendingSignIn = function() {
         btn.textContent = origText;
         btn.style.opacity = '1';
         btn.disabled = false;
-      }, 800);
+        signInWithRole();
+      };
+      // Fallback after 3 seconds if Firebase never loads
+      setTimeout(() => {
+        if (window._pendingSignIn) {
+          window._pendingSignIn = null;
+          applyRoleUI(currentRole);
+          showScreen(roleConfig[currentRole].screen);
+          btn.textContent = origText;
+          btn.style.opacity = '1';
+          btn.disabled = false;
+          showToast('Demo mode — Firebase not connected', 'warning');
+        }
+      }, 3000);
     }
   }
 
