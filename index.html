@@ -1,430 +1,968 @@
- {
-  var modal = document.getElementById('handover-modal');
-  if (modal) { modal.classList.remove('open'); }
-}
+<!DOCTYPE html>
 
-function confirmHandover() {
-  closeHandover();
-  if (patrolTimerInterval) { clearInterval(patrolTimerInterval); patrolTimerInterval = null; }
-  if (guardAnimFrame) { cancelAnimationFrame(guardAnimFrame); guardAnimFrame = null; }
-  showToast('Patrol handed over successfully!', 'success');
-  patrolSeconds = 0;
-  showScreen('home');
-}
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#080c12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ShieldSync</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#080c12;--card:#0e1420;--border:rgba(255,255,255,0.07);--accent:#00ffb4;--red:#ff3b3b;--amber:#f5a623;--blue:#3b82f6;--text:#f0f4f8;--muted:rgba(240,244,248,0.5)}
+html,body{height:100%;background:#000;display:flex;justify-content:center;align-items:center;font-family:'Inter',sans-serif;color:var(--text)}
+#app{width:100%;max-width:390px;height:100dvh;background:var(--bg);position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:80px}
+.screen.active{display:flex}
+#screen-login{padding-bottom:20px}
+.bottom-nav{display:none;position:absolute;bottom:0;left:0;right:0;background:rgba(8,12,18,0.97);border-top:1px solid var(--border);padding:8px 0 28px;z-index:100;flex-direction:row;align-items:center}
+.bottom-nav.show{display:flex}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;cursor:pointer;opacity:0.45;transition:opacity 0.2s}
+.nav-item.active{opacity:1}
+.nav-item svg{width:22px;height:22px}
+.nav-item span{font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px}
+.nav-sos{flex:1;display:flex;justify-content:center;align-items:center;cursor:pointer;padding-bottom:4px}
+.nav-sos-btn{width:52px;height:52px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(255,59,59,0.4);margin-top:-16px}
+.topbar{display:flex;align-items:center;padding:16px 20px;gap:12px;flex-shrink:0}
+.topbar-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;flex:1}
+.topbar-btn{width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px}
+.badge-green{background:rgba(0,255,180,0.1);color:var(--accent);border:1px solid rgba(0,255,180,0.2)}
+.badge-red{background:rgba(255,59,59,0.1);color:var(--red);border:1px solid rgba(255,59,59,0.2)}
+.badge-amber{background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.2)}
+.badge-blue{background:rgba(59,130,246,0.1);color:var(--blue);border:1px solid rgba(59,130,246,0.2)}
+.btn{width:100%;padding:15px;border:none;border-radius:12px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;-webkit-appearance:none}
+.btn-accent{background:var(--accent);color:#000}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-red{background:var(--red);color:#fff}
+input,select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:13px 14px;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;-webkit-appearance:none;outline:none}
+input:focus,select:focus{border-color:var(--accent)}
+input::placeholder{color:var(--muted)}
+label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);font-family:'Rajdhani',sans-serif;display:block;margin-bottom:6px}
+.modal{position:absolute;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:flex-end}
+.modal.open{display:flex}
+.modal-box{background:#0e1420;border-top:1px solid var(--border);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%}
+.modal-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:16px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+/* LOGIN */
+.login-brand{text-align:center;padding:48px 0 32px}
+.logo-icon{width:72px;height:72px;background:rgba(0,255,180,0.08);border:1px solid rgba(0,255,180,0.2);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.login-title{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;letter-spacing:2px}
+.login-title span{color:var(--accent)}
+.login-sub{font-size:11px;letter-spacing:3px;color:var(--muted);margin-top:4px}
+.login-form{padding:0 24px}
+.field{margin-bottom:16px}
+.forgot{text-align:right;margin-top:-8px;margin-bottom:20px}
+.forgot a{color:var(--accent);font-size:13px;cursor:pointer;text-decoration:none}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.role-card{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;transition:border-color 0.2s,background 0.2s}
+.role-card.selected{border-color:var(--accent);background:rgba(0,255,180,0.05)}
+.role-card.selected .role-name{color:var(--accent)}
+.role-icon{font-size:24px;margin-bottom:6px}
+.role-name{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700}
+.role-desc{font-size:11px;color:var(--muted);margin-top:2px}
+.quick-logins{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;padding:14px;margin:16px 24px}
+.ql-title{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);font-family:'Rajdhani',sans-serif;margin-bottom:10px}
+.ql-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
+.ql-row:last-child{border-bottom:none}
+.ql-email{font-size:12px;color:var(--muted)}
+.ql-use{font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;padding:4px 8px}
+/* HOME */
+.role-banner{margin:0 16px 16px;padding:12px 16px;background:rgba(0,255,180,0.06);border:1px solid rgba(0,255,180,0.15);border-radius:12px;display:flex;align-items:center;gap:10px}
+.rb-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.rb-text{font-size:12px;color:var(--accent);font-weight:500}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
+.stat-val{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;line-height:1}
+.stat-label{font-size:11px;color:var(--muted);margin-top:4px}
+.section{padding:0 16px 16px}
+.section-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px}
+.tab-row{display:flex;gap:8px;margin-bottom:12px}
+.tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:0.5px}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent)}
+.incident-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.incident-row:last-child{border-bottom:none}
+.inc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.inc-info{flex:1}
+.inc-title{font-size:13px;font-weight:500}
+.inc-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.threat-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
+.threat-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--amber))}
+/* PATROL */
+.patrol-map{margin:0 16px 16px;background:rgba(0,255,180,0.03);border:1px solid rgba(0,255,180,0.1);border-radius:16px;padding:16px;position:relative;overflow:hidden}
+.map-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.cp{border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid transparent;position:relative}
+.cp span{font-size:9px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:0.5px;display:block;margin-top:4px}
+.cp-scanned{background:rgba(0,255,180,0.15);border-color:rgba(0,255,180,0.3);color:var(--accent)}
+.cp-active{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.3);color:var(--blue)}
+.cp-overdue{background:rgba(255,59,59,0.15);border-color:rgba(255,59,59,0.3);color:var(--red)}
+.cp-pending{background:rgba(255,255,255,0.04);border-color:var(--border);color:var(--muted)}
+.progress-wrap{padding:0 16px 16px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px}
+.progress-bar{height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:4px;transition:width 0.4s ease}
+.guard-strip{display:flex;gap:8px;padding:0 16px 16px;overflow-x:auto}
+.guard-chip{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 12px;flex-shrink:0;min-width:100px}
+.gc-name{font-size:12px;font-weight:600;margin-bottom:4px}
+.gc-status{font-size:10px}
+.cp-list{padding:0 16px}
+.cp-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.cp-row:last-child{border-bottom:none}
+.cp-num{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Rajdhani',sans-serif;flex-shrink:0}
+.cp-info{flex:1}
+.cp-name{font-size:13px;font-weight:500}
+.cp-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.scan-fab{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);width:56px;height:56px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,180,0.4);cursor:pointer;z-index:50;border:none}
+/* VEHICLE INSPECTION */
+.vi-steps{display:flex;padding:16px 24px;gap:8px}
+.vi-step{flex:1;height:3px;border-radius:2px;background:var(--border)}
+.vi-step.done{background:var(--accent)}
+.vi-step.active{background:rgba(0,255,180,0.5)}
+.plate-input{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;text-align:center;letter-spacing:4px;border-radius:12px;border:2px solid var(--border)}
+.plate-input:focus{border-color:var(--accent)}
+.fuel-row{display:flex;gap:6px}
+.fuel-btn{flex:1;padding:10px 4px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;text-align:center}
+.fuel-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,180,0.08)}
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.photo-slot{background:rgba(255,255,255,0.03);border:1px dashed var(--border);border-radius:12px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px}
+.photo-slot.taken{border-color:var(--accent);background:rgba(0,255,180,0.05);color:var(--accent)}
+.damage-car{width:100%;max-width:200px;margin:0 auto;display:block}
+.damage-point{cursor:pointer;transition:all 0.2s}
+.damage-point:hover circle,.damage-point.hit circle{fill:rgba(255,59,59,0.8)}
+.check-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.check-row:last-child{border-bottom:none}
+.check-label{font-size:14px}
+.check-toggle{display:flex;gap:6px}
+.check-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:12px;font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;color:var(--muted)}
+.check-btn.ok{border-color:var(--accent);color:var(--accent);background:rgba(0,255,180,0.08)}
+.check-btn.fail{border-color:var(--red);color:var(--red);background:rgba(255,59,59,0.08)}
+/* GUARDS */
+.guard-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.guard-avatar{width:44px;height:44px;border-radius:12px;background:rgba(0,255,180,0.1);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:var(--accent);flex-shrink:0}
+.guard-info{flex:1}
+.guard-name{font-size:14px;font-weight:600}
+.guard-meta{font-size:11px;color:var(--muted);margin-top:2px}
+/* REPORTS */
+.report-section{margin-bottom:16px}
+.report-label{font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:6px}
+.report-val{font-size:14px;font-weight:500}
+.sig-box{height:80px;border:1px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
+/* SETTINGS */
+.menu-item{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;gap:12px}
+.menu-item:last-child{border-bottom:none}
+.menu-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center}
+.menu-label{flex:1;font-size:14px}
+/* OVERLAY MENU */
+#menu-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:150;display:none}
+#menu-overlay.open{display:block}
+#burger-menu{position:absolute;bottom:0;left:0;right:0;background:#0e1420;border-top:1px solid var(--border);border-radius:20px 20px 0 0;padding:20px 20px 40px;z-index:151;transform:translateY(100%);transition:transform 0.3s ease}
+#burger-menu.open{transform:translateY(0)}
+.menu-profile{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.mp-avatar{width:48px;height:48px;border-radius:14px;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--accent)}
+.mp-name{font-size:15px;font-weight:600}
+.mp-role{font-size:12px;color:var(--muted);margin-top:2px}
+.burger-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.burger-item{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.bi-icon{font-size:20px}
+.bi-label{font-size:13px;font-weight:600;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px}
+/* SCANNER MODAL */
+#scanner-modal{position:absolute;inset:0;background:#000;z-index:300;display:none;flex-direction:column}
+#scanner-modal.open{display:flex}
+.scanner-view{flex:1;position:relative;overflow:hidden;background:#050a0f;display:flex;align-items:center;justify-content:center}
+.scanner-frame{width:200px;height:200px;border:2px solid var(--accent);border-radius:16px;position:relative}
+.scanner-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scan 2s linear infinite}
+@keyframes scan{0%{top:0}100%{top:100%}}
+.scanner-corner{position:absolute;width:20px;height:20px;border-color:var(--accent);border-style:solid}
+.sc-tl{top:-2px;left:-2px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
+.sc-tr{top:-2px;right:-2px;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
+.sc-bl{bottom:-2px;left:-2px;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
+.sc-br{bottom:-2px;right:-2px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
+.scanner-footer{padding:20px;background:#080c12}
+.scan-mode{display:flex;gap:8px;margin-bottom:16px}
+.scan-mode-btn{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.scan-mode-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,180,0.08)}
+/* TOAST */
+#toast{position:absolute;bottom:96px;left:16px;right:16px;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:600;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px;z-index:500;display:none;text-align:center}
+#toast.show{display:block}
+#toast.success{background:rgba(0,255,180,0.15);color:var(--accent);border:1px solid rgba(0,255,180,0.3)}
+#toast.error{background:rgba(255,59,59,0.15);color:var(--red);border:1px solid rgba(255,59,59,0.3)}
+#toast.info{background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3)}
+#toast.warning{background:rgba(245,166,35,0.15);color:var(--amber);border:1px solid rgba(245,166,35,0.3)}
+</style>
+</head>
+<body>
+<div id="app">
 
-function handoverPatrol() {
-  openHandover();
-}
+<!-- LOGIN -->
 
-/* =============================================
-   ONBOARDING WIZARD
-   ============================================= */
-function goToObStep(step) {
-  var panels = document.querySelectorAll('.ob-panel');
-  for (var i = 0; i < panels.length; i++) {
-    panels[i].classList.remove('active');
-  }
-  var target = document.getElementById('ob-panel-' + step);
-  if (target) { target.classList.add('active'); }
+<div class="screen active" id="screen-login">
+  <div class="login-brand">
+    <div class="logo-icon">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <path d="M18 3L5 8.5v9.5C5 25.6 10.8 32.2 18 34c7.2-1.8 13-8.4 13-16V8.5L18 3z" fill="rgba(0,255,180,0.1)" stroke="#00ffb4" stroke-width="1.5"/>
+        <path d="M12 18l4 4 8-8" stroke="#00ffb4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="login-title">SHIELD<span>SYNC</span></div>
+    <div class="login-sub">SECURITY OPERATIONS PLATFORM</div>
+  </div>
+  <div class="login-form">
+    <div class="field"><label>EMAIL / BADGE ID</label><input type="email" id="login-email" placeholder="officer@unit.com"></div>
+    <div class="field"><label>PASSWORD</label><input type="password" id="login-pass" placeholder="••••••••"></div>
+    <div class="forgot"><a onclick="showScreen('screen-reset')">Forgot password?</a></div>
+    <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);font-family:'Rajdhani',sans-serif;margin-bottom:10px">SIGN IN AS</div>
+    <div class="role-grid">
+      <div class="role-card selected" id="role-admin" onclick="selectRole('admin')">
+        <div class="role-icon">🛡️</div>
+        <div class="role-name">Admin</div>
+        <div class="role-desc">Full access, billing, settings</div>
+      </div>
+      <div class="role-card" id="role-supervisor" onclick="selectRole('supervisor')">
+        <div class="role-icon">🔑</div>
+        <div class="role-name">Supervisor</div>
+        <div class="role-desc">Dispatch, incidents, guards</div>
+      </div>
+      <div class="role-card" id="role-guard" onclick="selectRole('guard')">
+        <div class="role-icon">👤</div>
+        <div class="role-name">Guard</div>
+        <div class="role-desc">Patrol, checkpoints, SOS</div>
+      </div>
+      <div class="role-card" id="role-client" onclick="selectRole('client')">
+        <div class="role-icon">📊</div>
+        <div class="role-name">Client</div>
+        <div class="role-desc">Read-only reports &amp; status</div>
+      </div>
+    </div>
+    <button class="btn btn-accent" onclick="signInWithRole()">SIGN IN</button>
+  </div>
+  <div class="quick-logins">
+    <div class="ql-title">🚀 QUICK TEST LOGINS</div>
+    <div class="ql-row"><span class="ql-email">admin@shieldsync.app</span><span class="ql-use" onclick="fillLogin('admin@shieldsync.app','Admin1234!','admin')">USE →</span></div>
+    <div class="ql-row"><span class="ql-email">supervisor@shieldsync.app</span><span class="ql-use" onclick="fillLogin('supervisor@shieldsync.app','Super1234!','supervisor')">USE →</span></div>
+    <div class="ql-row"><span class="ql-email">guard@shieldsync.app</span><span class="ql-use" onclick="fillLogin('guard@shieldsync.app','Guard1234!','guard')">USE →</span></div>
+    <div class="ql-row"><span class="ql-email">client@shieldsync.app</span><span class="ql-use" onclick="fillLogin('client@shieldsync.app','Client1234!','client')">USE →</span></div>
+  </div>
+</div>
 
-  for (var s = 1; s <= 6; s++) {
-    var dot = document.getElementById('ob-dot-' + s);
-    var line = document.getElementById('ob-line-' + s);
-    if (!dot) { continue; }
-    dot.classList.remove('active', 'done');
-    if (line) { line.classList.remove('done'); }
+<!-- RESET PASSWORD -->
 
-    if (s < step) {
-      dot.classList.add('done');
-      dot.textContent = '✓';
-      if (line) { line.classList.add('done'); }
-    } else if (s === step) {
-      dot.classList.add('active');
-      dot.textContent = s;
-    } else {
-      dot.textContent = s;
-    }
-  }
-}
+<div class="screen" id="screen-reset">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-login')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Reset Password</div>
+  </div>
+  <div style="padding:0 20px">
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:14px;color:var(--muted);margin-bottom:16px">Enter your email to receive a reset link.</div>
+      <div class="field"><label>EMAIL</label><input type="email" id="reset-email" placeholder="officer@unit.com"></div>
+      <button class="btn btn-accent" onclick="doReset()">SEND RESET LINK</button>
+    </div>
+  </div>
+</div>
 
-function selectPlan(card, plan) {
-  var cards = document.querySelectorAll('.plan-card');
-  for (var i = 0; i < cards.length; i++) {
-    cards[i].classList.remove('selected');
-  }
-  card.classList.add('selected');
-  showToast(plan.charAt(0).toUpperCase() + plan.slice(1) + ' plan selected', 'success');
-}
+<!-- HOME -->
 
-/* =============================================
-   RESET PASSWORD FLOW
-   ============================================= */
-function goToResetStep(step) {
-  var panels = document.querySelectorAll('.reset-panel');
-  for (var i = 0; i < panels.length; i++) {
-    panels[i].classList.remove('active');
-  }
-  var target = document.getElementById('rst-panel-' + step);
-  if (target) { target.classList.add('active'); }
+<div class="screen" id="screen-home">
+  <div class="topbar">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span></div>
+    <div class="topbar-btn" onclick="openShareModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+    </div>
+    <div class="topbar-btn" style="margin-left:6px;background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openMenu()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </div>
+  </div>
+  <div class="role-banner">
+    <div class="rb-dot"></div>
+    <div class="rb-text" id="role-banner-text">ADMIN · SHIFT ACTIVE</div>
+  </div>
+  <div style="padding:0 16px 16px">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700">Good Morning, <span id="home-name">Admin</span> 👋</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">Shift started 3h 42m ago · All units normal</div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-val" style="color:var(--red)">3</div><div class="stat-label">Open Incidents</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--blue)">2</div><div class="stat-label">Units Enroute</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent)">8</div><div class="stat-label">Active Guards</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--amber)">24</div><div class="stat-label">Access Today</div></div>
+  </div>
+  <div class="section">
+    <div class="section-title">RECENT INCIDENTS</div>
+    <div class="card">
+      <div class="incident-row">
+        <div class="inc-dot" style="background:var(--red)"></div>
+        <div class="inc-info"><div class="inc-title">Perimeter Breach — Gate B</div><div class="inc-sub">12 min ago · Zone 4</div></div>
+        <span class="badge badge-red">OPEN</span>
+      </div>
+      <div class="incident-row">
+        <div class="inc-dot" style="background:var(--amber)"></div>
+        <div class="inc-info"><div class="inc-title">Suspicious Vehicle</div><div class="inc-sub">1h ago · Car Park 2</div></div>
+        <span class="badge badge-amber">IN PROG</span>
+      </div>
+      <div class="incident-row">
+        <div class="inc-dot" style="background:var(--accent)"></div>
+        <div class="inc-info"><div class="inc-title">Guard Check-in Overdue</div><div class="inc-sub">2h ago · North Wing</div></div>
+        <span class="badge badge-green">CLOSED</span>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">THREAT LEVEL</div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;font-weight:600">MODERATE</span>
+        <span style="font-size:13px;color:var(--amber)">Level 2 / 5</span>
+      </div>
+      <div class="threat-bar"><div class="threat-fill" style="width:40%"></div></div>
+    </div>
+  </div>
+</div>
 
-  for (var s = 1; s <= 4; s++) {
-    var dot = document.getElementById('rst-dot-' + s);
-    var line = document.getElementById('rst-line-' + s);
-    if (!dot) { continue; }
-    dot.classList.remove('active', 'done');
-    if (line) { line.classList.remove('done'); }
+<!-- INCIDENTS -->
 
-    if (s < step) {
-      dot.classList.add('done');
-      dot.textContent = '✓';
-      if (line) { line.classList.add('done'); }
-    } else if (s === step) {
-      dot.classList.add('active');
-      dot.textContent = s;
-    } else {
-      dot.textContent = s;
-    }
-  }
+<div class="screen" id="screen-incidents">
+  <div class="topbar"><div class="topbar-title">Incidents</div></div>
+  <div style="padding:0 16px 16px">
+    <div class="tab-row">
+      <div class="tab active">All</div>
+      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">Open</div>
+      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">In Progress</div>
+      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">Closed</div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="font-size:14px;font-weight:600;flex:1">Perimeter Breach — Gate B</div>
+        <span class="badge badge-red">OPEN</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Zone 4 · 12 min ago · Reported by M. Santos</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-accent" style="padding:8px;font-size:12px">DISPATCH</button>
+        <button class="btn btn-outline" style="padding:8px;font-size:12px">VIEW</button>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="font-size:14px;font-weight:600;flex:1">Suspicious Vehicle</div>
+        <span class="badge badge-amber">IN PROG</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Car Park 2 · 1h ago · Reported by L. Rodriguez</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-accent" style="padding:8px;font-size:12px">DISPATCH</button>
+        <button class="btn btn-outline" style="padding:8px;font-size:12px">VIEW</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-  if (step === 2) {
-    var emailEl = document.getElementById('reset-email');
-    var emailVal = emailEl ? emailEl.value : '';
-    if (!emailVal) { showToast('Please enter your email address', 'error'); goToResetStep(1); return; }
-    showToast('Verification code sent to ' + emailVal, 'success');
-  }
-  if (step === 3) {
-    showToast('Code verified successfully', 'success');
-  }
-  if (step === 4) {
-    var np = document.getElementById('reset-newpass');
-    var cp = document.getElementById('reset-confirmpass');
-    if (np && cp && np.value !== cp.value) {
-      showToast('Passwords do not match', 'error');
-      goToResetStep(3);
-      return;
-    }
-    if (np && np.value.length < 6) {
-      showToast('Password must be at least 6 characters', 'error');
-      goToResetStep(3);
-      return;
-    }
-    showToast('Password reset successful!', 'success');
-  }
-}
+<!-- VEHICLE INSPECTION -->
 
-function otpNext(current, nextId) {
-  if (current.value.length >= 1 && nextId) {
-    var nextEl = document.getElementById(nextId);
-    if (nextEl) { nextEl.focus(); }
-  }
-}
+<div class="screen" id="screen-vehicle-inspection">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-login')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Vehicle Inspection</div>
+  </div>
+  <div class="vi-steps">
+    <div class="vi-step done" id="vis-1"></div>
+    <div class="vi-step active" id="vis-2"></div>
+    <div class="vi-step" id="vis-3"></div>
+    <div class="vi-step" id="vis-4"></div>
+  </div>
+  <!-- Step 1 -->
+  <div id="vi-step-1" style="padding:0 20px;display:none">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Vehicle Details</div>
+    <div class="field"><label>LICENSE PLATE</label><input class="plate-input" id="vi-plate" placeholder="ABC 1234" style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;text-align:center;letter-spacing:4px"></div>
+    <div class="field"><label>VEHICLE TYPE</label>
+      <select id="vi-type"><option>Patrol Car</option><option>SUV</option><option>Van</option><option>Motorcycle</option></select>
+    </div>
+    <div class="field"><label>MAKE / MODEL</label><input id="vi-make" placeholder="e.g. Toyota Camry"></div>
+    <div class="field"><label>FUEL LEVEL</label>
+      <div class="fuel-row">
+        <div class="fuel-btn" onclick="setFuel(this,'E')">E</div>
+        <div class="fuel-btn" onclick="setFuel(this,'1/4')">¼</div>
+        <div class="fuel-btn active" onclick="setFuel(this,'1/2')">½</div>
+        <div class="fuel-btn" onclick="setFuel(this,'3/4')">¾</div>
+        <div class="fuel-btn" onclick="setFuel(this,'F')">F</div>
+      </div>
+    </div>
+    <button class="btn btn-accent" style="margin-top:8px" onclick="viNextStep(2)">NEXT →</button>
+  </div>
+  <!-- Step 2 -->
+  <div id="vi-step-2" style="padding:0 20px;display:none">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Exterior Photos</div>
+    <div class="photo-grid" style="margin-bottom:16px">
+      <div class="photo-slot" id="ps-front" onclick="takePhoto('front')">📷<span>FRONT</span></div>
+      <div class="photo-slot" id="ps-rear" onclick="takePhoto('rear')">📷<span>REAR</span></div>
+      <div class="photo-slot" id="ps-left" onclick="takePhoto('left')">📷<span>LEFT</span></div>
+      <div class="photo-slot" id="ps-right" onclick="takePhoto('right')">📷<span>RIGHT</span></div>
+    </div>
+    <button class="btn btn-accent" onclick="viNextStep(3)">NEXT →</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="viNextStep(1)">← BACK</button>
+  </div>
+  <!-- Step 3 -->
+  <div id="vi-step-3" style="padding:0 20px;display:none">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Condition Check</div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="check-row"><span class="check-label">Lights</span><div class="check-toggle"><button class="check-btn ok" onclick="setCheck(this,'ok')">OK</button><button class="check-btn" onclick="setCheck(this,'fail')">FAIL</button></div></div>
+      <div class="check-row"><span class="check-label">Tyres</span><div class="check-toggle"><button class="check-btn ok" onclick="setCheck(this,'ok')">OK</button><button class="check-btn" onclick="setCheck(this,'fail')">FAIL</button></div></div>
+      <div class="check-row"><span class="check-label">Brakes</span><div class="check-toggle"><button class="check-btn ok" onclick="setCheck(this,'ok')">OK</button><button class="check-btn" onclick="setCheck(this,'fail')">FAIL</button></div></div>
+      <div class="check-row"><span class="check-label">Radio</span><div class="check-toggle"><button class="check-btn ok" onclick="setCheck(this,'ok')">OK</button><button class="check-btn" onclick="setCheck(this,'fail')">FAIL</button></div></div>
+      <div class="check-row"><span class="check-label">Safety Equipment</span><div class="check-toggle"><button class="check-btn ok" onclick="setCheck(this,'ok')">OK</button><button class="check-btn" onclick="setCheck(this,'fail')">FAIL</button></div></div>
+    </div>
+    <button class="btn btn-accent" onclick="viNextStep(4)">NEXT →</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="viNextStep(2)">← BACK</button>
+  </div>
+  <!-- Step 4 -->
+  <div id="vi-step-4" style="padding:0 20px;display:none">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Sign Off</div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">INSPECTION SUMMARY</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+        <div><div style="color:var(--muted);font-size:11px">PLATE</div><div id="sum-plate" style="font-weight:600;font-family:'Rajdhani',sans-serif;font-size:16px">—</div></div>
+        <div><div style="color:var(--muted);font-size:11px">TYPE</div><div id="sum-type" style="font-weight:600">—</div></div>
+        <div><div style="color:var(--muted);font-size:11px">MAKE</div><div id="sum-make" style="font-weight:600">—</div></div>
+        <div><div style="color:var(--muted);font-size:11px">FUEL</div><div id="sum-fuel" style="font-weight:600;color:var(--accent)">½</div></div>
+      </div>
+    </div>
+    <div class="field"><label>GUARD SIGNATURE</label><div class="sig-box" onclick="signOff()">TAP TO SIGN</div></div>
+    <button class="btn btn-accent" style="margin-top:8px" onclick="completeInspection()">✓ SIGN OFF &amp; START PATROL</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="viNextStep(3)">← BACK</button>
+  </div>
+</div>
 
-/* =============================================
-   REPORTS
-   ============================================= */
-function switchReportRole(role, btn) {
-  var panels = document.querySelectorAll('.report-panel');
-  for (var i = 0; i < panels.length; i++) {
-    panels[i].classList.remove('active');
-  }
-  var target = document.getElementById('report-panel-' + role);
-  if (target) { target.classList.add('active'); }
+<!-- PATROL -->
 
-  var tabs = document.querySelectorAll('.report-tab');
-  for (var j = 0; j < tabs.length; j++) {
-    tabs[j].classList.remove('active');
-  }
-  if (btn) { btn.classList.add('active'); }
-}
+<div class="screen" id="screen-patrol">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Live Patrol</div>
+    <div class="topbar-btn" style="background:rgba(255,59,59,0.1);border-color:rgba(255,59,59,0.2)" onclick="openEndPatrol()">
+      <span style="font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--red);letter-spacing:1px">END</span>
+    </div>
+  </div>
+  <div style="margin:0 16px 12px;padding:10px 14px;background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);border-radius:10px;display:flex;align-items:center;gap:8px">
+    <span style="color:var(--red);font-size:18px">⚠️</span>
+    <span style="font-size:12px;color:var(--red);font-weight:500">CP-07 overdue by 12 minutes</span>
+  </div>
+  <div class="patrol-map">
+    <div style="font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px">LIVE MAP — SITE ALPHA</div>
+    <div class="map-grid">
+      <div class="cp cp-scanned" onclick="simulateScan(this,'CP-01')">✓<span>CP-01</span></div>
+      <div class="cp cp-scanned" onclick="simulateScan(this,'CP-02')">✓<span>CP-02</span></div>
+      <div class="cp cp-active" onclick="simulateScan(this,'CP-03')">●<span>CP-03</span></div>
+      <div class="cp cp-scanned" onclick="simulateScan(this,'CP-04')">✓<span>CP-04</span></div>
+      <div class="cp cp-pending" onclick="simulateScan(this,'CP-05')">○<span>CP-05</span></div>
+      <div class="cp cp-pending" onclick="simulateScan(this,'CP-06')">○<span>CP-06</span></div>
+      <div class="cp cp-overdue" onclick="simulateScan(this,'CP-07')">!<span>CP-07</span></div>
+      <div class="cp cp-pending" onclick="simulateScan(this,'CP-08')">○<span>CP-08</span></div>
+      <div class="cp cp-scanned" onclick="simulateScan(this,'CP-09')">✓<span>CP-09</span></div>
+      <div class="cp cp-pending" onclick="simulateScan(this,'CP-10')">○<span>CP-10</span></div>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span style="font-size:12px;font-weight:600"><span id="cp-count">4</span>/10 Checkpoints</span>
+      <span style="font-size:12px;color:var(--accent)" id="patrol-timer">02:14:33</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="patrol-progress" style="width:40%"></div></div>
+  </div>
+  <div class="guard-strip">
+    <div class="guard-chip"><div class="gc-name">M. Santos</div><div class="gc-status"><span class="badge badge-green" style="font-size:9px">ON PATROL</span></div></div>
+    <div class="guard-chip"><div class="gc-name">J. Clarke</div><div class="gc-status"><span class="badge badge-amber" style="font-size:9px">ON BREAK</span></div></div>
+    <div class="guard-chip"><div class="gc-name">T. Brown</div><div class="gc-status"><span class="badge badge-green" style="font-size:9px">ON PATROL</span></div></div>
+    <div class="guard-chip"><div class="gc-name">R. Patel</div><div class="gc-status"><span class="badge badge-red" style="font-size:9px">OFFLINE</span></div></div>
+  </div>
+  <div class="section-title" style="padding:0 16px;margin-bottom:8px">CHECKPOINT LOG</div>
+  <div class="cp-list">
+    <div class="cp-row"><div class="cp-num" style="background:rgba(0,255,180,0.1);color:var(--accent)">01</div><div class="cp-info"><div class="cp-name">Main Entrance</div><div class="cp-meta">QR · Scanned 08:12</div></div><span class="badge badge-green" style="font-size:10px">OK</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(0,255,180,0.1);color:var(--accent)">02</div><div class="cp-info"><div class="cp-name">Car Park A</div><div class="cp-meta">NFC · Scanned 08:28</div></div><span class="badge badge-green" style="font-size:10px">OK</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(59,130,246,0.1);color:var(--blue)">03</div><div class="cp-info"><div class="cp-name">North Perimeter</div><div class="cp-meta">QR · In Progress</div></div><span class="badge badge-blue" style="font-size:10px">ACTIVE</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(0,255,180,0.1);color:var(--accent)">04</div><div class="cp-info"><div class="cp-name">Server Room</div><div class="cp-meta">NFC · Scanned 09:05</div></div><span class="badge badge-green" style="font-size:10px">OK</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(255,255,255,0.05);color:var(--muted)">05</div><div class="cp-info"><div class="cp-name">East Wing</div><div class="cp-meta">QR · Pending</div></div><span class="badge" style="font-size:10px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)">PENDING</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(255,255,255,0.05);color:var(--muted)">06</div><div class="cp-info"><div class="cp-name">Roof Access</div><div class="cp-meta">NFC · Pending</div></div><span class="badge" style="font-size:10px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)">PENDING</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(255,59,59,0.1);color:var(--red)">07</div><div class="cp-info"><div class="cp-name">Gate B</div><div class="cp-meta">QR · Overdue 12min</div></div><span class="badge badge-red" style="font-size:10px">OVERDUE</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(255,255,255,0.05);color:var(--muted)">08</div><div class="cp-info"><div class="cp-name">South Fence</div><div class="cp-meta">NFC · Pending</div></div><span class="badge" style="font-size:10px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)">PENDING</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(0,255,180,0.1);color:var(--accent)">09</div><div class="cp-info"><div class="cp-name">Loading Bay</div><div class="cp-meta">QR · Scanned 09:44</div></div><span class="badge badge-green" style="font-size:10px">OK</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(255,255,255,0.05);color:var(--muted)">10</div><div class="cp-info"><div class="cp-name">Reception</div><div class="cp-meta">NFC · Pending</div></div><span class="badge" style="font-size:10px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)">PENDING</span></div>
+  </div>
+  <button class="scan-fab" onclick="openScanner()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+  </button>
+</div>
 
-function renderGuardCPLog() {
-  var container = document.getElementById('guard-cp-log');
-  if (!container) { return; }
-  container.innerHTML = '';
+<!-- GUARDS -->
 
-  var times = [
-    '22:14','22:28','22:43','22:58','23:16',
-    '23:31','—','23:52','00:08','00:25'
-  ];
-  var statuses = [
-    'scanned','scanned','scanned','scanned','scanned',
-    'scanned','missed','scanned','scanned','scanned'
-  ];
+<div class="screen" id="screen-guards">
+  <div class="topbar"><div class="topbar-title">Guards</div></div>
+  <div style="padding:0 16px">
+    <div class="stat-grid" style="padding:0 0 16px">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent)">6</div><div class="stat-label">Active</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--amber)">1</div><div class="stat-label">On Break</div></div>
+    </div>
+    <div class="guard-card"><div class="guard-avatar">MS</div><div class="guard-info"><div class="guard-name">Mike Santos</div><div class="guard-meta">North Zone · CP-03 active</div></div><span class="badge badge-green">ON PATROL</span></div>
+    <div class="guard-card"><div class="guard-avatar">LR</div><div class="guard-info"><div class="guard-name">Lisa Rodriguez</div><div class="guard-meta">South Zone · CP-09 next</div></div><span class="badge badge-green">ON PATROL</span></div>
+    <div class="guard-card"><div class="guard-avatar">JC</div><div class="guard-info"><div class="guard-name">James Clarke</div><div class="guard-meta">Break room · Returns 10:30</div></div><span class="badge badge-amber">ON BREAK</span></div>
+    <div class="guard-card"><div class="guard-avatar">RP</div><div class="guard-info"><div class="guard-name">Raj Patel</div><div class="guard-meta">Last seen 2h ago</div></div><span class="badge badge-red">OFFLINE</span></div>
+  </div>
+</div>
 
-  for (var i = 0; i < checkpoints.length; i++) {
-    var cp = checkpoints[i];
-    var status = statuses[i];
-    var time = times[i];
+<!-- REPORTS -->
 
-    var row = document.createElement('div');
-    row.className = 'cp-log-row';
+<div class="screen" id="screen-reports">
+  <div class="topbar"><div class="topbar-title">Reports</div></div>
+  <div style="padding:0 16px">
+    <div class="tab-row">
+      <div class="tab active">Guard</div>
+      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">Supervisor</div>
+      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">History</div>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">END OF SHIFT REPORT</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div><div style="font-size:10px;color:var(--muted)">GUARD</div><div style="font-weight:600;font-size:14px">Mike Santos</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">DATE</div><div style="font-weight:600;font-size:14px">Today</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">CHECKPOINTS</div><div style="font-weight:600;font-size:14px;color:var(--accent)">9/10</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">INCIDENTS</div><div style="font-weight:600;font-size:14px;color:var(--red)">1</div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="sig-box">SIGN OFF REPORT</div>
+      <button class="btn btn-accent" style="margin-top:12px">SUBMIT REPORT</button>
+    </div>
+  </div>
+</div>
 
-    var badge = status === 'scanned'
-      ? '<span class="badge badge-accent" style="font-size:10px;">OK</span>'
-      : '<span class="badge badge-red" style="font-size:10px;">MISSED</span>';
+<!-- SETTINGS -->
 
-    row.innerHTML = '<span class="cp-log-num">' + cp.id + '</span>' +
-      '<span class="cp-log-name">' + cp.zone + '</span>' +
-      '<span class="cp-log-time">' + time + '</span>' +
-      badge;
-    container.appendChild(row);
-  }
-}
+<div class="screen" id="screen-settings">
+  <div class="topbar"><div class="topbar-title">Settings</div></div>
+  <div style="padding:0 20px">
+    <div class="card">
+      <div class="menu-item"><div class="menu-icon">👤</div><div class="menu-label">Profile</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item"><div class="menu-icon">🔒</div><div class="menu-label">Password &amp; Security</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item"><div class="menu-icon">🔔</div><div class="menu-label">Notifications</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item"><div class="menu-icon">💳</div><div class="menu-label">Billing</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+    <button class="btn btn-red" style="margin-top:16px" onclick="openLogout()">SIGN OUT</button>
+  </div>
+</div>
 
-/* =============================================
-   INCIDENTS FILTER
-   ============================================= */
-function filterIncidents(status, btn) {
-  if (btn) {
-    var parent = btn.parentNode;
-    var pills = parent.querySelectorAll('.pill');
-    for (var i = 0; i < pills.length; i++) { pills[i].classList.remove('active'); }
-    btn.classList.add('active');
-  }
+<!-- ALERTS -->
 
-  var cards = document.querySelectorAll('#incidents-list .incident-card');
-  for (var j = 0; j < cards.length; j++) {
-    var card = cards[j];
-    if (status === 'all') {
-      card.style.display = 'block';
-    } else {
-      var cardStatus = card.getAttribute('data-status');
-      card.style.display = (cardStatus === status) ? 'block' : 'none';
-    }
-  }
-}
+<div class="screen" id="screen-alerts">
+  <div class="topbar"><div class="topbar-title">Alerts</div></div>
+  <div style="padding:0 16px">
+    <div class="card" style="margin-bottom:10px;border-color:rgba(255,59,59,0.3)">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:20px">🚨</span>
+        <div><div style="font-size:14px;font-weight:600;color:var(--red)">SOS Alert — Gate B</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Guard R. Patel · 2h ago</div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:10px;border-color:rgba(245,166,35,0.3)">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:20px">⚠️</span>
+        <div><div style="font-size:14px;font-weight:600;color:var(--amber)">Checkpoint Overdue — CP-07</div><div style="font-size:12px;color:var(--muted);margin-top:4px">12 minutes overdue · Gate B</div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:20px">📵</span>
+        <div><div style="font-size:14px;font-weight:600">Guard Offline — R. Patel</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Last seen 2h ago · South Zone</div></div>
+      </div>
+    </div>
+  </div>
+</div>
 
-/* =============================================
-   UNITS TABS
-   ============================================= */
-function switchUnitTab(tab, btn) {
-  var tabs = ['enroute', 'arrival', 'onsite'];
-  for (var i = 0; i < tabs.length; i++) {
-    var panel = document.getElementById('units-panel-' + tabs[i]);
-    if (panel) { panel.style.display = 'none'; }
-  }
-  var target = document.getElementById('units-panel-' + tab);
-  if (target) { target.style.display = 'block'; }
+<!-- TIMESHEETS -->
 
-  if (btn) {
-    var parent = btn.parentNode;
-    var tabBtns = parent.querySelectorAll('.tab-btn');
-    for (var j = 0; j < tabBtns.length; j++) { tabBtns[j].classList.remove('active'); }
-    btn.classList.add('active');
-  }
-}
+<div class="screen" id="screen-timesheets">
+  <div class="topbar"><div class="topbar-title">Timesheets</div></div>
+  <div style="padding:0 16px">
+    <div class="card">
+      <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">THIS WEEK</div>
+      <div class="incident-row"><div class="inc-info"><div class="inc-title">Mike Santos</div><div class="inc-sub">Mon–Fri · 08:00–16:00</div></div><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">38h</div></div>
+      <div class="incident-row"><div class="inc-info"><div class="inc-title">Lisa Rodriguez</div><div class="inc-sub">Mon–Fri · 16:00–00:00</div></div><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">38h</div></div>
+      <div class="incident-row"><div class="inc-info"><div class="inc-title">James Clarke</div><div class="inc-sub">Mon–Thu · 00:00–08:00</div></div><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">32h</div></div>
+      <div class="incident-row"><div class="inc-info"><div class="inc-title">Raj Patel</div><div class="inc-sub">Fri–Sun · 08:00–20:00</div></div><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--amber)">24h</div></div>
+    </div>
+  </div>
+</div>
 
-/* =============================================
-   MENU (BURGER)
-   ============================================= */
-function openMenu() {
-  var menu = document.getElementById('burger-menu');
-  var overlay = document.getElementById('burger-overlay');
-  if (menu) { menu.classList.add('open'); }
-  if (overlay) { overlay.classList.add('open'); }
-  var navMore = document.getElementById('nav-more');
-  if (navMore) { navMore.classList.add('active'); }
-}
+<!-- BOTTOM NAV -->
 
-function closeMenu() {
-  var menu = document.getElementById('burger-menu');
-  var overlay = document.getElementById('burger-overlay');
-  if (menu) { menu.classList.remove('open'); }
-  if (overlay) { overlay.classList.remove('open'); }
-  var navMore = document.getElementById('nav-more');
-  if (navMore) { navMore.classList.remove('active'); }
-}
+<nav class="bottom-nav" id="main-bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="navTo('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+    <span>HOME</span>
+  </div>
+  <div class="nav-item" id="nav-incidents" onclick="navTo('incidents')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span>INCIDENTS</span>
+  </div>
+  <div class="nav-sos" onclick="openSOS()">
+    <div class="nav-sos-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+  </div>
+  <div class="nav-item" id="nav-patrol" onclick="navTo('patrol')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+    <span>PATROL</span>
+  </div>
+  <div class="nav-item" id="nav-more" onclick="openMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <span>MORE</span>
+  </div>
+</nav>
 
-/* =============================================
-   SOS
-   ============================================= */
-function openSOS() {
-  if (currentRole === 'client') {
-    showToast('SOS is not available for client accounts', 'warning');
-    return;
-  }
-  var modal = document.getElementById('sos-modal');
-  if (modal) { modal.classList.add('open'); }
-}
+<!-- BURGER MENU -->
 
-function closeSOS() {
-  var modal = document.getElementById('sos-modal');
-  if (modal) { modal.classList.remove('open'); }
-}
+<div id="menu-overlay" onclick="closeMenu()"></div>
+<div id="burger-menu">
+  <div class="menu-profile">
+    <div class="mp-avatar" id="menu-avatar">A</div>
+    <div><div class="mp-name" id="menu-name">Admin User</div><div class="mp-role" id="menu-role">Admin · admin@shieldsync.app</div></div>
+  </div>
+  <div class="burger-grid">
+    <div class="burger-item" onclick="closeMenu();navTo('guards')"><span class="bi-icon">👮</span><span class="bi-label">Guards</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('alerts')"><span class="bi-icon">🔔</span><span class="bi-label">Alerts</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('reports')"><span class="bi-icon">📋</span><span class="bi-label">Reports</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('timesheets')"><span class="bi-icon">🕐</span><span class="bi-label">Timesheets</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('settings')"><span class="bi-icon">⚙️</span><span class="bi-label">Settings</span></div>
+    <div class="burger-item" onclick="closeMenu();openShareModal()"><span class="bi-icon">🔗</span><span class="bi-label">Share Link</span></div>
+  </div>
+  <button class="btn btn-red" onclick="closeMenu();openLogout()">SIGN OUT</button>
+</div>
 
-function sendSOS() {
-  closeSOS();
-  showToast('🆘 SOS SENT — Supervisor and all units have been alerted!', 'error');
-  navTo('alerts');
-}
+<!-- MODALS -->
 
-/* =============================================
-   LOGOUT
-   ============================================= */
-function openLogoutModal() {
-  var modal = document.getElementById('logout-modal');
-  if (modal) { modal.classList.add('open'); }
-}
+<div class="modal" id="sos-modal">
+  <div class="modal-box">
+    <div style="text-align:center;margin-bottom:16px"><div style="font-size:48px;animation:pulse 1s infinite">🚨</div></div>
+    <div class="modal-title" style="text-align:center;color:var(--red)">SEND SOS ALERT?</div>
+    <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px">This will immediately alert all supervisors and dispatch emergency response.</div>
+    <button class="btn btn-red" style="margin-bottom:8px" onclick="confirmSOS()">SEND SOS NOW</button>
+    <button class="btn btn-outline" onclick="closeSOS()">CANCEL</button>
+  </div>
+</div>
 
-function closeLogoutModal() {
-  var modal = document.getElementById('logout-modal');
-  if (modal) { modal.classList.remove('open'); }
-}
+<div class="modal" id="end-patrol-modal">
+  <div class="modal-box">
+    <div class="modal-title">End Patrol</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+      <div style="text-align:center;background:rgba(0,255,180,0.05);border:1px solid var(--border);border-radius:10px;padding:10px"><div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--accent)">4</div><div style="font-size:10px;color:var(--muted)">SCANNED</div></div>
+      <div style="text-align:center;background:rgba(255,59,59,0.05);border:1px solid var(--border);border-radius:10px;padding:10px"><div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--red)">1</div><div style="font-size:10px;color:var(--muted)">MISSED</div></div>
+      <div style="text-align:center;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:10px"><div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700">2h</div><div style="font-size:10px;color:var(--muted)">DURATION</div></div>
+    </div>
+    <div class="field" style="margin-bottom:16px"><label>HANDOVER NOTES</label><textarea style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;resize:none;height:70px" placeholder="Any notes for next guard..."></textarea></div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="returnToBase()">RETURN TO BASE</button>
+    <button class="btn btn-outline" style="margin-bottom:8px" onclick="closeEndPatrol()">CONTINUE PATROL</button>
+    <button class="btn btn-outline" onclick="closeEndPatrol()">HANDOVER TO NEXT GUARD</button>
+  </div>
+</div>
 
-function confirmLogout() {
-  openLogoutModal();
-}
+<div class="modal" id="logout-modal">
+  <div class="modal-box">
+    <div class="modal-title">Sign Out?</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px">You will be returned to the login screen.</div>
+    <button class="btn btn-red" style="margin-bottom:8px" onclick="performLogout()">SIGN OUT</button>
+    <button class="btn btn-outline" onclick="closeLogout()">CANCEL</button>
+  </div>
+</div>
 
-function performLogout() {
-  closeLogoutModal();
-  currentUser = null;
-  currentRole = null;
-  selectedRole = null;
-  patrolSeconds = 0;
-  scannedCount = 4;
-  photoCount = 0;
-  damagePoints = [];
-  isSigned = false;
-  if (patrolTimerInterval) { clearInterval(patrolTimerInterval); patrolTimerInterval = null; }
-  if (guardAnimFrame) { cancelAnimationFrame(guardAnimFrame); guardAnimFrame = null; }
+<div class="modal" id="share-modal">
+  <div class="modal-box">
+    <div class="modal-title">🔗 Live Test Link</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Share these credentials with your team to test the app.</div>
+    <div id="share-url" style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.2);border-radius:10px;padding:12px;font-size:12px;color:var(--accent);word-break:break-all;margin-bottom:16px;font-family:'Rajdhani',sans-serif">shieldsync-jbsx.vercel.app</div>
+    <div style="display:grid;gap:6px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted)">admin@shieldsync.app</span><span style="color:var(--accent);cursor:pointer" onclick="fillLogin('admin@shieldsync.app','Admin1234!','admin');closeShare()">USE →</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted)">supervisor@shieldsync.app</span><span style="color:var(--accent);cursor:pointer" onclick="fillLogin('supervisor@shieldsync.app','Super1234!','supervisor');closeShare()">USE →</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted)">guard@shieldsync.app</span><span style="color:var(--accent);cursor:pointer" onclick="fillLogin('guard@shieldsync.app','Guard1234!','guard');closeShare()">USE →</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:12px"><span style="color:var(--muted)">client@shieldsync.app</span><span style="color:var(--accent);cursor:pointer" onclick="fillLogin('client@shieldsync.app','Client1234!','client');closeShare()">USE →</span></div>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="copyLink()">COPY LINK</button>
+    <button class="btn btn-outline" onclick="closeShare()">CLOSE</button>
+  </div>
+</div>
 
-  // Reset checkpoints
-  checkpoints = [
-    {id:'CP-01', zone:'Zone A — North Gate', tag:'QR Code', status:'scanned', time:'22:14'},
-    {id:'CP-02', zone:'Zone A — East Fence', tag:'NFC Tag', status:'scanned', time:'22:28'},
-    {id:'CP-03', zone:'Zone A — Entrance', tag:'QR Code', status:'active', time:'—'},
-    {id:'CP-04', zone:'Zone A — East', tag:'QR Code', status:'overdue', time:'22:45'},
-    {id:'CP-05', zone:'Zone B — Warehouse', tag:'NFC Tag', status:'pending', time:'—'},
-    {id:'CP-06', zone:'Zone B — Loading Bay', tag:'QR Code', status:'scanned', time:'22:55'},
-    {id:'CP-07', zone:'Zone C — North', tag:'NFC Tag', status:'overdue', time:'23:10'},
-    {id:'CP-08', zone:'Zone C — South', tag:'QR Code', status:'pending', time:'—'},
-    {id:'CP-09', zone:'Zone D — Gate', tag:'QR Code', status:'pending', time:'—'},
-    {id:'CP-10', zone:'Zone D — Perimeter', tag:'NFC Tag', status:'pending', time:'—'}
-  ];
+<!-- SCANNER MODAL -->
 
-  // Reset UI
-  var banner = document.getElementById('role-banner');
-  if (banner) { banner.style.display = 'none'; }
+<div id="scanner-modal">
+  <div class="topbar" style="background:#000;border-bottom:1px solid rgba(0,255,180,0.1)">
+    <div class="topbar-btn" style="background:rgba(255,255,255,0.08)" onclick="closeScanner()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+    <div class="topbar-title">Scan Checkpoint</div>
+  </div>
+  <div class="scanner-view">
+    <div class="scanner-frame">
+      <div class="scanner-line"></div>
+      <div class="scanner-corner sc-tl"></div>
+      <div class="scanner-corner sc-tr"></div>
+      <div class="scanner-corner sc-bl"></div>
+      <div class="scanner-corner sc-br"></div>
+    </div>
+  </div>
+  <div class="scanner-footer">
+    <div class="scan-mode">
+      <button class="scan-mode-btn active" onclick="setScanMode(this)">QR CODE</button>
+      <button class="scan-mode-btn" onclick="setScanMode(this)">NFC TAG</button>
+    </div>
+    <button class="btn btn-accent" onclick="simulateScanFromModal()">✓ CONFIRM SCAN</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+
+<div id="toast"></div>
+
+<script>
+var currentRole = 'admin';
+var cpScanned = 4;
+var patrolActive = false;
+var patrolSeconds = 8073;
+var timerInterval = null;
+var currentFuel = '1/2';
+var inspectionSigned = false;
+
+var demoUsers = {
+  'admin@shieldsync.app':      {password:'Admin1234!', name:'Admin User',     role:'admin'},
+  'supervisor@shieldsync.app': {password:'Super1234!', name:'Lisa Rodriguez', role:'supervisor'},
+  'guard@shieldsync.app':      {password:'Guard1234!', name:'Mike Santos',    role:'guard'},
+  'client@shieldsync.app':     {password:'Client1234!',name:'Client User',    role:'client'},
+  'gspeed1976@yahoo.com':      {password:'Admin1234!', name:'Owner',          role:'admin'}
+};
+
+function showScreen(id) {
+  var screens = document.querySelectorAll('.screen');
+  for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
+  var target = document.getElementById(id);
+  if (target) target.classList.add('active');
   var nav = document.getElementById('main-bottom-nav');
-  if (nav) { nav.style.display = 'none'; }
-  document.getElementById('login-email').value = '';
-  document.getElementById('login-pass').value = '';
-  var roleCards = document.querySelectorAll('.role-card');
-  for (var i = 0; i < roleCards.length; i++) { roleCards[i].classList.remove('selected'); }
-
-  showToast('Signed out successfully', 'success');
-  showScreen('login');
+  var noNav = ['screen-login','screen-reset','screen-vehicle-inspection'];
+  if (nav) nav.classList[noNav.indexOf(id) > -1 ? 'remove' : 'add']('show');
 }
 
-/* =============================================
-   SHARE MODAL
-   ============================================= */
-function openShareModal() {
-  var modal = document.getElementById('share-modal');
-  if (modal) { modal.classList.add('open'); }
-}
-
-function closeShareModal() {
-  var modal = document.getElementById('share-modal');
-  if (modal) { modal.classList.remove('open'); }
-}
-
-function copyToClipboard(text) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(function() {
-      showToast('Copied to clipboard!', 'success');
-    }).catch(function() {
-      fallbackCopy(text);
-    });
+function navTo(tab) {
+  var navItems = document.querySelectorAll('.nav-item');
+  for (var i = 0; i < navItems.length; i++) navItems[i].classList.remove('active');
+  var navEl = document.getElementById('nav-' + tab);
+  if (navEl) navEl.classList.add('active');
+  if (tab === 'patrol') {
+    showScreen('screen-vehicle-inspection');
+    viNextStep(1);
   } else {
-    fallbackCopy(text);
+    showScreen('screen-' + tab);
   }
 }
 
-function fallbackCopy(text) {
-  var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
-  try {
-    document.execCommand('copy');
-    showToast('Copied to clipboard!', 'success');
-  } catch(e) {
-    showToast('Could not copy — please copy manually', 'warning');
-  }
-  document.body.removeChild(ta);
-}
-
-/* =============================================
-   TOAST NOTIFICATIONS
-   ============================================= */
-function showToast(msg, type) {
-  var container = document.getElementById('toast-container');
-  if (!container) { return; }
-
-  var icons = {success:'✅', error:'🚨', warning:'⚠️', info:'ℹ️'};
-  var toast = document.createElement('div');
-  toast.className = 'toast toast-' + (type || 'info');
-  toast.innerHTML = '<span>' + (icons[type] || 'ℹ️') + '</span><span>' + msg + '</span>';
-  container.appendChild(toast);
-
+function signInWithRole() {
+  var emailEl = document.getElementById('login-email');
+  var passEl = document.getElementById('login-pass');
+  var email = emailEl ? emailEl.value.trim().toLowerCase() : '';
+  var pass = passEl ? passEl.value : '';
+  var btn = document.querySelector('#screen-login .btn-accent');
+  if (!email || !pass) { showToast('Please enter email and password', 'warning'); return; }
+  if (btn) { btn.textContent = 'SIGNING IN...'; btn.disabled = true; btn.style.opacity = '0.7'; }
   setTimeout(function() {
-    toast.style.animation = 'toastOut 0.3s ease forwards';
-    setTimeout(function() {
-      if (toast.parentNode) { toast.parentNode.removeChild(toast); }
-    }, 300);
-  }, 3000);
+    if (btn) { btn.textContent = 'SIGN IN'; btn.disabled = false; btn.style.opacity = '1'; }
+    var user = demoUsers[email];
+    if (!user) { showToast('No account found for that email', 'error'); return; }
+    if (user.password !== pass) { showToast('Incorrect password', 'error'); return; }
+    currentRole = user.role;
+    selectRole(user.role);
+    var hn = document.getElementById('home-name');
+    if (hn) hn.textContent = user.name.split(' ')[0];
+    var mn = document.getElementById('menu-name');
+    if (mn) mn.textContent = user.name;
+    var mr = document.getElementById('menu-role');
+    if (mr) mr.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1) + ' · ' + email;
+    var ma = document.getElementById('menu-avatar');
+    if (ma) ma.textContent = user.name.charAt(0);
+    var rb = document.getElementById('role-banner-text');
+    if (rb) rb.textContent = user.role.toUpperCase() + ' · SHIFT ACTIVE';
+    if (user.role === 'guard') { showScreen('screen-vehicle-inspection'); viNextStep(1); }
+    else { showScreen('screen-home'); }
+    showToast('Welcome, ' + user.name.split(' ')[0] + '!', 'success');
+    startPatrolTimer();
+  }, 700);
 }
 
-/* =============================================
-   INIT
-   ============================================= */
-function initApp() {
-  showScreen('login');
-  renderCheckpoints('all');
+function selectRole(role) {
+  var cards = document.querySelectorAll('.role-card');
+  for (var i = 0; i < cards.length; i++) cards[i].classList.remove('selected');
+  var card = document.getElementById('role-' + role);
+  if (card) card.classList.add('selected');
+  currentRole = role;
+}
 
-  // Greeting time of day
-  var hour = new Date().getHours();
-  var greetEl = document.getElementById('greeting-main');
-  var greetName = document.getElementById('greeting-name');
-  var greeting = 'Good morning';
-  if (hour >= 12 && hour < 17) { greeting = 'Good afternoon'; }
-  else if (hour >= 17) { greeting = 'Good evening'; }
+function fillLogin(email, pass, role) {
+  var em = document.getElementById('login-email');
+  var pw = document.getElementById('login-pass');
+  if (em) em.value = email;
+  if (pw) pw.value = pass;
+  selectRole(role);
+}
 
-  // Set greeting element if we ever navigate to home
-  // (will be updated dynamically on login)
+function doReset() {
+  var em = document.getElementById('reset-email');
+  if (!em || !em.value) { showToast('Enter your email', 'warning'); return; }
+  showToast('Reset link sent to ' + em.value, 'success');
+  setTimeout(function() { showScreen('screen-login'); }, 1500);
+}
 
-  // Close modals on backdrop click
-  var backdrops = document.querySelectorAll('.modal-backdrop');
-  for (var i = 0; i < backdrops.length; i++) {
-    (function(backdrop) {
-      backdrop.addEventListener('click', function(e) {
-        if (e.target === backdrop) {
-          backdrop.classList.remove('open');
-        }
-      });
-    })(backdrops[i]);
-  }
-
-  // OTP keyboard nav — backspace support
-  var otpInputs = document.querySelectorAll('.otp-input');
-  for (var j = 0; j < otpInputs.length; j++) {
-    (function(input, idx) {
-      input.addEventListener('keydown', function(e) {
-        if (e.key === 'Backspace' && input.value === '' && idx > 0) {
-          var prev = document.getElementById('otp' + idx);
-          if (prev) { prev.focus(); }
-        }
-      });
-    })(otpInputs[j], j + 1);
+function viNextStep(step) {
+  for (var i = 1; i <= 4; i++) {
+    var el = document.getElementById('vi-step-' + i);
+    if (el) el.style.display = (i === step) ? 'block' : 'none';
+    var bar = document.getElementById('vis-' + i);
+    if (bar) { bar.className = 'vi-step' + (i < step ? ' done' : i === step ? ' active' : ''); }
   }
 }
 
-// Boot
-initApp();
+function setFuel(btn, val) {
+  var btns = btn.parentNode.querySelectorAll('.fuel-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+  currentFuel = val;
+  var sf = document.getElementById('sum-fuel');
+  if (sf) sf.textContent = val;
+}
 
+function takePhoto(slot) {
+  var el = document.getElementById('ps-' + slot);
+  if (el) { el.classList.add('taken'); el.innerHTML = '✓<br><span style="font-size:11px;font-family:Rajdhani,sans-serif;letter-spacing:1px">' + slot.toUpperCase() + '</span>'; }
+  showToast(slot + ' photo captured', 'success');
+}
+
+function setCheck(btn, state) {
+  var toggle = btn.parentNode;
+  var btns = toggle.querySelectorAll('.check-btn');
+  for (var i = 0; i < btns.length; i++) { btns[i].classList.remove('ok','fail'); }
+  btn.classList.add(state);
+}
+
+function completeInspection() {
+  var plate = document.getElementById('vi-plate');
+  var sp = document.getElementById('sum-plate');
+  if (sp && plate) sp.textContent = plate.value || 'ABC 1234';
+  var type = document.getElementById('vi-type');
+  var st = document.getElementById('sum-type');
+  if (st && type) st.textContent = type.value;
+  var make = document.getElementById('vi-make');
+  var sm = document.getElementById('sum-make');
+  if (sm && make) sm.textContent = make.value || 'Toyota Camry';
+  viNextStep(4);
+}
+
+function signOff() {
+  var box = document.querySelector('.sig-box');
+  if (box) { box.textContent = '✓ Signed — ' + new Date().toLocaleTimeString(); box.style.color = 'var(--accent)'; box.style.borderColor = 'rgba(0,255,180,0.3)'; }
+  inspectionSigned = true;
+}
+
+function openScanner() { document.getElementById('scanner-modal').classList.add('open'); }
+function closeScanner() { document.getElementById('scanner-modal').classList.remove('open'); }
+function setScanMode(btn) {
+  var btns = btn.parentNode.querySelectorAll('.scan-mode-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+}
+function simulateScanFromModal() {
+  closeScanner();
+  cpScanned = Math.min(cpScanned + 1, 10);
+  var cc = document.getElementById('cp-count');
+  if (cc) cc.textContent = cpScanned;
+  var pp = document.getElementById('patrol-progress');
+  if (pp) pp.style.width = (cpScanned * 10) + '%';
+  showToast('Checkpoint scanned! ' + cpScanned + '/10', 'success');
+}
+function simulateScan(el, name) {
+  el.className = 'cp cp-scanned';
+  el.innerHTML = '&#10003;<span>' + name + '</span>';
+  cpScanned = Math.min(cpScanned + 1, 10);
+  var cc = document.getElementById('cp-count');
+  if (cc) cc.textContent = cpScanned;
+  var pp = document.getElementById('patrol-progress');
+  if (pp) pp.style.width = (cpScanned * 10) + '%';
+  showToast(name + ' scanned!', 'success');
+}
+
+function openEndPatrol() { document.getElementById('end-patrol-modal').classList.add('open'); }
+function closeEndPatrol() { document.getElementById('end-patrol-modal').classList.remove('open'); }
+function returnToBase() {
+  closeEndPatrol();
+  showToast('Patrol ended. Returning to base.', 'success');
+  setTimeout(function() { performLogout(); }, 1500);
+}
+
+function openSOS() { document.getElementById('sos-modal').classList.add('open'); }
+function closeSOS() { document.getElementById('sos-modal').classList.remove('open'); }
+function confirmSOS() { closeSOS(); showToast('SOS SENT — Supervisor alerted!', 'error'); }
+
+function openLogout() { document.getElementById('logout-modal').classList.add('open'); }
+function closeLogout() { document.getElementById('logout-modal').classList.remove('open'); }
+function performLogout() {
+  closeLogout();
+  cpScanned = 4; patrolSeconds = 8073;
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  var em = document.getElementById('login-email');
+  var pw = document.getElementById('login-pass');
+  if (em) em.value = '';
+  if (pw) pw.value = '';
+  selectRole('admin');
+  showScreen('screen-login');
+}
+
+function openMenu() {
+  document.getElementById('menu-overlay').classList.add('open');
+  document.getElementById('burger-menu').classList.add('open');
+}
+function closeMenu() {
+  document.getElementById('menu-overlay').classList.remove('open');
+  document.getElementById('burger-menu').classList.remove('open');
+}
+
+function openShareModal() { document.getElementById('share-modal').classList.add('open'); }
+function closeShare() { document.getElementById('share-modal').classList.remove('open'); }
+function copyLink() {
+  if (navigator.clipboard) { navigator.clipboard.writeText('https://shieldsync-jbsx.vercel.app'); }
+  showToast('Link copied!', 'success');
+}
+
+function startPatrolTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(function() {
+    patrolSeconds++;
+    var h = Math.floor(patrolSeconds / 3600);
+    var m = Math.floor((patrolSeconds % 3600) / 60);
+    var s = patrolSeconds % 60;
+    var t = document.getElementById('patrol-timer');
+    if (t) t.textContent = (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+  }, 1000);
+}
+
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.className = 'show ' + (type || 'info');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function() { t.className = ''; }, 3000);
+}
+
+// Init
+showScreen('screen-login');
+selectRole('admin');
+startPatrolTimer();
 </script>
+
 </body>
 </html>
