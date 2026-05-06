@@ -18,10 +18,10 @@ html,body{height:100%;width:100%;background:var(--bg,#080c12);font-family:'Inter
 #screen-login{padding-bottom:40px;background:var(--bg)}
 .bottom-nav{display:none;position:absolute;bottom:0;left:0;right:0;background:rgba(8,12,18,0.97);border-top:1px solid var(--border);padding:8px 0 28px;z-index:100;flex-direction:row;align-items:center}
 .bottom-nav.show{display:flex}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;cursor:pointer;opacity:0.45;transition:opacity 0.2s}
-.nav-item.active{opacity:1}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;cursor:pointer;opacity:0.45;transition:opacity 0.2s;color:var(--text)}
+.nav-item.active{opacity:1;color:var(--accent)}
 .nav-item svg{width:22px;height:22px}
-.nav-item span{font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px}
+.nav-item span{font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px;color:inherit}
 .nav-sos{flex:1;display:flex;justify-content:center;align-items:center;cursor:pointer;padding-bottom:4px}
 .nav-sos-btn{width:52px;height:52px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(255,59,59,0.4);margin-top:-16px}
 .topbar{display:flex;align-items:center;padding:16px 20px;gap:12px;flex-shrink:0}
@@ -321,12 +321,40 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
       <div class="threat-bar"><div class="threat-fill" style="width:40%"></div></div>
     </div>
   </div>
+  <div class="section">
+    <div class="section-title">UNITS STATUS</div>
+    <div class="tab-row" style="margin-bottom:12px">
+      <div class="tab active" onclick="switchUnitsTab(this,'enroute')">Enroute</div>
+      <div class="tab" onclick="switchUnitsTab(this,'onsite')">On Site</div>
+      <div class="tab" onclick="switchUnitsTab(this,'available')">Available</div>
+    </div>
+    <div id="units-enroute">
+      <div class="guard-card"><div class="guard-avatar" style="background:rgba(59,130,246,0.1);color:var(--blue)">MS</div><div class="guard-info"><div class="guard-name">Mike Santos</div><div class="guard-meta">ETA 8 min · North Gate</div></div><span class="badge badge-blue">ENROUTE</span></div>
+      <div class="guard-card"><div class="guard-avatar" style="background:rgba(59,130,246,0.1);color:var(--blue)">TB</div><div class="guard-info"><div class="guard-name">Tom Brown</div><div class="guard-meta">ETA 14 min · South Wing</div></div><span class="badge badge-blue">ENROUTE</span></div>
+    </div>
+    <div id="units-onsite" style="display:none">
+      <div class="guard-card"><div class="guard-avatar">LR</div><div class="guard-info"><div class="guard-name">Lisa Rodriguez</div><div class="guard-meta">CP-09 · South Zone</div></div><span class="badge badge-green">ON SITE</span></div>
+      <div class="guard-card"><div class="guard-avatar">JC</div><div class="guard-info"><div class="guard-name">James Clarke</div><div class="guard-meta">CP-03 · North Zone</div></div><span class="badge badge-green">ON SITE</span></div>
+    </div>
+    <div id="units-available" style="display:none">
+      <div class="guard-card"><div class="guard-avatar" style="background:rgba(245,166,35,0.1);color:var(--amber)">RP</div><div class="guard-info"><div class="guard-name">Raj Patel</div><div class="guard-meta">Base · Ready for dispatch</div></div><span class="badge badge-amber">AVAILABLE</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">QUICK ACTIONS</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('patrol')">🚔 START PATROL</button>
+      <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('incidents')">⚠️ LOG INCIDENT</button>
+      <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('guards')">👮 VIEW GUARDS</button>
+      <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('reports')">📋 REPORTS</button>
+    </div>
+  </div>
 </div>
 
 <!-- INCIDENTS -->
 
 <div class="screen" id="screen-incidents">
-  <div class="topbar"><div class="topbar-title">Incidents</div></div>
+  <div class="topbar"><div class="topbar-title">Incidents</div><div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newIncident()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
   <div style="padding:0 16px 16px">
     <div class="tab-row">
       <div class="tab active">All</div>
@@ -501,7 +529,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
 <!-- GUARDS -->
 
 <div class="screen" id="screen-guards">
-  <div class="topbar"><div class="topbar-title">Guards</div></div>
+  <div class="topbar"><div class="topbar-title">Guards</div><div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="showToast('Add guard feature coming soon','info')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
   <div style="padding:0 16px">
     <div class="stat-grid" style="padding:0 0 16px">
       <div class="stat-card"><div class="stat-val" style="color:var(--accent)">6</div><div class="stat-label">Active</div></div>
@@ -520,9 +548,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
   <div class="topbar"><div class="topbar-title">Reports</div></div>
   <div style="padding:0 16px">
     <div class="tab-row">
-      <div class="tab active">Guard</div>
-      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">Supervisor</div>
-      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">History</div>
+      <div class="tab active" onclick="switchReportTab(this,'guard')">Guard</div>
+      <div class="tab" onclick="switchReportTab(this,'supervisor')">Supervisor</div>
+      <div class="tab" onclick="switchReportTab(this,'history')">History</div>
     </div>
     <div class="card" style="margin-bottom:12px">
       <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">END OF SHIFT REPORT</div>
@@ -536,6 +564,41 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
       <div class="sig-box">SIGN OFF REPORT</div>
       <button class="btn btn-accent" style="margin-top:12px" onclick="submitReport()">SUBMIT REPORT</button>
     </div>
+  <div id="report-supervisor" style="display:none">
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">SUPERVISOR SHIFT REPORT</div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">TEAM PERFORMANCE</div>
+        <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Mike Santos</span><span style="color:var(--accent)">9/10</span></div><div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div></div>
+        <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Lisa Rodriguez</span><span style="color:var(--accent)">10/10</span></div><div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>James Clarke</span><span style="color:var(--amber)">7/10</span></div><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--amber)"></div></div></div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div><div style="font-size:10px;color:var(--muted)">INCIDENTS</div><div style="font-weight:700;font-size:18px;font-family:'Rajdhani',sans-serif;color:var(--red)">3</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">RESOLVED</div><div style="font-weight:700;font-size:18px;font-family:'Rajdhani',sans-serif;color:var(--accent)">2</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">GUARDS ON DUTY</div><div style="font-weight:700;font-size:18px;font-family:'Rajdhani',sans-serif">8</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">AVG COMPLETION</div><div style="font-weight:700;font-size:18px;font-family:'Rajdhani',sans-serif;color:var(--accent)">88%</div></div>
+      </div>
+      <div class="field" style="margin-bottom:12px"><label>SUPERVISOR NOTES</label><textarea style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;resize:none;height:80px" placeholder="Actions taken, observations..."></textarea></div>
+      <div class="field" style="margin-bottom:12px"><label>SUPERVISOR SIGN-OFF</label><div class="sig-box" id="sup-sig" onclick="signSupervisor()">TAP TO SIGN</div></div>
+      <button class="btn btn-accent" onclick="submitSupervisorReport()">SUBMIT SUPERVISOR REPORT</button>
+    </div>
+  </div>
+  <div id="report-history" style="display:none">
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:14px;font-weight:600">End of Shift — Mike Santos</div><span class="badge badge-green">SUBMITTED</span></div>
+      <div style="font-size:12px;color:var(--muted)">Yesterday · 9/10 checkpoints · 0 incidents</div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:14px;font-weight:600">Supervisor Report — L. Rodriguez</div><span class="badge badge-green">SUBMITTED</span></div>
+      <div style="font-size:12px;color:var(--muted)">2 days ago · 8 guards · 1 incident</div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:14px;font-weight:600">End of Shift — J. Clarke</div><span class="badge badge-amber">PENDING</span></div>
+      <div style="font-size:12px;color:var(--muted)">3 days ago · 7/10 checkpoints · 1 incident</div>
+    </div>
+  </div>
   </div>
 </div>
 
@@ -583,7 +646,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
 <!-- TIMESHEETS -->
 
 <div class="screen" id="screen-timesheets">
-  <div class="topbar"><div class="topbar-title">Timesheets</div></div>
+  <div class="topbar"><div class="topbar-title">Timesheets</div><div class="topbar-btn" onclick="openMenu()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div></div>
   <div style="padding:0 16px">
     <div class="card">
       <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">THIS WEEK</div>
@@ -995,6 +1058,51 @@ function submitReport() {
     if (btn) { btn.textContent = '✓ REPORT SUBMITTED'; btn.style.background = 'rgba(0,255,180,0.2)'; btn.style.color = 'var(--accent)'; btn.style.border = '1px solid rgba(0,255,180,0.3)'; }
     showToast('End of shift report submitted!', 'success');
   }, 1000);
+}
+
+function switchReportTab(btn, tab) {
+  var tabs = btn.parentNode.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels = ['guard','supervisor','history'];
+  for (var j = 0; j < panels.length; j++) {
+    var guardPanel = document.querySelector('#screen-reports .card');
+    var el = document.getElementById('report-' + panels[j]);
+    if (panels[j] === 'guard' && guardPanel) guardPanel.style.display = tab === 'guard' ? 'block' : 'none';
+    if (el) el.style.display = panels[j] === tab ? 'block' : 'none';
+  }
+}
+
+function signSupervisor() {
+  var sig = document.getElementById('sup-sig');
+  if (sig) { sig.textContent = '✓ Signed — ' + new Date().toLocaleTimeString(); sig.style.color = 'var(--accent)'; sig.style.borderColor = 'rgba(0,255,180,0.3)'; }
+}
+
+function submitSupervisorReport() {
+  var sig = document.getElementById('sup-sig');
+  if (sig && sig.textContent === 'TAP TO SIGN') { showToast('Please sign off the report first', 'warning'); signSupervisor(); return; }
+  var btn = event.target;
+  btn.textContent = 'SUBMITTING...'; btn.disabled = true; btn.style.opacity = '0.7';
+  setTimeout(function() {
+    btn.textContent = '✓ SUBMITTED'; btn.style.background = 'rgba(0,255,180,0.15)'; btn.style.color = 'var(--accent)';
+    showToast('Supervisor report submitted!', 'success');
+  }, 1000);
+}
+
+function switchUnitsTab(btn, tab) {
+  var tabs = btn.parentNode.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels = ['enroute','onsite','available'];
+  for (var j = 0; j < panels.length; j++) {
+    var el = document.getElementById('units-' + panels[j]);
+    if (el) el.style.display = panels[j] === tab ? 'block' : 'none';
+  }
+}
+
+// Fix incidents screen - add new incident button
+function newIncident() {
+  showToast('New incident form coming soon', 'info');
 }
 
 // Init
