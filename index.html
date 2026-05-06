@@ -6,6 +6,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#080c12">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ShieldSync">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="ShieldSync">
+<meta name="msapplication-TileColor" content="#080c12">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icon-192.png">
+<link rel="apple-touch-icon" sizes="167x167" href="/icon-192.png">
 <title>ShieldSync</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -228,7 +238,17 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
       <div class="role-card" id="role-guard" onclick="selectRole('guard')">
         <div class="role-icon">👤</div>
         <div class="role-name">Guard</div>
-        <div class="role-desc">Patrol, checkpoints, SOS</div>
+        <div class="role-desc">Static post, access control</div>
+      </div>
+      <div class="role-card" id="role-patrol" onclick="selectRole('patrol')">
+        <div class="role-icon">🚔</div>
+        <div class="role-name">Patrol Officer</div>
+        <div class="role-desc">Patrol only, checkpoints, SOS</div>
+      </div>
+      <div class="role-card" id="role-guardpatrol" onclick="selectRole('guardpatrol')">
+        <div class="role-icon">⚔️</div>
+        <div class="role-name">Guard + Patrol</div>
+        <div class="role-desc">Post duty &amp; patrol combined</div>
       </div>
       <div class="role-card" id="role-client" onclick="selectRole('client')">
         <div class="role-icon">📊</div>
@@ -243,6 +263,8 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
     <div class="ql-row"><span class="ql-email">admin@shieldsync.app</span><span class="ql-use" onclick="fillLogin('admin@shieldsync.app','Admin1234!','admin')">USE →</span></div>
     <div class="ql-row"><span class="ql-email">supervisor@shieldsync.app</span><span class="ql-use" onclick="fillLogin('supervisor@shieldsync.app','Super1234!','supervisor')">USE →</span></div>
     <div class="ql-row"><span class="ql-email">guard@shieldsync.app</span><span class="ql-use" onclick="fillLogin('guard@shieldsync.app','Guard1234!','guard')">USE →</span></div>
+    <div class="ql-row"><span class="ql-email">patrol@shieldsync.app</span><span class="ql-use" onclick="fillLogin('patrol@shieldsync.app','Patrol1234!','patrol')">USE →</span></div>
+    <div class="ql-row"><span class="ql-email">guardpatrol@shieldsync.app</span><span class="ql-use" onclick="fillLogin('guardpatrol@shieldsync.app','GP1234!','guardpatrol')">USE →</span></div>
     <div class="ql-row"><span class="ql-email">client@shieldsync.app</span><span class="ql-use" onclick="fillLogin('client@shieldsync.app','Client1234!','client')">USE →</span></div>
   </div>
 </div>
@@ -277,9 +299,15 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </div>
   </div>
-  <div class="role-banner">
-    <div class="rb-dot"></div>
-    <div class="rb-text" id="role-banner-text">ADMIN · SHIFT ACTIVE</div>
+  <div class="role-banner" style="justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="rb-dot"></div>
+      <div class="rb-text" id="role-banner-text">ADMIN · SHIFT ACTIVE</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button id="enroute-btn" onclick="toggleEnroute()" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);color:var(--blue);font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer">ENROUTE</button>
+      <button id="onsite-btn" onclick="toggleOnSite()" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(0,255,180,0.2);background:transparent;color:var(--muted);font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer">ON SITE</button>
+    </div>
   </div>
   <div style="padding:0 16px 16px">
     <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700">Good Morning, <span id="home-name">Admin</span> 👋</div>
@@ -652,15 +680,128 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
 <!-- TIMESHEETS -->
 
 <div class="screen" id="screen-timesheets">
-  <div class="topbar"><div class="topbar-title">Timesheets</div><div class="topbar-btn" onclick="openMenu()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></div></div>
-  <div style="padding:0 16px">
-    <div class="card">
-      <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">THIS WEEK</div>
-      <div class="incident-row"><div class="inc-info"><div class="inc-title">Mike Santos</div><div class="inc-sub">Mon–Fri · 08:00–16:00</div></div><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">38h</div></div>
-      <div class="incident-row"><div class="inc-info"><div class="inc-title">Lisa Rodriguez</div><div class="inc-sub">Mon–Fri · 16:00–00:00</div></div><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">38h</div></div>
-      <div class="incident-row"><div class="inc-info"><div class="inc-title">James Clarke</div><div class="inc-sub">Mon–Thu · 00:00–08:00</div></div><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">32h</div></div>
-      <div class="incident-row"><div class="inc-info"><div class="inc-title">Raj Patel</div><div class="inc-sub">Fri–Sun · 08:00–20:00</div></div><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--amber)">24h</div></div>
+  <div class="topbar">
+    <div class="topbar-title">Timesheets</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openPTORequest()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </div>
+  </div>
+  <div style="padding:0 16px">
+    <div class="tab-row">
+      <div class="tab active" onclick="switchTSTab(this,'hours')">Hours</div>
+      <div class="tab" onclick="switchTSTab(this,'pto')">PTO</div>
+      <div class="tab" onclick="switchTSTab(this,'requests')">Requests</div>
+    </div>
+
+```
+<!-- HOURS TAB -->
+<div id="ts-hours">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent)">132h</div><div class="stat-label">This Month</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--blue)">38h</div><div class="stat-label">This Week</div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">THIS WEEK</div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">Mike Santos</div><div class="inc-sub">Mon–Fri · 08:00–16:00 · Guard</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">38h</div><div style="font-size:10px;color:var(--muted)">+2h OT</div></div>
+    </div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">Lisa Rodriguez</div><div class="inc-sub">Mon–Fri · 16:00–00:00 · Supervisor</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">38h</div><div style="font-size:10px;color:var(--muted)">No OT</div></div>
+    </div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">James Clarke</div><div class="inc-sub">Mon–Thu · 00:00–08:00 · Guard+Patrol</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">32h</div><div style="font-size:10px;color:var(--muted)">No OT</div></div>
+    </div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">Tom Brown</div><div class="inc-sub">Mon–Fri · 08:00–16:00 · Patrol</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">38h</div><div style="font-size:10px;color:var(--muted)">No OT</div></div>
+    </div>
+    <div class="incident-row" style="border-bottom:none">
+      <div class="inc-info"><div class="inc-title">Raj Patel</div><div class="inc-sub">Fri–Sun · 08:00–20:00 · Patrol</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--amber)">24h</div><div style="font-size:10px;color:var(--red)">Under 40h</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PTO TAB -->
+<div id="ts-pto" style="display:none">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent)">12</div><div class="stat-label">Days Available</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--amber)">3</div><div class="stat-label">Days Used</div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">PTO BALANCES</div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">Mike Santos</div><div class="inc-sub">Guard · Started Jan 2023</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">12d</div><div style="font-size:10px;color:var(--muted)">3 used</div></div>
+    </div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">Lisa Rodriguez</div><div class="inc-sub">Supervisor · Started Mar 2022</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">15d</div><div style="font-size:10px;color:var(--muted)">1 used</div></div>
+    </div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">Tom Brown</div><div class="inc-sub">Patrol · Started Jun 2023</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--amber)">8d</div><div style="font-size:10px;color:var(--muted)">2 used</div></div>
+    </div>
+    <div class="incident-row" style="border-bottom:none">
+      <div class="inc-info"><div class="inc-title">Raj Patel</div><div class="inc-sub">Patrol · Started Sep 2023</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--red)">5d</div><div style="font-size:10px;color:var(--muted)">5 used</div></div>
+    </div>
+  </div>
+  <button class="btn btn-accent" onclick="openPTORequest()">+ REQUEST TIME OFF</button>
+</div>
+
+<!-- REQUESTS TAB -->
+<div id="ts-requests" style="display:none">
+  <div class="card" style="margin-bottom:10px;border-color:rgba(245,166,35,0.3)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+      <div><div style="font-size:14px;font-weight:600">Mike Santos</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Dec 24–26 · 3 days · Annual Leave</div></div>
+      <span class="badge badge-amber">PENDING</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="approvePTO(this)">APPROVE</button>
+      <button class="btn btn-red" style="padding:8px;font-size:12px" onclick="denyPTO(this)">DENY</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:10px;border-color:rgba(245,166,35,0.3)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+      <div><div style="font-size:14px;font-weight:600">Tom Brown</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Jan 2–3 · 2 days · Sick Leave</div></div>
+      <span class="badge badge-amber">PENDING</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="approvePTO(this)">APPROVE</button>
+      <button class="btn btn-red" style="padding:8px;font-size:12px" onclick="denyPTO(this)">DENY</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div style="font-size:14px;font-weight:600">Lisa Rodriguez</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Nov 15 · 1 day · Personal</div></div>
+      <span class="badge badge-green">APPROVED</span>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- PTO REQUEST MODAL -->
+
+<div class="modal" id="pto-modal">
+  <div class="modal-box">
+    <div class="modal-title">Request Time Off</div>
+    <div class="field"><label>LEAVE TYPE</label>
+      <select id="pto-type"><option>Annual Leave</option><option>Sick Leave</option><option>Personal Day</option><option>Emergency Leave</option><option>Unpaid Leave</option></select>
+    </div>
+    <div class="field"><label>FROM DATE</label><input type="date" id="pto-from"></div>
+    <div class="field"><label>TO DATE</label><input type="date" id="pto-to"></div>
+    <div class="field"><label>REASON (OPTIONAL)</label>
+      <textarea id="pto-reason" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;resize:none;height:70px" placeholder="Brief reason for leave..."></textarea>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="submitPTORequest()">SUBMIT REQUEST</button>
+    <button class="btn btn-outline" onclick="closePTOModal()">CANCEL</button>
   </div>
 </div>
 
@@ -690,7 +831,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
   </div>
   <!-- Action buttons -->
   <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px">
-    <button class="btn btn-accent" style="padding:18px;font-size:16px" onclick="startPatrolFlow()">🚔 START PATROL</button>
+    <button class="btn btn-accent" style="padding:18px;font-size:16px" onclick="openPatrolCred()">🚔 START PATROL</button>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <button class="btn btn-outline" style="padding:14px;font-size:13px" onclick="navTo('incidents')">⚠️ LOG INCIDENT</button>
       <button class="btn btn-outline" style="padding:14px;font-size:13px" onclick="navTo('reports')">📋 MY REPORTS</button>
@@ -796,6 +937,23 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
     </div>
     <button class="btn btn-accent" style="margin-bottom:8px" onclick="submitPatrolReport()">SUBMIT &amp; RETURN TO BASE</button>
     <button class="btn btn-outline" style="margin-bottom:20px" onclick="showScreen('screen-guard-home')">SAVE DRAFT &amp; CONTINUE LATER</button>
+  </div>
+</div>
+
+<!-- PATROL CREDENTIAL MODAL -->
+
+<div class="modal" id="patrol-cred-modal">
+  <div class="modal-box">
+    <div class="modal-title">🚔 Start Patrol</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Confirm your guard credentials to begin patrol.</div>
+    <div class="field"><label>GUARD EMAIL</label><input type="email" id="pc-email" placeholder="guard@unit.com"></div>
+    <div class="field"><label>PASSWORD</label><input type="password" id="pc-pass" placeholder="••••••••"></div>
+    <div style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.15);border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--muted)">
+      <div style="color:var(--accent);font-weight:600;font-family:'Rajdhani',sans-serif;margin-bottom:4px">WHY IS THIS REQUIRED?</div>
+      Patrol records are legally signed off against your guard badge ID. Your credentials confirm identity before patrol begins.
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="confirmPatrolCredentials()">CONFIRM &amp; START</button>
+    <button class="btn btn-outline" onclick="closePatrolCred()">CANCEL</button>
   </div>
 </div>
 
@@ -937,11 +1095,13 @@ var currentFuel = '1/2';
 var inspectionSigned = false;
 
 var demoUsers = {
-  'admin@shieldsync.app':      {password:'Admin1234!', name:'Admin User',     role:'admin'},
-  'supervisor@shieldsync.app': {password:'Super1234!', name:'Lisa Rodriguez', role:'supervisor'},
-  'guard@shieldsync.app':      {password:'Guard1234!', name:'Mike Santos',    role:'guard'},
-  'client@shieldsync.app':     {password:'Client1234!',name:'Client User',    role:'client'},
-  'gspeed1976@yahoo.com':      {password:'Admin1234!', name:'Owner',          role:'admin'}
+  'admin@shieldsync.app':        {password:'Admin1234!',   name:'Admin User',     role:'admin'},
+  'supervisor@shieldsync.app':   {password:'Super1234!',   name:'Lisa Rodriguez', role:'supervisor'},
+  'guard@shieldsync.app':        {password:'Guard1234!',   name:'Mike Santos',    role:'guard'},
+  'patrol@shieldsync.app':       {password:'Patrol1234!',  name:'Tom Brown',      role:'patrol'},
+  'guardpatrol@shieldsync.app':  {password:'GP1234!',      name:'James Clarke',   role:'guardpatrol'},
+  'client@shieldsync.app':       {password:'Client1234!',  name:'Client User',    role:'client'},
+  'gspeed1976@yahoo.com':        {password:'Admin1234!',   name:'Owner',          role:'admin'}
 };
 
 function showScreen(id) {
@@ -992,8 +1152,20 @@ function signInWithRole() {
     if (ma) ma.textContent = user.name.charAt(0);
     var rb = document.getElementById('role-banner-text');
     if (rb) rb.textContent = user.role.toUpperCase() + ' · SHIFT ACTIVE';
-    if (user.role === 'guard') { var ghn = document.getElementById('guard-home-name'); if (ghn) ghn.textContent = user.name.split(' ')[0]; var gst = document.getElementById('guard-shift-time'); if (gst) gst.textContent = 'Shift started ' + new Date().toLocaleTimeString(); showScreen('screen-guard-home'); startGPSTracking(); }
-    else { showScreen('screen-home'); }
+    var role = user.role;
+    if (role === 'guard' || role === 'patrol' || role === 'guardpatrol') {
+      var ghn = document.getElementById('guard-home-name');
+      if (ghn) ghn.textContent = user.name.split(' ')[0];
+      var gst = document.getElementById('guard-shift-time');
+      var roleLabel = role === 'patrol' ? 'Patrol Officer' : role === 'guardpatrol' ? 'Guard + Patrol' : 'Guard';
+      if (gst) gst.textContent = roleLabel + ' · Shift started ' + new Date().toLocaleTimeString();
+      var statusEl = document.getElementById('guard-status-text');
+      if (statusEl) statusEl.textContent = roleLabel.toUpperCase() + ' — READY';
+      showScreen('screen-guard-home');
+      startGPSTracking();
+    } else {
+      showScreen('screen-home');
+    }
     showToast('Welcome, ' + user.name.split(' ')[0] + '!', 'success');
     startPatrolTimer();
   }, 700);
@@ -1448,11 +1620,200 @@ function submitPatrolReport() {
   }, 1200);
 }
 
+// ── TIMESHEETS ────────────────────────────────────────────────────────────
+
+function switchTSTab(btn, tab) {
+  var parent = btn.parentNode;
+  var tabs = parent.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels = ['hours','pto','requests'];
+  for (var j = 0; j < panels.length; j++) {
+    var el = document.getElementById('ts-' + panels[j]);
+    if (el) el.style.display = panels[j] === tab ? 'block' : 'none';
+  }
+}
+
+function openPTORequest() {
+  var modal = document.getElementById('pto-modal');
+  if (modal) modal.classList.add('open');
+  var today = new Date().toISOString().split('T')[0];
+  var pf = document.getElementById('pto-from');
+  var pt = document.getElementById('pto-to');
+  if (pf) pf.value = today;
+  if (pt) pt.value = today;
+}
+
+function closePTOModal() {
+  var modal = document.getElementById('pto-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+function submitPTORequest() {
+  var from = document.getElementById('pto-from');
+  var to = document.getElementById('pto-to');
+  if (!from || !from.value) { showToast('Please select start date', 'warning'); return; }
+  closePTOModal();
+  showToast('PTO request submitted for approval', 'success');
+}
+
+function approvePTO(btn) {
+  var card = btn.parentNode.parentNode;
+  var badge = card.querySelector('.badge');
+  if (badge) { badge.className = 'badge badge-green'; badge.textContent = 'APPROVED'; }
+  var btns = btn.parentNode;
+  if (btns) btns.style.display = 'none';
+  showToast('PTO approved ✓', 'success');
+}
+
+function denyPTO(btn) {
+  var card = btn.parentNode.parentNode;
+  var badge = card.querySelector('.badge');
+  if (badge) { badge.className = 'badge badge-red'; badge.textContent = 'DENIED'; }
+  var btns = btn.parentNode;
+  if (btns) btns.style.display = 'none';
+  showToast('PTO request denied', 'info');
+}
+
+// ── EN-ROUTE / ON SITE ─────────────────────────────────────────────────────
+
+var officerStatus = 'off';
+
+function toggleEnroute() {
+  var btn = document.getElementById('enroute-btn');
+  var siteBtn = document.getElementById('onsite-btn');
+  if (officerStatus === 'enroute') {
+    officerStatus = 'off';
+    if (btn) { btn.style.background = 'rgba(59,130,246,0.1)'; btn.style.color = 'var(--blue)'; btn.style.borderColor = 'rgba(59,130,246,0.4)'; btn.textContent = 'ENROUTE'; }
+    showToast('Status cleared', 'info');
+  } else {
+    officerStatus = 'enroute';
+    if (btn) { btn.style.background = 'var(--blue)'; btn.style.color = '#fff'; btn.style.borderColor = 'var(--blue)'; btn.textContent = '● ENROUTE'; }
+    if (siteBtn) { siteBtn.style.background = 'transparent'; siteBtn.style.color = 'var(--muted)'; }
+    showToast('Status: En Route to site', 'info');
+  }
+}
+
+function toggleOnSite() {
+  var btn = document.getElementById('onsite-btn');
+  var erBtn = document.getElementById('enroute-btn');
+  if (officerStatus === 'onsite') {
+    officerStatus = 'off';
+    if (btn) { btn.style.background = 'transparent'; btn.style.color = 'var(--muted)'; btn.style.borderColor = 'rgba(255,255,255,0.07)'; btn.textContent = 'ON SITE'; }
+    showToast('Status cleared', 'info');
+  } else {
+    officerStatus = 'onsite';
+    if (btn) { btn.style.background = 'var(--accent)'; btn.style.color = '#000'; btn.style.borderColor = 'var(--accent)'; btn.textContent = '● ON SITE'; }
+    if (erBtn) { erBtn.style.background = 'rgba(59,130,246,0.1)'; erBtn.style.color = 'var(--blue)'; erBtn.textContent = 'ENROUTE'; }
+    showToast('Status: On Site — shift active', 'success');
+  }
+}
+
+// ── PATROL CREDENTIAL MODAL ────────────────────────────────────────────────
+
+function openPatrolCred() {
+  var modal = document.getElementById('patrol-cred-modal');
+  if (modal) modal.classList.add('open');
+}
+
+function closePatrolCred() {
+  var modal = document.getElementById('patrol-cred-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+function confirmPatrolCredentials() {
+  var email = document.getElementById('pc-email');
+  var pass = document.getElementById('pc-pass');
+  if (!email || !email.value) { showToast('Enter your guard email', 'warning'); return; }
+  if (!pass || !pass.value) { showToast('Enter your password', 'warning'); return; }
+  var user = demoUsers[email.value.trim().toLowerCase()];
+  if (!user || user.password !== pass.value) { showToast('Invalid credentials', 'error'); return; }
+  closePatrolCred();
+  showToast('Credentials confirmed — starting patrol', 'success');
+  setTimeout(function() {
+    showScreen('screen-vehicle-inspection');
+    viNextStep(1);
+  }, 500);
+}
+
+// ── UPDATE LOGIN FOR NEW ROLES ─────────────────────────────────────────────
+
 // ── Init
 showScreen('screen-login');
 selectRole('admin');
 startPatrolTimer();
 </script>
 
+<script>
+// ── SERVICE WORKER REGISTRATION ───────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js')
+      .then(function(reg) { console.log('SW registered'); })
+      .catch(function(err) { console.log('SW failed:', err); });
+  });
+}
+
+// ── PWA INSTALL PROMPT ────────────────────────────────────────────────────
+var deferredPrompt;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  var banner = document.getElementById('install-banner');
+  if (banner) banner.style.display = 'flex';
+});
+
+function installApp() {
+  var banner = document.getElementById('install-banner');
+  if (banner) banner.style.display = 'none';
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(result) {
+      deferredPrompt = null;
+    });
+  }
+}
+
+function dismissInstall() {
+  var banner = document.getElementById('install-banner');
+  if (banner) banner.style.display = 'none';
+}
+
+// iOS install instructions
+window.addEventListener('load', function() {
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isStandalone = window.navigator.standalone;
+  if (isIOS && !isStandalone) {
+    var banner = document.getElementById('ios-install-banner');
+    if (banner) banner.style.display = 'flex';
+  }
+});
+</script>
+
+<!-- ANDROID INSTALL BANNER -->
+
+<div id="install-banner" style="display:none;position:fixed;bottom:90px;left:12px;right:12px;background:#0e1420;border:1px solid rgba(0,255,180,0.3);border-radius:16px;padding:14px 16px;z-index:1000;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+  <div style="width:40px;height:40px;background:rgba(0,255,180,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+    <svg width="22" height="22" viewBox="0 0 36 36" fill="none"><path d="M18 3L5 8.5v9.5C5 25.6 10.8 32.2 18 34c7.2-1.8 13-8.4 13-16V8.5L18 3z" fill="rgba(0,255,180,0.2)" stroke="#00ffb4" stroke-width="1.5"/><path d="M12 18l4 4 8-8" stroke="#00ffb4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div style="flex:1">
+    <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#fff">Install ShieldSync</div>
+    <div style="font-size:11px;color:rgba(240,244,248,0.5);margin-top:1px">Add to home screen for best experience</div>
+  </div>
+  <button onclick="installApp()" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:8px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:1px">INSTALL</button>
+  <button onclick="dismissInstall()" style="background:transparent;border:none;color:rgba(240,244,248,0.4);font-size:18px;cursor:pointer;padding:4px">×</button>
+</div>
+
+<!-- iOS INSTALL BANNER -->
+
+<div id="ios-install-banner" style="display:none;position:fixed;bottom:90px;left:12px;right:12px;background:#0e1420;border:1px solid rgba(0,255,180,0.3);border-radius:16px;padding:14px 16px;z-index:1000;flex-direction:column;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#fff">📲 Install ShieldSync</div>
+    <button onclick="document.getElementById('ios-install-banner').style.display='none'" style="background:transparent;border:none;color:rgba(240,244,248,0.4);font-size:18px;cursor:pointer">×</button>
+  </div>
+  <div style="font-size:12px;color:rgba(240,244,248,0.6);line-height:1.5">
+    Tap <strong style="color:#fff">Share</strong> <span style="font-size:14px">⬆️</span> then <strong style="color:#fff">Add to Home Screen</strong> to install ShieldSync as an app.
+  </div>
+</div>
 </body>
 </html>
