@@ -341,8 +341,8 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
       </div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Zone 4 · 12 min ago · Reported by M. Santos</div>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-accent" style="padding:8px;font-size:12px">DISPATCH</button>
-        <button class="btn btn-outline" style="padding:8px;font-size:12px">VIEW</button>
+        <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="dispatchIncident(this)">DISPATCH</button>
+        <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="viewIncident(this)">VIEW</button>
       </div>
     </div>
     <div class="card" style="margin-bottom:10px">
@@ -352,8 +352,8 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
       </div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Car Park 2 · 1h ago · Reported by L. Rodriguez</div>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-accent" style="padding:8px;font-size:12px">DISPATCH</button>
-        <button class="btn btn-outline" style="padding:8px;font-size:12px">VIEW</button>
+        <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="dispatchIncident(this)">DISPATCH</button>
+        <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="viewIncident(this)">VIEW</button>
       </div>
     </div>
   </div>
@@ -534,7 +534,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
       </div>
       <div class="divider"></div>
       <div class="sig-box">SIGN OFF REPORT</div>
-      <button class="btn btn-accent" style="margin-top:12px">SUBMIT REPORT</button>
+      <button class="btn btn-accent" style="margin-top:12px" onclick="submitReport()">SUBMIT REPORT</button>
     </div>
   </div>
 </div>
@@ -956,6 +956,45 @@ function showToast(msg, type) {
   t.className = 'show ' + (type || 'info');
   clearTimeout(t._timer);
   t._timer = setTimeout(function() { t.className = ''; }, 3000);
+}
+
+function dispatchIncident(btn) {
+  var card = btn.parentNode.parentNode;
+  var title = card.querySelector('div[style*="font-size:14px"]').textContent;
+  var badge = card.querySelector('.badge');
+  if (badge) { badge.className = 'badge badge-blue'; badge.textContent = 'DISPATCHED'; }
+  btn.textContent = 'DISPATCHED';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  showToast(title + ' — Unit dispatched', 'success');
+}
+
+function viewIncident(btn) {
+  var card = btn.parentNode.parentNode;
+  var title = card.querySelector('div[style*="font-size:14px"]').textContent;
+  showToast('Viewing: ' + title, 'info');
+}
+
+function submitReport() {
+  var sig = document.querySelector('.sig-box');
+  if (sig && sig.textContent === 'SIGN OFF REPORT') {
+    showToast('Please sign off the report first', 'warning');
+    sig.style.borderColor = 'rgba(245,166,35,0.5)';
+    sig.style.color = 'var(--amber)';
+    sig.textContent = 'TAP HERE TO SIGN';
+    sig.onclick = function() {
+      sig.textContent = '✓ Signed — ' + new Date().toLocaleTimeString();
+      sig.style.color = 'var(--accent)';
+      sig.style.borderColor = 'rgba(0,255,180,0.3)';
+    };
+    return;
+  }
+  var btn = document.querySelector('#screen-reports .btn-accent');
+  if (btn) { btn.textContent = 'SUBMITTING...'; btn.disabled = true; btn.style.opacity = '0.7'; }
+  setTimeout(function() {
+    if (btn) { btn.textContent = '✓ REPORT SUBMITTED'; btn.style.background = 'rgba(0,255,180,0.2)'; btn.style.color = 'var(--accent)'; btn.style.border = '1px solid rgba(0,255,180,0.3)'; }
+    showToast('End of shift report submitted!', 'success');
+  }, 1000);
 }
 
 // Init
