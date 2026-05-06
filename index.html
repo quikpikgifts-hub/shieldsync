@@ -424,12 +424,18 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
   <!-- Step 2 -->
   <div id="vi-step-2" style="padding:0 20px;display:none">
     <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Exterior Photos</div>
-    <div class="photo-grid" style="margin-bottom:16px">
-      <div class="photo-slot" id="ps-front" onclick="takePhoto('front')">📷<span>FRONT</span></div>
-      <div class="photo-slot" id="ps-rear" onclick="takePhoto('rear')">📷<span>REAR</span></div>
-      <div class="photo-slot" id="ps-left" onclick="takePhoto('left')">📷<span>LEFT</span></div>
-      <div class="photo-slot" id="ps-right" onclick="takePhoto('right')">📷<span>RIGHT</span></div>
+    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoCapture(this)">
+    <div class="photo-grid" style="margin-bottom:10px">
+      <div class="photo-slot" id="ps-front" onclick="triggerCamera('front')">📷<span>FRONT</span></div>
+      <div class="photo-slot" id="ps-rear" onclick="triggerCamera('rear')">📷<span>REAR</span></div>
+      <div class="photo-slot" id="ps-left" onclick="triggerCamera('left')">📷<span>LEFT SIDE</span></div>
+      <div class="photo-slot" id="ps-right" onclick="triggerCamera('right')">📷<span>RIGHT SIDE</span></div>
     </div>
+    <div class="photo-grid" style="margin-bottom:16px">
+      <div class="photo-slot" id="ps-interior" onclick="triggerCamera('interior')">📷<span>INTERIOR</span></div>
+      <div class="photo-slot" id="ps-odometer" onclick="triggerCamera('odometer')">📷<span>ODOMETER</span></div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">Tap each slot to open camera</div>
     <button class="btn btn-accent" onclick="viNextStep(3)">NEXT →</button>
     <button class="btn btn-outline" style="margin-top:8px" onclick="viNextStep(1)">← BACK</button>
   </div>
@@ -459,7 +465,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
       </div>
     </div>
     <div class="field"><label>GUARD SIGNATURE</label><div class="sig-box" onclick="signOff()">TAP TO SIGN</div></div>
-    <button class="btn btn-accent" style="margin-top:8px" onclick="completeInspection()">✓ SIGN OFF &amp; START PATROL</button>
+    <button class="btn btn-accent" style="margin-top:8px" onclick="goToPatrol()">✓ SIGN OFF &amp; START PATROL</button>
     <button class="btn btn-outline" style="margin-top:8px" onclick="viNextStep(3)">← BACK</button>
   </div>
 </div>
@@ -658,6 +664,141 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
   </div>
 </div>
 
+<!-- GUARD HOME -->
+
+<div class="screen" id="screen-guard-home">
+  <div class="topbar">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span></div>
+    <div class="topbar-btn" onclick="openSOS()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+    <div class="topbar-btn" style="margin-left:6px" onclick="openMenu()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
+  <div style="padding:0 16px 12px">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700">Welcome, <span id="guard-home-name">Guard</span> 👮</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px" id="guard-shift-time">Shift started — ready for patrol</div>
+  </div>
+  <!-- Status card -->
+  <div style="margin:0 16px 16px">
+    <div class="card" style="border-color:rgba(0,255,180,0.2);background:rgba(0,255,180,0.04)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rb-dot"></div>
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--accent)" id="guard-status-text">READY FOR PATROL</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px" id="guard-location-text">Location services off</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Action buttons -->
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px">
+    <button class="btn btn-accent" style="padding:18px;font-size:16px" onclick="startPatrolFlow()">🚔 START PATROL</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn btn-outline" style="padding:14px;font-size:13px" onclick="navTo('incidents')">⚠️ LOG INCIDENT</button>
+      <button class="btn btn-outline" style="padding:14px;font-size:13px" onclick="navTo('reports')">📋 MY REPORTS</button>
+    </div>
+    <button class="btn btn-outline" style="padding:14px;font-size:13px;border-color:rgba(255,59,59,0.3);color:var(--red)" onclick="openLogout()">↩ END SHIFT &amp; SIGN OUT</button>
+  </div>
+  <!-- Today stats -->
+  <div style="padding:16px">
+    <div class="section-title">TODAY</div>
+    <div class="stat-grid" style="padding:0">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent)" id="guard-cp-done">0</div><div class="stat-label">Checkpoints Done</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--amber)" id="guard-patrol-time">0h</div><div class="stat-label">Patrol Time</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- INCIDENT REPORT -->
+
+<div class="screen" id="screen-incident-report">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-guard-home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Incident Report</div>
+  </div>
+  <div style="padding:0 20px">
+    <div class="field"><label>INCIDENT TYPE</label>
+      <select id="ir-type">
+        <option>Suspicious Person</option>
+        <option>Suspicious Vehicle</option>
+        <option>Perimeter Breach</option>
+        <option>Theft / Attempted Theft</option>
+        <option>Vandalism</option>
+        <option>Medical Emergency</option>
+        <option>Fire / Smoke</option>
+        <option>Unauthorized Access</option>
+        <option>Disturbance / Noise</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="field"><label>LOCATION / ZONE</label><input id="ir-location" placeholder="e.g. Gate B, Car Park 2, North Wing"></div>
+    <div class="field"><label>DATE &amp; TIME</label><input type="datetime-local" id="ir-datetime"></div>
+    <div class="field"><label>DESCRIPTION</label>
+      <textarea id="ir-desc" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:100px" placeholder="Describe what happened in detail..."></textarea>
+    </div>
+    <div class="field"><label>ACTION TAKEN</label>
+      <textarea id="ir-action" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:80px" placeholder="What did you do in response?"></textarea>
+    </div>
+    <div class="field"><label>PERSONS INVOLVED</label><input id="ir-persons" placeholder="Names, descriptions, vehicle plates..."></div>
+    <div class="field"><label>EVIDENCE / PHOTOS</label>
+      <div class="photo-grid" style="margin-bottom:8px">
+        <div class="photo-slot" id="ir-photo-1" onclick="takeIncidentPhoto(1)">📷<span>PHOTO 1</span></div>
+        <div class="photo-slot" id="ir-photo-2" onclick="takeIncidentPhoto(2)">📷<span>PHOTO 2</span></div>
+      </div>
+      <input type="file" id="ir-file" accept="image/*" capture="environment" style="display:none" onchange="handleIncidentPhoto(this)">
+    </div>
+    <div class="field"><label>SEVERITY</label>
+      <div style="display:flex;gap:8px">
+        <button class="fuel-btn active" id="sev-low" onclick="setSeverity(this,'low')">LOW</button>
+        <button class="fuel-btn" id="sev-med" onclick="setSeverity(this,'medium')">MEDIUM</button>
+        <button class="fuel-btn" id="sev-high" onclick="setSeverity(this,'high')" style="color:var(--red)">HIGH</button>
+        <button class="fuel-btn" id="sev-sos" onclick="setSeverity(this,'critical')" style="color:var(--red);border-color:rgba(255,59,59,0.3)">CRITICAL</button>
+      </div>
+    </div>
+    <div class="field"><label>GUARD SIGNATURE</label>
+      <div class="sig-box" id="ir-sig" onclick="signIncidentReport()">TAP TO SIGN</div>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="submitIncidentReport()">SUBMIT INCIDENT REPORT</button>
+    <button class="btn btn-outline" style="margin-bottom:20px" onclick="showScreen('screen-guard-home')">SAVE AS DRAFT</button>
+  </div>
+</div>
+
+<!-- END OF PATROL REPORT -->
+
+<div class="screen" id="screen-patrol-report">
+  <div class="topbar">
+    <div class="topbar-title">End of Patrol Report</div>
+  </div>
+  <div style="padding:0 20px">
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">PATROL SUMMARY</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><div style="font-size:10px;color:var(--muted)">CHECKPOINTS</div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--accent)" id="pr-checkpoints">4/10</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">DURATION</div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700" id="pr-duration">2h 14m</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">INCIDENTS</div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--red)" id="pr-incidents">0</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">VEHICLE</div><div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700" id="pr-vehicle">—</div></div>
+      </div>
+    </div>
+    <div class="field"><label>PATROL OBSERVATIONS</label>
+      <textarea id="pr-observations" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:90px" placeholder="Any observations during patrol..."></textarea>
+    </div>
+    <div class="field"><label>HANDOVER NOTES</label>
+      <textarea id="pr-handover" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:80px" placeholder="Notes for next guard..."></textarea>
+    </div>
+    <div class="field"><label>ANY INCIDENTS DURING PATROL?</label>
+      <div style="display:flex;gap:10px;margin-bottom:8px">
+        <button class="fuel-btn active" id="had-incident-no" onclick="toggleIncidentDuring(false)">NO INCIDENTS</button>
+        <button class="fuel-btn" id="had-incident-yes" onclick="toggleIncidentDuring(true)" style="color:var(--red)">LOG INCIDENT</button>
+      </div>
+    </div>
+    <div class="field"><label>GUARD SIGNATURE</label>
+      <div class="sig-box" id="pr-sig" onclick="signPatrolReport()">TAP TO SIGN</div>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="submitPatrolReport()">SUBMIT &amp; RETURN TO BASE</button>
+    <button class="btn btn-outline" style="margin-bottom:20px" onclick="showScreen('screen-guard-home')">SAVE DRAFT &amp; CONTINUE LATER</button>
+  </div>
+</div>
+
 <!-- BOTTOM NAV -->
 
 <nav class="bottom-nav" id="main-bottom-nav">
@@ -851,7 +992,7 @@ function signInWithRole() {
     if (ma) ma.textContent = user.name.charAt(0);
     var rb = document.getElementById('role-banner-text');
     if (rb) rb.textContent = user.role.toUpperCase() + ' · SHIFT ACTIVE';
-    if (user.role === 'guard') { showScreen('screen-vehicle-inspection'); viNextStep(1); }
+    if (user.role === 'guard') { var ghn = document.getElementById('guard-home-name'); if (ghn) ghn.textContent = user.name.split(' ')[0]; var gst = document.getElementById('guard-shift-time'); if (gst) gst.textContent = 'Shift started ' + new Date().toLocaleTimeString(); showScreen('screen-guard-home'); startGPSTracking(); }
     else { showScreen('screen-home'); }
     showToast('Welcome, ' + user.name.split(' ')[0] + '!', 'success');
     startPatrolTimer();
@@ -1105,7 +1246,209 @@ function newIncident() {
   showToast('New incident form coming soon', 'info');
 }
 
-// Init
+// ── GUARD FLOW ────────────────────────────────────────────────────────────
+
+var currentPhotoSlot = null;
+var patrolIncidentCount = 0;
+var incidentSeverity = 'low';
+var patrolVehiclePlate = '';
+var guardShiftStart = null;
+
+function startPatrolFlow() {
+  showScreen('screen-vehicle-inspection');
+  viNextStep(1);
+}
+
+
+function triggerCamera(slot) {
+  currentPhotoSlot = slot;
+  var input = document.getElementById('camera-input');
+  if (input) input.click();
+}
+
+function handlePhotoCapture(input) {
+  if (!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var slot = document.getElementById('ps-' + currentPhotoSlot);
+    if (slot) {
+      slot.style.backgroundImage = 'url(' + e.target.result + ')';
+      slot.style.backgroundSize = 'cover';
+      slot.style.backgroundPosition = 'center';
+      slot.classList.add('taken');
+      slot.innerHTML = '<div style="background:rgba(0,255,180,0.8);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;color:#000;font-family:Rajdhani,sans-serif">✓ ' + currentPhotoSlot.toUpperCase() + '</div>';
+    }
+    showToast(currentPhotoSlot + ' photo saved ✓', 'success');
+    input.value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function takeIncidentPhoto(num) {
+  var input = document.getElementById('ir-file');
+  if (input) { currentPhotoSlot = 'ir-' + num; input.click(); }
+}
+
+function handleIncidentPhoto(input) {
+  if (!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var slot = document.getElementById('ir-photo-' + currentPhotoSlot.split('-')[1]);
+    if (slot) {
+      slot.style.backgroundImage = 'url(' + e.target.result + ')';
+      slot.style.backgroundSize = 'cover';
+      slot.style.backgroundPosition = 'center';
+      slot.classList.add('taken');
+      slot.innerHTML = '<div style="background:rgba(0,255,180,0.8);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;color:#000">✓ PHOTO</div>';
+    }
+    showToast('Photo added ✓', 'success');
+    input.value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function setSeverity(btn, level) {
+  incidentSeverity = level;
+  var btns = btn.parentNode.querySelectorAll('.fuel-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+}
+
+function signIncidentReport() {
+  var sig = document.getElementById('ir-sig');
+  if (sig) { sig.textContent = '✓ Signed — ' + new Date().toLocaleTimeString(); sig.style.color = 'var(--accent)'; sig.style.borderColor = 'rgba(0,255,180,0.3)'; }
+}
+
+function submitIncidentReport() {
+  var type = document.getElementById('ir-type');
+  var loc = document.getElementById('ir-location');
+  var desc = document.getElementById('ir-desc');
+  if (!loc || !loc.value) { showToast('Please enter the incident location', 'warning'); return; }
+  if (!desc || !desc.value) { showToast('Please describe what happened', 'warning'); return; }
+  var sig = document.getElementById('ir-sig');
+  if (sig && sig.textContent === 'TAP TO SIGN') { signIncidentReport(); }
+  var btn = document.querySelector('#screen-incident-report .btn-accent');
+  if (btn) { btn.textContent = 'SUBMITTING...'; btn.disabled = true; btn.style.opacity = '0.7'; }
+  setTimeout(function() {
+    patrolIncidentCount++;
+    var pi = document.getElementById('pr-incidents');
+    if (pi) pi.textContent = patrolIncidentCount;
+    showToast('Incident report submitted ✓', 'success');
+    showScreen('screen-guard-home');
+    if (btn) { btn.textContent = 'SUBMIT INCIDENT REPORT'; btn.disabled = false; btn.style.opacity = '1'; }
+  }, 1000);
+}
+
+function finishInspectionAndPatrol() {
+  var plate = document.getElementById('vi-plate');
+  patrolVehiclePlate = plate ? (plate.value || 'ABC 1234') : 'ABC 1234';
+  var sp = document.getElementById('sum-plate');
+  var st = document.getElementById('sum-type');
+  var sm = document.getElementById('sum-make');
+  var sf = document.getElementById('sum-fuel');
+  var type = document.getElementById('vi-type');
+  var make = document.getElementById('vi-make');
+  if (sp) sp.textContent = patrolVehiclePlate;
+  if (st && type) st.textContent = type.value;
+  if (sm && make) sm.textContent = make.value || 'Toyota Camry';
+  if (sf) sf.textContent = currentFuel;
+  viNextStep(4);
+}
+
+// Override completeInspection for final step
+function goToPatrol() {
+  var sig = document.querySelector('#screen-vehicle-inspection .sig-box');
+  if (sig && sig.textContent === 'TAP TO SIGN') {
+    showToast('Please sign off the inspection first', 'warning');
+    signOff();
+    return;
+  }
+  patrolSeconds = 0;
+  cpScanned = 0;
+  var cc = document.getElementById('cp-count');
+  if (cc) cc.textContent = '0';
+  var pp = document.getElementById('patrol-progress');
+  if (pp) pp.style.width = '0%';
+  startGPSTracking();
+  showScreen('screen-patrol');
+  showToast('Patrol started — GPS active', 'success');
+}
+
+function startGPSTracking() {
+  var statusEl = document.getElementById('guard-status-text');
+  var locEl = document.getElementById('guard-location-text');
+  if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(
+      function(pos) {
+        window._lastLat = pos.coords.latitude;
+        window._lastLng = pos.coords.longitude;
+        if (locEl) locEl.textContent = pos.coords.latitude.toFixed(4) + ', ' + pos.coords.longitude.toFixed(4);
+        if (statusEl) statusEl.textContent = 'GPS ACTIVE — ON PATROL';
+      },
+      function(err) {
+        if (locEl) locEl.textContent = 'GPS unavailable — manual mode';
+      },
+      { enableHighAccuracy: true, maximumAge: 10000 }
+    );
+  } else {
+    if (locEl) locEl.textContent = 'GPS not supported';
+  }
+}
+
+function openEndPatrol() {
+  var pr = document.getElementById('pr-checkpoints');
+  if (pr) pr.textContent = cpScanned + '/10';
+  var pd = document.getElementById('pr-duration');
+  var h = Math.floor(patrolSeconds / 3600);
+  var m = Math.floor((patrolSeconds % 3600) / 60);
+  if (pd) pd.textContent = h + 'h ' + m + 'm';
+  var pv = document.getElementById('pr-vehicle');
+  if (pv) pv.textContent = patrolVehiclePlate || '—';
+  document.getElementById('end-patrol-modal').classList.add('open');
+}
+
+function returnToBase() {
+  closeEndPatrol();
+  showScreen('screen-patrol-report');
+}
+
+function signPatrolReport() {
+  var sig = document.getElementById('pr-sig');
+  if (sig) { sig.textContent = '✓ Signed — ' + new Date().toLocaleTimeString(); sig.style.color = 'var(--accent)'; sig.style.borderColor = 'rgba(0,255,180,0.3)'; }
+}
+
+function toggleIncidentDuring(hasIncident) {
+  var noBtn = document.getElementById('had-incident-no');
+  var yesBtn = document.getElementById('had-incident-yes');
+  if (noBtn) noBtn.classList[hasIncident ? 'remove' : 'add']('active');
+  if (yesBtn) yesBtn.classList[hasIncident ? 'add' : 'remove']('active');
+  if (hasIncident) {
+    setTimeout(function() { showScreen('screen-incident-report'); }, 300);
+  }
+}
+
+function submitPatrolReport() {
+  var sig = document.getElementById('pr-sig');
+  if (sig && sig.textContent === 'TAP TO SIGN') { showToast('Please sign the report first', 'warning'); signPatrolReport(); return; }
+  var btn = document.querySelector('#screen-patrol-report .btn-accent');
+  if (btn) { btn.textContent = 'SUBMITTING...'; btn.disabled = true; btn.style.opacity = '0.7'; }
+  setTimeout(function() {
+    var gcp = document.getElementById('guard-cp-done');
+    if (gcp) gcp.textContent = cpScanned;
+    var gpt = document.getElementById('guard-patrol-time');
+    var h = Math.floor(patrolSeconds / 3600);
+    if (gpt) gpt.textContent = h + 'h';
+    showToast('Patrol report submitted. Good work! ✓', 'success');
+    patrolSeconds = 0; cpScanned = 0;
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    showScreen('screen-guard-home');
+    if (btn) { btn.textContent = 'SUBMIT & RETURN TO BASE'; btn.disabled = false; btn.style.opacity = '1'; }
+  }, 1200);
+}
+
+// ── Init
 showScreen('screen-login');
 selectRole('admin');
 startPatrolTimer();
