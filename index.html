@@ -12,9 +12,9 @@
 <meta name="application-name" content="ShieldSync">
 <meta name="msapplication-TileColor" content="#080c12">
 <link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/icon-192.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/icon-192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/shieldsync-icon.svg">
+<link rel="apple-touch-icon" sizes="152x152" href="/shieldsync-icon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/shieldsync-icon.svg">
 <link rel="apple-touch-icon" sizes="167x167" href="/icon-192.png">
 <title>ShieldSync</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -135,7 +135,7 @@ html,body{height:100%;width:100%;background:var(--bg,#080c12);font-family:'Inter
 .badge-amber{background:rgba(245,166,35,0.1);color:var(–amber);border:1px solid rgba(245,166,35,0.2)}
 .badge-blue{background:rgba(59,130,246,0.1);color:var(–blue);border:1px solid rgba(59,130,246,0.2)}
 .btn{width:100%;padding:15px;border:none;border-radius:12px;font-family:‘Rajdhani’,sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;-webkit-appearance:none}
-.btn-accent{background:var(–accent);color:#000}
+.btn-accent{background:var(–accent);color:#000 !important;-webkit-appearance:none;border:none}
 .btn-outline{background:transparent;color:var(–text);border:1px solid var(–border)}
 .btn-red{background:var(–red);color:#fff}
 input,select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(–border);border-radius:10px;padding:13px 14px;color:var(–text);font-size:15px;font-family:‘Inter’,sans-serif;-webkit-appearance:none;outline:none}
@@ -156,10 +156,10 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 .login-form{padding:0 24px}
 .field{margin-bottom:16px}
 .forgot{text-align:right;margin-top:-8px;margin-bottom:20px}
-.forgot a{color:var(–accent);font-size:13px;cursor:pointer;text-decoration:none}
+.forgot a{color:var(–accent);font-size:13px;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
 .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.role-card{background:var(–card);border:2px solid var(–border);border-radius:12px;padding:11px;cursor:pointer;transition:border-color 0.2s,background 0.2s}
-.role-card.selected{border-color:var(–accent);background:rgba(0,255,180,0.05)}
+.role-card{background:var(–card);border:2px solid var(–border);border-radius:12px;padding:12px;cursor:pointer;transition:border-color 0.2s,background 0.2s;-webkit-tap-highlight-color:transparent}
+.role-card.selected{border-color:#00ffb4;background:rgba(0,255,180,0.08);box-shadow:0 0 0 1px rgba(0,255,180,0.2)}
 .role-card.selected .role-name{color:var(–accent)}
 .role-icon{font-size:20px;margin-bottom:4px}
 .role-name{font-family:‘Rajdhani’,sans-serif;font-size:14px;font-weight:700}
@@ -303,13 +303,8 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen active" id="screen-login">
   <div class="login-brand">
-    <div class="logo-icon">
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-        <path d="M18 3L5 8.5v9.5C5 25.6 10.8 32.2 18 34c7.2-1.8 13-8.4 13-16V8.5L18 3z" fill="rgba(0,255,180,0.1)" stroke="#00ffb4" stroke-width="1.5"/>
-        <path d="M12 18l4 4 8-8" stroke="#00ffb4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    <div class="login-title">SHIELD<span>SYNC</span></div>
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImcxIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzAwZmZiNCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMGM4OTYiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8ZmlsdGVyIGlkPSJnbG93Ij4KICAgICAgPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMi41IiByZXN1bHQ9ImNvbG9yZWRCbHVyIi8+CiAgICAgIDxmZU1lcmdlPjxmZU1lcmdlTm9kZSBpbj0iY29sb3JlZEJsdXIiLz48ZmVNZXJnZU5vZGUgaW49IlNvdXJjZUdyYXBoaWMiLz48L2ZlTWVyZ2U+CiAgICA8L2ZpbHRlcj4KICA8L2RlZnM+CiAgPCEtLSBCYWNrZ3JvdW5kIC0tPgogIDxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiByeD0iMjYiIGZpbGw9IiMwODBjMTIiLz4KICA8cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgcng9IjI2IiBmaWxsPSIjMGUyYTFlIiBvcGFjaXR5PSIwLjYiLz4KICA8IS0tIE91dGVyIGdsb3cgcmluZyAtLT4KICA8cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iMTEyIiBoZWlnaHQ9IjExMiIgcng9IjIyIiBmaWxsPSJub25lIiBzdHJva2U9IiMwMGZmYjQiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC4zIi8+CiAgPCEtLSBTaGllbGQgLS0+CiAgPHBhdGggZD0iTTYwIDE4TDI2IDMydjIwQzI2IDc0IDQwLjUgOTAgNjAgOTVjMTkuNS01IDM0LTIxIDM0LTQzVjMyTDYwIDE4eiIgZmlsbD0icmdiYSgwLDI1NSwxODAsMC4xKSIgc3Ryb2tlPSJ1cmwoI2cxKSIgc3Ryb2tlLXdpZHRoPSIyLjUiIGZpbHRlcj0idXJsKCNnbG93KSIvPgogIDwhLS0gSW5uZXIgc2hpZWxkIC0tPgogIDxwYXRoIGQ9Ik02MCAyNkwzMyAzOHYxNEMzMyA3MCA0NSA4NCA2MCA4OGMxNS00IDI3LTE4IDI3LTM2VjM4TDYwIDI2eiIgZmlsbD0icmdiYSgwLDI1NSwxODAsMC4wNSkiIHN0cm9rZT0icmdiYSgwLDI1NSwxODAsMC4xNSkiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPCEtLSBDaGVja21hcmsgLS0+CiAgPHBhdGggZD0iTTQ0IDU4bDExIDExIDIxLTIyIiBzdHJva2U9IiMwMGZmYjQiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWxsPSJub25lIiBmaWx0ZXI9InVybCgjZ2xvdykiLz4KICA8IS0tIFRvcCBhY2NlbnQgZG90IC0tPgogIDxjaXJjbGUgY3g9IjYwIiBjeT0iMjIiIHI9IjMiIGZpbGw9IiMwMGZmYjQiIG9wYWNpdHk9IjAuOCIvPgogIDwhLS0gQ29ybmVyIGRvdHMgLS0+CiAgPGNpcmNsZSBjeD0iMjYiIGN5PSIzMiIgcj0iMiIgZmlsbD0iIzAwZmZiNCIgb3BhY2l0eT0iMC40Ii8+CiAgPGNpcmNsZSBjeD0iOTQiIGN5PSIzMiIgcj0iMiIgZmlsbD0iIzAwZmZiNCIgb3BhY2l0eT0iMC40Ii8+Cjwvc3ZnPgo=" alt="ShieldSync" style="width:80px;height:80px;margin:0 auto 12px;display:block;border-radius:20px">
+    <div class="login-title" style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;letter-spacing:3px;margin-bottom:4px"><span style="color:#f0f4f8">SHIELD</span><span style="color:#00ffb4">SYNC</span></div>
     <div class="login-sub">SECURITY OPERATIONS PLATFORM</div>
   </div>
   <div class="login-form">
@@ -349,7 +344,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
         <div class="role-desc">Read-only reports &amp; status</div>
       </div>
     </div>
-    <button class="btn btn-accent" onclick="signInWithRole()">SIGN IN</button>
+    <button onclick="signInWithRole()" style="width:100%;padding:16px;background:#00ffb4;color:#000;border:none;border-radius:12px;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;margin-top:8px">SIGN IN</button>
   </div>
   <div class="quick-logins">
     <div class="ql-title">🚀 QUICK TEST LOGINS</div>
@@ -2164,7 +2159,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div style="color:var(--text);font-weight:600;margin-bottom:6px">6. Limitation of Liability</div>
     <p style="margin-bottom:12px">ShieldSync provides a platform only. We are not responsible for security incidents, guard conduct, or client outcomes. Platform uptime is targeted at 99.9% but not guaranteed.</p>
     <div style="color:var(--text);font-weight:600;margin-bottom:6px">7. Contact</div>
-    <p style="margin-bottom:20px">For questions: legal@shieldsync.app</p>
+    <p style="margin-bottom:20px">For questions: shieldsync@gmail.com</p>
   </div>
 </div>
 
@@ -2189,7 +2184,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div style="color:var(--text);font-weight:600;margin-bottom:6px">Data Retention</div>
     <p style="margin-bottom:12px">Incident reports: 7 years · Patrol logs: 3 years · Timesheets: 7 years · Photos: 2 years · GPS logs: 90 days</p>
     <div style="color:var(--text);font-weight:600;margin-bottom:6px">Your Rights (GDPR)</div>
-    <p style="margin-bottom:12px">Right to access, correct, or delete your data. Right to data portability. Right to object to processing. Contact: privacy@shieldsync.app</p>
+    <p style="margin-bottom:12px">Right to access, correct, or delete your data. Right to data portability. Right to object to processing. Contact: shieldsync@gmail.com</p>
     <div style="color:var(--text);font-weight:600;margin-bottom:6px">Cookies</div>
     <p style="margin-bottom:20px">ShieldSync uses session storage only. No third-party advertising cookies are used.</p>
   </div>
@@ -2292,7 +2287,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
   <div class="modal-box">
     <div class="modal-title">🔗 Live Test Link</div>
     <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Share these credentials with your team to test the app.</div>
-    <div id="share-url" style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.2);border-radius:10px;padding:12px;font-size:12px;color:var(--accent);word-break:break-all;margin-bottom:16px;font-family:'Rajdhani',sans-serif">shieldsync-jbsx.vercel.app</div>
+    <div style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.2);border-radius:10px;padding:12px;margin-bottom:12px"><div style="font-size:12px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:4px">shieldsync-jbsx.vercel.app</div><div style="font-size:11px;color:var(--muted)">📧 shieldsync@gmail.com</div><div style="font-size:11px;color:var(--muted)">📞 407-470-5992</div></div>
     <div style="display:grid;gap:6px;margin-bottom:16px">
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted)">admin@shieldsync.app</span><span style="color:var(--accent);cursor:pointer" onclick="fillLogin('admin@shieldsync.app','Admin1234!','admin');closeShare()">USE →</span></div>
       <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted)">supervisor@shieldsync.app</span><span style="color:var(--accent);cursor:pointer" onclick="fillLogin('supervisor@shieldsync.app','Super1234!','supervisor');closeShare()">USE →</span></div>
