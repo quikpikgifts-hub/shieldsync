@@ -40,171 +40,264 @@ html,body{height:100%;width:100%;background:var(--bg,#080c12);font-family:'Inter
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px}
 .badge-green{background:rgba(0,255,180,0.1);color:var(--accent);border:1px solid rgba(0,255,180,0.2)}
-.badge-red{background:rgba(255,59,59,0.1);color:var(--red);border:1px solid rgba(255,59,59,0.2)}
-.badge-amber{background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.2)}
-.badge-blue{background:rgba(59,130,246,0.1);color:var(--blue);border:1px solid rgba(59,130,246,0.2)}
-.btn{width:100%;padding:15px;border:none;border-radius:12px;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;-webkit-appearance:none}
-.btn-accent{background:var(--accent);color:#000}
-.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
-.btn-red{background:var(--red);color:#fff}
-input,select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:13px 14px;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;-webkit-appearance:none;outline:none}
-input:focus,select:focus{border-color:var(--accent)}
-input::placeholder{color:var(--muted)}
-label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);font-family:'Rajdhani',sans-serif;display:block;margin-bottom:6px}
+
+/* Premium animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(0,255,180,0.3)}50%{box-shadow:0 0 20px rgba(0,255,180,0.6)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.screen.active{animation:fadeInUp 0.25s ease}
+
+/* Chat / Messaging */
+.chat-bubble{max-width:75%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.4;margin-bottom:8px}
+.chat-bubble.sent{background:var(–accent);color:#000;border-radius:16px 16px 4px 16px;align-self:flex-end;margin-left:auto}
+.chat-bubble.recv{background:var(–card);color:var(–text);border:1px solid var(–border);border-radius:16px 16px 16px 4px}
+.chat-time{font-size:10px;color:var(–muted);margin-top:3px}
+.chat-list{display:flex;flex-direction:column;padding:12px 16px;gap:2px;flex:1;overflow-y:auto}
+.chat-input-bar{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(–border);background:var(–bg)}
+
+/* Schedule */
+.sched-day{background:var(–card);border:1px solid var(–border);border-radius:12px;padding:12px;margin-bottom:8px}
+.sched-shift{background:rgba(0,255,180,0.06);border:1px solid rgba(0,255,180,0.15);border-radius:8px;padding:8px 10px;margin-top:8px;display:flex;align-items:center;gap:8px}
+.sched-shift.night{background:rgba(59,130,246,0.06);border-color:rgba(59,130,246,0.15)}
+.sched-shift.off{background:rgba(255,255,255,0.03);border-color:var(–border)}
+
+/* DAR Report */
+.dar-entry{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(–border)}
+.dar-time{font-family:‘Rajdhani’,sans-serif;font-size:11px;font-weight:700;color:var(–accent);min-width:48px;margin-top:2px}
+.dar-content{flex:1;font-size:12px;line-height:1.4}
+
+/* Cert badge */
+.cert-card{background:var(–card);border:1px solid var(–border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.cert-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.cert-expiry{font-size:10px;font-weight:700;font-family:‘Rajdhani’,sans-serif;letter-spacing:1px;padding:2px 8px;border-radius:6px}
+.cert-expiry.good{background:rgba(0,255,180,0.1);color:var(–accent)}
+.cert-expiry.warn{background:rgba(245,166,35,0.1);color:var(–amber)}
+.cert-expiry.exp{background:rgba(255,59,59,0.1);color:var(–red)}
+
+/* Client portal premium */
+.client-stat{background:var(–card);border:1px solid var(–border);border-radius:14px;padding:16px;text-align:center}
+.client-stat-val{font-family:‘Rajdhani’,sans-serif;font-size:36px;font-weight:700;line-height:1}
+.live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,59,59,0.1);border:1px solid rgba(255,59,59,0.3);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:var(–red);font-family:‘Rajdhani’,sans-serif;letter-spacing:1px}
+
+/* Clock In/Out */
+.clock-btn{width:100%;padding:20px;border:none;border-radius:16px;font-family:‘Rajdhani’,sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;transition:all 0.3s}
+.clock-btn.clocked-in{background:var(–red);color:#fff;box-shadow:0 0 30px rgba(255,59,59,0.3)}
+.clock-btn.clocked-out{background:var(–accent);color:#000;box-shadow:0 0 30px rgba(0,255,180,0.3)}
+.clock-timer{font-family:‘Rajdhani’,sans-serif;font-size:48px;font-weight:700;text-align:center;color:var(–accent);letter-spacing:2px;line-height:1}
+
+/* Lone Worker */
+.lone-worker-ring{width:120px;height:120px;border-radius:50%;border:4px solid var(–accent);display:flex;align-items:center;justify-content:center;margin:0 auto;position:relative;cursor:pointer;transition:all 0.3s}
+.lone-worker-ring.warning{border-color:var(–amber);animation:glow 1s infinite}
+.lone-worker-ring.danger{border-color:var(–red);animation:glow 0.5s infinite}
+.lone-worker-countdown{font-family:‘Rajdhani’,sans-serif;font-size:32px;font-weight:700;color:var(–accent);text-align:center;line-height:1}
+.lone-worker-label{font-size:10px;color:var(–muted);text-align:center;margin-top:4px;font-family:‘Rajdhani’,sans-serif;letter-spacing:1px}
+
+/* Visitor Log */
+.visitor-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(–border)}
+.visitor-row:last-child{border-bottom:none}
+.visitor-avatar{width:36px;height:36px;border-radius:10px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.visitor-info{flex:1}
+.visitor-name{font-size:13px;font-weight:600}
+.visitor-meta{font-size:11px;color:var(–muted);margin-top:2px}
+.visitor-time{text-align:right;font-size:11px;font-family:‘Rajdhani’,sans-serif;font-weight:700}
+.visitor-time.out{color:var(–muted)}
+.visitor-time.in{color:var(–accent)}
+
+/* Pass-down */
+.passdown-card{background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:14px;margin-bottom:10px}
+.passdown-from{font-size:11px;color:var(–blue);font-weight:600;font-family:‘Rajdhani’,sans-serif;letter-spacing:0.5px;margin-bottom:6px}
+.passdown-msg{font-size:13px;line-height:1.5}
+.passdown-time{font-size:10px;color:var(–muted);margin-top:6px}
+
+/* AI Report */
+.ai-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,rgba(0,255,180,0.15),rgba(59,130,246,0.15));border:1px solid rgba(0,255,180,0.3);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:var(–accent);font-family:‘Rajdhani’,sans-serif;letter-spacing:1px}
+
+/* Asset tracking */
+.asset-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(–border)}
+.asset-row:last-child{border-bottom:none}
+.asset-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.asset-status{font-size:10px;font-weight:700;font-family:‘Rajdhani’,sans-serif;padding:2px 8px;border-radius:6px}
+.asset-status.out{background:rgba(255,59,59,0.1);color:var(–red)}
+.asset-status.in{background:rgba(0,255,180,0.1);color:var(–accent)}
+.live-dot{width:6px;height:6px;background:var(–red);border-radius:50%;animation:pulse 1s infinite}
+
+/* Geofence indicator */
+.geo-ring{position:absolute;border-radius:50%;border:2px solid rgba(0,255,180,0.3);animation:expand 2s ease-out infinite}
+@keyframes expand{0%{transform:scale(1);opacity:0.6}100%{transform:scale(2.5);opacity:0}}
+
+/* Premium nav glow */
+.nav-item.active svg{filter:drop-shadow(0 0 4px rgba(0,255,180,0.6))}
+
+/* Offline banner */
+.offline-banner{background:rgba(245,166,35,0.15);border:1px solid rgba(245,166,35,0.3);padding:8px 16px;font-size:11px;color:var(–amber);font-weight:600;font-family:‘Rajdhani’,sans-serif;letter-spacing:1px;text-align:center;display:none}
+.offline-banner.show{display:block}
+.badge-red{background:rgba(255,59,59,0.1);color:var(–red);border:1px solid rgba(255,59,59,0.2)}
+.badge-amber{background:rgba(245,166,35,0.1);color:var(–amber);border:1px solid rgba(245,166,35,0.2)}
+.badge-blue{background:rgba(59,130,246,0.1);color:var(–blue);border:1px solid rgba(59,130,246,0.2)}
+.btn{width:100%;padding:15px;border:none;border-radius:12px;font-family:‘Rajdhani’,sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;-webkit-appearance:none}
+.btn-accent{background:var(–accent);color:#000}
+.btn-outline{background:transparent;color:var(–text);border:1px solid var(–border)}
+.btn-red{background:var(–red);color:#fff}
+input,select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(–border);border-radius:10px;padding:13px 14px;color:var(–text);font-size:15px;font-family:‘Inter’,sans-serif;-webkit-appearance:none;outline:none}
+input:focus,select:focus{border-color:var(–accent)}
+input::placeholder{color:var(–muted)}
+label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);font-family:‘Rajdhani’,sans-serif;display:block;margin-bottom:6px}
 .modal{position:absolute;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:flex-end}
 .modal.open{display:flex}
-.modal-box{background:#0e1420;border-top:1px solid var(--border);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%}
-.modal-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:16px}
-.divider{height:1px;background:var(--border);margin:16px 0}
+.modal-box{background:#0e1420;border-top:1px solid var(–border);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%}
+.modal-title{font-family:‘Rajdhani’,sans-serif;font-size:18px;font-weight:700;margin-bottom:16px}
+.divider{height:1px;background:var(–border);margin:16px 0}
 /* LOGIN */
-.login-brand{text-align:center;padding:48px 0 32px}
-.logo-icon{width:72px;height:72px;background:rgba(0,255,180,0.08);border:1px solid rgba(0,255,180,0.2);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
-.login-title{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;letter-spacing:2px}
-.login-title span{color:var(--accent)}
-.login-sub{font-size:11px;letter-spacing:3px;color:var(--muted);margin-top:4px}
+.login-brand{text-align:center;padding:32px 0 20px}
+.logo-icon{width:60px;height:60px;background:rgba(0,255,180,0.08);border:1px solid rgba(0,255,180,0.2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.login-title{font-family:‘Rajdhani’,sans-serif;font-size:32px;font-weight:700;letter-spacing:2px}
+.login-title span{color:var(–accent)}
+.login-sub{font-size:11px;letter-spacing:3px;color:var(–muted);margin-top:4px}
 .login-form{padding:0 24px}
 .field{margin-bottom:16px}
 .forgot{text-align:right;margin-top:-8px;margin-bottom:20px}
-.forgot a{color:var(--accent);font-size:13px;cursor:pointer;text-decoration:none}
-.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.role-card{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;transition:border-color 0.2s,background 0.2s}
-.role-card.selected{border-color:var(--accent);background:rgba(0,255,180,0.05)}
-.role-card.selected .role-name{color:var(--accent)}
-.role-icon{font-size:24px;margin-bottom:6px}
-.role-name{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700}
-.role-desc{font-size:11px;color:var(--muted);margin-top:2px}
-.quick-logins{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;padding:14px;margin:16px 24px}
-.ql-title{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);font-family:'Rajdhani',sans-serif;margin-bottom:10px}
-.ql-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
+.forgot a{color:var(–accent);font-size:13px;cursor:pointer;text-decoration:none}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.role-card{background:var(–card);border:2px solid var(–border);border-radius:12px;padding:11px;cursor:pointer;transition:border-color 0.2s,background 0.2s}
+.role-card.selected{border-color:var(–accent);background:rgba(0,255,180,0.05)}
+.role-card.selected .role-name{color:var(–accent)}
+.role-icon{font-size:20px;margin-bottom:4px}
+.role-name{font-family:‘Rajdhani’,sans-serif;font-size:14px;font-weight:700}
+.role-desc{font-size:10px;color:var(–muted);margin-top:1px}
+.quick-logins{background:rgba(255,255,255,0.03);border:1px solid var(–border);border-radius:14px;padding:14px;margin:16px 24px}
+.ql-title{font-size:10px;font-weight:700;letter-spacing:2px;color:var(–muted);font-family:‘Rajdhani’,sans-serif;margin-bottom:10px}
+.ql-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(–border)}
 .ql-row:last-child{border-bottom:none}
-.ql-email{font-size:12px;color:var(--muted)}
-.ql-use{font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;padding:4px 8px}
+.ql-email{font-size:12px;color:var(–muted)}
+.ql-use{font-size:12px;color:var(–accent);cursor:pointer;font-weight:600;padding:4px 8px}
 /* HOME */
 .role-banner{margin:0 16px 16px;padding:12px 16px;background:rgba(0,255,180,0.06);border:1px solid rgba(0,255,180,0.15);border-radius:12px;display:flex;align-items:center;gap:10px}
-.rb-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+.rb-dot{width:8px;height:8px;background:var(–accent);border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-.rb-text{font-size:12px;color:var(--accent);font-weight:500}
+.rb-text{font-size:12px;color:var(–accent);font-weight:500}
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
-.stat-val{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;line-height:1}
-.stat-label{font-size:11px;color:var(--muted);margin-top:4px}
+.stat-card{background:var(–card);border:1px solid var(–border);border-radius:14px;padding:14px}
+.stat-val{font-family:‘Rajdhani’,sans-serif;font-size:32px;font-weight:700;line-height:1}
+.stat-label{font-size:11px;color:var(–muted);margin-top:4px}
 .section{padding:0 16px 16px}
-.section-title{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px}
+.section-title{font-family:‘Rajdhani’,sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(–muted);margin-bottom:12px}
 .tab-row{display:flex;gap:8px;margin-bottom:12px}
-.tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:0.5px}
-.tab.active{background:var(--accent);color:#000;border-color:var(--accent)}
-.incident-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:transparent;border:1px solid var(–border);color:var(–muted);font-family:‘Rajdhani’,sans-serif;letter-spacing:0.5px}
+.tab.active{background:var(–accent);color:#000;border-color:var(–accent)}
+.incident-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(–border)}
 .incident-row:last-child{border-bottom:none}
 .inc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .inc-info{flex:1}
 .inc-title{font-size:13px;font-weight:500}
-.inc-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.inc-sub{font-size:11px;color:var(–muted);margin-top:2px}
 .threat-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
-.threat-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--amber))}
+.threat-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(–accent),var(–amber))}
 /* PATROL */
 .patrol-map{margin:0 16px 16px;background:rgba(0,255,180,0.03);border:1px solid rgba(0,255,180,0.1);border-radius:16px;padding:16px;position:relative;overflow:hidden}
 .map-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .cp{border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid transparent;position:relative}
-.cp span{font-size:9px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:0.5px;display:block;margin-top:4px}
-.cp-scanned{background:rgba(0,255,180,0.15);border-color:rgba(0,255,180,0.3);color:var(--accent)}
-.cp-active{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.3);color:var(--blue)}
-.cp-overdue{background:rgba(255,59,59,0.15);border-color:rgba(255,59,59,0.3);color:var(--red)}
-.cp-pending{background:rgba(255,255,255,0.04);border-color:var(--border);color:var(--muted)}
+.cp span{font-size:9px;font-family:‘Rajdhani’,sans-serif;font-weight:700;letter-spacing:0.5px;display:block;margin-top:4px}
+.cp-scanned{background:rgba(0,255,180,0.15);border-color:rgba(0,255,180,0.3);color:var(–accent)}
+.cp-active{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.3);color:var(–blue)}
+.cp-overdue{background:rgba(255,59,59,0.15);border-color:rgba(255,59,59,0.3);color:var(–red)}
+.cp-pending{background:rgba(255,255,255,0.04);border-color:var(–border);color:var(–muted)}
 .progress-wrap{padding:0 16px 16px}
 .progress-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px}
 .progress-bar{height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden}
-.progress-fill{height:100%;background:var(--accent);border-radius:4px;transition:width 0.4s ease}
+.progress-fill{height:100%;background:var(–accent);border-radius:4px;transition:width 0.4s ease}
 .guard-strip{display:flex;gap:8px;padding:0 16px 16px;overflow-x:auto}
-.guard-chip{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 12px;flex-shrink:0;min-width:100px}
+.guard-chip{background:var(–card);border:1px solid var(–border);border-radius:10px;padding:8px 12px;flex-shrink:0;min-width:100px}
 .gc-name{font-size:12px;font-weight:600;margin-bottom:4px}
 .gc-status{font-size:10px}
 .cp-list{padding:0 16px}
-.cp-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.cp-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(–border)}
 .cp-row:last-child{border-bottom:none}
-.cp-num{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Rajdhani',sans-serif;flex-shrink:0}
+.cp-num{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:‘Rajdhani’,sans-serif;flex-shrink:0}
 .cp-info{flex:1}
 .cp-name{font-size:13px;font-weight:500}
-.cp-meta{font-size:11px;color:var(--muted);margin-top:2px}
-.scan-fab{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);width:56px;height:56px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,180,0.4);cursor:pointer;z-index:50;border:none}
+.cp-meta{font-size:11px;color:var(–muted);margin-top:2px}
+.scan-fab{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);width:56px;height:56px;background:var(–accent);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,180,0.4);cursor:pointer;z-index:50;border:none}
 /* VEHICLE INSPECTION */
 .vi-steps{display:flex;padding:16px 24px;gap:8px}
-.vi-step{flex:1;height:3px;border-radius:2px;background:var(--border)}
-.vi-step.done{background:var(--accent)}
+.vi-step{flex:1;height:3px;border-radius:2px;background:var(–border)}
+.vi-step.done{background:var(–accent)}
 .vi-step.active{background:rgba(0,255,180,0.5)}
-.plate-input{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;text-align:center;letter-spacing:4px;border-radius:12px;border:2px solid var(--border)}
-.plate-input:focus{border-color:var(--accent)}
+.plate-input{font-family:‘Rajdhani’,sans-serif;font-size:28px;font-weight:700;text-align:center;letter-spacing:4px;border-radius:12px;border:2px solid var(–border)}
+.plate-input:focus{border-color:var(–accent)}
 .fuel-row{display:flex;gap:6px}
-.fuel-btn{flex:1;padding:10px 4px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;text-align:center}
-.fuel-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,180,0.08)}
+.fuel-btn{flex:1;padding:10px 4px;border-radius:8px;border:1px solid var(–border);background:transparent;color:var(–muted);font-size:12px;font-family:‘Rajdhani’,sans-serif;font-weight:600;cursor:pointer;text-align:center}
+.fuel-btn.active{border-color:var(–accent);color:var(–accent);background:rgba(0,255,180,0.08)}
 .photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.photo-slot{background:rgba(255,255,255,0.03);border:1px dashed var(--border);border-radius:12px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px}
-.photo-slot.taken{border-color:var(--accent);background:rgba(0,255,180,0.05);color:var(--accent)}
+.photo-slot{background:rgba(255,255,255,0.03);border:1px dashed var(–border);border-radius:12px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:11px;color:var(–muted);font-family:‘Rajdhani’,sans-serif;letter-spacing:1px}
+.photo-slot.taken{border-color:var(–accent);background:rgba(0,255,180,0.05);color:var(–accent)}
 .damage-car{width:100%;max-width:200px;margin:0 auto;display:block}
 .damage-point{cursor:pointer;transition:all 0.2s}
 .damage-point:hover circle,.damage-point.hit circle{fill:rgba(255,59,59,0.8)}
-.check-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.check-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(–border)}
 .check-row:last-child{border-bottom:none}
 .check-label{font-size:14px}
 .check-toggle{display:flex;gap:6px}
-.check-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:12px;font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;color:var(--muted)}
-.check-btn.ok{border-color:var(--accent);color:var(--accent);background:rgba(0,255,180,0.08)}
-.check-btn.fail{border-color:var(--red);color:var(--red);background:rgba(255,59,59,0.08)}
+.check-btn{padding:6px 14px;border-radius:8px;border:1px solid var(–border);background:transparent;font-size:12px;font-family:‘Rajdhani’,sans-serif;font-weight:600;cursor:pointer;color:var(–muted)}
+.check-btn.ok{border-color:var(–accent);color:var(–accent);background:rgba(0,255,180,0.08)}
+.check-btn.fail{border-color:var(–red);color:var(–red);background:rgba(255,59,59,0.08)}
 /* GUARDS */
-.guard-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
-.guard-avatar{width:44px;height:44px;border-radius:12px;background:rgba(0,255,180,0.1);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;color:var(--accent);flex-shrink:0}
+.guard-card{background:var(–card);border:1px solid var(–border);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.guard-avatar{width:44px;height:44px;border-radius:12px;background:rgba(0,255,180,0.1);display:flex;align-items:center;justify-content:center;font-family:‘Rajdhani’,sans-serif;font-weight:700;font-size:16px;color:var(–accent);flex-shrink:0}
 .guard-info{flex:1}
 .guard-name{font-size:14px;font-weight:600}
-.guard-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.guard-meta{font-size:11px;color:var(–muted);margin-top:2px}
 /* REPORTS */
 .report-section{margin-bottom:16px}
-.report-label{font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:6px}
+.report-label{font-size:11px;color:var(–muted);font-family:‘Rajdhani’,sans-serif;letter-spacing:1px;margin-bottom:6px}
 .report-val{font-size:14px;font-weight:500}
-.sig-box{height:80px;border:1px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
+.sig-box{height:80px;border:1px dashed var(–border);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(–muted);font-size:13px}
 /* SETTINGS */
-.menu-item{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;gap:12px}
+.menu-item{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(–border);cursor:pointer;gap:12px}
 .menu-item:last-child{border-bottom:none}
 .menu-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center}
 .menu-label{flex:1;font-size:14px}
 /* OVERLAY MENU */
 #menu-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:150;display:none}
 #menu-overlay.open{display:block}
-#burger-menu{position:absolute;bottom:0;left:0;right:0;background:#0e1420;border-top:1px solid var(--border);border-radius:20px 20px 0 0;padding:20px 20px 40px;z-index:151;transform:translateY(100%);transition:transform 0.3s ease}
+#burger-menu{position:absolute;bottom:0;left:0;right:0;background:#0e1420;border-top:1px solid var(–border);border-radius:20px 20px 0 0;padding:20px 20px 40px;z-index:151;transform:translateY(100%);transition:transform 0.3s ease}
 #burger-menu.open{transform:translateY(0)}
 .menu-profile{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.mp-avatar{width:48px;height:48px;border-radius:14px;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--accent)}
+.mp-avatar{width:48px;height:48px;border-radius:14px;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;font-family:‘Rajdhani’,sans-serif;font-size:18px;font-weight:700;color:var(–accent)}
 .mp-name{font-size:15px;font-weight:600}
-.mp-role{font-size:12px;color:var(--muted);margin-top:2px}
+.mp-role{font-size:12px;color:var(–muted);margin-top:2px}
 .burger-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.burger-item{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.burger-item{background:rgba(255,255,255,0.04);border:1px solid var(–border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer}
 .bi-icon{font-size:20px}
-.bi-label{font-size:13px;font-weight:600;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px}
+.bi-label{font-size:13px;font-weight:600;font-family:‘Rajdhani’,sans-serif;letter-spacing:0.5px}
 /* SCANNER MODAL */
 #scanner-modal{position:absolute;inset:0;background:#000;z-index:300;display:none;flex-direction:column}
 #scanner-modal.open{display:flex}
 .scanner-view{flex:1;position:relative;overflow:hidden;background:#050a0f;display:flex;align-items:center;justify-content:center}
-.scanner-frame{width:200px;height:200px;border:2px solid var(--accent);border-radius:16px;position:relative}
-.scanner-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scan 2s linear infinite}
+.scanner-frame{width:200px;height:200px;border:2px solid var(–accent);border-radius:16px;position:relative}
+.scanner-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(–accent),transparent);animation:scan 2s linear infinite}
 @keyframes scan{0%{top:0}100%{top:100%}}
-.scanner-corner{position:absolute;width:20px;height:20px;border-color:var(--accent);border-style:solid}
+.scanner-corner{position:absolute;width:20px;height:20px;border-color:var(–accent);border-style:solid}
 .sc-tl{top:-2px;left:-2px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
 .sc-tr{top:-2px;right:-2px;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
 .sc-bl{bottom:-2px;left:-2px;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
 .sc-br{bottom:-2px;right:-2px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
 .scanner-footer{padding:20px;background:#080c12}
 .scan-mode{display:flex;gap:8px;margin-bottom:16px}
-.scan-mode-btn{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
-.scan-mode-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,180,0.08)}
+.scan-mode-btn{flex:1;padding:10px;border-radius:10px;border:1px solid var(–border);background:transparent;color:var(–muted);font-family:‘Rajdhani’,sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.scan-mode-btn.active{border-color:var(–accent);color:var(–accent);background:rgba(0,255,180,0.08)}
 /* TOAST */
-#toast{position:absolute;bottom:96px;left:16px;right:16px;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:600;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px;z-index:500;display:none;text-align:center}
+#toast{position:absolute;bottom:96px;left:16px;right:16px;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:600;font-family:‘Rajdhani’,sans-serif;letter-spacing:0.5px;z-index:500;display:none;text-align:center}
 #toast.show{display:block}
-#toast.success{background:rgba(0,255,180,0.15);color:var(--accent);border:1px solid rgba(0,255,180,0.3)}
-#toast.error{background:rgba(255,59,59,0.15);color:var(--red);border:1px solid rgba(255,59,59,0.3)}
-#toast.info{background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3)}
-#toast.warning{background:rgba(245,166,35,0.15);color:var(--amber);border:1px solid rgba(245,166,35,0.3)}
+#toast.success{background:rgba(0,255,180,0.15);color:var(–accent);border:1px solid rgba(0,255,180,0.3)}
+#toast.error{background:rgba(255,59,59,0.15);color:var(–red);border:1px solid rgba(255,59,59,0.3)}
+#toast.info{background:rgba(59,130,246,0.15);color:var(–blue);border:1px solid rgba(59,130,246,0.3)}
+#toast.warning{background:rgba(245,166,35,0.15);color:var(–amber);border:1px solid rgba(245,166,35,0.3)}
 </style>
+
 </head>
 <body>
 <div id="app">
+<div class="offline-banner" id="offline-banner">📵 OFFLINE MODE — Data will sync when connected</div>
 
 <!-- LOGIN -->
 
@@ -646,6 +739,8 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
       <div class="menu-item"><div class="menu-icon">🔒</div><div class="menu-label">Password &amp; Security</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
       <div class="menu-item"><div class="menu-icon">🔔</div><div class="menu-label">Notifications</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
       <div class="menu-item"><div class="menu-icon">💳</div><div class="menu-label">Billing</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item" onclick="navTo('terms')"><div class="menu-icon">📄</div><div class="menu-label">Terms of Service</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item" onclick="navTo('privacy')"><div class="menu-icon">🛡️</div><div class="menu-label">Privacy Policy</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
     </div>
     <button class="btn btn-red" style="margin-top:16px" onclick="openLogout()">SIGN OUT</button>
   </div>
@@ -858,6 +953,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
     <div class="topbar-title">Incident Report</div>
   </div>
   <div style="padding:0 20px">
+    <div style="margin-bottom:12px"><button onclick="openAIReport()" style="width:100%;padding:12px;background:linear-gradient(135deg,rgba(0,255,180,0.1),rgba(59,130,246,0.1));border:1px solid rgba(0,255,180,0.3);border-radius:10px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px">✨ USE AI TO WRITE REPORT</button></div>
     <div class="field"><label>INCIDENT TYPE</label>
       <select id="ir-type">
         <option>Suspicious Person</option>
@@ -957,6 +1053,1148 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
   </div>
 </div>
 
+<!-- SCHEDULING -->
+
+<div class="screen" id="screen-schedule">
+  <div class="topbar">
+    <div class="topbar-title">Schedule</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openAddShift()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div class="tab-row">
+      <div class="tab active" onclick="switchSchedView(this,'week')">Week</div>
+      <div class="tab" onclick="switchSchedView(this,'day')">Today</div>
+      <div class="tab" onclick="switchSchedView(this,'open')">Open Shifts</div>
+    </div>
+    <div id="sched-week">
+      <div class="sched-day">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1.5px">MON · TODAY</div>
+        <div class="sched-shift" onclick="viewShift('Mike Santos','08:00','16:00','Site Alpha')">
+          <div style="width:3px;height:36px;background:var(--accent);border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Mike Santos</div><div style="font-size:11px;color:var(--muted)">08:00–16:00 · Site Alpha · Guard</div></div>
+          <span class="badge badge-green" style="font-size:9px">ACTIVE</span>
+        </div>
+        <div class="sched-shift" onclick="viewShift('Tom Brown','08:00','16:00','Site Beta')">
+          <div style="width:3px;height:36px;background:var(--blue);border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Tom Brown</div><div style="font-size:11px;color:var(--muted)">08:00–16:00 · Site Beta · Patrol</div></div>
+          <span class="badge badge-blue" style="font-size:9px">ENROUTE</span>
+        </div>
+      </div>
+      <div class="sched-day">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1.5px">TUE</div>
+        <div class="sched-shift night" onclick="viewShift('Lisa Rodriguez','16:00','00:00','Site Alpha')">
+          <div style="width:3px;height:36px;background:var(--blue);border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Lisa Rodriguez</div><div style="font-size:11px;color:var(--muted)">16:00–00:00 · Site Alpha · Supervisor</div></div>
+          <span class="badge badge-amber" style="font-size:9px">SCHEDULED</span>
+        </div>
+        <div class="sched-shift off">
+          <div style="width:3px;height:36px;background:var(--border);border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--muted)">Raj Patel</div><div style="font-size:11px;color:var(--muted)">Day Off — PTO Approved</div></div>
+          <span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)">PTO</span>
+        </div>
+      </div>
+      <div class="sched-day">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1.5px">WED — OPEN SHIFT</div>
+        <div class="sched-shift" style="border-color:rgba(245,166,35,0.3);background:rgba(245,166,35,0.05)">
+          <div style="width:3px;height:36px;background:var(--amber);border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--amber)">UNASSIGNED</div><div style="font-size:11px;color:var(--muted)">08:00–16:00 · Site Beta · Guard</div></div>
+          <button style="background:var(--amber);color:#000;border:none;border-radius:8px;padding:5px 10px;font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer" onclick="assignShift(this)">ASSIGN</button>
+        </div>
+      </div>
+    </div>
+    <div id="sched-day" style="display:none">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;margin-bottom:12px">Today's Shifts</div>
+      <div class="guard-card"><div class="guard-avatar">MS</div><div class="guard-info"><div class="guard-name">Mike Santos</div><div class="guard-meta">08:00–16:00 · Site Alpha · 6h 12m remaining</div></div><span class="badge badge-green">ACTIVE</span></div>
+      <div class="guard-card"><div class="guard-avatar">TB</div><div class="guard-info"><div class="guard-name">Tom Brown</div><div class="guard-meta">08:00–16:00 · Site Beta · Enroute</div></div><span class="badge badge-blue">ENROUTE</span></div>
+      <div class="guard-card"><div class="guard-avatar">JC</div><div class="guard-info"><div class="guard-name">James Clarke</div><div class="guard-meta">00:00–08:00 · Site Alpha · Shift ended</div></div><span class="badge" style="background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)">ENDED</span></div>
+    </div>
+    <div id="sched-open" style="display:none">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Guards can request to fill open shifts</div>
+      <div class="card" style="margin-bottom:10px;border-color:rgba(245,166,35,0.3)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div><div style="font-size:14px;font-weight:600;color:var(--amber)">Wed · 08:00–16:00</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Site Beta · Guard · 8 hours</div></div>
+          <span class="badge badge-amber">OPEN</span>
+        </div>
+        <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="claimShift(this)">CLAIM SHIFT</button>
+      </div>
+      <div class="card" style="margin-bottom:10px;border-color:rgba(245,166,35,0.3)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div><div style="font-size:14px;font-weight:600;color:var(--amber)">Thu · 16:00–00:00</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Site Alpha · Patrol · 8 hours</div></div>
+          <span class="badge badge-amber">OPEN</span>
+        </div>
+        <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="claimShift(this)">CLAIM SHIFT</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MESSAGING -->
+
+<div class="screen" id="screen-messages">
+  <div class="topbar">
+    <div class="topbar-title">Messages</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newMessage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px 8px">
+    <div class="tab-row">
+      <div class="tab active" onclick="switchMsgTab(this,'chats')">Chats</div>
+      <div class="tab" onclick="switchMsgTab(this,'broadcast')">Broadcast</div>
+      <div class="tab" onclick="switchMsgTab(this,'siteboards')">Site Boards</div>
+    </div>
+  </div>
+  <div id="msg-chats">
+    <div onclick="openChat('supervisor')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer">
+      <div style="width:44px;height:44px;border-radius:14px;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent);position:relative">LR
+        <div style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:var(--accent);border-radius:50%;border:2px solid var(--bg)"></div>
+      </div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Lisa Rodriguez <span style="font-size:10px;color:var(--muted);font-weight:400">Supervisor</span></div><div style="font-size:12px;color:var(--muted);margin-top:2px">CP-07 is overdue — please check in</div></div>
+      <div style="text-align:right"><div style="font-size:10px;color:var(--muted)">2m</div><div style="width:18px;height:18px;background:var(--red);border-radius:50%;font-size:10px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;margin-top:4px;margin-left:auto">2</div></div>
+    </div>
+    <div onclick="openChat('admin')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer">
+      <div style="width:44px;height:44px;border-radius:14px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--blue)">A</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Admin <span style="font-size:10px;color:var(--muted);font-weight:400">System</span></div><div style="font-size:12px;color:var(--muted);margin-top:2px">Your vehicle inspection has been approved</div></div>
+      <div style="font-size:10px;color:var(--muted)">1h</div>
+    </div>
+    <div onclick="openChat('site')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer">
+      <div style="width:44px;height:44px;border-radius:14px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);display:flex;align-items:center;justify-content:center;font-size:18px">🏢</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Site Alpha Board</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Shift handover complete — no incidents</div></div>
+      <div style="font-size:10px;color:var(--muted)">3h</div>
+    </div>
+  </div>
+  <div id="msg-broadcast" style="display:none;padding:0 16px">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Send to all guards on a site or all staff</div>
+    <div class="field"><label>SEND TO</label>
+      <select><option>All Guards — Site Alpha</option><option>All Guards — All Sites</option><option>Supervisors Only</option><option>Patrol Officers Only</option></select>
+    </div>
+    <div class="field"><label>MESSAGE</label>
+      <textarea id="broadcast-msg" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:100px" placeholder="Type your broadcast message..."></textarea>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-accent" onclick="sendBroadcast()">📢 SEND BROADCAST</button>
+    </div>
+  </div>
+  <div id="msg-siteboards" style="display:none;padding:0 16px">
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🏢</span><div style="font-weight:600">Site Alpha Board</div></div>
+      <div style="font-size:12px;color:var(--muted);padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:8px">Important: CCTV offline in sector 3 — manual patrol required every 30 mins</div>
+      <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="openSiteBoard('alpha')">VIEW BOARD</button>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🏗️</span><div style="font-weight:600">Site Beta Board</div></div>
+      <div style="font-size:12px;color:var(--muted);padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:8px">New access codes active from Monday — check briefing doc</div>
+      <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="openSiteBoard('beta')">VIEW BOARD</button>
+    </div>
+  </div>
+</div>
+
+<!-- CERTIFICATIONS -->
+
+<div class="screen" id="screen-certs">
+  <div class="topbar">
+    <div class="topbar-title">Certifications</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addCert()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent)">12</div><div class="stat-label">Valid Certs</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--red)">2</div><div class="stat-label">Expiring Soon</div></div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon" style="background:rgba(0,255,180,0.1)">🛡️</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Security Guard License</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Mike Santos · SGL-2024-8821</div></div>
+      <div><span class="cert-expiry good">DEC 2025</span></div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon" style="background:rgba(0,255,180,0.1)">❤️</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">CPR / First Aid</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Mike Santos · Red Cross Cert</div></div>
+      <div><span class="cert-expiry warn">JUN 2025</span></div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon" style="background:rgba(255,59,59,0.1)">🔫</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Firearms License</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Tom Brown · FBL-2023-4421</div></div>
+      <div><span class="cert-expiry exp">EXPIRED</span></div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon" style="background:rgba(59,130,246,0.1)">🚗</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Driver's License</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Lisa Rodriguez · DL-9923-B</div></div>
+      <div><span class="cert-expiry good">MAR 2027</span></div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon" style="background:rgba(245,166,35,0.1)">🔒</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Access Control Training</div><div style="font-size:11px;color:var(--muted);margin-top:2px">James Clarke · ACT-2024</div></div>
+      <div><span class="cert-expiry warn">AUG 2025</span></div>
+    </div>
+    <div style="margin-top:4px">
+      <button class="btn btn-outline" onclick="exportCerts()">📄 EXPORT COMPLIANCE REPORT</button>
+    </div>
+  </div>
+</div>
+
+<!-- DAILY ACTIVITY REPORT -->
+
+<div class="screen" id="screen-dar">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Daily Activity Report</div>
+    <div class="topbar-btn" onclick="exportDAR()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><div style="font-size:10px;color:var(--muted)">GUARD</div><div style="font-weight:600;font-size:14px">Mike Santos</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">DATE</div><div style="font-weight:600;font-size:14px">Today</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">SITE</div><div style="font-weight:600;font-size:14px">Site Alpha</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">SHIFT</div><div style="font-weight:600;font-size:14px">08:00–16:00</div></div>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);font-family:'Rajdhani',sans-serif;margin-bottom:8px">ACTIVITY LOG</div>
+    <div class="card" style="margin-bottom:12px;padding:12px">
+      <div class="dar-entry"><div class="dar-time">08:00</div><div class="dar-content">Guard reported for duty. Vehicle inspection completed. All systems normal.</div></div>
+      <div class="dar-entry"><div class="dar-time">08:12</div><div class="dar-content" style="color:var(--accent)">✓ CP-01 Main Entrance — QR scanned. No issues.</div></div>
+      <div class="dar-entry"><div class="dar-time">08:28</div><div class="dar-content" style="color:var(--accent)">✓ CP-02 Car Park A — NFC scanned. 3 vehicles present.</div></div>
+      <div class="dar-entry"><div class="dar-time">08:45</div><div class="dar-content" style="color:var(--accent)">✓ CP-03 North Perimeter — QR scanned. Fence line intact.</div></div>
+      <div class="dar-entry"><div class="dar-time">09:05</div><div class="dar-content" style="color:var(--accent)">✓ CP-04 Server Room — NFC scanned. Access log reviewed.</div></div>
+      <div class="dar-entry"><div class="dar-time">09:22</div><div class="dar-content" style="color:var(--red)">⚠ INCIDENT LOGGED — Suspicious vehicle parked outside Gate B. Plates recorded. Supervisor notified.</div></div>
+      <div class="dar-entry"><div class="dar-time">09:44</div><div class="dar-content" style="color:var(--accent)">✓ CP-09 Loading Bay — QR scanned. Delivery driver verified.</div></div>
+      <div class="dar-entry"><div class="dar-time">10:00</div><div class="dar-content">Break taken. Coverage maintained by J. Clarke.</div></div>
+      <div class="dar-entry" style="border-bottom:none"><div class="dar-time">10:30</div><div class="dar-content">Resumed patrol. All clear.</div></div>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="exportDAR()">📧 EMAIL DAR TO SUPERVISOR</button>
+    <button class="btn btn-outline" style="margin-bottom:20px" onclick="exportDAR()">📄 DOWNLOAD PDF</button>
+  </div>
+</div>
+
+<!-- CLIENT PORTAL -->
+
+<div class="screen" id="screen-client-portal">
+  <div class="topbar">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span></div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="topbar-btn" style="margin-left:8px" onclick="openMenu()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px 12px">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700">Client Dashboard</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">Your security status — live</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px">
+    <div class="client-stat"><div class="client-stat-val" style="color:var(--accent)">8</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Guards On Site</div></div>
+    <div class="client-stat"><div class="client-stat-val" style="color:var(--blue)">2</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Units Enroute</div></div>
+    <div class="client-stat"><div class="client-stat-val" style="color:var(--amber)">1</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Open Incidents</div></div>
+    <div class="client-stat"><div class="client-stat-val" style="color:var(--accent)">94%</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Patrol Coverage</div></div>
+  </div>
+  <div style="padding:0 16px">
+    <div class="section-title">LIVE PATROL STATUS</div>
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:13px;font-weight:600">Site Alpha Patrol</span>
+        <span class="badge badge-green">ACTIVE</span>
+      </div>
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span>Checkpoints completed</span>
+          <span style="color:var(--accent);font-weight:600">9/10</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Guard: Mike Santos · Last scan: CP-09 at 09:44</div>
+    </div>
+    <div class="section-title">RECENT INCIDENTS</div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="incident-row">
+        <div class="inc-dot" style="background:var(--amber)"></div>
+        <div class="inc-info"><div class="inc-title">Suspicious Vehicle — Gate B</div><div class="inc-sub">Today 09:22 · Under investigation</div></div>
+        <span class="badge badge-amber">IN PROG</span>
+      </div>
+      <div class="incident-row" style="border-bottom:none">
+        <div class="inc-dot" style="background:var(--accent)"></div>
+        <div class="inc-info"><div class="inc-title">Unauthorised Access Attempt</div><div class="inc-sub">Yesterday 14:15 · Resolved</div></div>
+        <span class="badge badge-green">CLOSED</span>
+      </div>
+    </div>
+    <div class="section-title">YOUR REPORTS</div>
+    <div class="card" style="margin-bottom:8px">
+      <div class="incident-row">
+        <div style="font-size:20px;margin-right:4px">📋</div>
+        <div class="inc-info"><div class="inc-title">Weekly Security Report</div><div class="inc-sub">This week · 42 patrols · 2 incidents</div></div>
+        <button style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--accent);font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer" onclick="downloadClientReport()">PDF</button>
+      </div>
+      <div class="incident-row" style="border-bottom:none">
+        <div style="font-size:20px;margin-right:4px">📊</div>
+        <div class="inc-info"><div class="inc-title">Monthly Summary — April</div><div class="inc-sub">168 patrols · 5 incidents · 100% uptime</div></div>
+        <button style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--accent);font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer" onclick="downloadClientReport()">PDF</button>
+      </div>
+    </div>
+    <button class="btn btn-outline" style="margin-bottom:20px" onclick="openLogout()">SIGN OUT</button>
+  </div>
+</div>
+
+<!-- ADD SHIFT MODAL -->
+
+<div class="modal" id="shift-modal">
+  <div class="modal-box">
+    <div class="modal-title">Add Shift</div>
+    <div class="field"><label>GUARD</label>
+      <select id="shift-guard"><option>Mike Santos</option><option>Lisa Rodriguez</option><option>Tom Brown</option><option>James Clarke</option><option>Raj Patel</option></select>
+    </div>
+    <div class="field"><label>DATE</label><input type="date" id="shift-date"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="field"><label>START TIME</label><input type="time" id="shift-start" value="08:00"></div>
+      <div class="field"><label>END TIME</label><input type="time" id="shift-end" value="16:00"></div>
+    </div>
+    <div class="field"><label>SITE</label>
+      <select id="shift-site"><option>Site Alpha</option><option>Site Beta</option><option>Site Gamma</option></select>
+    </div>
+    <div class="field"><label>ROLE</label>
+      <select id="shift-role"><option>Guard</option><option>Patrol Officer</option><option>Supervisor</option><option>Guard + Patrol</option></select>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="saveShift()">SAVE SHIFT</button>
+    <button class="btn btn-outline" onclick="closeShiftModal()">CANCEL</button>
+  </div>
+</div>
+
+<!-- CHAT MODAL -->
+
+<div class="modal" id="chat-modal">
+  <div class="modal-box" style="height:85vh;display:flex;flex-direction:column;padding:0">
+    <div class="topbar" style="border-bottom:1px solid var(--border);flex-shrink:0">
+      <div class="topbar-btn" onclick="closeChatModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </div>
+      <div style="flex:1"><div class="topbar-title" id="chat-title">Lisa Rodriguez</div><div style="font-size:11px;color:var(--accent);margin-top:-2px">● Online</div></div>
+    </div>
+    <div class="chat-list" id="chat-messages">
+      <div style="text-align:center;font-size:11px;color:var(--muted);margin:8px 0">Today</div>
+      <div class="chat-bubble recv">CP-07 is overdue by 12 minutes. Please check in.<div class="chat-time">10:18 AM</div></div>
+      <div class="chat-bubble sent">On my way now. Had a minor issue at Gate B — documented.<div class="chat-time">10:19 AM</div></div>
+      <div class="chat-bubble recv">Copy that. Incident report received. Proceed to CP-07.<div class="chat-time">10:20 AM</div></div>
+    </div>
+    <div class="chat-input-bar">
+      <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1;border-radius:24px;padding:10px 14px">
+      <button onclick="sendChatMessage()" style="width:40px;height:40px;background:var(--accent);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- POST ORDERS -->
+
+<div class="screen" id="screen-postorders">
+  <div class="topbar">
+    <div class="topbar-title">Post Orders</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addPostOrder()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Site-specific instructions delivered to guards before each shift</div>
+
+```
+<!-- Site Alpha -->
+<div class="card" style="margin-bottom:10px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div><div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700">Site Alpha</div><div style="font-size:11px;color:var(--muted)">Last updated today · 4 orders active</div></div>
+    <span class="badge badge-green">ACTIVE</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.15);border-radius:10px;padding:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">🚪</span>
+        <div style="font-size:12px;font-weight:600">Gate B Access Check</div>
+        <span style="font-size:9px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto">EVERY PATROL</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Check Gate B is locked and padlock is secure. Log any damage or tampering immediately.</div>
+    </div>
+    <div style="background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);border-radius:10px;padding:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">📷</span>
+        <div style="font-size:12px;font-weight:600">Car Park CCTV Verification</div>
+        <span style="font-size:9px;color:var(--blue);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto">SHIFT START</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Verify all 6 CCTV cameras in Car Park A are operational. Report any offline cameras.</div>
+    </div>
+    <div style="background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.15);border-radius:10px;padding:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">🔑</span>
+        <div style="font-size:12px;font-weight:600">Key Handover Protocol</div>
+        <span style="font-size:9px;color:var(--amber);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto">SHIFT END</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">All 12 master keys must be signed back in before shift end. Missing keys must be reported immediately.</div>
+    </div>
+    <div style="background:rgba(255,59,59,0.05);border:1px solid rgba(255,59,59,0.15);border-radius:10px;padding:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">⚠️</span>
+        <div style="font-size:12px;font-weight:600">Server Room — No Entry</div>
+        <span style="font-size:9px;color:var(--red);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto">ALL TIMES</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Server room access restricted to IT staff only. Scan checkpoint at door — do not enter. Alert supervisor if door is open.</div>
+    </div>
+  </div>
+  <button class="btn btn-outline" style="margin-top:10px;padding:8px;font-size:12px" onclick="editPostOrders('alpha')">EDIT ORDERS</button>
+</div>
+
+<!-- Site Beta -->
+<div class="card" style="margin-bottom:10px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div><div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700">Site Beta</div><div style="font-size:11px;color:var(--muted)">Last updated 2 days ago · 3 orders active</div></div>
+    <span class="badge badge-green">ACTIVE</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.15);border-radius:10px;padding:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">🚗</span>
+        <div style="font-size:12px;font-weight:600">Vehicle Log — Contractor Entrance</div>
+        <span style="font-size:9px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto">EVERY VISIT</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Log every contractor vehicle — plate, company, time in/out. Do not allow access without valid ID.</div>
+    </div>
+    <div style="background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);border-radius:10px;padding:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">🏗️</span>
+        <div style="font-size:12px;font-weight:600">Perimeter Walk — North Fence</div>
+        <span style="font-size:9px;color:var(--blue);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto">EVERY 2 HRS</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Full walk of north fence line. Check for damage, gaps, or signs of attempted entry. Photo any damage found.</div>
+    </div>
+  </div>
+  <button class="btn btn-outline" style="margin-top:10px;padding:8px;font-size:12px" onclick="editPostOrders('beta')">EDIT ORDERS</button>
+</div>
+
+<button class="btn btn-accent" onclick="addPostOrder()">+ ADD NEW POST ORDER</button>
+```
+
+  </div>
+</div>
+
+<!-- ANALYTICS -->
+
+<div class="screen" id="screen-analytics">
+  <div class="topbar">
+    <div class="topbar-title">Analytics</div>
+    <div class="topbar-btn" onclick="exportAnalytics()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div class="tab-row">
+      <div class="tab active" onclick="switchAnalyticsTab(this,'overview')">Overview</div>
+      <div class="tab" onclick="switchAnalyticsTab(this,'guards')">Guards</div>
+      <div class="tab" onclick="switchAnalyticsTab(this,'incidents')">Incidents</div>
+    </div>
+
+```
+<!-- OVERVIEW TAB -->
+<div id="analytics-overview">
+  <!-- KPI Row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+    <div class="stat-card" style="border-color:rgba(0,255,180,0.2)">
+      <div style="font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:4px">PATROL COVERAGE</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:var(--accent)">94%</div>
+      <div style="font-size:10px;color:var(--accent);margin-top:4px">↑ 3% vs last week</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(59,130,246,0.2)">
+      <div style="font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:4px">AVG RESPONSE TIME</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:var(--blue)">4.2m</div>
+      <div style="font-size:10px;color:var(--accent);margin-top:4px">↓ 0.8m vs last week</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(255,59,59,0.2)">
+      <div style="font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:4px">INCIDENTS THIS MONTH</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:var(--red)">12</div>
+      <div style="font-size:10px;color:var(--red);margin-top:4px">↑ 2 vs last month</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(245,166,35,0.2)">
+      <div style="font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:4px">GUARD ATTENDANCE</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:var(--amber)">97%</div>
+      <div style="font-size:10px;color:var(--accent);margin-top:4px">↑ 1% vs last week</div>
+    </div>
+  </div>
+
+  <!-- Patrol Coverage Bar Chart -->
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">PATROL COVERAGE — LAST 7 DAYS</div>
+    <div style="display:flex;align-items:flex-end;gap:6px;height:80px">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:72px"></div>
+        <div style="font-size:9px;color:var(--muted)">Mon</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:64px"></div>
+        <div style="font-size:9px;color:var(--muted)">Tue</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:68px"></div>
+        <div style="font-size:9px;color:var(--muted)">Wed</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:rgba(0,255,180,0.4);border-radius:4px 4px 0 0;height:56px"></div>
+        <div style="font-size:9px;color:var(--muted)">Thu</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:76px"></div>
+        <div style="font-size:9px;color:var(--muted)">Fri</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:rgba(0,255,180,0.4);border-radius:4px 4px 0 0;height:48px"></div>
+        <div style="font-size:9px;color:var(--muted)">Sat</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:60px"></div>
+        <div style="font-size:9px;color:var(--muted)">Sun</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Incident trend -->
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">INCIDENT TYPES — THIS MONTH</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Suspicious Person</span><span style="color:var(--red);font-weight:600">5</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:42%;background:var(--red)"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Suspicious Vehicle</span><span style="color:var(--amber);font-weight:600">3</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:25%;background:var(--amber)"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Perimeter Breach</span><span style="color:var(--blue);font-weight:600">2</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:17%;background:var(--blue)"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Unauthorized Access</span><span style="color:var(--accent);font-weight:600">2</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:17%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Site performance -->
+  <div class="card" style="margin-bottom:16px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">SITE PERFORMANCE</div>
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px"><span>Site Alpha</span><span style="color:var(--accent)">96%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:96%"></div></div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px"><span>Site Beta</span><span style="color:var(--amber)">88%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:88%;background:var(--amber)"></div></div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px"><span>Site Gamma</span><span style="color:var(--accent)">100%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- GUARDS TAB -->
+<div id="analytics-guards" style="display:none">
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">GUARD PERFORMANCE — THIS MONTH</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="guard-avatar" style="width:28px;height:28px;font-size:11px;border-radius:8px">MS</div>
+            <span style="font-size:13px;font-weight:600">Mike Santos</span>
+          </div>
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">97%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:97%"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">42 patrols · 0 missed · 1 incident</div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="guard-avatar" style="width:28px;height:28px;font-size:11px;border-radius:8px">LR</div>
+            <span style="font-size:13px;font-weight:600">Lisa Rodriguez</span>
+          </div>
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">100%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">38 patrols · 0 missed · 0 incidents</div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="guard-avatar" style="width:28px;height:28px;font-size:11px;border-radius:8px">JC</div>
+            <span style="font-size:13px;font-weight:600">James Clarke</span>
+          </div>
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--amber)">82%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:82%;background:var(--amber)"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">30 patrols · 5 missed · 2 incidents</div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="guard-avatar" style="width:28px;height:28px;font-size:11px;border-radius:8px">TB</div>
+            <span style="font-size:13px;font-weight:600">Tom Brown</span>
+          </div>
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">95%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">40 patrols · 2 missed · 1 incident</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INCIDENTS TAB -->
+<div id="analytics-incidents" style="display:none">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+    <div class="stat-card"><div class="stat-val" style="color:var(--red);font-size:28px">12</div><div class="stat-label">Total</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent);font-size:28px">9</div><div class="stat-label">Resolved</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--amber);font-size:28px">3</div><div class="stat-label">Open</div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">INCIDENTS BY TIME OF DAY</div>
+    <div style="display:flex;align-items:flex-end;gap:4px;height:60px">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.3);border-radius:3px 3px 0 0;height:10px"></div><div style="font-size:8px;color:var(--muted)">00</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.3);border-radius:3px 3px 0 0;height:8px"></div><div style="font-size:8px;color:var(--muted)">02</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.5);border-radius:3px 3px 0 0;height:20px"></div><div style="font-size:8px;color:var(--muted)">04</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.3);border-radius:3px 3px 0 0;height:12px"></div><div style="font-size:8px;color:var(--muted)">06</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.2);border-radius:3px 3px 0 0;height:6px"></div><div style="font-size:8px;color:var(--muted)">08</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.2);border-radius:3px 3px 0 0;height:8px"></div><div style="font-size:8px;color:var(--muted)">10</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.3);border-radius:3px 3px 0 0;height:14px"></div><div style="font-size:8px;color:var(--muted)">12</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.3);border-radius:3px 3px 0 0;height:16px"></div><div style="font-size:8px;color:var(--muted)">14</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.4);border-radius:3px 3px 0 0;height:22px"></div><div style="font-size:8px;color:var(--muted)">16</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.6);border-radius:3px 3px 0 0;height:40px"></div><div style="font-size:8px;color:var(--muted)">18</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:var(--red);border-radius:3px 3px 0 0;height:56px"></div><div style="font-size:8px;color:var(--muted)">20</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.6);border-radius:3px 3px 0 0;height:36px"></div><div style="font-size:8px;color:var(--muted)">22</div></div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center">Peak risk: 20:00–22:00 · Increase patrols during this window</div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- INVOICING -->
+
+<div class="screen" id="screen-invoicing">
+  <div class="topbar">
+    <div class="topbar-title">Invoicing</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="createInvoice()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent)">$8,420</div><div class="stat-label">Billed This Month</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--amber)">$2,100</div><div class="stat-label">Outstanding</div></div>
+    </div>
+    <div class="tab-row">
+      <div class="tab active" onclick="switchInvoiceTab(this,'all')">All</div>
+      <div class="tab" onclick="switchInvoiceTab(this,'pending')">Pending</div>
+      <div class="tab" onclick="switchInvoiceTab(this,'paid')">Paid</div>
+    </div>
+    <div id="inv-all">
+      <!-- Invoice 1 -->
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <div style="font-size:14px;font-weight:600">INV-2024-0142</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Site Alpha · Nov 1–30 · 8 guards</div>
+          </div>
+          <span class="badge badge-amber">PENDING</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;color:var(--muted)">Due: Dec 15, 2024</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--text)">$4,200</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="sendInvoice(this)">SEND</button>
+          <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="viewInvoice()">VIEW PDF</button>
+          <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="markPaid(this)">MARK PAID</button>
+        </div>
+      </div>
+      <!-- Invoice 2 -->
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <div style="font-size:14px;font-weight:600">INV-2024-0141</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Site Beta · Nov 1–30 · 5 guards</div>
+          </div>
+          <span class="badge badge-green">PAID</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;color:var(--muted)">Paid: Nov 28, 2024</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--accent)">$2,800</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="viewInvoice()">VIEW PDF</button>
+          <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="downloadInvoice()">DOWNLOAD</button>
+        </div>
+      </div>
+      <!-- Invoice 3 -->
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <div style="font-size:14px;font-weight:600">INV-2024-0140</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Site Alpha · Oct 1–31 · 8 guards</div>
+          </div>
+          <span class="badge badge-green">PAID</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;color:var(--muted)">Paid: Nov 5, 2024</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--accent)">$4,200</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="viewInvoice()">VIEW PDF</button>
+        </div>
+      </div>
+    </div>
+    <div id="inv-pending" style="display:none">
+      <div class="card" style="border-color:rgba(245,166,35,0.3)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div><div style="font-size:14px;font-weight:600">INV-2024-0142</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Site Alpha · Nov 1–30</div></div>
+          <span class="badge badge-amber">PENDING</span>
+        </div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:10px">$4,200</div>
+        <button class="btn btn-accent" style="padding:10px;font-size:13px" onclick="sendInvoice(this)">SEND TO CLIENT</button>
+      </div>
+    </div>
+    <div id="inv-paid" style="display:none">
+      <div style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0">All paid invoices shown here</div>
+    </div>
+    <button class="btn btn-accent" style="margin-top:8px;margin-bottom:20px" onclick="createInvoice()">+ CREATE NEW INVOICE</button>
+  </div>
+</div>
+
+<!-- NEW INVOICE MODAL -->
+
+<div class="modal" id="invoice-modal">
+  <div class="modal-box">
+    <div class="modal-title">Create Invoice</div>
+    <div class="field"><label>CLIENT / SITE</label>
+      <select id="inv-site"><option>Site Alpha</option><option>Site Beta</option><option>Site Gamma</option></select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="field"><label>FROM DATE</label><input type="date" id="inv-from"></div>
+      <div class="field"><label>TO DATE</label><input type="date" id="inv-to"></div>
+    </div>
+    <div class="field"><label>RATE PER GUARD/HOUR ($)</label><input type="number" id="inv-rate" placeholder="25.00" value="25" oninput="updateInvTotal()"></div>
+    <div class="field"><label>NUMBER OF GUARDS</label><input type="number" id="inv-guards" placeholder="8" value="8" oninput="updateInvTotal()"></div>
+    <div class="field"><label>TOTAL HOURS</label><input type="number" id="inv-hours" placeholder="168" value="168" oninput="updateInvTotal()"></div>
+    <div style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.15);border-radius:10px;padding:12px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:var(--muted)">Estimated Total</span>
+        <span style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--accent)" id="inv-total">$33,600</span>
+      </div>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="saveInvoice()">GENERATE INVOICE</button>
+    <button class="btn btn-outline" onclick="closeInvoiceModal()">CANCEL</button>
+  </div>
+</div>
+
+<!-- VISITOR MANAGEMENT -->
+
+<div class="screen" id="screen-visitors">
+  <div class="topbar">
+    <div class="topbar-title">Visitor Log</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="logNewVisitor()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent);font-size:28px">12</div><div class="stat-label">On Site Now</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--blue);font-size:28px">47</div><div class="stat-label">Today Total</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--amber);font-size:28px">2</div><div class="stat-label">Awaiting</div></div>
+    </div>
+    <div class="tab-row">
+      <div class="tab active" onclick="switchVisitorTab(this,'onsite')">On Site</div>
+      <div class="tab" onclick="switchVisitorTab(this,'today')">Today</div>
+      <div class="tab" onclick="switchVisitorTab(this,'preauth')">Pre-Auth</div>
+    </div>
+    <div id="visitor-onsite">
+      <div class="card">
+        <div class="visitor-row">
+          <div class="visitor-avatar">👤</div>
+          <div class="visitor-info">
+            <div class="visitor-name">James Whitfield</div>
+            <div class="visitor-meta">ABC Contractors · Visiting: Site Manager</div>
+          </div>
+          <div class="visitor-time in">IN 09:14<br><span style="font-size:9px;font-weight:400;color:var(--muted)">2h 31m</span></div>
+        </div>
+        <div class="visitor-row">
+          <div class="visitor-avatar">👤</div>
+          <div class="visitor-info">
+            <div class="visitor-name">Sarah Mitchell</div>
+            <div class="visitor-meta">Fire Inspection Co · Badge #FI-221</div>
+          </div>
+          <div class="visitor-time in">IN 10:45<br><span style="font-size:9px;font-weight:400;color:var(--muted)">1h 00m</span></div>
+        </div>
+        <div class="visitor-row">
+          <div class="visitor-avatar">🚗</div>
+          <div class="visitor-info">
+            <div class="visitor-name">Delivery — DHL Express</div>
+            <div class="visitor-meta">Vehicle: BMW Van · Plate: ABC-1234</div>
+          </div>
+          <div class="visitor-time in">IN 11:22<br><span style="font-size:9px;font-weight:400;color:var(--muted)">23m</span></div>
+        </div>
+      </div>
+      <button class="btn btn-accent" style="margin-top:12px" onclick="logNewVisitor()">+ LOG NEW VISITOR</button>
+    </div>
+    <div id="visitor-today" style="display:none">
+      <div class="card">
+        <div class="visitor-row">
+          <div class="visitor-avatar">👤</div>
+          <div class="visitor-info"><div class="visitor-name">John Carver</div><div class="visitor-meta">Maintenance Team</div></div>
+          <div class="visitor-time out">OUT 08:45</div>
+        </div>
+        <div class="visitor-row">
+          <div class="visitor-avatar">👤</div>
+          <div class="visitor-info"><div class="visitor-name">Amy Chen</div><div class="visitor-meta">IT Support</div></div>
+          <div class="visitor-time out">OUT 09:00</div>
+        </div>
+        <div class="visitor-row">
+          <div class="visitor-avatar">👤</div>
+          <div class="visitor-info"><div class="visitor-name">James Whitfield</div><div class="visitor-meta">ABC Contractors</div></div>
+          <div class="visitor-time in">STILL IN</div>
+        </div>
+      </div>
+    </div>
+    <div id="visitor-preauth" style="display:none">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Pre-authorized visitors expected today</div>
+      <div class="card">
+        <div class="visitor-row">
+          <div class="visitor-avatar">📋</div>
+          <div class="visitor-info"><div class="visitor-name">City Council Inspection</div><div class="visitor-meta">Expected 14:00 · 3 persons</div></div>
+          <span class="badge badge-blue">EXPECTED</span>
+        </div>
+        <div class="visitor-row" style="border-bottom:none">
+          <div class="visitor-avatar">🔧</div>
+          <div class="visitor-info"><div class="visitor-name">HVAC Maintenance</div><div class="visitor-meta">Expected 15:30 · 2 persons</div></div>
+          <span class="badge badge-blue">EXPECTED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASS-DOWN LOGS -->
+
+<div class="screen" id="screen-passdown">
+  <div class="topbar">
+    <div class="topbar-title">Pass-Down Log</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newPassdown()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Critical handover notes from outgoing guards to incoming shift</div>
+    <div class="passdown-card">
+      <div class="passdown-from">🔵 Mike Santos → James Clarke · 16:00 handover</div>
+      <div class="passdown-msg">Gate B padlock is loose — maintenance has been called but not yet fixed. Check it every patrol and call supervisor if tampered with. Suspicious silver Toyota Corolla (Plate: XYZ-789) was parked outside Gate B from 14:00–15:30 and left. Document if it returns.</div>
+      <div class="passdown-time">Today at 15:52 · Site Alpha</div>
+    </div>
+    <div class="passdown-card">
+      <div class="passdown-from">🔵 Lisa Rodriguez → Mike Santos · 08:00 handover</div>
+      <div class="passdown-msg">Quiet overnight shift. CP-03 NFC tag may be damaged — scanned manually 3 times. IT was notified. Server room AC was making noise at 02:00 — logged in incident system, maintenance aware. All keys accounted for.</div>
+      <div class="passdown-time">Today at 07:48 · Site Alpha</div>
+    </div>
+    <div class="passdown-card" style="background:rgba(245,166,35,0.05);border-color:rgba(245,166,35,0.2)">
+      <div class="passdown-from" style="color:var(--amber)">⚠️ James Clarke → Night Team · 00:00 handover</div>
+      <div class="passdown-msg">IMPORTANT: Client has event tomorrow 09:00–17:00. Expect 200+ visitors. Extra patrol required at Car Park A and main entrance. Briefing doc uploaded to Site Alpha board. Read before shift starts.</div>
+      <div class="passdown-time">Yesterday at 23:55 · Site Alpha</div>
+    </div>
+    <button class="btn btn-accent" onclick="newPassdown()">+ WRITE PASS-DOWN NOTE</button>
+  </div>
+</div>
+
+<!-- ASSET / EQUIPMENT TRACKING -->
+
+<div class="screen" id="screen-assets">
+  <div class="topbar">
+    <div class="topbar-title">Equipment</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addAsset()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent)">18</div><div class="stat-label">Total Assets</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--red)">4</div><div class="stat-label">Checked Out</div></div>
+    </div>
+    <div class="tab-row">
+      <div class="tab active" onclick="switchAssetTab(this,'all')">All</div>
+      <div class="tab" onclick="switchAssetTab(this,'out')">Checked Out</div>
+      <div class="tab" onclick="switchAssetTab(this,'vehicles')">Vehicles</div>
+    </div>
+    <div id="asset-all">
+      <div class="card">
+        <div class="asset-row">
+          <div class="asset-icon" style="background:rgba(0,255,180,0.1)">📻</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Radio #01</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Assigned to Mike Santos · Site Alpha</div></div>
+          <span class="asset-status out">OUT</span>
+        </div>
+        <div class="asset-row">
+          <div class="asset-icon" style="background:rgba(0,255,180,0.1)">🔦</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Torch #03</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Assigned to Tom Brown · Site Beta</div></div>
+          <span class="asset-status out">OUT</span>
+        </div>
+        <div class="asset-row">
+          <div class="asset-icon" style="background:rgba(0,255,180,0.1)">🔑</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Master Key Set A</div><div style="font-size:11px;color:var(--muted);margin-top:2px">12 keys · Site Alpha lockbox</div></div>
+          <span class="asset-status in">IN</span>
+        </div>
+        <div class="asset-row">
+          <div class="asset-icon" style="background:rgba(59,130,246,0.1)">🚔</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Patrol Vehicle P01</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Toyota Camry · ABC-1234 · 42,100 mi</div></div>
+          <span class="asset-status out">OUT</span>
+        </div>
+        <div class="asset-row">
+          <div class="asset-icon" style="background:rgba(245,166,35,0.1)">📷</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Body Camera #02</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Battery 78% · Last charged today</div></div>
+          <span class="asset-status in">IN</span>
+        </div>
+        <div class="asset-row" style="border-bottom:none">
+          <div class="asset-icon" style="background:rgba(0,255,180,0.1)">🛡️</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Stab Vest #04</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Assigned to James Clarke</div></div>
+          <span class="asset-status out">OUT</span>
+        </div>
+      </div>
+      <button class="btn btn-accent" style="margin-top:12px" onclick="checkoutAsset()">CHECKOUT EQUIPMENT</button>
+    </div>
+    <div id="asset-out" style="display:none">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">4 items currently checked out</div>
+      <div class="card">
+        <div class="asset-row"><div class="asset-icon" style="background:rgba(0,255,180,0.1)">📻</div><div style="flex:1"><div style="font-size:13px;font-weight:600">Radio #01</div><div style="font-size:11px;color:var(--muted)">Mike Santos · Out since 08:00</div></div><button style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer" onclick="checkinAsset(this)">CHECK IN</button></div>
+        <div class="asset-row"><div class="asset-icon" style="background:rgba(0,255,180,0.1)">🔦</div><div style="flex:1"><div style="font-size:13px;font-weight:600">Torch #03</div><div style="font-size:11px;color:var(--muted)">Tom Brown · Out since 08:00</div></div><button style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer" onclick="checkinAsset(this)">CHECK IN</button></div>
+      </div>
+    </div>
+    <div id="asset-vehicles" style="display:none">
+      <div class="guard-card"><div class="guard-avatar" style="background:rgba(59,130,246,0.1);color:var(--blue)">P1</div><div class="guard-info"><div class="guard-name">Patrol Vehicle P01</div><div class="guard-meta">Toyota Camry · ABC-1234 · 42,100 mi · Fuel: 3/4</div></div><span class="badge badge-red">OUT</span></div>
+      <div class="guard-card"><div class="guard-avatar" style="background:rgba(0,255,180,0.1);color:var(--accent)">P2</div><div class="guard-info"><div class="guard-name">Patrol Vehicle P02</div><div class="guard-meta">Ford Explorer · XYZ-5678 · 38,200 mi · Fuel: Full</div></div><span class="badge badge-green">AVAILABLE</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CLOCK IN/OUT & LONE WORKER -->
+
+<div class="screen" id="screen-clock">
+  <div class="topbar">
+    <div class="topbar-title">My Shift</div>
+  </div>
+  <div style="padding:0 20px">
+    <!-- Clock -->
+    <div class="card" style="margin-bottom:16px;text-align:center;padding:24px">
+      <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1.5px;margin-bottom:8px">SHIFT ELAPSED TIME</div>
+      <div class="clock-timer" id="shift-elapsed">00:00:00</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;margin-bottom:20px" id="clock-status-text">Not clocked in</div>
+      <button class="clock-btn clocked-out" id="main-clock-btn" onclick="toggleClockIn()">CLOCK IN</button>
+      <div style="font-size:10px;color:var(--muted);margin-top:10px" id="clock-gps-status">📍 GPS verification ready</div>
+    </div>
+
+```
+<!-- Lone Worker Protection -->
+<div class="card" style="margin-bottom:16px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div>
+      <div style="font-size:14px;font-weight:600">Lone Worker Protection</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Check in every 15 mins or auto-alert fires</div>
+    </div>
+    <div id="lone-worker-toggle" onclick="toggleLoneWorker()" style="width:44px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;position:relative;transition:background 0.3s">
+      <div id="lone-toggle-dot" style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left 0.3s"></div>
+    </div>
+  </div>
+  <div id="lone-worker-panel" style="display:none;text-align:center">
+    <div class="lone-worker-ring" id="lone-ring" onclick="confirmLoneWorkerCheckIn()">
+      <div>
+        <div class="lone-worker-countdown" id="lone-countdown">15:00</div>
+        <div class="lone-worker-label">TAP TO CHECK IN</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:12px">If timer reaches 0 your supervisor is automatically alerted with your GPS location</div>
+  </div>
+</div>
+
+<!-- Today Stats -->
+<div class="card" style="margin-bottom:16px">
+  <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">TODAY</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+    <div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--accent)" id="today-hours">0h</div><div style="font-size:10px;color:var(--muted)">HOURS</div></div>
+    <div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--blue)" id="today-cps">0</div><div style="font-size:10px;color:var(--muted)">CHECKPOINTS</div></div>
+    <div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--red)" id="today-incidents">0</div><div style="font-size:10px;color:var(--muted)">INCIDENTS</div></div>
+  </div>
+</div>
+
+<!-- Man-Down Detection -->
+<div class="card" style="margin-bottom:16px;border-color:rgba(255,59,59,0.2)">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:24px">🆘</span>
+    <div style="flex:1">
+      <div style="font-size:14px;font-weight:600">Man-Down Detection</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Auto-SOS if phone stops moving for 5 minutes during patrol</div>
+    </div>
+    <div id="man-down-toggle" onclick="toggleManDown()" style="width:44px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;position:relative;transition:background 0.3s">
+      <div id="man-down-dot" style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left 0.3s"></div>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- AI REPORT WRITER MODAL -->
+
+<div class="modal" id="ai-report-modal">
+  <div class="modal-box">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <div class="modal-title" style="margin-bottom:0">AI Report Writer</div>
+      <span class="ai-badge">✨ AI</span>
+    </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Describe what happened in plain words. AI will write a professional report.</div>
+    <div class="field">
+      <label>WHAT HAPPENED? (your words)</label>
+      <textarea id="ai-input" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:90px" placeholder="e.g. saw a guy trying car doors in car park at about 9pm, asked him to leave, he walked off toward the north gate"></textarea>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="generateAIReport()">✨ GENERATE REPORT</button>
+    <div id="ai-output" style="display:none;background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.2);border-radius:10px;padding:12px;font-size:13px;line-height:1.6;margin-bottom:12px;color:var(--text)"></div>
+    <div id="ai-actions" style="display:none">
+      <button class="btn btn-accent" style="margin-bottom:8px" onclick="useAIReport()">USE THIS REPORT</button>
+    </div>
+    <button class="btn btn-outline" onclick="closeAIReport()">CANCEL</button>
+  </div>
+</div>
+
+<!-- VISITOR LOG MODAL -->
+
+<div class="modal" id="visitor-modal">
+  <div class="modal-box">
+    <div class="modal-title">Log Visitor</div>
+    <div class="field"><label>VISITOR NAME</label><input type="text" id="v-name" placeholder="Full name"></div>
+    <div class="field"><label>COMPANY / ORGANISATION</label><input type="text" id="v-company" placeholder="Company or reason for visit"></div>
+    <div class="field"><label>VISITING</label><input type="text" id="v-host" placeholder="Who are they visiting?"></div>
+    <div class="field"><label>ID TYPE</label>
+      <select id="v-id"><option>Driver License</option><option>Passport</option><option>Company Badge</option><option>Other</option></select>
+    </div>
+    <div class="field"><label>VEHICLE PLATE (if applicable)</label><input type="text" id="v-plate" placeholder="Optional"></div>
+    <div class="field"><label>PURPOSE OF VISIT</label>
+      <select id="v-purpose"><option>Meeting</option><option>Delivery</option><option>Maintenance</option><option>Inspection</option><option>Contractor Work</option><option>Other</option></select>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="saveVisitor()">LOG VISITOR IN</button>
+    <button class="btn btn-outline" onclick="closeVisitorModal()">CANCEL</button>
+  </div>
+</div>
+
+<!-- PASS-DOWN MODAL -->
+
+<div class="modal" id="passdown-modal">
+  <div class="modal-box">
+    <div class="modal-title">Write Pass-Down Note</div>
+    <div class="field"><label>SITE</label>
+      <select id="pd-site"><option>Site Alpha</option><option>Site Beta</option><option>All Sites</option></select>
+    </div>
+    <div class="field"><label>PRIORITY</label>
+      <div style="display:flex;gap:8px">
+        <button class="fuel-btn active" id="pd-normal" onclick="setPDPriority(this,'normal')">NORMAL</button>
+        <button class="fuel-btn" id="pd-important" onclick="setPDPriority(this,'important')" style="color:var(--amber)">IMPORTANT</button>
+        <button class="fuel-btn" id="pd-urgent" onclick="setPDPriority(this,'urgent')" style="color:var(--red)">URGENT</button>
+      </div>
+    </div>
+    <div class="field"><label>MESSAGE TO NEXT SHIFT</label>
+      <textarea id="pd-msg" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:100px" placeholder="What does the incoming guard need to know?"></textarea>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="savePassdown()">SUBMIT PASS-DOWN</button>
+    <button class="btn btn-outline" onclick="closePassdownModal()">CANCEL</button>
+  </div>
+</div>
+
+<!-- ASSET CHECKOUT MODAL -->
+
+<div class="modal" id="asset-modal">
+  <div class="modal-box">
+    <div class="modal-title">Check Out Equipment</div>
+    <div class="field"><label>EQUIPMENT</label>
+      <select id="a-item"><option>Radio #01</option><option>Radio #02</option><option>Torch #01</option><option>Torch #02</option><option>Body Camera #01</option><option>Stab Vest #01</option><option>Master Key Set A</option></select>
+    </div>
+    <div class="field"><label>ASSIGNED TO</label>
+      <select id="a-guard"><option>Mike Santos</option><option>Tom Brown</option><option>Lisa Rodriguez</option><option>James Clarke</option></select>
+    </div>
+    <div class="field"><label>CONDITION</label>
+      <div style="display:flex;gap:8px">
+        <button class="fuel-btn active" onclick="setAssetCond(this,'good')">GOOD</button>
+        <button class="fuel-btn" onclick="setAssetCond(this,'fair')" style="color:var(--amber)">FAIR</button>
+        <button class="fuel-btn" onclick="setAssetCond(this,'damaged')" style="color:var(--red)">DAMAGED</button>
+      </div>
+    </div>
+    <div class="field"><label>NOTES (optional)</label><input type="text" id="a-notes" placeholder="Any damage or issues..."></div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="saveAssetCheckout()">CONFIRM CHECKOUT</button>
+    <button class="btn btn-outline" onclick="closeAssetModal()">CANCEL</button>
+  </div>
+</div>
+
+<!-- TERMS OF SERVICE SCREEN -->
+
+<div class="screen" id="screen-terms">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-settings')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Terms of Service</div>
+  </div>
+  <div style="padding:0 20px;font-size:13px;line-height:1.7;color:var(--muted)">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px">Terms of Service</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Last updated: May 2026</div>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">1. Acceptance of Terms</div>
+    <p style="margin-bottom:12px">By accessing or using ShieldSync, you agree to be bound by these Terms of Service. ShieldSync is a security operations management platform designed for professional security companies and their personnel.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">2. Use of Service</div>
+    <p style="margin-bottom:12px">ShieldSync is licensed for use by authorised security personnel only. You agree not to share login credentials, misrepresent your identity, or use the platform for unlawful purposes.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">3. Data and Privacy</div>
+    <p style="margin-bottom:12px">Location data, patrol logs, incident reports, and personal data are collected to operate the platform. See our Privacy Policy for full details. Data is stored securely and not sold to third parties.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">4. GPS and Location Tracking</div>
+    <p style="margin-bottom:12px">GPS tracking is used to verify guard presence at checkpoints and for lone worker safety. By using patrol features you consent to location tracking during active shifts.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">5. Incident Reports and Evidence</div>
+    <p style="margin-bottom:12px">Reports submitted through ShieldSync may be used in legal proceedings. Guards are responsible for accuracy of all submitted reports. False reporting is grounds for termination and potential legal action.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">6. Limitation of Liability</div>
+    <p style="margin-bottom:12px">ShieldSync provides a platform only. We are not responsible for security incidents, guard conduct, or client outcomes. Platform uptime is targeted at 99.9% but not guaranteed.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">7. Contact</div>
+    <p style="margin-bottom:20px">For questions: legal@shieldsync.app</p>
+  </div>
+</div>
+
+<!-- PRIVACY POLICY SCREEN -->
+
+<div class="screen" id="screen-privacy">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-settings')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Privacy Policy</div>
+  </div>
+  <div style="padding:0 20px;font-size:13px;line-height:1.7;color:var(--muted)">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px">Privacy Policy</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Last updated: May 2026 · GDPR Compliant</div>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">What Data We Collect</div>
+    <p style="margin-bottom:12px">Name, email, role, employer · GPS location during active shifts · Patrol logs, checkpoint scans · Incident reports and photos · Vehicle inspection records · Clock in/out timestamps</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">How We Use Your Data</div>
+    <p style="margin-bottom:12px">To operate the ShieldSync platform, generate reports for your employer and their clients, ensure guard safety via lone worker monitoring, and comply with legal obligations.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">Data Sharing</div>
+    <p style="margin-bottom:12px">Your data is shared with: your employer (security company), their clients (limited reporting only), and cloud infrastructure providers (Firebase/Google). We do not sell your data.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">Data Retention</div>
+    <p style="margin-bottom:12px">Incident reports: 7 years · Patrol logs: 3 years · Timesheets: 7 years · Photos: 2 years · GPS logs: 90 days</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">Your Rights (GDPR)</div>
+    <p style="margin-bottom:12px">Right to access, correct, or delete your data. Right to data portability. Right to object to processing. Contact: privacy@shieldsync.app</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">Cookies</div>
+    <p style="margin-bottom:20px">ShieldSync uses session storage only. No third-party advertising cookies are used.</p>
+  </div>
+</div>
+
 <!-- BOTTOM NAV -->
 
 <nav class="bottom-nav" id="main-bottom-nav">
@@ -996,6 +2234,18 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
     <div class="burger-item" onclick="closeMenu();navTo('alerts')"><span class="bi-icon">🔔</span><span class="bi-label">Alerts</span></div>
     <div class="burger-item" onclick="closeMenu();navTo('reports')"><span class="bi-icon">📋</span><span class="bi-label">Reports</span></div>
     <div class="burger-item" onclick="closeMenu();navTo('timesheets')"><span class="bi-icon">🕐</span><span class="bi-label">Timesheets</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('schedule')"><span class="bi-icon">📅</span><span class="bi-label">Schedule</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('messages')"><span class="bi-icon">💬</span><span class="bi-label">Messages</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('certs')"><span class="bi-icon">🎖️</span><span class="bi-label">Certifications</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('dar')"><span class="bi-icon">📝</span><span class="bi-label">Activity Log</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('postorders')"><span class="bi-icon">📋</span><span class="bi-label">Post Orders</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('analytics')"><span class="bi-icon">📊</span><span class="bi-label">Analytics</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('invoicing')"><span class="bi-icon">💰</span><span class="bi-label">Invoicing</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('visitors')"><span class="bi-icon">🏢</span><span class="bi-label">Visitors</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('passdown')"><span class="bi-icon">📝</span><span class="bi-label">Pass-Down</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('assets')"><span class="bi-icon">🔧</span><span class="bi-label">Equipment</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('clock')"><span class="bi-icon">⏱️</span><span class="bi-label">My Shift</span></div>
+    <div class="burger-item" onclick="closeMenu();openAIReport()"><span class="bi-icon">✨</span><span class="bi-label">AI Reports</span></div>
     <div class="burger-item" onclick="closeMenu();navTo('settings')"><span class="bi-icon">⚙️</span><span class="bi-label">Settings</span></div>
     <div class="burger-item" onclick="closeMenu();openShareModal()"><span class="bi-icon">🔗</span><span class="bi-label">Share Link</span></div>
   </div>
@@ -1120,8 +2370,9 @@ function navTo(tab) {
   var navEl = document.getElementById('nav-' + tab);
   if (navEl) navEl.classList.add('active');
   if (tab === 'patrol') {
-    showScreen('screen-vehicle-inspection');
-    viNextStep(1);
+    // Client cannot access patrol
+    if (currentRole === 'client') { showToast('Patrol access not available for clients', 'warning'); return; }
+    openPatrolCred();
   } else {
     showScreen('screen-' + tab);
   }
@@ -1150,8 +2401,8 @@ function signInWithRole() {
     if (mr) mr.textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1) + ' · ' + email;
     var ma = document.getElementById('menu-avatar');
     if (ma) ma.textContent = user.name.charAt(0);
-    var rb = document.getElementById('role-banner-text');
-    if (rb) rb.textContent = user.role.toUpperCase() + ' · SHIFT ACTIVE';
+    currentRole = user.role;
+    applyRoleUI(user.role);
     var role = user.role;
     if (role === 'guard' || role === 'patrol' || role === 'guardpatrol') {
       var ghn = document.getElementById('guard-home-name');
@@ -1163,10 +2414,13 @@ function signInWithRole() {
       if (statusEl) statusEl.textContent = roleLabel.toUpperCase() + ' — READY';
       showScreen('screen-guard-home');
       startGPSTracking();
+    } else if (role === 'client') {
+      showScreen('screen-client-portal');
     } else {
       showScreen('screen-home');
     }
     showToast('Welcome, ' + user.name.split(' ')[0] + '!', 'success');
+    if (window._showInstallBanner) window._showInstallBanner();
     startPatrolTimer();
   }, 700);
 }
@@ -1271,13 +2525,9 @@ function simulateScan(el, name) {
   showToast(name + ' scanned!', 'success');
 }
 
-function openEndPatrol() { document.getElementById('end-patrol-modal').classList.add('open'); }
+// openEndPatrol defined below
 function closeEndPatrol() { document.getElementById('end-patrol-modal').classList.remove('open'); }
-function returnToBase() {
-  closeEndPatrol();
-  showToast('Patrol ended. Returning to base.', 'success');
-  setTimeout(function() { performLogout(); }, 1500);
-}
+// returnToBase defined below
 
 function openSOS() { document.getElementById('sos-modal').classList.add('open'); }
 function closeSOS() { document.getElementById('sos-modal').classList.remove('open'); }
@@ -1738,6 +2988,623 @@ function confirmPatrolCredentials() {
 
 // ── UPDATE LOGIN FOR NEW ROLES ─────────────────────────────────────────────
 
+// ── ROLE RESTRICTIONS ─────────────────────────────────────────────────────
+
+function applyClientRestrictions() {
+  // Hide nav items client shouldn't see
+  var patrolNav = document.getElementById('nav-patrol');
+  if (patrolNav) patrolNav.style.display = 'none';
+  // Update banner
+  var rb = document.getElementById('role-banner-text');
+  if (rb) rb.textContent = 'CLIENT VIEW — READ ONLY';
+  // Hide enroute/onsite buttons
+  var erBtn = document.getElementById('enroute-btn');
+  var osBtn = document.getElementById('onsite-btn');
+  if (erBtn) erBtn.style.display = 'none';
+  if (osBtn) osBtn.style.display = 'none';
+}
+
+function applyRoleUI(role) {
+  // Reset nav
+  var patrolNav = document.getElementById('nav-patrol');
+  if (patrolNav) patrolNav.style.display = '';
+  var erBtn = document.getElementById('enroute-btn');
+  var osBtn = document.getElementById('onsite-btn');
+  if (erBtn) erBtn.style.display = '';
+  if (osBtn) osBtn.style.display = '';
+  
+  // Update role banner
+  var rb = document.getElementById('role-banner-text');
+  if (rb) {
+    var labels = {
+      admin: 'ADMIN · SHIFT ACTIVE',
+      supervisor: 'SUPERVISOR · SHIFT ACTIVE',
+      guard: 'GUARD · SHIFT ACTIVE',
+      patrol: 'PATROL OFFICER · SHIFT ACTIVE',
+      guardpatrol: 'GUARD + PATROL · SHIFT ACTIVE',
+      client: 'CLIENT VIEW — READ ONLY'
+    };
+    rb.textContent = labels[role] || role.toUpperCase() + ' · SHIFT ACTIVE';
+  }
+  if (role === 'client') applyClientRestrictions();
+}
+
+// ── SCHEDULING ────────────────────────────────────────────────────────────
+function switchSchedView(btn, tab) {
+  var tabs = btn.parentNode.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels = ['week','day','open'];
+  for (var j = 0; j < panels.length; j++) {
+    var el = document.getElementById('sched-' + panels[j]);
+    if (el) el.style.display = panels[j] === tab ? 'block' : 'none';
+  }
+}
+function openAddShift() {
+  var modal = document.getElementById('shift-modal');
+  if (modal) modal.classList.add('open');
+  var today = new Date().toISOString().split('T')[0];
+  var sd = document.getElementById('shift-date');
+  if (sd) sd.value = today;
+}
+function closeShiftModal() {
+  var modal = document.getElementById('shift-modal');
+  if (modal) modal.classList.remove('open');
+}
+function saveShift() {
+  var guard = document.getElementById('shift-guard');
+  var g = guard ? guard.value : 'Guard';
+  closeShiftModal();
+  showToast('Shift added for ' + g, 'success');
+}
+function viewShift(name, start, end, site) {
+  showToast(name + ' · ' + start + '–' + end + ' · ' + site, 'info');
+}
+function assignShift(btn) {
+  btn.textContent = 'ASSIGNED';
+  btn.style.background = 'var(--accent)';
+  btn.disabled = true;
+  showToast('Shift assigned successfully', 'success');
+}
+function claimShift(btn) {
+  btn.textContent = '✓ CLAIMED';
+  btn.style.opacity = '0.6';
+  btn.disabled = true;
+  showToast('Shift claimed — supervisor will confirm', 'success');
+}
+
+// ── MESSAGING ──────────────────────────────────────────────────────────────
+function switchMsgTab(btn, tab) {
+  var tabs = btn.parentNode.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels = ['chats','broadcast','siteboards'];
+  for (var j = 0; j < panels.length; j++) {
+    var el = document.getElementById('msg-' + panels[j]);
+    if (el) el.style.display = panels[j] === tab ? 'block' : 'none';
+  }
+}
+function openChat(who) {
+  var titles = { supervisor:'Lisa Rodriguez', admin:'Admin System', site:'Site Alpha Board' };
+  var modal = document.getElementById('chat-modal');
+  var title = document.getElementById('chat-title');
+  if (title) title.textContent = titles[who] || who;
+  if (modal) modal.classList.add('open');
+}
+function closeChatModal() {
+  var modal = document.getElementById('chat-modal');
+  if (modal) modal.classList.remove('open');
+}
+function sendChatMessage() {
+  var input = document.getElementById('chat-input');
+  if (!input || !input.value.trim()) return;
+  var list = document.getElementById('chat-messages');
+  if (list) {
+    var bubble = document.createElement('div');
+    bubble.className = 'chat-bubble sent';
+    bubble.innerHTML = input.value + '<div class="chat-time">' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) + '</div>';
+    list.appendChild(bubble);
+    list.scrollTop = list.scrollHeight;
+  }
+  input.value = '';
+}
+function newMessage() { showToast('Select a contact to message', 'info'); }
+function sendBroadcast() {
+  var msg = document.getElementById('broadcast-msg');
+  if (!msg || !msg.value.trim()) { showToast('Type a message first', 'warning'); return; }
+  showToast('Broadcast sent to all guards ✓', 'success');
+  msg.value = '';
+}
+function openSiteBoard(site) { showToast('Site ' + site + ' board opened', 'info'); }
+
+// ── CERTIFICATIONS ─────────────────────────────────────────────────────────
+function addCert() { showToast('Add certification feature — coming soon', 'info'); }
+function exportCerts() { showToast('Compliance report exported as PDF ✓', 'success'); }
+
+// ── DAR ────────────────────────────────────────────────────────────────────
+function exportDAR() { showToast('Daily Activity Report sent to supervisor ✓', 'success'); }
+
+// ── CLIENT PORTAL ──────────────────────────────────────────────────────────
+function downloadClientReport() { showToast('Report downloading as PDF ✓', 'success'); }
+
+// ── OFFLINE MODE ───────────────────────────────────────────────────────────
+window.addEventListener('online', function() {
+  var b = document.getElementById('offline-banner');
+  if (b) b.classList.remove('show');
+  showToast('Back online — syncing data ✓', 'success');
+});
+window.addEventListener('offline', function() {
+  var b = document.getElementById('offline-banner');
+  if (b) b.classList.add('show');
+  showToast('Offline — data saved locally', 'warning');
+});
+
+// ── GEOFENCE CHECK ─────────────────────────────────────────────────────────
+function checkGeofence(cpLat, cpLng, guardLat, guardLng) {
+  var R = 6371000;
+  var dLat = (cpLat - guardLat) * Math.PI / 180;
+  var dLng = (cpLng - guardLng) * Math.PI / 180;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(guardLat*Math.PI/180)*Math.cos(cpLat*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+  var dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return dist < 50; // within 50 meters
+}
+
+// ── NAVTO EXTENDED ─────────────────────────────────────────────────────────
+// Override navTo to handle new screens
+var _origNavTo = navTo;
+navTo = function(tab) {
+  var navItems = document.querySelectorAll('.nav-item');
+  for (var i = 0; i < navItems.length; i++) navItems[i].classList.remove('active');
+  var navEl = document.getElementById('nav-' + tab);
+  if (navEl) navEl.classList.add('active');
+
+  var screenMap = {
+    home: 'screen-home', incidents: 'screen-incidents',
+    guards: 'screen-guards', reports: 'screen-reports',
+    alerts: 'screen-alerts', timesheets: 'screen-timesheets',
+    settings: 'screen-settings', schedule: 'screen-schedule',
+    messages: 'screen-messages', certs: 'screen-certs',
+    dar: 'screen-dar', client: 'screen-client-portal'
+  };
+
+  if (tab === 'patrol') {
+    if (currentRole === 'client') { showToast('Patrol access not available for clients', 'warning'); return; }
+    openPatrolCred();
+  } else if (screenMap[tab]) {
+    showScreen(screenMap[tab]);
+  }
+};
+
+// ── ENHANCED CLIENT LOGIN ──────────────────────────────────────────────────
+// Override to send client to their dedicated portal
+var _origApplyClient = applyClientRestrictions;
+applyClientRestrictions = function() {
+  _origApplyClient();
+};
+
+// ── POST ORDERS ───────────────────────────────────────────────────────────
+function addPostOrder() {
+  showToast('Post order builder — tap EDIT ORDERS on any site', 'info');
+}
+function editPostOrders(site) {
+  showToast('Editing post orders for Site ' + site.charAt(0).toUpperCase() + site.slice(1), 'info');
+}
+
+// ── ANALYTICS ─────────────────────────────────────────────────────────────
+function switchAnalyticsTab(btn, tab) {
+  var tabs = btn.parentNode.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels = ['overview','guards','incidents'];
+  for (var j = 0; j < panels.length; j++) {
+    var el = document.getElementById('analytics-' + panels[j]);
+    if (el) el.style.display = panels[j] === tab ? 'block' : 'none';
+  }
+}
+function exportAnalytics() {
+  showToast('Analytics report exported ✓', 'success');
+}
+
+// ── INVOICING ──────────────────────────────────────────────────────────────
+function switchInvoiceTab(btn, tab) {
+  var tabs = btn.parentNode.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels = ['all','pending','paid'];
+  for (var j = 0; j < panels.length; j++) {
+    var el = document.getElementById('inv-' + panels[j]);
+    if (el) el.style.display = panels[j] === tab ? 'block' : 'none';
+  }
+}
+function createInvoice() {
+  var modal = document.getElementById('invoice-modal');
+  if (modal) modal.classList.add('open');
+  var today = new Date().toISOString().split('T')[0];
+  var f = document.getElementById('inv-from');
+  var t = document.getElementById('inv-to');
+  if (f) f.value = today;
+  if (t) t.value = today;
+  updateInvTotal();
+}
+function closeInvoiceModal() {
+  var modal = document.getElementById('invoice-modal');
+  if (modal) modal.classList.remove('open');
+}
+function updateInvTotal() {
+  var rate = parseFloat(document.getElementById('inv-rate').value) || 0;
+  var guards = parseFloat(document.getElementById('inv-guards').value) || 0;
+  var hours = parseFloat(document.getElementById('inv-hours').value) || 0;
+  var total = rate * guards * hours;
+  var el = document.getElementById('inv-total');
+  if (el) el.textContent = '$' + total.toLocaleString();
+}
+function saveInvoice() {
+  closeInvoiceModal();
+  showToast('Invoice generated successfully ✓', 'success');
+}
+function sendInvoice(btn) {
+  btn.textContent = '✓ SENT';
+  btn.style.opacity = '0.6';
+  btn.disabled = true;
+  showToast('Invoice sent to client ✓', 'success');
+}
+function markPaid(btn) {
+  var card = btn.closest ? btn.closest('.card') : btn.parentNode.parentNode.parentNode;
+  var badge = card.querySelector('.badge');
+  if (badge) { badge.className = 'badge badge-green'; badge.textContent = 'PAID'; }
+  btn.style.display = 'none';
+  showToast('Invoice marked as paid ✓', 'success');
+}
+function viewInvoice() { showToast('PDF viewer — opening invoice', 'info'); }
+function downloadInvoice() { showToast('Invoice downloaded ✓', 'success'); }
+
+// Update navTo map to include new screens
+var _screenMap = {
+  home: 'screen-home', incidents: 'screen-incidents',
+  guards: 'screen-guards', reports: 'screen-reports',
+  alerts: 'screen-alerts', timesheets: 'screen-timesheets',
+  settings: 'screen-settings', schedule: 'screen-schedule',
+  messages: 'screen-messages', certs: 'screen-certs',
+  dar: 'screen-dar', client: 'screen-client-portal',
+  postorders: 'screen-postorders', analytics: 'screen-analytics',
+  invoicing: 'screen-invoicing'
+};
+
+navTo = function(tab) {
+  var navItems = document.querySelectorAll('.nav-item');
+  for (var i = 0; i < navItems.length; i++) navItems[i].classList.remove('active');
+  var navEl = document.getElementById('nav-' + tab);
+  if (navEl) navEl.classList.add('active');
+  if (tab === 'patrol') {
+    if (currentRole === 'client') { showToast('Patrol access not available for clients', 'warning'); return; }
+    openPatrolCred();
+  } else if (_screenMap[tab]) {
+    showScreen(_screenMap[tab]);
+  }
+};
+
+// ── CLOCK IN/OUT ───────────────────────────────────────────────────────────
+var clockedIn = false;
+var shiftSeconds = 0;
+var shiftTimerInterval = null;
+var loneWorkerActive = false;
+var loneWorkerSeconds = 900;
+var loneWorkerInterval = null;
+var manDownActive = false;
+var manDownSeconds = 300;
+var manDownInterval = null;
+var lastMoveTime = Date.now();
+
+function toggleClockIn() {
+  var btn = document.getElementById('main-clock-btn');
+  var status = document.getElementById('clock-status-text');
+  var gpsStatus = document.getElementById('clock-gps-status');
+  if (!clockedIn) {
+    if (navigator.geolocation) {
+      gpsStatus.textContent = '📍 Verifying GPS location...';
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        window._lastLat = pos.coords.latitude;
+        window._lastLng = pos.coords.longitude;
+        gpsStatus.textContent = '✓ GPS verified · ' + pos.coords.latitude.toFixed(4) + ', ' + pos.coords.longitude.toFixed(4);
+        doClockIn(btn, status);
+      }, function() {
+        gpsStatus.textContent = '⚠ GPS unavailable — clocking in manually';
+        doClockIn(btn, status);
+      });
+    } else {
+      doClockIn(btn, status);
+    }
+  } else {
+    doClockOut(btn, status);
+  }
+}
+
+function doClockIn(btn, status) {
+  clockedIn = true;
+  shiftSeconds = 0;
+  if (btn) { btn.textContent = 'CLOCK OUT'; btn.className = 'clock-btn clocked-in'; }
+  if (status) status.textContent = 'Clocked in at ' + new Date().toLocaleTimeString();
+  shiftTimerInterval = setInterval(function() {
+    shiftSeconds++;
+    var h = Math.floor(shiftSeconds/3600);
+    var m = Math.floor((shiftSeconds%3600)/60);
+    var s = shiftSeconds%60;
+    var el = document.getElementById('shift-elapsed');
+    if (el) el.textContent = (h<10?'0'+h:h)+':'+(m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+    var todayH = document.getElementById('today-hours');
+    if (todayH) todayH.textContent = Math.floor(shiftSeconds/3600) + 'h ' + Math.floor((shiftSeconds%3600)/60) + 'm';
+  }, 1000);
+  showToast('Clocked in ✓ Shift started', 'success');
+}
+
+function doClockOut(btn, status) {
+  clockedIn = false;
+  if (shiftTimerInterval) clearInterval(shiftTimerInterval);
+  if (btn) { btn.textContent = 'CLOCK IN'; btn.className = 'clock-btn clocked-out'; }
+  if (status) status.textContent = 'Clocked out at ' + new Date().toLocaleTimeString();
+  showToast('Clocked out ✓ Shift ended', 'info');
+}
+
+// ── LONE WORKER ───────────────────────────────────────────────────────────
+function toggleLoneWorker() {
+  loneWorkerActive = !loneWorkerActive;
+  var toggle = document.getElementById('lone-worker-toggle');
+  var dot = document.getElementById('lone-toggle-dot');
+  var panel = document.getElementById('lone-worker-panel');
+  if (loneWorkerActive) {
+    if (toggle) toggle.style.background = 'var(--accent)';
+    if (dot) dot.style.left = '22px';
+    if (panel) panel.style.display = 'block';
+    startLoneWorkerTimer();
+    showToast('Lone worker protection ON', 'success');
+  } else {
+    if (toggle) toggle.style.background = 'var(--border)';
+    if (dot) dot.style.left = '2px';
+    if (panel) panel.style.display = 'none';
+    if (loneWorkerInterval) clearInterval(loneWorkerInterval);
+    showToast('Lone worker protection OFF', 'info');
+  }
+}
+
+function startLoneWorkerTimer() {
+  loneWorkerSeconds = 900;
+  if (loneWorkerInterval) clearInterval(loneWorkerInterval);
+  loneWorkerInterval = setInterval(function() {
+    loneWorkerSeconds--;
+    var m = Math.floor(loneWorkerSeconds/60);
+    var s = loneWorkerSeconds%60;
+    var el = document.getElementById('lone-countdown');
+    if (el) el.textContent = (m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+    var ring = document.getElementById('lone-ring');
+    if (loneWorkerSeconds <= 300 && loneWorkerSeconds > 60) {
+      if (ring) ring.className = 'lone-worker-ring warning';
+      var cd = document.getElementById('lone-countdown');
+      if (cd) cd.style.color = 'var(--amber)';
+    } else if (loneWorkerSeconds <= 60) {
+      if (ring) ring.className = 'lone-worker-ring danger';
+      var cd = document.getElementById('lone-countdown');
+      if (cd) cd.style.color = 'var(--red)';
+    }
+    if (loneWorkerSeconds <= 0) {
+      clearInterval(loneWorkerInterval);
+      showToast('⚠ LONE WORKER ALERT SENT — Supervisor notified', 'error');
+      startLoneWorkerTimer();
+    }
+  }, 1000);
+}
+
+function confirmLoneWorkerCheckIn() {
+  startLoneWorkerTimer();
+  var ring = document.getElementById('lone-ring');
+  if (ring) ring.className = 'lone-worker-ring';
+  var cd = document.getElementById('lone-countdown');
+  if (cd) cd.style.color = 'var(--accent)';
+  showToast('✓ Check-in confirmed — timer reset', 'success');
+}
+
+// ── MAN-DOWN ──────────────────────────────────────────────────────────────
+function toggleManDown() {
+  manDownActive = !manDownActive;
+  var toggle = document.getElementById('man-down-toggle');
+  var dot = document.getElementById('man-down-dot');
+  if (manDownActive) {
+    if (toggle) toggle.style.background = 'var(--red)';
+    if (dot) dot.style.left = '22px';
+    startManDownDetection();
+    showToast('Man-down detection ON', 'success');
+  } else {
+    if (toggle) toggle.style.background = 'var(--border)';
+    if (dot) dot.style.left = '2px';
+    if (manDownInterval) clearInterval(manDownInterval);
+    showToast('Man-down detection OFF', 'info');
+  }
+}
+
+function startManDownDetection() {
+  lastMoveTime = Date.now();
+  if (window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', function(e) {
+      var acc = e.acceleration;
+      if (acc && (Math.abs(acc.x) > 0.5 || Math.abs(acc.y) > 0.5 || Math.abs(acc.z) > 0.5)) {
+        lastMoveTime = Date.now();
+      }
+    });
+  }
+  manDownInterval = setInterval(function() {
+    var timeSinceMove = (Date.now() - lastMoveTime) / 1000;
+    if (timeSinceMove > 300 && manDownActive) {
+      showToast('⚠ MAN DOWN ALERT — Guard not moving for 5 mins', 'error');
+      if (typeof confirmSOS === 'function') confirmSOS();
+    }
+  }, 30000);
+}
+
+// ── VISITOR MANAGEMENT ────────────────────────────────────────────────────
+function switchVisitorTab(btn, tab) {
+  var tabs = btn.parentNode.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels = ['onsite','today','preauth'];
+  for (var j = 0; j < panels.length; j++) {
+    var el = document.getElementById('visitor-' + panels[j]);
+    if (el) el.style.display = panels[j] === tab ? 'block' : 'none';
+  }
+}
+function logNewVisitor() {
+  var modal = document.getElementById('visitor-modal');
+  if (modal) modal.classList.add('open');
+}
+function closeVisitorModal() {
+  var modal = document.getElementById('visitor-modal');
+  if (modal) modal.classList.remove('open');
+}
+function saveVisitor() {
+  var name = document.getElementById('v-name');
+  if (!name || !name.value) { showToast('Enter visitor name', 'warning'); return; }
+  closeVisitorModal();
+  showToast(name.value + ' logged in ✓', 'success');
+}
+
+// ── PASS-DOWN ─────────────────────────────────────────────────────────────
+function newPassdown() {
+  var modal = document.getElementById('passdown-modal');
+  if (modal) modal.classList.add('open');
+}
+function closePassdownModal() {
+  var modal = document.getElementById('passdown-modal');
+  if (modal) modal.classList.remove('open');
+}
+function setPDPriority(btn, level) {
+  var btns = btn.parentNode.querySelectorAll('.fuel-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+}
+function savePassdown() {
+  var msg = document.getElementById('pd-msg');
+  if (!msg || !msg.value) { showToast('Write your pass-down message', 'warning'); return; }
+  closePassdownModal();
+  showToast('Pass-down note submitted ✓', 'success');
+}
+
+// ── ASSET TRACKING ────────────────────────────────────────────────────────
+function switchAssetTab(btn, tab) {
+  var tabs = btn.parentNode.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels = ['all','out','vehicles'];
+  for (var j = 0; j < panels.length; j++) {
+    var el = document.getElementById('asset-' + panels[j]);
+    if (el) el.style.display = panels[j] === tab ? 'block' : 'none';
+  }
+}
+function addAsset() { showToast('Add new asset feature coming soon', 'info'); }
+function checkoutAsset() {
+  var modal = document.getElementById('asset-modal');
+  if (modal) modal.classList.add('open');
+}
+function closeAssetModal() {
+  var modal = document.getElementById('asset-modal');
+  if (modal) modal.classList.remove('open');
+}
+function setAssetCond(btn, cond) {
+  var btns = btn.parentNode.querySelectorAll('.fuel-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  btn.classList.add('active');
+}
+function saveAssetCheckout() {
+  closeAssetModal();
+  showToast('Equipment checked out ✓', 'success');
+}
+function checkinAsset(btn) {
+  var row = btn.parentNode;
+  btn.textContent = '✓ IN';
+  btn.style.background = 'rgba(0,255,180,0.1)';
+  btn.style.color = 'var(--accent)';
+  btn.disabled = true;
+  showToast('Equipment checked in ✓', 'success');
+}
+
+// ── AI REPORT WRITER ──────────────────────────────────────────────────────
+function openAIReport() {
+  var modal = document.getElementById('ai-report-modal');
+  if (modal) modal.classList.add('open');
+}
+function closeAIReport() {
+  var modal = document.getElementById('ai-report-modal');
+  if (modal) modal.classList.remove('open');
+  var output = document.getElementById('ai-output');
+  var actions = document.getElementById('ai-actions');
+  var input = document.getElementById('ai-input');
+  if (output) { output.style.display = 'none'; output.textContent = ''; }
+  if (actions) actions.style.display = 'none';
+  if (input) input.value = '';
+}
+function generateAIReport() {
+  var input = document.getElementById('ai-input');
+  if (!input || !input.value.trim()) { showToast('Describe what happened first', 'warning'); return; }
+  var raw = input.value.trim();
+  var output = document.getElementById('ai-output');
+  var actions = document.getElementById('ai-actions');
+  var btn = document.querySelector('#ai-report-modal .btn-accent');
+  if (btn) { btn.textContent = '✨ GENERATING...'; btn.disabled = true; }
+  setTimeout(function() {
+    if (btn) { btn.textContent = '✨ GENERATE REPORT'; btn.disabled = false; }
+    var now = new Date();
+    var time = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    var date = now.toLocaleDateString();
+    var report = 'INCIDENT REPORT
+
+Date: ' + date + '
+Time: ' + time + '
+Reporting Officer: ' + (window._currentUser ? window._currentUser.displayName || 'Guard' : 'Guard') + '
+
+DESCRIPTION:
+At approximately ' + time + ', this officer observed ' + raw + '. Immediate action was taken in accordance with post orders and site protocol.
+
+ACTION TAKEN:
+The situation was assessed and appropriate response measures were initiated. The incident has been documented for review by the supervising officer.
+
+STATUS: Open — Pending Supervisor Review';
+    if (output) { output.textContent = report; output.style.display = 'block'; }
+    if (actions) actions.style.display = 'block';
+  }, 1500);
+}
+function useAIReport() {
+  var output = document.getElementById('ai-output');
+  var irDesc = document.getElementById('ir-desc');
+  if (irDesc && output) irDesc.value = output.textContent;
+  closeAIReport();
+  navTo('incidents');
+  showToast('AI report added ✓', 'success');
+}
+
+// ── EXTENDED SCREEN MAP ───────────────────────────────────────────────────
+var _screenMap = {
+  home: 'screen-home', incidents: 'screen-incidents',
+  guards: 'screen-guards', reports: 'screen-reports',
+  alerts: 'screen-alerts', timesheets: 'screen-timesheets',
+  settings: 'screen-settings', schedule: 'screen-schedule',
+  messages: 'screen-messages', certs: 'screen-certs',
+  dar: 'screen-dar', client: 'screen-client-portal',
+  postorders: 'screen-postorders', analytics: 'screen-analytics',
+  invoicing: 'screen-invoicing', visitors: 'screen-visitors',
+  passdown: 'screen-passdown', assets: 'screen-assets',
+  clock: 'screen-clock', terms: 'screen-terms', privacy: 'screen-privacy'
+};
+
+navTo = function(tab) {
+  var navItems = document.querySelectorAll('.nav-item');
+  for (var i = 0; i < navItems.length; i++) navItems[i].classList.remove('active');
+  var navEl = document.getElementById('nav-' + tab);
+  if (navEl) navEl.classList.add('active');
+  if (tab === 'patrol') {
+    if (currentRole === 'client') { showToast('Patrol access not available for clients', 'warning'); return; }
+    openPatrolCred();
+  } else if (_screenMap[tab]) {
+    showScreen(_screenMap[tab]);
+  }
+};
+
 // ── Init
 showScreen('screen-login');
 selectRole('admin');
@@ -1780,14 +3647,17 @@ function dismissInstall() {
 }
 
 // iOS install instructions
-window.addEventListener('load', function() {
+// iOS install banner shown after login, not on load
+window._showInstallBanner = function() {
   var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   var isStandalone = window.navigator.standalone;
   if (isIOS && !isStandalone) {
-    var banner = document.getElementById('ios-install-banner');
-    if (banner) banner.style.display = 'flex';
+    setTimeout(function() {
+      var banner = document.getElementById('ios-install-banner');
+      if (banner) banner.style.display = 'flex';
+    }, 3000);
   }
-});
+};
 </script>
 
 <!-- ANDROID INSTALL BANNER -->
