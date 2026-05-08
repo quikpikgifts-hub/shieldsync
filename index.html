@@ -139,6 +139,10 @@ html,body{height:100%;width:100%;background:var(--bg,#080c12);font-family:'Inter
 .btn-outline{background:transparent;color:var(–text);border:1px solid var(–border)}
 .btn-red{background:var(–red);color:#fff}
 input,select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(–border);border-radius:10px;padding:13px 14px;color:var(–text);font-size:15px;font-family:‘Inter’,sans-serif;-webkit-appearance:none;outline:none}
+#login-email,#login-pass{width:100%;background:#1a2332;border:1.5px solid #2a3a50;border-radius:12px;padding:14px 16px;color:#f0f4f8 !important;font-family:‘Inter’,sans-serif;font-size:15px;font-weight:400;letter-spacing:0;text-align:left;-webkit-text-fill-color:#f0f4f8;box-sizing:border-box}
+#login-email:focus,#login-pass:focus{border-color:#00ffb4;outline:none;background:#1e2a3e}
+#login-email::placeholder,#login-pass::placeholder{color:#4a5568;-webkit-text-fill-color:#4a5568}
+#login-email:-webkit-autofill,#login-pass:-webkit-autofill{-webkit-box-shadow:0 0 0 100px #1a2332 inset !important;-webkit-text-fill-color:#f0f4f8 !important;border-color:#2a3a50 !important}
 input:focus,select:focus{border-color:var(–accent)}
 input::placeholder{color:var(–muted)}
 label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);font-family:‘Rajdhani’,sans-serif;display:block;margin-bottom:6px}
@@ -294,6 +298,40 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 #toast.warning{background:rgba(245,166,35,0.15);color:var(–amber);border:1px solid rgba(245,166,35,0.3)}
 </style>
 
+<!-- Firebase SDK -->
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyB8h2Pmz2Yv7Z137ElTFpcWKSeS6cRQ6T0",
+    authDomain: "shieldsync-1ffe0.firebaseapp.com",
+    databaseURL: "https://shieldsync-1ffe0-default-rtdb.firebaseio.com",
+    projectId: "shieldsync-1ffe0",
+    storageBucket: "shieldsync-1ffe0.firebasestorage.app",
+    messagingSenderId: "850242395820",
+    appId: "1:850242395820:web:a74eecd0216edd97e68909"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var auth = firebase.auth();
+</script>
+
+<style>
+#login-email:-webkit-autofill,
+#login-email:-webkit-autofill:hover,
+#login-email:-webkit-autofill:focus,
+#login-pass:-webkit-autofill,
+#login-pass:-webkit-autofill:hover,
+#login-pass:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 100px #131d2e inset !important;
+  -webkit-text-fill-color: #f0f4f8 !important;
+  caret-color: #f0f4f8 !important;
+  border-color: #2a3a50 !important;
+}
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -308,43 +346,49 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="login-sub">SECURITY OPERATIONS PLATFORM</div>
   </div>
   <div class="login-form">
-    <div class="field"><label>EMAIL / BADGE ID</label><input type="email" id="login-email" placeholder="officer@unit.com"></div>
-    <div class="field"><label>PASSWORD</label><input type="password" id="login-pass" placeholder="••••••••"></div>
-    <div class="forgot"><a onclick="showScreen('screen-reset')">Forgot password?</a></div>
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#6b7a8d;margin-bottom:6px">EMAIL / BADGE ID</div>
+      <input type="email" id="login-email" placeholder="officer@unit.com" autocomplete="email" style="display:block;width:100%;background:#131d2e;border:1.5px solid #2a3a50;border-radius:12px;padding:14px 16px;color:#f0f4f8;font-family:'Inter',sans-serif;font-size:15px;font-weight:400;letter-spacing:0;text-align:left;-webkit-text-fill-color:#f0f4f8;box-sizing:border-box;outline:none">
+    </div>
+    <div style="margin-bottom:8px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#6b7a8d;margin-bottom:6px">PASSWORD</div>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" style="display:block;width:100%;background:#131d2e;border:1.5px solid #2a3a50;border-radius:12px;padding:14px 16px;color:#f0f4f8;font-family:'Inter',sans-serif;font-size:15px;font-weight:400;letter-spacing:0;text-align:left;-webkit-text-fill-color:#f0f4f8;box-sizing:border-box;outline:none">
+    </div>
+    <div style="text-align:right;margin-bottom:16px"><a onclick="showScreen('screen-reset')" style="color:#00ffb4;font-size:13px;cursor:pointer;text-decoration:none">Forgot password?</a></div>
     <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);font-family:'Rajdhani',sans-serif;margin-bottom:10px">SIGN IN AS</div>
     <div class="role-grid">
-      <div class="role-card selected" id="role-admin" onclick="selectRole('admin')" ontouchstart="selectRole('admin')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
+      <div class="role-card selected" id="role-admin" onclick="selectRole('admin')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
         <div class="role-icon">🛡️</div>
         <div class="role-name">Admin</div>
         <div class="role-desc">Full access, billing, settings</div>
       </div>
-      <div class="role-card" id="role-supervisor" onclick="selectRole('supervisor')" ontouchstart="selectRole('supervisor')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
+      <div class="role-card" id="role-supervisor" onclick="selectRole('supervisor')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
         <div class="role-icon">🔑</div>
         <div class="role-name">Supervisor</div>
         <div class="role-desc">Dispatch, incidents, guards</div>
       </div>
-      <div class="role-card" id="role-guard" onclick="selectRole('guard')" ontouchstart="selectRole('guard')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
+      <div class="role-card" id="role-guard" onclick="selectRole('guard')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
         <div class="role-icon">👤</div>
         <div class="role-name">Guard</div>
         <div class="role-desc">Static post, access control</div>
       </div>
-      <div class="role-card" id="role-patrol" onclick="selectRole('patrol')" ontouchstart="selectRole('patrol')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
+      <div class="role-card" id="role-patrol" onclick="selectRole('patrol')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
         <div class="role-icon">🚔</div>
         <div class="role-name">Patrol Officer</div>
         <div class="role-desc">Patrol only, checkpoints, SOS</div>
       </div>
-      <div class="role-card" id="role-guardpatrol" onclick="selectRole('guardpatrol')" ontouchstart="selectRole('guardpatrol')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
+      <div class="role-card" id="role-guardpatrol" onclick="selectRole('guardpatrol')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
         <div class="role-icon">⚔️</div>
         <div class="role-name">Guard + Patrol</div>
         <div class="role-desc">Post duty &amp; patrol combined</div>
       </div>
-      <div class="role-card" id="role-client" onclick="selectRole('client')" ontouchstart="selectRole('client')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
+      <div class="role-card" id="role-client" onclick="selectRole('client')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
         <div class="role-icon">📊</div>
         <div class="role-name">Client</div>
         <div class="role-desc">Read-only reports &amp; status</div>
       </div>
     </div>
-    <button onclick="signInWithRole()" style="width:100%;padding:16px;background:#00ffb4;color:#000;border:none;border-radius:12px;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;margin-top:8px">SIGN IN</button>
+    <button id="signin-btn" onclick="signInWithRole()" style="width:100%;padding:16px;background:#00ffb4;color:#000;border:none;border-radius:12px;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;margin-top:8px;-webkit-tap-highlight-color:transparent">SIGN IN</button>
   </div>
   <div class="quick-logins">
     <div class="ql-title">🚀 QUICK TEST LOGINS</div>
@@ -2375,17 +2419,49 @@ function navTo(tab) {
 
 function signInWithRole() {
   var emailEl = document.getElementById('login-email');
-  var passEl = document.getElementById('login-pass');
-  var email = emailEl ? emailEl.value.trim().toLowerCase() : '';
-  var pass = passEl ? passEl.value : '';
-  var btn = document.querySelector('#screen-login .btn-accent');
-  if (!email || !pass) { showToast('Please enter email and password', 'warning'); return; }
-  if (btn) { btn.textContent = 'SIGNING IN...'; btn.disabled = true; btn.style.opacity = '0.7'; }
-  setTimeout(function() {
+  var passEl  = document.getElementById('login-pass');
+  if (!emailEl || !passEl) { showToast('Form error — reload page', 'error'); return; }
+  var email = emailEl.value.trim().toLowerCase();
+  var pass  = passEl.value;
+  if (!email) { showToast('Enter your email', 'warning'); emailEl.focus(); return; }
+  if (!pass)  { showToast('Enter your password', 'warning'); passEl.focus(); return; }
+
+  var btn = document.getElementById('signin-btn');
+  if (btn) { btn.textContent = 'SIGNING IN...'; btn.disabled = true; btn.style.opacity = '0.6'; }
+
+  function resetBtn() {
     if (btn) { btn.textContent = 'SIGN IN'; btn.disabled = false; btn.style.opacity = '1'; }
+  }
+
+  function tryDemoLogin() {
     var user = demoUsers[email];
-    if (!user) { showToast('No account found for that email', 'error'); return; }
-    if (user.password !== pass) { showToast('Incorrect password', 'error'); return; }
+    if (!user) { resetBtn(); showToast('No account found for that email', 'error'); return; }
+    if (user.password !== pass) { resetBtn(); showToast('Incorrect password — try again', 'error'); return; }
+    resetBtn();
+    loginSuccess(user);
+  }
+
+  // Try Firebase first, fall back to demo
+  if (typeof auth !== 'undefined' && auth && auth.signInWithEmailAndPassword) {
+    auth.signInWithEmailAndPassword(email, pass)
+      .then(function(result) {
+        resetBtn();
+        var user = demoUsers[email] || { name: (result.user.displayName || email.split('@')[0]), role: currentRole || 'admin' };
+        loginSuccess(user);
+      })
+      .catch(function(err) {
+        // If Firebase fails, try demo
+        tryDemoLogin();
+      });
+  } else {
+    // No Firebase — use demo directly
+    setTimeout(tryDemoLogin, 600);
+  }
+}
+
+function loginSuccess(user) {
+    var email = document.getElementById('login-email');
+    email = email ? email.value.trim().toLowerCase() : '';
     currentRole = user.role;
     selectRole(user.role);
     var hn = document.getElementById('home-name');
@@ -2417,43 +2493,39 @@ function signInWithRole() {
     showToast('Welcome, ' + user.name.split(' ')[0] + '!', 'success');
     if (window._showInstallBanner) window._showInstallBanner();
     startPatrolTimer();
-  }, 700);
 }
 
+var _roleEmails = {
+  admin:       'admin@shieldsync.app',
+  supervisor:  'supervisor@shieldsync.app',
+  guard:       'guard@shieldsync.app',
+  patrol:      'patrol@shieldsync.app',
+  guardpatrol: 'guardpatrol@shieldsync.app',
+  client:      'client@shieldsync.app'
+};
+var _rolePasses = {
+  admin:'Admin1234!', supervisor:'Super1234!', guard:'Guard1234!',
+  patrol:'Patrol1234!', guardpatrol:'GP1234!', client:'Client1234!'
+};
+
 function selectRole(role) {
-  // Remove selected from all cards
-  var cards = document.querySelectorAll('.role-card');
-  for (var i = 0; i < cards.length; i++) {
-    cards[i].classList.remove('selected');
-    cards[i].style.borderColor = '';
-    cards[i].style.background = '';
-  }
-  // Select chosen card
-  var card = document.getElementById('role-' + role);
-  if (card) {
-    card.classList.add('selected');
-    card.style.borderColor = '#00ffb4';
-    card.style.background = 'rgba(0,255,180,0.1)';
-  }
   currentRole = role;
-  // Auto-fill email/password for that role
-  var roleMap = {
-    admin:      { email: 'admin@shieldsync.app',      pass: 'Admin1234!' },
-    supervisor: { email: 'supervisor@shieldsync.app', pass: 'Super1234!' },
-    guard:      { email: 'guard@shieldsync.app',      pass: 'Guard1234!' },
-    patrol:     { email: 'patrol@shieldsync.app',     pass: 'Patrol1234!' },
-    guardpatrol:{ email: 'guardpatrol@shieldsync.app',pass: 'GP1234!' },
-    client:     { email: 'client@shieldsync.app',     pass: 'Client1234!' }
-  };
-  if (roleMap[role]) {
-    var em = document.getElementById('login-email');
-    var pw = document.getElementById('login-pass');
-    if (em) em.value = roleMap[role].email;
-    // Only fill password if empty or still a demo password
+  var ids = ['admin','supervisor','guard','patrol','guardpatrol','client'];
+  for (var i = 0; i < ids.length; i++) {
+    var c = document.getElementById('role-' + ids[i]);
+    if (!c) continue;
+    if (ids[i] === role) {
+      c.style.cssText = 'cursor:pointer;border:2px solid #00ffb4;border-radius:12px;padding:14px 12px;background:rgba(0,255,180,0.12);box-shadow:0 0 0 1px rgba(0,255,180,0.2);transition:all 0.15s;touch-action:manipulation;-webkit-user-select:none';
+    } else {
+      c.style.cssText = 'cursor:pointer;border:2px solid #1a2332;border-radius:12px;padding:14px 12px;background:#0e1420;transition:all 0.15s;touch-action:manipulation;-webkit-user-select:none';
+    }
+  }
+  var em = document.getElementById('login-email');
+  var pw = document.getElementById('login-pass');
+  if (em && _roleEmails[role]) em.value = _roleEmails[role];
+  if (pw && _rolePasses[role]) {
     var demoPasses = ['Admin1234!','Super1234!','Guard1234!','Patrol1234!','GP1234!','Client1234!'];
-    var currentPass = pw ? pw.value : '';
-    var isDemoPass = demoPasses.indexOf(currentPass) !== -1 || currentPass === '';
-    if (pw && isDemoPass) pw.value = roleMap[role].pass;
+    if (!pw.value || demoPasses.indexOf(pw.value) !== -1) pw.value = _rolePasses[role];
   }
 }
 
@@ -2468,10 +2540,17 @@ function fillLogin(email, pass, role) {
 function doReset() {
   var em = document.getElementById('reset-email');
   if (!em || !em.value) { showToast('Enter your email', 'warning'); return; }
-  showToast('Reset link sent to ' + em.value, 'success');
+  var emailAddr = em.value.trim();
+  if (typeof auth !== 'undefined') {
+    auth.sendPasswordResetEmail(emailAddr)
+      .then(function() { showToast('Reset link sent to ' + emailAddr + ' ✓', 'success'); })
+      .catch(function(e) { showToast('Could not send reset — check email address', 'error'); return; });
+  } else {
+    showToast('Reset link sent to ' + emailAddr, 'success');
+  }
   setTimeout(function() { showScreen('screen-login');
   // Pre-select admin role on load
-  setTimeout(function(){ selectRole('admin'); }, 100); }, 1500);
+  setTimeout(function(){ selectRole('admin'); }, 200); }, 1500);
 }
 
 function viNextStep(step) {
@@ -2563,6 +2642,7 @@ function openLogout() { document.getElementById('logout-modal').classList.add('o
 function closeLogout() { document.getElementById('logout-modal').classList.remove('open'); }
 function performLogout() {
   closeLogout();
+  if (typeof auth !== 'undefined') { auth.signOut().catch(function(){}); }
   cpScanned = 4; patrolSeconds = 8073;
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
   var em = document.getElementById('login-email');
@@ -3631,7 +3711,20 @@ navTo = function(tab) {
   }
 };
 
-// ── Init
+// ── Init — check Firebase session ─────────────────────────────────────────
+if (typeof firebase !== 'undefined' && firebase.auth) {
+  auth.onAuthStateChanged(function(firebaseUser) {
+    if (firebaseUser && !currentRole) {
+      // User already signed in — restore session
+      var email = firebaseUser.email.toLowerCase();
+      var user = demoUsers[email];
+      if (user) {
+        loginSuccess(user);
+        return;
+      }
+    }
+  });
+}
 showScreen('screen-login');
 selectRole('admin');
 startPatrolTimer();
@@ -3711,5 +3804,24 @@ window._showInstallBanner = function() {
     Tap <strong style="color:#fff">Share</strong> <span style="font-size:14px">⬆️</span> then <strong style="color:#fff">Add to Home Screen</strong> to install ShieldSync as an app.
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var inputs = ['login-email','login-pass'];
+    inputs.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('focus', function() {
+        this.style.borderColor = '#00ffb4';
+        this.style.background = '#1a2a40';
+      });
+      el.addEventListener('blur', function() {
+        this.style.borderColor = '#2a3a50';
+        this.style.background = '#131d2e';
+      });
+    });
+  });
+</script>
+
 </body>
 </html>
