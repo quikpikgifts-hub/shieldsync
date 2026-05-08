@@ -158,7 +158,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 .forgot{text-align:right;margin-top:-8px;margin-bottom:20px}
 .forgot a{color:var(–accent);font-size:13px;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
 .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.role-card{background:var(–card);border:2px solid var(–border);border-radius:12px;padding:12px;cursor:pointer;transition:border-color 0.2s,background 0.2s;-webkit-tap-highlight-color:transparent}
+.role-card{background:var(–card);border:2px solid var(–border);border-radius:12px;padding:14px 12px;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:rgba(0,255,180,0.15);touch-action:manipulation}
 .role-card.selected{border-color:#00ffb4;background:rgba(0,255,180,0.08);box-shadow:0 0 0 1px rgba(0,255,180,0.2)}
 .role-card.selected .role-name{color:var(–accent)}
 .role-icon{font-size:20px;margin-bottom:4px}
@@ -313,32 +313,32 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="forgot"><a onclick="showScreen('screen-reset')">Forgot password?</a></div>
     <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);font-family:'Rajdhani',sans-serif;margin-bottom:10px">SIGN IN AS</div>
     <div class="role-grid">
-      <div class="role-card selected" id="role-admin" onclick="selectRole('admin')">
+      <div class="role-card selected" id="role-admin" onclick="selectRole('admin')" ontouchstart="selectRole('admin')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
         <div class="role-icon">🛡️</div>
         <div class="role-name">Admin</div>
         <div class="role-desc">Full access, billing, settings</div>
       </div>
-      <div class="role-card" id="role-supervisor" onclick="selectRole('supervisor')">
+      <div class="role-card" id="role-supervisor" onclick="selectRole('supervisor')" ontouchstart="selectRole('supervisor')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
         <div class="role-icon">🔑</div>
         <div class="role-name">Supervisor</div>
         <div class="role-desc">Dispatch, incidents, guards</div>
       </div>
-      <div class="role-card" id="role-guard" onclick="selectRole('guard')">
+      <div class="role-card" id="role-guard" onclick="selectRole('guard')" ontouchstart="selectRole('guard')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
         <div class="role-icon">👤</div>
         <div class="role-name">Guard</div>
         <div class="role-desc">Static post, access control</div>
       </div>
-      <div class="role-card" id="role-patrol" onclick="selectRole('patrol')">
+      <div class="role-card" id="role-patrol" onclick="selectRole('patrol')" ontouchstart="selectRole('patrol')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
         <div class="role-icon">🚔</div>
         <div class="role-name">Patrol Officer</div>
         <div class="role-desc">Patrol only, checkpoints, SOS</div>
       </div>
-      <div class="role-card" id="role-guardpatrol" onclick="selectRole('guardpatrol')">
+      <div class="role-card" id="role-guardpatrol" onclick="selectRole('guardpatrol')" ontouchstart="selectRole('guardpatrol')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
         <div class="role-icon">⚔️</div>
         <div class="role-name">Guard + Patrol</div>
         <div class="role-desc">Post duty &amp; patrol combined</div>
       </div>
-      <div class="role-card" id="role-client" onclick="selectRole('client')">
+      <div class="role-card" id="role-client" onclick="selectRole('client')" ontouchstart="selectRole('client')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
         <div class="role-icon">📊</div>
         <div class="role-name">Client</div>
         <div class="role-desc">Read-only reports &amp; status</div>
@@ -2421,11 +2421,40 @@ function signInWithRole() {
 }
 
 function selectRole(role) {
+  // Remove selected from all cards
   var cards = document.querySelectorAll('.role-card');
-  for (var i = 0; i < cards.length; i++) cards[i].classList.remove('selected');
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].classList.remove('selected');
+    cards[i].style.borderColor = '';
+    cards[i].style.background = '';
+  }
+  // Select chosen card
   var card = document.getElementById('role-' + role);
-  if (card) card.classList.add('selected');
+  if (card) {
+    card.classList.add('selected');
+    card.style.borderColor = '#00ffb4';
+    card.style.background = 'rgba(0,255,180,0.1)';
+  }
   currentRole = role;
+  // Auto-fill email/password for that role
+  var roleMap = {
+    admin:      { email: 'admin@shieldsync.app',      pass: 'Admin1234!' },
+    supervisor: { email: 'supervisor@shieldsync.app', pass: 'Super1234!' },
+    guard:      { email: 'guard@shieldsync.app',      pass: 'Guard1234!' },
+    patrol:     { email: 'patrol@shieldsync.app',     pass: 'Patrol1234!' },
+    guardpatrol:{ email: 'guardpatrol@shieldsync.app',pass: 'GP1234!' },
+    client:     { email: 'client@shieldsync.app',     pass: 'Client1234!' }
+  };
+  if (roleMap[role]) {
+    var em = document.getElementById('login-email');
+    var pw = document.getElementById('login-pass');
+    if (em) em.value = roleMap[role].email;
+    // Only fill password if empty or still a demo password
+    var demoPasses = ['Admin1234!','Super1234!','Guard1234!','Patrol1234!','GP1234!','Client1234!'];
+    var currentPass = pw ? pw.value : '';
+    var isDemoPass = demoPasses.indexOf(currentPass) !== -1 || currentPass === '';
+    if (pw && isDemoPass) pw.value = roleMap[role].pass;
+  }
 }
 
 function fillLogin(email, pass, role) {
@@ -2440,7 +2469,9 @@ function doReset() {
   var em = document.getElementById('reset-email');
   if (!em || !em.value) { showToast('Enter your email', 'warning'); return; }
   showToast('Reset link sent to ' + em.value, 'success');
-  setTimeout(function() { showScreen('screen-login'); }, 1500);
+  setTimeout(function() { showScreen('screen-login');
+  // Pre-select admin role on load
+  setTimeout(function(){ selectRole('admin'); }, 100); }, 1500);
 }
 
 function viNextStep(step) {
