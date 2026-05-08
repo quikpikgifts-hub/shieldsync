@@ -1,5 +1,23 @@
-<!DOCTYPE html>
-
+<div class="burger-grid">
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('guards')"><span class="bi-icon">👮</span><span class="bi-label">Guards</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('alerts')"><span class="bi-icon">🔔</span><span class="bi-label">Alerts</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('reports')"><span class="bi-icon">📋</span><span class="bi-label">Reports</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('timesheets')"><span class="bi-icon">🕐</span><span class="bi-label">Timesheets</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('schedule')"><span class="bi-icon">📅</span><span class="bi-label">Schedule</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('messages')"><span class="bi-icon">💬</span><span class="bi-label">Messages</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('certs')"><span class="bi-icon">🎖️</span><span class="bi-label">Certifications</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('dar')"><span class="bi-icon">📝</span><span class="bi-label">Activity Log</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('postorders')"><span class="bi-icon">📋</span><span class="bi-label">Post Orders</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('analytics')"><span class="bi-icon">📊</span><span class="bi-label">Analytics</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('invoicing')"><span class="bi-icon">💰</span><span class="bi-label">Invoicing</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('visitors')"><span class="bi-icon">🏢</span><span class="bi-label">Visitors</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('passdown')"><span class="bi-icon">📝</span><span class="bi-label">Pass-Down</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('assets')"><span class="bi-icon">🔧</span><span class="bi-label">Equipment</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('clock')"><span class="bi-icon">⏱️</span><span class="bi-label">My Shift</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();openAIReport()"><span class="bi-icon">✨</span><span class="bi-label">AI Reports</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('settings')"><span class="bi-icon">⚙️</span><span class="bi-label">Settings</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();openShareModal()"><span class="bi-icon">🔗</span><span class="bi-label">Share App</span></button>
+  </div><!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -22,13 +40,13 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#080c12;--card:#0e1420;--border:rgba(255,255,255,0.07);--accent:#00ffb4;--red:#ff3b3b;--amber:#f5a623;--blue:#3b82f6;--text:#f0f4f8;--muted:rgba(240,244,248,0.5)}
 html,body{height:100%;width:100%;background:var(--bg,#080c12);font-family:'Inter',sans-serif;color:var(--text)}body{display:flex;justify-content:center}
-#app{width:100%;max-width:390px;height:100vh;background:var(--bg);position:relative;overflow:hidden;flex-shrink:0}
+#app{width:100%;max-width:390px;height:100vh;background:var(--bg);position:relative;overflow:hidden;flex-shrink:0;isolation:isolate}
 .screen{position:absolute;top:0;left:0;right:0;bottom:0;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:80px;background:var(--bg)}
 .screen.active{display:flex}
 #screen-login{padding-bottom:40px;background:var(--bg)}
 .bottom-nav{display:none;position:absolute;bottom:0;left:0;right:0;background:rgba(8,12,18,0.97);border-top:1px solid var(--border);padding:8px 0 28px;z-index:100;flex-direction:row;align-items:center}
 .bottom-nav.show{display:flex}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;cursor:pointer;opacity:0.45;transition:opacity 0.2s;color:var(--text)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;cursor:pointer;opacity:0.45;transition:opacity 0.2s;color:var(--text);-webkit-appearance:none;border:none;background:none;touch-action:manipulation}
 .nav-item.active{opacity:1;color:var(--accent)}
 .nav-item svg{width:22px;height:22px}
 .nav-item span{font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px;color:inherit}
@@ -36,7 +54,7 @@ html,body{height:100%;width:100%;background:var(--bg,#080c12);font-family:'Inter
 .nav-sos-btn{width:52px;height:52px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(255,59,59,0.4);margin-top:-16px}
 .topbar{display:flex;align-items:center;padding:16px 20px;gap:12px;flex-shrink:0}
 .topbar-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;flex:1}
-.topbar-btn{width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.topbar-btn{width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;-webkit-appearance:none;-webkit-tap-highlight-color:rgba(0,255,180,0.15);flex-shrink:0}
 .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px}
 .badge-green{background:rgba(0,255,180,0.1);color:var(--accent);border:1px solid rgba(0,255,180,0.2)}
@@ -146,7 +164,7 @@ input,select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(�
 input:focus,select:focus{border-color:var(–accent)}
 input::placeholder{color:var(–muted)}
 label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);font-family:‘Rajdhani’,sans-serif;display:block;margin-bottom:6px}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:flex-end}
+.modal{position:absolute;inset:0;background:rgba(0,0,0,0.85);z-index:9500;display:none;align-items:flex-end}
 .modal.open{display:flex}
 .modal-box{background:#0e1420;border-top:1px solid var(–border);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%}
 .modal-title{font-family:‘Rajdhani’,sans-serif;font-size:18px;font-weight:700;margin-bottom:16px}
@@ -220,7 +238,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 .cp-info{flex:1}
 .cp-name{font-size:13px;font-weight:500}
 .cp-meta{font-size:11px;color:var(–muted);margin-top:2px}
-.scan-fab{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);width:56px;height:56px;background:var(–accent);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,180,0.4);cursor:pointer;z-index:50;border:none}
+.scan-fab{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);width:56px;height:56px;background:var(–accent);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,180,0.4);cursor:pointer;z-index:50;border:none}
 /* VEHICLE INSPECTION */
 .vi-steps{display:flex;padding:16px 24px;gap:8px}
 .vi-step{flex:1;height:3px;border-radius:2px;background:var(–border)}
@@ -262,15 +280,16 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 .menu-label{flex:1;font-size:14px}
 /* OVERLAY MENU */
 #menu-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:150;display:none}
-#menu-overlay.open{display:block}
-#burger-menu{position:fixed;bottom:0;left:0;right:0;max-width:390px;margin:0 auto;background:#0e1420;border-top:1px solid var(–border);border-radius:20px 20px 0 0;padding:20px 20px 40px;z-index:9001;transform:translateY(100%);transition:transform 0.3s ease}
+
+#burger-menu{position:absolute;bottom:0;left:0;right:0;background:#0e1420;border-top:1px solid var(–border);border-radius:20px 20px 0 0;padding:20px 20px 60px;z-index:9001;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);max-height:85%;overflow-y:auto;will-change:transform}
 #burger-menu.open{transform:translateY(0)}
+#menu-overlay.open{display:block !important}
 .menu-profile{display:flex;align-items:center;gap:12px;margin-bottom:20px}
 .mp-avatar{width:48px;height:48px;border-radius:14px;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;font-family:‘Rajdhani’,sans-serif;font-size:18px;font-weight:700;color:var(–accent)}
 .mp-name{font-size:15px;font-weight:600}
 .mp-role{font-size:12px;color:var(–muted);margin-top:2px}
 .burger-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.burger-item{background:rgba(255,255,255,0.04);border:1px solid var(–border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.burger-item{background:rgba(255,255,255,0.04);border:1px solid var(–border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,255,180,0.1);-webkit-appearance:none;text-align:left;width:100%}
 .bi-icon{font-size:20px}
 .bi-label{font-size:13px;font-weight:600;font-family:‘Rajdhani’,sans-serif;letter-spacing:0.5px}
 /* SCANNER MODAL */
@@ -301,31 +320,31 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 </head>
 <body>
 <div id="app">
-<div id="menu-overlay" onclick="closeMenu()"></div>
+<button type="button" id="menu-overlay" onclick="closeMenu()" style="position:absolute;inset:0;background:rgba(0,0,0,0.75);z-index:9000;display:none;border:none;cursor:pointer;-webkit-appearance:none;touch-action:manipulation;padding:0;margin:0;width:100%;height:100%"></button>
 <div id="burger-menu">
   <div class="menu-profile">
     <div class="mp-avatar" id="menu-avatar">A</div>
     <div><div class="mp-name" id="menu-name">Admin User</div><div class="mp-role" id="menu-role">Admin · admin@shieldsync.app</div></div>
   </div>
   <div class="burger-grid">
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('guards')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">👮</span><span class="bi-label">Guards</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('alerts')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🔔</span><span class="bi-label">Alerts</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('reports')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📋</span><span class="bi-label">Reports</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('timesheets')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🕐</span><span class="bi-label">Timesheets</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('schedule')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📅</span><span class="bi-label">Schedule</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('messages')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">💬</span><span class="bi-label">Messages</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('certs')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🎖️</span><span class="bi-label">Certifications</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('dar')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📝</span><span class="bi-label">Activity Log</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('postorders')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📋</span><span class="bi-label">Post Orders</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('analytics')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📊</span><span class="bi-label">Analytics</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('invoicing')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">💰</span><span class="bi-label">Invoicing</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('visitors')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🏢</span><span class="bi-label">Visitors</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('passdown')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📝</span><span class="bi-label">Pass-Down</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('assets')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🔧</span><span class="bi-label">Equipment</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('clock')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">⏱️</span><span class="bi-label">My Shift</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();openAIReport()" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">✨</span><span class="bi-label">AI Reports</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();navTo('settings')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">⚙️</span><span class="bi-label">Settings</span></div>
-    <button type="button" class="burger-item" onclick="closeMenu();openShareModal()" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🔗</span><span class="bi-label">Share Link</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('guards')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">👮</span><span class="bi-label">Guards</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('alerts')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🔔</span><span class="bi-label">Alerts</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('reports')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📋</span><span class="bi-label">Reports</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('timesheets')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🕐</span><span class="bi-label">Timesheets</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('schedule')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📅</span><span class="bi-label">Schedule</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('messages')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">💬</span><span class="bi-label">Messages</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('certs')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🎖️</span><span class="bi-label">Certifications</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('dar')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📝</span><span class="bi-label">Activity Log</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('postorders')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📋</span><span class="bi-label">Post Orders</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('analytics')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📊</span><span class="bi-label">Analytics</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('invoicing')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">💰</span><span class="bi-label">Invoicing</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('visitors')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🏢</span><span class="bi-label">Visitors</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('passdown')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📝</span><span class="bi-label">Pass-Down</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('assets')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🔧</span><span class="bi-label">Equipment</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('clock')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">⏱️</span><span class="bi-label">My Shift</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();openAIReport()" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">✨</span><span class="bi-label">AI Reports</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('settings')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">⚙️</span><span class="bi-label">Settings</span></button>
+    <button type="button" class="burger-item" onclick="closeMenu();openShareModal()" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🔗</span><span class="bi-label">Share Link</span></button>
   </div>
   <button class="btn btn-red" onclick="closeMenu();openLogout()">SIGN OUT</button>
 </div>
@@ -443,15 +462,13 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-reset">
   <div class="topbar">
-    <div class="topbar-btn" onclick="showScreen('screen-login')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <button type="button" class="topbar-btn" onclick="showScreen('screen-login')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
 
 ```
-<div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+<button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 ```
 
-  </div>
-    <div class="topbar-title">Reset Password</div>
   </div>
   <div style="padding:0 20px">
     <div class="card" style="margin-bottom:16px">
@@ -467,14 +484,14 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-home">
   <div class="topbar">
     <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span>
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-    <div class="topbar-btn" onclick="openShareModal()">
+    <button type="button" class="topbar-btn" onclick="openShareModal()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
-    </div>
-    <div class="topbar-btn" style="margin-left:6px;background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openMenu()">
+    </button>
+    <button type="button" class="topbar-btn" style="margin-left:6px;background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openMenu()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </div>
+    </button>
   </div>
   <div class="role-banner" style="justify-content:space-between">
     <div style="display:flex;align-items:center;gap:10px">
@@ -560,8 +577,8 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-incidents">
   <div class="topbar"><div class="topbar-title">Incidents
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
-  </div><div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newIncident()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  </div><button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newIncident()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button></div>
   <div style="padding:0 16px 16px">
     <div class="tab-row">
       <div class="tab active" onclick="switchIncidentTab(this,'all')">All</div>
@@ -598,11 +615,11 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-vehicle-inspection">
   <div class="topbar">
-    <div class="topbar-btn" onclick="showScreen('screen-home')">
+    <button type="button" class="topbar-btn" onclick="showScreen('screen-home')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </div>
+    </button>
     <div class="topbar-title">Vehicle Inspection</div>
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
   <div class="vi-steps">
     <div class="vi-step done" id="vis-1"></div>
@@ -682,18 +699,16 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-patrol">
   <div class="topbar">
-    <div class="topbar-btn" onclick="showScreen('screen-home')">
+    <button type="button" class="topbar-btn" onclick="showScreen('screen-home')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-
-```
-<div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
-```
-
-  </div>
+    </button>
     <div class="topbar-title">Live Patrol</div>
-    <div class="topbar-btn" style="background:rgba(255,59,59,0.1);border-color:rgba(255,59,59,0.2)" onclick="openEndPatrol()">
+    <button type="button" class="topbar-btn" onclick="openEndPatrol()" style="background:rgba(255,59,59,0.1);border-color:rgba(255,59,59,0.2)">
       <span style="font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--red);letter-spacing:1px">END</span>
-    </div>
+    </button>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:4px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
   </div>
   <div style="margin:0 16px 12px;padding:10px 14px;background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);border-radius:10px;display:flex;align-items:center;gap:8px">
     <span style="color:var(--red);font-size:18px">⚠️</span>
@@ -749,8 +764,8 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-guards">
   <div class="topbar"><div class="topbar-title">Guards
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
-  </div><div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="showToast('Add guard feature coming soon','info')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  </div><button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="showToast('Add guard feature coming soon','info')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button></div>
   <div style="padding:0 16px">
     <div class="stat-grid" style="padding:0 0 16px">
       <div class="stat-card"><div class="stat-val" style="color:var(--accent)">6</div><div class="stat-label">Active</div></div>
@@ -767,7 +782,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-reports">
   <div class="topbar"><div class="topbar-title">Reports
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div></div>
   <div style="padding:0 16px">
     <div class="tab-row">
@@ -829,7 +844,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-settings">
   <div class="topbar"><div class="topbar-title">Settings
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div></div>
   <div style="padding:0 20px">
     <div class="card">
@@ -849,11 +864,11 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-alerts">
   <div class="topbar">
     <div class="topbar-title">Dispatch & Alerts
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-    <div class="topbar-btn" style="background:rgba(255,59,59,0.1);border-color:rgba(255,59,59,0.3)" onclick="newDispatch()">
+    <button type="button" class="topbar-btn" style="background:rgba(255,59,59,0.1);border-color:rgba(255,59,59,0.3)" onclick="newDispatch()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
+    </button>
   </div>
   <div style="padding:0 16px">
     <div class="tab-row">
@@ -920,12 +935,12 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-timesheets"><!-- Payroll export added -->
   <div class="topbar">
     <div class="topbar-title">Timesheets
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-    <div class="topbar-btn" onclick="exportPayroll()" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" title="Export Payroll CSV"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
-    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openPTORequest()">
+    <button type="button" class="topbar-btn" onclick="exportPayroll()" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" title="Export Payroll CSV" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
+    <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openPTORequest()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
+    </button>
   </div>
   <div style="padding:0 16px">
     <div class="tab-row">
@@ -1051,12 +1066,12 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-guard-home">
   <div class="topbar">
     <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span></div>
-    <div class="topbar-btn" onclick="openSOS()" style="border-color:rgba(255,59,59,0.3)">
+    <button type="button" class="topbar-btn" onclick="openSOS()" style="border-color:rgba(255,59,59,0.3)">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    </div>
-    <div class="topbar-btn" style="margin-left:6px" onclick="openMenu()">
+    </button>
+    <button type="button" class="topbar-btn" style="margin-left:6px" onclick="openMenu()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </div>
+    </button>
   </div>
 
   <div style="padding:0 16px 12px">
@@ -1122,15 +1137,13 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-incident-report">
   <div class="topbar">
-    <div class="topbar-btn" onclick="showScreen('screen-guard-home')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <button type="button" class="topbar-btn" onclick="showScreen('screen-guard-home')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
 
 ```
-<div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+<button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 ```
 
-  </div>
-    <div class="topbar-title">Incident Report</div>
   </div>
   <div style="padding:0 20px">
     <div style="margin-bottom:12px"><button onclick="openAIReport()" style="width:100%;padding:12px;background:linear-gradient(135deg,rgba(0,255,180,0.1),rgba(59,130,246,0.1));border:1px solid rgba(0,255,180,0.3);border-radius:10px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px">✨ USE AI TO WRITE REPORT</button></div>
@@ -1185,7 +1198,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-patrol-report">
   <div class="topbar">
     <div class="topbar-title">End of Patrol Report
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
   </div>
   <div style="padding:0 20px">
@@ -1240,11 +1253,11 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-schedule">
   <div class="topbar">
     <div class="topbar-title">Schedule
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openAddShift()">
+    <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openAddShift()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
+    </button>
   </div>
   <div style="padding:0 16px">
     <div class="tab-row">
@@ -1319,10 +1332,10 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-messages">
   <div class="topbar">
     <div class="topbar-title">Messages</div>
-    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newMessage()">
+    <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newMessage()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-    </div>
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    </button>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
   <div style="padding:0 16px 8px">
     <div class="tab-row">
@@ -1436,11 +1449,11 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-certs">
   <div class="topbar">
     <div class="topbar-title">Certifications
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addCert()">
+    <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addCert()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
+    </button>
   </div>
   <div style="padding:0 16px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
@@ -1482,18 +1495,17 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-dar">
   <div class="topbar">
-    <div class="topbar-btn" onclick="showScreen('screen-home')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <button type="button" class="topbar-btn" onclick="showScreen('screen-home')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
 
 ```
-<div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+<button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+
+<button type="button" class="topbar-btn" onclick="exportDAR()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+</button>
 ```
 
-  </div>
-    <div class="topbar-title">Daily Activity Report</div>
-    <div class="topbar-btn" onclick="exportDAR()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-    </div>
   </div>
   <div style="padding:0 16px">
     <div class="card" style="margin-bottom:12px">
@@ -1527,9 +1539,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
   <div class="topbar">
     <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span></div>
     <div class="live-badge"><div class="live-dot"></div>LIVE</div>
-    <div class="topbar-btn" style="margin-left:8px" onclick="openMenu()">
+    <button type="button" class="topbar-btn" style="margin-left:8px" onclick="openMenu()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </div>
+    </button>
   </div>
   <div style="padding:0 16px 12px">
     <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700">Client Dashboard</div>
@@ -1616,9 +1628,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="modal" id="chat-modal">
   <div class="modal-box" style="height:85vh;display:flex;flex-direction:column;padding:0">
     <div class="topbar" style="border-bottom:1px solid var(--border);flex-shrink:0">
-      <div class="topbar-btn" onclick="closeChatModal()">
+      <button type="button" class="topbar-btn" onclick="closeChatModal()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      </div>
+      </button>
       <div style="flex:1"><div class="topbar-title" id="chat-title">Lisa Rodriguez</div><div style="font-size:11px;color:var(--accent);margin-top:-2px">● Online</div></div>
     </div>
     <div class="chat-list" id="chat-messages">
@@ -1641,11 +1653,11 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-postorders">
   <div class="topbar">
     <div class="topbar-title">Post Orders
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addPostOrder()">
+    <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addPostOrder()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
+    </button>
   </div>
   <div style="padding:0 16px">
     <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Site-specific instructions delivered to guards before each shift</div>
@@ -1732,11 +1744,11 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-analytics">
   <div class="topbar">
     <div class="topbar-title">Analytics
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-    <div class="topbar-btn" onclick="exportAnalytics()">
+    <button type="button" class="topbar-btn" onclick="exportAnalytics()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-    </div>
+    </button>
   </div>
   <div style="padding:0 16px">
     <div class="tab-row">
@@ -1937,11 +1949,11 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-invoicing">
   <div class="topbar">
     <div class="topbar-title">Invoicing
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="createInvoice()">
+    <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="createInvoice()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
+    </button>
   </div>
   <div style="padding:0 16px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
@@ -2057,11 +2069,11 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-visitors">
   <div class="topbar">
     <div class="topbar-title">Visitor Log
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="logNewVisitor()">
+    <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="logNewVisitor()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
+    </button>
   </div>
   <div style="padding:0 16px">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
@@ -2145,11 +2157,11 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-passdown">
   <div class="topbar">
     <div class="topbar-title">Pass-Down Log
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newPassdown()">
+    <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newPassdown()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
+    </button>
   </div>
   <div style="padding:0 16px">
     <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Critical handover notes from outgoing guards to incoming shift</div>
@@ -2177,11 +2189,11 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-assets">
   <div class="topbar">
     <div class="topbar-title">Equipment
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
-    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addAsset()">
+    <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addAsset()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </div>
+    </button>
   </div>
   <div style="padding:0 16px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
@@ -2247,7 +2259,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-clock">
   <div class="topbar">
     <div class="topbar-title">My Shift
-    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
   </div>
   <div style="padding:0 20px">
@@ -2404,15 +2416,13 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-terms">
   <div class="topbar">
-    <div class="topbar-btn" onclick="showScreen('screen-settings')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <button type="button" class="topbar-btn" onclick="showScreen('screen-settings')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
 
 ```
-<div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+<button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 ```
 
-  </div>
-    <div class="topbar-title">Terms of Service</div>
   </div>
   <div style="padding:0 20px;font-size:13px;line-height:1.7;color:var(--muted)">
     <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px">Terms of Service</div>
@@ -2438,15 +2448,13 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-privacy">
   <div class="topbar">
-    <div class="topbar-btn" onclick="showScreen('screen-settings')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <button type="button" class="topbar-btn" onclick="showScreen('screen-settings')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
 
 ```
-<div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+<button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 ```
 
-  </div>
-    <div class="topbar-title">Privacy Policy</div>
   </div>
   <div style="padding:0 20px;font-size:13px;line-height:1.7;color:var(--muted)">
     <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px">Privacy Policy</div>
@@ -2469,27 +2477,24 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <!-- BOTTOM NAV -->
 
 <nav class="bottom-nav" id="main-bottom-nav">
-  <div class="nav-item active" id="nav-home" onclick="navTo('home')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
-    <span>HOME</span>
-  </div>
-  <div class="nav-item" id="nav-incidents" onclick="navTo('incidents')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    <span>INCIDENTS</span>
-  </div>
-  <div class="nav-sos" onclick="openSOS()">
-    <div class="nav-sos-btn">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <button type="button" class="nav-item active" id="nav-home" onclick="navTo('home')" style="touch-action:manipulation;-webkit-appearance:none;background:none;border:none;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;cursor:pointer;color:inherit">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+    <span style="font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:0.5px">HOME</span>
+  </button>
+  <button type="button" class="nav-item" id="nav-incidents" onclick="navTo('incidents')" style="touch-action:manipulation;-webkit-appearance:none;background:none;border:none;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;cursor:pointer;color:inherit">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span style="font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:0.5px">ALERTS</span>
+  </button>
+  <button type="button" class="nav-item" id="nav-patrol" onclick="navTo('patrol')" style="touch-action:manipulation;-webkit-appearance:none;background:none;border:none;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;cursor:pointer;color:inherit">
+    <div style="width:44px;height:44px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:-20px;box-shadow:0 0 20px rgba(0,255,180,0.4);border:3px solid var(--bg)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
     </div>
-  </div>
-  <div class="nav-item" id="nav-patrol" onclick="navTo('patrol')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-    <span>PATROL</span>
-  </div>
-  <div class="nav-item" id="nav-more" onclick="openMenu()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    <span>MORE</span>
-  </div>
+    <span style="font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:0.5px;margin-top:2px">PATROL</span>
+  </button>
+  <button type="button" class="nav-item" id="nav-more" onclick="openMenu()" style="touch-action:manipulation;-webkit-appearance:none;background:none;border:none;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;cursor:pointer;color:inherit">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <span style="font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:0.5px">MORE</span>
+  </button>
 </nav>
 
 <!-- BURGER MENU -->
@@ -2498,7 +2503,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="modal" id="sos-modal">
   <div class="modal-box">
-    <div style="text-align:center;margin-bottom:16px"><div style="font-size:48px;animation:pulse 1s infinite">🚨</div></div>
+    <div style="text-align:center;margin-bottom:16px"><div style="font-size:48px;animation:pulse 1s infinite">🚨</button></div>
     <div class="modal-title" style="text-align:center;color:var(--red)">SEND SOS ALERT?</div>
     <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px">This will immediately alert all supervisors and dispatch emergency response.</div>
     <button class="btn btn-red" style="margin-bottom:8px" onclick="confirmSOS()">SEND SOS NOW</button>
@@ -2550,9 +2555,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div id="scanner-modal">
   <div class="topbar" style="background:#000;border-bottom:1px solid rgba(0,255,180,0.1)">
-    <div class="topbar-btn" style="background:rgba(255,255,255,0.08)" onclick="closeScanner()">
+    <button type="button" class="topbar-btn" style="background:rgba(255,255,255,0.08)" onclick="closeScanner()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </div>
+    </button>
     <div class="topbar-title">Scan Checkpoint</div>
   </div>
   <div class="scanner-view">
@@ -2570,7 +2575,12 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
       <button class="scan-mode-btn" onclick="setScanMode(this)">NFC TAG</button>
     </div>
     <button class="btn btn-accent" onclick="simulateScanFromModal()">✓ CONFIRM SCAN</button>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+    <button type="button" onclick="closeMenu();openLogout()" style="width:100%;padding:14px;background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);border-radius:12px;color:var(--red);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;-webkit-appearance:none;touch-action:manipulation;text-align:center">
+      ↩ SIGN OUT
+    </button>
   </div>
+</div>
 </div>
 
 <!-- TOAST -->
@@ -2602,8 +2612,19 @@ function showScreen(id) {
   var target = document.getElementById(id);
   if (target) target.classList.add('active');
   var nav = document.getElementById('main-bottom-nav');
-  var noNav = ['screen-login','screen-reset','screen-vehicle-inspection'];
-  if (nav) nav.classList[noNav.indexOf(id) > -1 ? 'remove' : 'add']('show');
+  var noNav = ['screen-login','screen-reset','screen-vehicle-inspection','screen-guard-home','screen-client-portal'];
+  if (nav) {
+    if (noNav.indexOf(id) > -1) {
+      nav.classList.remove('show');
+    } else {
+      nav.classList.add('show');
+    }
+  }
+  // Close menu if open
+  var bm = document.getElementById('burger-menu');
+  var mo = document.getElementById('menu-overlay');
+  if (bm) bm.classList.remove('open');
+  if (mo) mo.classList.remove('open');
 }
 
 function navTo(tab) {
@@ -4243,7 +4264,7 @@ window._showInstallBanner = function() {
 
 <!-- ANDROID INSTALL BANNER -->
 
-<div id="install-banner" style="display:none;position:fixed;bottom:90px;left:12px;right:12px;background:#0e1420;border:1px solid rgba(0,255,180,0.3);border-radius:16px;padding:14px 16px;z-index:1000;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+<div id="install-banner" style="display:none;position:absolute;bottom:90px;left:12px;right:12px;background:#0e1420;border:1px solid rgba(0,255,180,0.3);border-radius:16px;padding:14px 16px;z-index:1000;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
   <div style="width:40px;height:40px;background:rgba(0,255,180,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
     <svg width="22" height="22" viewBox="0 0 36 36" fill="none"><path d="M18 3L5 8.5v9.5C5 25.6 10.8 32.2 18 34c7.2-1.8 13-8.4 13-16V8.5L18 3z" fill="rgba(0,255,180,0.2)" stroke="#00ffb4" stroke-width="1.5"/><path d="M12 18l4 4 8-8" stroke="#00ffb4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </div>
@@ -4257,7 +4278,7 @@ window._showInstallBanner = function() {
 
 <!-- iOS INSTALL BANNER -->
 
-<div id="ios-install-banner" style="display:none;position:fixed;bottom:90px;left:12px;right:12px;background:#0e1420;border:1px solid rgba(0,255,180,0.3);border-radius:16px;padding:14px 16px;z-index:1000;flex-direction:column;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+<div id="ios-install-banner" style="display:none;position:absolute;bottom:90px;left:12px;right:12px;background:#0e1420;border:1px solid rgba(0,255,180,0.3);border-radius:16px;padding:14px 16px;z-index:1000;flex-direction:column;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
   <div style="display:flex;align-items:center;justify-content:space-between">
     <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#fff">📲 Install ShieldSync</div>
     <button onclick="document.getElementById('ios-install-banner').style.display='none'" style="background:transparent;border:none;color:rgba(240,244,248,0.4);font-size:18px;cursor:pointer">×</button>
