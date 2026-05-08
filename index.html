@@ -146,7 +146,7 @@ input,select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(�
 input:focus,select:focus{border-color:var(–accent)}
 input::placeholder{color:var(–muted)}
 label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);font-family:‘Rajdhani’,sans-serif;display:block;margin-bottom:6px}
-.modal{position:absolute;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:flex-end}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:flex-end}
 .modal.open{display:flex}
 .modal-box{background:#0e1420;border-top:1px solid var(–border);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%}
 .modal-title{font-family:‘Rajdhani’,sans-serif;font-size:18px;font-weight:700;margin-bottom:16px}
@@ -263,7 +263,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 /* OVERLAY MENU */
 #menu-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:150;display:none}
 #menu-overlay.open{display:block}
-#burger-menu{position:absolute;bottom:0;left:0;right:0;background:#0e1420;border-top:1px solid var(–border);border-radius:20px 20px 0 0;padding:20px 20px 40px;z-index:151;transform:translateY(100%);transition:transform 0.3s ease}
+#burger-menu{position:fixed;bottom:0;left:0;right:0;max-width:390px;margin:0 auto;background:#0e1420;border-top:1px solid var(–border);border-radius:20px 20px 0 0;padding:20px 20px 40px;z-index:9001;transform:translateY(100%);transition:transform 0.3s ease}
 #burger-menu.open{transform:translateY(0)}
 .menu-profile{display:flex;align-items:center;gap:12px;margin-bottom:20px}
 .mp-avatar{width:48px;height:48px;border-radius:14px;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;font-family:‘Rajdhani’,sans-serif;font-size:18px;font-weight:700;color:var(–accent)}
@@ -301,6 +301,35 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 </head>
 <body>
 <div id="app">
+<div id="menu-overlay" onclick="closeMenu()"></div>
+<div id="burger-menu">
+  <div class="menu-profile">
+    <div class="mp-avatar" id="menu-avatar">A</div>
+    <div><div class="mp-name" id="menu-name">Admin User</div><div class="mp-role" id="menu-role">Admin · admin@shieldsync.app</div></div>
+  </div>
+  <div class="burger-grid">
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('guards')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">👮</span><span class="bi-label">Guards</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('alerts')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🔔</span><span class="bi-label">Alerts</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('reports')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📋</span><span class="bi-label">Reports</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('timesheets')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🕐</span><span class="bi-label">Timesheets</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('schedule')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📅</span><span class="bi-label">Schedule</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('messages')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">💬</span><span class="bi-label">Messages</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('certs')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🎖️</span><span class="bi-label">Certifications</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('dar')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📝</span><span class="bi-label">Activity Log</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('postorders')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📋</span><span class="bi-label">Post Orders</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('analytics')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📊</span><span class="bi-label">Analytics</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('invoicing')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">💰</span><span class="bi-label">Invoicing</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('visitors')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🏢</span><span class="bi-label">Visitors</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('passdown')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">📝</span><span class="bi-label">Pass-Down</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('assets')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🔧</span><span class="bi-label">Equipment</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('clock')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">⏱️</span><span class="bi-label">My Shift</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();openAIReport()" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">✨</span><span class="bi-label">AI Reports</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();navTo('settings')" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">⚙️</span><span class="bi-label">Settings</span></div>
+    <button type="button" class="burger-item" onclick="closeMenu();openShareModal()" style="-webkit-appearance:none;touch-action:manipulation;cursor:pointer;text-align:left;width:100%"><span class="bi-icon">🔗</span><span class="bi-label">Share Link</span></div>
+  </div>
+  <button class="btn btn-red" onclick="closeMenu();openLogout()">SIGN OUT</button>
+</div>
+
 <div class="offline-banner" id="offline-banner">📵 OFFLINE MODE — Data will sync when connected</div>
 
 <!-- LOGIN -->
@@ -362,12 +391,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div style="font-size:10px;color:#6b7a8d">Patrol only, checkpoints, SOS</div>
   </button>
 
-  <button type="button" id="role-guardpatrol" onclick="selectRole('guardpatrol')"
-    style="background:#0e1420;border:2px solid #1a2332;border-radius:12px;padding:12px;text-align:left;-webkit-appearance:none;touch-action:manipulation;width:100%;cursor:pointer">
-    <div style="font-size:20px;margin-bottom:4px">⚔️</div>
-    <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f0f4f8">Guard + Patrol</div>
-    <div style="font-size:10px;color:#6b7a8d">Post duty &amp; patrol combined</div>
-  </button>
+
 
   <button type="button" id="role-client" onclick="selectRole('client')"
     style="background:#0e1420;border:2px solid #1a2332;border-radius:12px;padding:12px;text-align:left;-webkit-appearance:none;touch-action:manipulation;width:100%;cursor:pointer">
@@ -405,11 +429,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <span style="font-size:12px;color:#6b7a8d">patrol@shieldsync.app</span>
     <span style="font-size:12px;color:#00ffb4;font-weight:700;font-family:'Rajdhani',sans-serif">USE →</span>
   </button>
-  <button type="button" onclick="fillLogin('guardpatrol@shieldsync.app','GP1234!','guardpatrol')"
-    style="width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;border-bottom:1px solid #1a2332;padding:9px 0;cursor:pointer;-webkit-appearance:none;touch-action:manipulation">
-    <span style="font-size:12px;color:#6b7a8d">guardpatrol@shieldsync.app</span>
-    <span style="font-size:12px;color:#00ffb4;font-weight:700;font-family:'Rajdhani',sans-serif">USE →</span>
-  </button>
+
   <button type="button" onclick="fillLogin('client@shieldsync.app','Client1234!','client')"
     style="width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;padding:9px 0;cursor:pointer;-webkit-appearance:none;touch-action:manipulation">
     <span style="font-size:12px;color:#6b7a8d">client@shieldsync.app</span>
@@ -425,7 +445,12 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
   <div class="topbar">
     <div class="topbar-btn" onclick="showScreen('screen-login')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </div>
+
+```
+<div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+```
+
+  </div>
     <div class="topbar-title">Reset Password</div>
   </div>
   <div style="padding:0 20px">
@@ -441,7 +466,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-home">
   <div class="topbar">
-    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span></div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span>
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
     <div class="topbar-btn" onclick="openShareModal()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
     </div>
@@ -523,7 +550,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('patrol')">🚔 START PATROL</button>
       <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('incidents')">⚠️ LOG INCIDENT</button>
-      <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('guards')">👮 VIEW GUARDS</button>
+      <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('guards')" class="admin-only-card">👮 VIEW GUARDS</button>
       <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('reports')">📋 REPORTS</button>
     </div>
   </div>
@@ -532,13 +559,15 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <!-- INCIDENTS -->
 
 <div class="screen" id="screen-incidents">
-  <div class="topbar"><div class="topbar-title">Incidents</div><div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newIncident()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+  <div class="topbar"><div class="topbar-title">Incidents
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div><div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newIncident()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
   <div style="padding:0 16px 16px">
     <div class="tab-row">
-      <div class="tab active">All</div>
-      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">Open</div>
-      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">In Progress</div>
-      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">Closed</div>
+      <div class="tab active" onclick="switchIncidentTab(this,'all')">All</div>
+      <div class="tab" onclick="switchIncidentTab(this,'open')">Open</div>
+      <div class="tab" onclick="switchIncidentTab(this,'progress')">In Progress</div>
+      <div class="tab" onclick="switchIncidentTab(this,'closed')">Closed</div>
     </div>
     <div class="card" style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
@@ -569,10 +598,11 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-vehicle-inspection">
   <div class="topbar">
-    <div class="topbar-btn" onclick="showScreen('screen-login')">
+    <div class="topbar-btn" onclick="showScreen('screen-home')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     </div>
     <div class="topbar-title">Vehicle Inspection</div>
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
   </div>
   <div class="vi-steps">
     <div class="vi-step done" id="vis-1"></div>
@@ -654,7 +684,12 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
   <div class="topbar">
     <div class="topbar-btn" onclick="showScreen('screen-home')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </div>
+
+```
+<div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+```
+
+  </div>
     <div class="topbar-title">Live Patrol</div>
     <div class="topbar-btn" style="background:rgba(255,59,59,0.1);border-color:rgba(255,59,59,0.2)" onclick="openEndPatrol()">
       <span style="font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--red);letter-spacing:1px">END</span>
@@ -713,7 +748,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <!-- GUARDS -->
 
 <div class="screen" id="screen-guards">
-  <div class="topbar"><div class="topbar-title">Guards</div><div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="showToast('Add guard feature coming soon','info')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+  <div class="topbar"><div class="topbar-title">Guards
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div><div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="showToast('Add guard feature coming soon','info')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
   <div style="padding:0 16px">
     <div class="stat-grid" style="padding:0 0 16px">
       <div class="stat-card"><div class="stat-val" style="color:var(--accent)">6</div><div class="stat-label">Active</div></div>
@@ -729,7 +766,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <!-- REPORTS -->
 
 <div class="screen" id="screen-reports">
-  <div class="topbar"><div class="topbar-title">Reports</div></div>
+  <div class="topbar"><div class="topbar-title">Reports
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div></div>
   <div style="padding:0 16px">
     <div class="tab-row">
       <div class="tab active" onclick="switchReportTab(this,'guard')">Guard</div>
@@ -789,13 +828,15 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <!-- SETTINGS -->
 
 <div class="screen" id="screen-settings">
-  <div class="topbar"><div class="topbar-title">Settings</div></div>
+  <div class="topbar"><div class="topbar-title">Settings
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div></div>
   <div style="padding:0 20px">
     <div class="card">
-      <div class="menu-item"><div class="menu-icon">👤</div><div class="menu-label">Profile</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
-      <div class="menu-item"><div class="menu-icon">🔒</div><div class="menu-label">Password &amp; Security</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
-      <div class="menu-item"><div class="menu-icon">🔔</div><div class="menu-label">Notifications</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
-      <div class="menu-item"><div class="menu-icon">💳</div><div class="menu-label">Billing</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item" onclick="openProfile()"><div class="menu-icon">👤</div><div class="menu-label">Profile</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item" onclick="openSecurity()"><div class="menu-icon">🔒</div><div class="menu-label">Password &amp; Security</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item" onclick="openNotifications()"><div class="menu-icon">🔔</div><div class="menu-label">Notifications</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item" onclick="openBilling()"><div class="menu-icon">💳</div><div class="menu-label">Billing</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
       <div class="menu-item" onclick="navTo('terms')"><div class="menu-icon">📄</div><div class="menu-label">Terms of Service</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
       <div class="menu-item" onclick="navTo('privacy')"><div class="menu-icon">🛡️</div><div class="menu-label">Privacy Policy</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
     </div>
@@ -806,34 +847,82 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <!-- ALERTS -->
 
 <div class="screen" id="screen-alerts">
-  <div class="topbar"><div class="topbar-title">Alerts</div></div>
+  <div class="topbar">
+    <div class="topbar-title">Dispatch & Alerts
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
+    <div class="topbar-btn" style="background:rgba(255,59,59,0.1);border-color:rgba(255,59,59,0.3)" onclick="newDispatch()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
   <div style="padding:0 16px">
-    <div class="card" style="margin-bottom:10px;border-color:rgba(255,59,59,0.3)">
-      <div style="display:flex;gap:10px;align-items:flex-start">
-        <span style="font-size:20px">🚨</span>
-        <div><div style="font-size:14px;font-weight:600;color:var(--red)">SOS Alert — Gate B</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Guard R. Patel · 2h ago</div></div>
+    <div class="tab-row">
+      <div class="tab active" onclick="switchAlertTab(this,'live')">Live</div>
+      <div class="tab" onclick="switchAlertTab(this,'dispatch')">Dispatch</div>
+      <div class="tab" onclick="switchAlertTab(this,'resolved')">Resolved</div>
+    </div>
+    <div id="alert-live">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+        <div class="stat-card"><div class="stat-val" style="color:var(--red);font-size:26px">2</div><div class="stat-label">Open</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--amber);font-size:26px">1</div><div class="stat-label">In Progress</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:var(--accent);font-size:26px">8</div><div class="stat-label">Today</div></div>
+      </div>
+      <div class="card" style="margin-bottom:10px;border-color:rgba(255,59,59,0.3)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div><div style="font-size:13px;font-weight:600;color:var(--red)">🔴 SOS ALERT — Gate B</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Mike Santos · 2 mins ago · GPS: 28.5384, -81.3789</div></div>
+          <span class="badge" style="background:rgba(255,59,59,0.1);color:var(--red);border:1px solid rgba(255,59,59,0.3)">URGENT</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-accent" style="padding:8px;font-size:12px;flex:1" onclick="dispatchResponse(this)">DISPATCH RESPONSE</button>
+          <button type="button" class="btn btn-outline" style="padding:8px;font-size:12px" onclick="viewAlertMap()">📍 MAP</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:10px;border-color:rgba(245,166,35,0.3)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div><div style="font-size:13px;font-weight:600;color:var(--amber)">⚠️ Checkpoint Missed — CP-07</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Tom Brown · 8 mins overdue · Site Beta</div></div>
+          <span class="badge badge-amber">OVERDUE</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn btn-outline" style="padding:8px;font-size:12px;flex:1" onclick="contactGuard()">📞 CONTACT GUARD</button>
+          <button type="button" class="btn btn-outline" style="padding:8px;font-size:12px" onclick="dismissAlert(this)">DISMISS</button>
+        </div>
       </div>
     </div>
-    <div class="card" style="margin-bottom:10px;border-color:rgba(245,166,35,0.3)">
-      <div style="display:flex;gap:10px;align-items:flex-start">
-        <span style="font-size:20px">⚠️</span>
-        <div><div style="font-size:14px;font-weight:600;color:var(--amber)">Checkpoint Overdue — CP-07</div><div style="font-size:12px;color:var(--muted);margin-top:4px">12 minutes overdue · Gate B</div></div>
+    <div id="alert-dispatch" style="display:none">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Assign tasks to guards in real time</div>
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <div style="width:8px;height:8px;background:var(--accent);border-radius:50%"></div>
+          <div style="font-size:13px;font-weight:600">Investigate Gate B — Mike Santos</div>
+          <span class="badge badge-green" style="margin-left:auto;font-size:9px">CONFIRMED</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted)">Dispatched 10:24 · Confirmed 10:25 · ETA 3 mins</div>
       </div>
+      <button type="button" class="btn btn-accent" onclick="newDispatch()">+ NEW DISPATCH</button>
     </div>
-    <div class="card" style="margin-bottom:10px">
-      <div style="display:flex;gap:10px;align-items:flex-start">
-        <span style="font-size:20px">📵</span>
-        <div><div style="font-size:14px;font-weight:600">Guard Offline — R. Patel</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Last seen 2h ago · South Zone</div></div>
+    <div id="alert-resolved" style="display:none">
+      <div class="card">
+        <div class="incident-row">
+          <div class="inc-dot" style="background:var(--accent)"></div>
+          <div class="inc-info"><div class="inc-title">SOS — Site Alpha Gate</div><div class="inc-sub">Resolved 09:44 · Response time 4 min</div></div>
+          <span class="badge badge-green">CLOSED</span>
+        </div>
+        <div class="incident-row" style="border-bottom:none">
+          <div class="inc-dot" style="background:var(--accent)"></div>
+          <div class="inc-info"><div class="inc-title">Missed CP-03 · Tom Brown</div><div class="inc-sub">Resolved 08:12 · Guard checked in</div></div>
+          <span class="badge badge-green">CLOSED</span>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- TIMESHEETS -->
-
-<div class="screen" id="screen-timesheets">
+<div class="screen" id="screen-timesheets"><!-- Payroll export added -->
   <div class="topbar">
-    <div class="topbar-title">Timesheets</div>
+    <div class="topbar-title">Timesheets
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
+    <div class="topbar-btn" onclick="exportPayroll()" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" title="Export Payroll CSV"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
     <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openPTORequest()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </div>
@@ -962,43 +1051,72 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 <div class="screen" id="screen-guard-home">
   <div class="topbar">
     <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span></div>
-    <div class="topbar-btn" onclick="openSOS()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-    <div class="topbar-btn" style="margin-left:6px" onclick="openMenu()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+    <div class="topbar-btn" onclick="openSOS()" style="border-color:rgba(255,59,59,0.3)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+    <div class="topbar-btn" style="margin-left:6px" onclick="openMenu()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </div>
   </div>
+
   <div style="padding:0 16px 12px">
     <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700">Welcome, <span id="guard-home-name">Guard</span> 👮</div>
-    <div style="font-size:12px;color:var(--muted);margin-top:2px" id="guard-shift-time">Shift started — ready for patrol</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px" id="guard-shift-time">Guard · Shift started</div>
   </div>
-  <!-- Status card -->
-  <div style="margin:0 16px 16px">
+
+  <!-- Status + GPS -->
+
+  <div style="margin:0 16px 12px">
     <div class="card" style="border-color:rgba(0,255,180,0.2);background:rgba(0,255,180,0.04)">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="rb-dot"></div>
-        <div>
-          <div style="font-size:14px;font-weight:600;color:var(--accent)" id="guard-status-text">READY FOR PATROL</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px" id="guard-location-text">Location services off</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="rb-dot"></div>
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--accent)" id="guard-status-text">ON DUTY — READY</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px" id="guard-location-text">Acquiring GPS...</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <!-- Action buttons -->
-  <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px">
-    <button class="btn btn-accent" style="padding:18px;font-size:16px" onclick="openPatrolCred()">🚔 START PATROL</button>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button class="btn btn-outline" style="padding:14px;font-size:13px" onclick="navTo('incidents')">⚠️ LOG INCIDENT</button>
-      <button class="btn btn-outline" style="padding:14px;font-size:13px" onclick="navTo('reports')">📋 MY REPORTS</button>
-    </div>
-    <button class="btn btn-outline" style="padding:14px;font-size:13px;border-color:rgba(255,59,59,0.3);color:var(--red)" onclick="openLogout()">↩ END SHIFT &amp; SIGN OUT</button>
+
+  <!-- ENROUTE / ON SITE buttons -->
+
+  <div style="padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+    <button id="guard-enroute-btn" type="button" onclick="guardSetStatus('enroute')"
+      style="padding:14px;border-radius:12px;border:2px solid rgba(59,130,246,0.5);background:rgba(59,130,246,0.1);color:#3b82f6;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;-webkit-appearance:none;touch-action:manipulation;width:100%">
+      🚗 EN ROUTE
+    </button>
+    <button id="guard-onsite-btn" type="button" onclick="guardSetStatus('onsite')"
+      style="padding:14px;border-radius:12px;border:2px solid rgba(0,255,180,0.3);background:rgba(0,255,180,0.08);color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;-webkit-appearance:none;touch-action:manipulation;width:100%">
+      📍 ON SITE
+    </button>
   </div>
+
+  <!-- Guard actions -->
+
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px">
+    <button type="button" class="btn btn-outline" style="padding:15px;font-size:14px" onclick="navTo('incidents')">⚠️ LOG INCIDENT</button>
+    <button type="button" class="btn btn-outline" style="padding:15px;font-size:14px" onclick="navTo('visitors')">🏢 VISITOR LOG</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button type="button" class="btn btn-outline" style="padding:13px;font-size:13px" onclick="navTo('passdown')">📝 PASS-DOWN</button>
+      <button type="button" class="btn btn-outline" style="padding:13px;font-size:13px" onclick="navTo('messages')">💬 MESSAGES</button>
+    </div>
+    <button type="button" class="btn btn-outline" style="padding:15px;font-size:14px" onclick="startGuardPatrol()">🚔 START PATROL</button>
+    <button type="button" class="btn btn-outline" style="padding:13px;font-size:13px;border-color:rgba(255,59,59,0.3);color:var(--red)" onclick="openLogout()">↩ END SHIFT &amp; SIGN OUT</button>
+  </div>
+
   <!-- Today stats -->
+
   <div style="padding:16px">
     <div class="section-title">TODAY</div>
     <div class="stat-grid" style="padding:0">
-      <div class="stat-card"><div class="stat-val" style="color:var(--accent)" id="guard-cp-done">0</div><div class="stat-label">Checkpoints Done</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent)" id="guard-cp-done">0</div><div class="stat-label">Checkpoints</div></div>
       <div class="stat-card"><div class="stat-val" style="color:var(--amber)" id="guard-patrol-time">0h</div><div class="stat-label">Patrol Time</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--red)" id="guard-incidents">0</div><div class="stat-label">Incidents</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--blue)" id="guard-visitors">0</div><div class="stat-label">Visitors</div></div>
     </div>
   </div>
-</div>
 
 <!-- INCIDENT REPORT -->
 
@@ -1006,7 +1124,12 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
   <div class="topbar">
     <div class="topbar-btn" onclick="showScreen('screen-guard-home')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </div>
+
+```
+<div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+```
+
+  </div>
     <div class="topbar-title">Incident Report</div>
   </div>
   <div style="padding:0 20px">
@@ -1061,7 +1184,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-patrol-report">
   <div class="topbar">
-    <div class="topbar-title">End of Patrol Report</div>
+    <div class="topbar-title">End of Patrol Report
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
   </div>
   <div style="padding:0 20px">
     <div class="card" style="margin-bottom:16px">
@@ -1114,7 +1239,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-schedule">
   <div class="topbar">
-    <div class="topbar-title">Schedule</div>
+    <div class="topbar-title">Schedule
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
     <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openAddShift()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </div>
@@ -1195,64 +1322,122 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newMessage()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
     </div>
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
   </div>
   <div style="padding:0 16px 8px">
     <div class="tab-row">
-      <div class="tab active" onclick="switchMsgTab(this,'chats')">Chats</div>
+      <div class="tab active" onclick="switchMsgTab(this,'direct')">Direct</div>
       <div class="tab" onclick="switchMsgTab(this,'broadcast')">Broadcast</div>
-      <div class="tab" onclick="switchMsgTab(this,'siteboards')">Site Boards</div>
+      <div class="tab" onclick="switchMsgTab(this,'siteboard')">Site Board</div>
     </div>
   </div>
-  <div id="msg-chats">
-    <div onclick="openChat('supervisor')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer">
-      <div style="width:44px;height:44px;border-radius:14px;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent);position:relative">LR
-        <div style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:var(--accent);border-radius:50%;border:2px solid var(--bg)"></div>
-      </div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:600">Lisa Rodriguez <span style="font-size:10px;color:var(--muted);font-weight:400">Supervisor</span></div><div style="font-size:12px;color:var(--muted);margin-top:2px">CP-07 is overdue — please check in</div></div>
-      <div style="text-align:right"><div style="font-size:10px;color:var(--muted)">2m</div><div style="width:18px;height:18px;background:var(--red);border-radius:50%;font-size:10px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;margin-top:4px;margin-left:auto">2</div></div>
-    </div>
-    <div onclick="openChat('admin')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer">
-      <div style="width:44px;height:44px;border-radius:14px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--blue)">A</div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:600">Admin <span style="font-size:10px;color:var(--muted);font-weight:400">System</span></div><div style="font-size:12px;color:var(--muted);margin-top:2px">Your vehicle inspection has been approved</div></div>
-      <div style="font-size:10px;color:var(--muted)">1h</div>
-    </div>
-    <div onclick="openChat('site')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer">
-      <div style="width:44px;height:44px;border-radius:14px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);display:flex;align-items:center;justify-content:center;font-size:18px">🏢</div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:600">Site Alpha Board</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Shift handover complete — no incidents</div></div>
-      <div style="font-size:10px;color:var(--muted)">3h</div>
-    </div>
+
+  <!-- DIRECT MESSAGES -->
+
+  <div id="msg-direct">
+    <div style="padding:8px 16px;font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1.5px">GUARD ↔ SUPERVISOR MESSAGES</div>
+
+```
+<div onclick="openChat('supervisor')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.1)">
+  <div style="width:44px;height:44px;border-radius:14px;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent);font-size:14px;position:relative;flex-shrink:0">LR
+    <div style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:var(--accent);border-radius:50%;border:2px solid var(--bg)"></div>
   </div>
+  <div style="flex:1;min-width:0">
+    <div style="font-size:14px;font-weight:600">Lisa Rodriguez</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:1px">Supervisor → Guard</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">CP-07 is overdue — please check in</div>
+  </div>
+  <div style="text-align:right;flex-shrink:0">
+    <div style="font-size:10px;color:var(--muted)">2m</div>
+    <div style="width:18px;height:18px;background:var(--red);border-radius:50%;font-size:10px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;margin-top:4px;margin-left:auto">2</div>
+  </div>
+</div>
+
+<div onclick="openChat('admin')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.1)">
+  <div style="width:44px;height:44px;border-radius:14px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--blue);font-size:14px;flex-shrink:0">AD</div>
+  <div style="flex:1;min-width:0">
+    <div style="font-size:14px;font-weight:600">Admin</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:1px">Admin → All Guards</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">Your vehicle inspection has been approved</div>
+  </div>
+  <div style="font-size:10px;color:var(--muted);flex-shrink:0">1h</div>
+</div>
+
+<div onclick="openChat('guard2')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.1)">
+  <div style="width:44px;height:44px;border-radius:14px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--amber);font-size:14px;flex-shrink:0">JC</div>
+  <div style="flex:1;min-width:0">
+    <div style="font-size:14px;font-weight:600">James Clarke</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:1px">Guard → Guard (Site Alpha)</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">Heading off shift — all clear at Gate B</div>
+  </div>
+  <div style="font-size:10px;color:var(--muted);flex-shrink:0">3h</div>
+</div>
+```
+
+  </div>
+
+  <!-- BROADCAST -->
+
   <div id="msg-broadcast" style="display:none;padding:0 16px">
-    <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Send to all guards on a site or all staff</div>
-    <div class="field"><label>SEND TO</label>
-      <select><option>All Guards — Site Alpha</option><option>All Guards — All Sites</option><option>Supervisors Only</option><option>Patrol Officers Only</option></select>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;padding-top:4px">Send a message to all guards on a site or all staff</div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;margin-bottom:6px">FROM</div>
+      <div style="font-size:14px;font-weight:600;color:var(--accent)" id="broadcast-from-name">Supervisor / Admin</div>
     </div>
-    <div class="field"><label>MESSAGE</label>
-      <textarea id="broadcast-msg" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:100px" placeholder="Type your broadcast message..."></textarea>
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;margin-bottom:6px">SEND TO</div>
+      <select style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px">
+        <option>All Guards — Site Alpha</option>
+        <option>All Guards — Site Beta</option>
+        <option>All Guards — All Sites</option>
+        <option>Supervisors Only</option>
+        <option>Patrol Officers Only</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;margin-bottom:6px">MESSAGE</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:6px">Purpose: operational update / safety alert / shift change</div>
+      <textarea id="broadcast-msg" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:110px;box-sizing:border-box" placeholder="Type your broadcast message here..."></textarea>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="btn btn-accent" onclick="sendBroadcast()">📢 SEND BROADCAST</button>
+      <button type="button" class="btn btn-accent" onclick="sendBroadcast()">📢 SEND BROADCAST</button>
     </div>
   </div>
-  <div id="msg-siteboards" style="display:none;padding:0 16px">
+
+  <!-- SITE BOARD -->
+
+  <div id="msg-siteboard" style="display:none;padding:0 16px">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;padding-top:4px">Site-wide notices visible to all guards on that site</div>
     <div class="card" style="margin-bottom:10px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🏢</span><div style="font-weight:600">Site Alpha Board</div></div>
-      <div style="font-size:12px;color:var(--muted);padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:8px">Important: CCTV offline in sector 3 — manual patrol required every 30 mins</div>
-      <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="openSiteBoard('alpha')">VIEW BOARD</button>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:16px">🏢</span>
+        <div>
+          <div style="font-weight:600;font-size:14px">Site Alpha Board</div>
+          <div style="font-size:11px;color:var(--muted)">Visible to all guards on Site Alpha</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:10px;line-height:1.6">📌 CCTV offline in sector 3 — manual patrol required every 30 mins until further notice</div>
+      <button type="button" class="btn btn-outline" style="padding:8px;font-size:12px" onclick="openSiteBoard('alpha')">VIEW FULL BOARD</button>
     </div>
     <div class="card">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🏗️</span><div style="font-weight:600">Site Beta Board</div></div>
-      <div style="font-size:12px;color:var(--muted);padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:8px">New access codes active from Monday — check briefing doc</div>
-      <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="openSiteBoard('beta')">VIEW BOARD</button>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:16px">🏗️</span>
+        <div>
+          <div style="font-weight:600;font-size:14px">Site Beta Board</div>
+          <div style="font-size:11px;color:var(--muted)">Visible to all guards on Site Beta</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:10px;line-height:1.6">📌 New access codes active from Monday — check briefing doc before shift</div>
+      <button type="button" class="btn btn-outline" style="padding:8px;font-size:12px" onclick="openSiteBoard('beta')">VIEW FULL BOARD</button>
     </div>
   </div>
 </div>
 
-<!-- CERTIFICATIONS -->
-
 <div class="screen" id="screen-certs">
   <div class="topbar">
-    <div class="topbar-title">Certifications</div>
+    <div class="topbar-title">Certifications
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
     <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addCert()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </div>
@@ -1299,7 +1484,12 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
   <div class="topbar">
     <div class="topbar-btn" onclick="showScreen('screen-home')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </div>
+
+```
+<div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+```
+
+  </div>
     <div class="topbar-title">Daily Activity Report</div>
     <div class="topbar-btn" onclick="exportDAR()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
@@ -1450,7 +1640,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-postorders">
   <div class="topbar">
-    <div class="topbar-title">Post Orders</div>
+    <div class="topbar-title">Post Orders
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
     <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addPostOrder()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </div>
@@ -1539,7 +1731,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-analytics">
   <div class="topbar">
-    <div class="topbar-title">Analytics</div>
+    <div class="topbar-title">Analytics
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
     <div class="topbar-btn" onclick="exportAnalytics()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
     </div>
@@ -1742,7 +1936,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-invoicing">
   <div class="topbar">
-    <div class="topbar-title">Invoicing</div>
+    <div class="topbar-title">Invoicing
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
     <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="createInvoice()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </div>
@@ -1860,7 +2056,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-visitors">
   <div class="topbar">
-    <div class="topbar-title">Visitor Log</div>
+    <div class="topbar-title">Visitor Log
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
     <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="logNewVisitor()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </div>
@@ -1946,7 +2144,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-passdown">
   <div class="topbar">
-    <div class="topbar-title">Pass-Down Log</div>
+    <div class="topbar-title">Pass-Down Log
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
     <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newPassdown()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </div>
@@ -1976,7 +2176,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-assets">
   <div class="topbar">
-    <div class="topbar-title">Equipment</div>
+    <div class="topbar-title">Equipment
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
     <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addAsset()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </div>
@@ -2044,7 +2246,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 
 <div class="screen" id="screen-clock">
   <div class="topbar">
-    <div class="topbar-title">My Shift</div>
+    <div class="topbar-title">My Shift
+    <div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
   </div>
   <div style="padding:0 20px">
     <!-- Clock -->
@@ -2202,7 +2406,12 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
   <div class="topbar">
     <div class="topbar-btn" onclick="showScreen('screen-settings')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </div>
+
+```
+<div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+```
+
+  </div>
     <div class="topbar-title">Terms of Service</div>
   </div>
   <div style="padding:0 20px;font-size:13px;line-height:1.7;color:var(--muted)">
@@ -2231,7 +2440,12 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
   <div class="topbar">
     <div class="topbar-btn" onclick="showScreen('screen-settings')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </div>
+
+```
+<div class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+```
+
+  </div>
     <div class="topbar-title">Privacy Policy</div>
   </div>
   <div style="padding:0 20px;font-size:13px;line-height:1.7;color:var(--muted)">
@@ -2279,35 +2493,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 </nav>
 
 <!-- BURGER MENU -->
-
-<div id="menu-overlay" onclick="closeMenu()"></div>
-<div id="burger-menu">
-  <div class="menu-profile">
-    <div class="mp-avatar" id="menu-avatar">A</div>
-    <div><div class="mp-name" id="menu-name">Admin User</div><div class="mp-role" id="menu-role">Admin · admin@shieldsync.app</div></div>
-  </div>
-  <div class="burger-grid">
-    <div class="burger-item" onclick="closeMenu();navTo('guards')"><span class="bi-icon">👮</span><span class="bi-label">Guards</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('alerts')"><span class="bi-icon">🔔</span><span class="bi-label">Alerts</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('reports')"><span class="bi-icon">📋</span><span class="bi-label">Reports</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('timesheets')"><span class="bi-icon">🕐</span><span class="bi-label">Timesheets</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('schedule')"><span class="bi-icon">📅</span><span class="bi-label">Schedule</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('messages')"><span class="bi-icon">💬</span><span class="bi-label">Messages</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('certs')"><span class="bi-icon">🎖️</span><span class="bi-label">Certifications</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('dar')"><span class="bi-icon">📝</span><span class="bi-label">Activity Log</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('postorders')"><span class="bi-icon">📋</span><span class="bi-label">Post Orders</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('analytics')"><span class="bi-icon">📊</span><span class="bi-label">Analytics</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('invoicing')"><span class="bi-icon">💰</span><span class="bi-label">Invoicing</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('visitors')"><span class="bi-icon">🏢</span><span class="bi-label">Visitors</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('passdown')"><span class="bi-icon">📝</span><span class="bi-label">Pass-Down</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('assets')"><span class="bi-icon">🔧</span><span class="bi-label">Equipment</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('clock')"><span class="bi-icon">⏱️</span><span class="bi-label">My Shift</span></div>
-    <div class="burger-item" onclick="closeMenu();openAIReport()"><span class="bi-icon">✨</span><span class="bi-label">AI Reports</span></div>
-    <div class="burger-item" onclick="closeMenu();navTo('settings')"><span class="bi-icon">⚙️</span><span class="bi-label">Settings</span></div>
-    <div class="burger-item" onclick="closeMenu();openShareModal()"><span class="bi-icon">🔗</span><span class="bi-label">Share Link</span></div>
-  </div>
-  <button class="btn btn-red" onclick="closeMenu();openLogout()">SIGN OUT</button>
-</div>
 
 <!-- MODALS -->
 
@@ -2482,24 +2667,37 @@ function loginSuccess(user) {
     currentRole = user.role;
     applyRoleUI(user.role);
     var role = user.role;
-    if (role === 'guard' || role === 'patrol' || role === 'guardpatrol') {
+    if (role === 'guard') {
+      // Guard goes to guard home screen
       var ghn = document.getElementById('guard-home-name');
       if (ghn) ghn.textContent = user.name.split(' ')[0];
       var gst = document.getElementById('guard-shift-time');
-      var roleLabel = role === 'patrol' ? 'Patrol Officer' : role === 'guardpatrol' ? 'Guard + Patrol' : 'Guard';
-      if (gst) gst.textContent = roleLabel + ' · Shift started ' + new Date().toLocaleTimeString();
+      if (gst) gst.textContent = 'Guard · Shift started ' + new Date().toLocaleTimeString();
       var statusEl = document.getElementById('guard-status-text');
-      if (statusEl) statusEl.textContent = roleLabel.toUpperCase() + ' — READY';
+      if (statusEl) statusEl.textContent = 'GUARD — READY FOR DUTY';
       showScreen('screen-guard-home');
+      startGPSTracking();
+    } else if (role === 'patrol') {
+      // Patrol officer goes straight to patrol screen
+      var ghn2 = document.getElementById('guard-home-name');
+      if (ghn2) ghn2.textContent = user.name.split(' ')[0];
+      var gst2 = document.getElementById('guard-shift-time');
+      if (gst2) gst2.textContent = 'Patrol Officer · Shift started ' + new Date().toLocaleTimeString();
+      var statusEl2 = document.getElementById('guard-status-text');
+      if (statusEl2) statusEl2.textContent = 'PATROL OFFICER — READY';
+      showScreen('screen-patrol');
       startGPSTracking();
     } else if (role === 'client') {
       showScreen('screen-client-portal');
     } else {
+      // Admin and Supervisor go to main dashboard
       showScreen('screen-home');
     }
     showToast('Welcome, ' + user.name.split(' ')[0] + '!', 'success');
     if (window._showInstallBanner) window._showInstallBanner();
     startPatrolTimer();
+    // Request GPS permission right after login
+    setTimeout(function() { requestGPSPermission(); }, 500);
 }
 
 var _roleEmails = {
@@ -2552,7 +2750,209 @@ function doReset() {
   } else {
     showToast('Reset link sent to ' + emailAddr, 'success');
   }
-  setTimeout(function() { showScreen('screen-login');
+  setTimeout(function() { 
+// ── GUARD SPECIFIC FUNCTIONS ──────────────────────────────────────────────
+function guardSetStatus(status) {
+  var erBtn = document.getElementById('guard-enroute-btn');
+  var osBtn = document.getElementById('guard-onsite-btn');
+  var statusEl = document.getElementById('guard-status-text');
+  var ON_ENROUTE = 'padding:14px;border-radius:12px;border:2px solid #3b82f6;background:rgba(59,130,246,0.25);color:#3b82f6;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;-webkit-appearance:none;touch-action:manipulation;width:100%';
+  var ON_ONSITE  = 'padding:14px;border-radius:12px;border:2px solid #00ffb4;background:rgba(0,255,180,0.2);color:#00ffb4;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;-webkit-appearance:none;touch-action:manipulation;width:100%';
+  var OFF_ENROUTE = 'padding:14px;border-radius:12px;border:2px solid rgba(59,130,246,0.3);background:rgba(59,130,246,0.06);color:#3b82f6;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;-webkit-appearance:none;touch-action:manipulation;width:100%';
+  var OFF_ONSITE  = 'padding:14px;border-radius:12px;border:2px solid rgba(0,255,180,0.2);background:rgba(0,255,180,0.04);color:#00ffb4;font-family:Rajdhani,sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;-webkit-appearance:none;touch-action:manipulation;width:100%';
+  if (status === 'enroute') {
+    if (erBtn) erBtn.setAttribute('style', ON_ENROUTE);
+    if (osBtn) osBtn.setAttribute('style', OFF_ONSITE);
+    if (statusEl) statusEl.textContent = 'EN ROUTE TO SITE';
+    showToast('Status: En Route', 'info');
+  } else {
+    if (erBtn) erBtn.setAttribute('style', OFF_ENROUTE);
+    if (osBtn) osBtn.setAttribute('style', ON_ONSITE);
+    if (statusEl) statusEl.textContent = 'ON SITE — ACTIVE';
+    showToast('Status: On Site', 'success');
+  }
+}
+
+function startGuardPatrol() {
+  showScreen('screen-patrol');
+  startGPSTracking();
+  showToast('Patrol started', 'success');
+}
+
+
+// ── DISPATCH & ALERTS ─────────────────────────────────────────────────────
+function switchAlertTab(btn, tab) {
+  var tabs = btn.parentNode.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+  var panels = ['live','dispatch','resolved'];
+  for (var j = 0; j < panels.length; j++) {
+    var el = document.getElementById('alert-' + panels[j]);
+    if (el) el.style.display = panels[j] === tab ? 'block' : 'none';
+  }
+}
+function newDispatch() { showToast('New dispatch — select guard and task', 'info'); }
+function dispatchResponse(btn) { btn.textContent = '✓ DISPATCHED'; btn.disabled = true; btn.style.opacity='0.7'; showToast('Response unit dispatched ✓', 'success'); }
+function viewAlertMap() { showToast('GPS map — opening location', 'info'); }
+function contactGuard() { showToast('Calling guard via in-app message', 'info'); }
+function dismissAlert(btn) { btn.closest ? btn.closest('.card').style.opacity='0.4' : null; showToast('Alert dismissed', 'info'); }
+
+// ── PAYROLL EXPORT ────────────────────────────────────────────────────────
+function exportPayroll() {
+  var csv = 'Guard Name,Site,Hours,Overtime,Rate,Total\n' +
+    'Mike Santos,Site Alpha,168,8,$25.00,$4420\n' +
+    'Lisa Rodriguez,Site Alpha,160,0,$28.00,$4480\n' +
+    'Tom Brown,Site Beta,152,0,$25.00,$3800\n' +
+    'James Clarke,Site Alpha,144,4,$25.00,$3700\n';
+  var blob = new Blob([csv], {type:'text/csv'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'ShieldSync_Payroll_Export.csv';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('Payroll exported as CSV ✓', 'success');
+}
+
+// ── WATCH MODE ───────────────────────────────────────────────────────────
+function startWatchMode() {
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    showToast('Watch mode activated — recording', 'success');
+  } else {
+    showToast('Camera not available on this device', 'warning');
+  }
+}
+
+// ── GEOFENCE ALERT ───────────────────────────────────────────────────────
+function checkGeofenceAlert(guardLat, guardLng, siteLat, siteLng, radiusM) {
+  var R = 6371000;
+  var dLat = (siteLat - guardLat) * Math.PI / 180;
+  var dLng = (siteLng - guardLng) * Math.PI / 180;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(guardLat*Math.PI/180)*Math.cos(siteLat*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+  var dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  if (dist > radiusM) {
+    showToast('⚠ GEOFENCE ALERT — Guard outside site boundary', 'error');
+  }
+  return dist;
+}
+
+
+// ── GUARDS MANAGEMENT ─────────────────────────────────────────────────────
+function newGuard() {
+  showToast('Add new guard — coming soon', 'info');
+}
+function viewGuard(name) {
+  showToast('Viewing guard: ' + (name || 'Guard'), 'info');
+}
+function editGuard(name) {
+  showToast('Edit guard profile', 'info');
+}
+
+// ── INCIDENT TABS ─────────────────────────────────────────────────────────
+function switchIncidentTab(btn, tab) {
+  var tabs = btn.parentNode.querySelectorAll('.tab');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  btn.classList.add('active');
+}
+
+// ── REPORT HELPERS ────────────────────────────────────────────────────────
+
+function exportReport() {
+  showToast('Report exported ✓', 'success');
+}
+
+
+
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────
+function openProfile() { showToast('Profile settings', 'info'); }
+function openSecurity() { showToast('Password & security settings', 'info'); }
+function openNotifications() { showToast('Notification settings', 'info'); }
+function openBilling() { navTo('invoicing'); }
+
+// ── ASSETS ────────────────────────────────────────────────────────────────
+function returnAsset(btn) {
+  var row = btn.parentNode;
+  btn.textContent = '✓ RETURNED';
+  btn.style.background = 'rgba(0,255,180,0.1)';
+  btn.style.color = 'var(--accent)';
+  btn.disabled = true;
+  showToast('Equipment returned ✓', 'success');
+}
+
+// ── CERTIFICATIONS ────────────────────────────────────────────────────────
+function renewCert(name) {
+  showToast('Renewal reminder sent for ' + (name || 'certification'), 'info');
+}
+function viewCert(name) {
+  showToast('Viewing: ' + (name || 'certificate'), 'info');
+}
+
+// ── SCHEDULE ─────────────────────────────────────────────────────────────
+function deleteShift(btn) {
+  showToast('Shift removed', 'info');
+}
+
+// ── INVOICING ─────────────────────────────────────────────────────────────
+function printInvoice() {
+  window.print ? window.print() : showToast('Print not available', 'warning');
+}
+
+// ── POST ORDERS ───────────────────────────────────────────────────────────
+function acknowledgePostOrder(btn) {
+  btn.textContent = '✓ ACKNOWLEDGED';
+  btn.style.opacity = '0.6';
+  btn.disabled = true;
+  showToast('Post order acknowledged ✓', 'success');
+}
+
+// ── VISITORS ──────────────────────────────────────────────────────────────
+function signOutVisitor(name) {
+  showToast((name || 'Visitor') + ' signed out ✓', 'success');
+}
+
+// ── PASS-DOWN ─────────────────────────────────────────────────────────────
+function acknowledgePassdown(btn) {
+  btn.textContent = '✓ READ';
+  btn.style.opacity = '0.6';
+  btn.disabled = true;
+  showToast('Pass-down acknowledged ✓', 'success');
+}
+
+// ── DAR ───────────────────────────────────────────────────────────────────
+function addDAREntry() {
+  showToast('Activity entry added to DAR', 'success');
+}
+function emailDAR() {
+  showToast('DAR emailed to supervisor ✓', 'success');
+}
+
+// ── ANALYTICS ─────────────────────────────────────────────────────────────
+function exportAnalyticsReport() {
+  showToast('Analytics report exported ✓', 'success');
+}
+function setAnalyticsPeriod(period) {
+  showToast('Viewing: ' + period, 'info');
+}
+
+// ── MESSAGES ─────────────────────────────────────────────────────────────
+
+
+
+
+// ── CLOCK IN/OUT (guard screen) ───────────────────────────────────────────
+function guardClockIn() {
+  showToast('Clocked in ✓ GPS recorded', 'success');
+  navTo('clock');
+}
+
+// ── SITE BOARD ────────────────────────────────────────────────────────────
+
+
+// ── BROADCAST ────────────────────────────────────────────────────────────
+
+
+showScreen('screen-login');
+  // Pre-request GPS permission so browser prompts on load
+  setTimeout(function() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(function(){}, function(){}, {timeout:3000}); } }, 1000);
   // Pre-select admin role on load
   setTimeout(function(){ if(typeof selectRole==='function') selectRole('admin'); }, 300); }, 1500);
 }
@@ -2911,21 +3311,65 @@ function goToPatrol() {
 function startGPSTracking() {
   var statusEl = document.getElementById('guard-status-text');
   var locEl = document.getElementById('guard-location-text');
+  if (!navigator.geolocation) {
+    if (locEl) locEl.textContent = 'GPS not supported on this device';
+    return;
+  }
+  // Request permission and start tracking
+  if (statusEl) statusEl.textContent = 'REQUESTING GPS...';
+  if (locEl) locEl.textContent = 'Getting location...';
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      window._lastLat = pos.coords.latitude;
+      window._lastLng = pos.coords.longitude;
+      if (locEl) locEl.textContent = pos.coords.latitude.toFixed(4) + ', ' + pos.coords.longitude.toFixed(4);
+      if (statusEl) statusEl.textContent = 'GPS ACTIVE — ON PATROL';
+      // Start continuous tracking after first fix
+      window._gpsWatcher = navigator.geolocation.watchPosition(
+        function(pos) {
+          window._lastLat = pos.coords.latitude;
+          window._lastLng = pos.coords.longitude;
+          var acc = pos.coords.accuracy ? Math.round(pos.coords.accuracy) + 'm accuracy' : '';
+          if (locEl) locEl.textContent = pos.coords.latitude.toFixed(5) + ', ' + pos.coords.longitude.toFixed(5) + (acc ? ' (' + acc + ')' : '');
+          if (statusEl) statusEl.textContent = 'GPS ACTIVE — ON PATROL';
+        },
+        function(err) {
+          if (locEl) locEl.textContent = 'GPS signal lost — last known: ' + (window._lastLat ? window._lastLat.toFixed(4) + ', ' + window._lastLng.toFixed(4) : 'none');
+        },
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+      );
+    },
+    function(err) {
+      var msg = '';
+      if (err.code === 1) {
+        msg = 'Location denied — go to Settings > Safari > Location > Allow';
+        showToast('Enable location in Settings > Safari > Location', 'warning');
+      } else if (err.code === 2) {
+        msg = 'GPS signal unavailable — manual mode active';
+      } else {
+        msg = 'GPS timeout — manual mode active';
+      }
+      if (locEl) locEl.textContent = msg;
+      if (statusEl) statusEl.textContent = 'MANUAL MODE — GPS OFFLINE';
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+}
+
+// Request GPS permission on app load so browser prompts user immediately
+function requestGPSPermission() {
   if (navigator.geolocation) {
-    navigator.geolocation.watchPosition(
+    navigator.geolocation.getCurrentPosition(
       function(pos) {
         window._lastLat = pos.coords.latitude;
         window._lastLng = pos.coords.longitude;
-        if (locEl) locEl.textContent = pos.coords.latitude.toFixed(4) + ', ' + pos.coords.longitude.toFixed(4);
-        if (statusEl) statusEl.textContent = 'GPS ACTIVE — ON PATROL';
+        window._gpsPermissionGranted = true;
       },
       function(err) {
-        if (locEl) locEl.textContent = 'GPS unavailable — manual mode';
+        window._gpsPermissionGranted = false;
       },
-      { enableHighAccuracy: true, maximumAge: 10000 }
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
     );
-  } else {
-    if (locEl) locEl.textContent = 'GPS not supported';
   }
 }
 
@@ -3115,27 +3559,49 @@ function applyClientRestrictions() {
 }
 
 function applyRoleUI(role) {
-  // Reset nav
-  var patrolNav = document.getElementById('nav-patrol');
-  if (patrolNav) patrolNav.style.display = '';
-  var erBtn = document.getElementById('enroute-btn');
-  var osBtn = document.getElementById('onsite-btn');
-  if (erBtn) erBtn.style.display = '';
-  if (osBtn) osBtn.style.display = '';
-  
-  // Update role banner
   var rb = document.getElementById('role-banner-text');
   if (rb) {
-    var labels = {
-      admin: 'ADMIN · SHIFT ACTIVE',
-      supervisor: 'SUPERVISOR · SHIFT ACTIVE',
-      guard: 'GUARD · SHIFT ACTIVE',
-      patrol: 'PATROL OFFICER · SHIFT ACTIVE',
-      guardpatrol: 'GUARD + PATROL · SHIFT ACTIVE',
-      client: 'CLIENT VIEW — READ ONLY'
-    };
-    rb.textContent = labels[role] || role.toUpperCase() + ' · SHIFT ACTIVE';
+    var labels = { admin:'ADMIN · FULL ACCESS', supervisor:'SUPERVISOR · ON DUTY', guard:'GUARD · ON DUTY', patrol:'PATROL OFFICER · ON DUTY', client:'CLIENT VIEW' };
+    rb.textContent = labels[role] || role.toUpperCase();
   }
+
+  // Reset all menu items visible first
+  var allItems = document.querySelectorAll('.burger-item');
+  for (var i = 0; i < allItems.length; i++) allItems[i].style.display = '';
+
+  // GUARD: can see incidents, visitors, messages, dar, passdown, assets, certs, postorders, clock, schedule
+  // GUARD cannot see: guards mgmt, analytics, invoicing, timesheets, alerts, reports
+  var guardHide    = ['guards','analytics','invoicing','timesheets','alerts','reports'];
+  // PATROL: can see incidents, dar, messages, passdown, clock
+  // PATROL cannot see: guards, analytics, invoicing, timesheets, alerts, reports, visitors, assets, certs, postorders, schedule
+  var patrolHide   = ['guards','analytics','invoicing','timesheets','alerts','reports','visitors','assets','certs','postorders','schedule'];
+  // SUPERVISOR: cannot see invoicing (admin only)
+  var supervisorHide = ['invoicing'];
+  // CLIENT: only sees client portal
+  var clientHide   = ['guards','analytics','invoicing','timesheets','alerts','reports','visitors','assets','certs','postorders','schedule','dar','passdown','messages','incidents'];
+
+  var toHide = role === 'guard' ? guardHide : role === 'patrol' ? patrolHide : role === 'supervisor' ? supervisorHide : role === 'client' ? clientHide : [];
+
+  for (var j = 0; j < allItems.length; j++) {
+    var oc = allItems[j].getAttribute('onclick') || '';
+    for (var k = 0; k < toHide.length; k++) {
+      if (oc.indexOf("navTo('" + toHide[k] + "')") !== -1) {
+        allItems[j].style.display = 'none';
+        break;
+      }
+    }
+  }
+
+  // Patrol nav button — hide for client
+  var patrolNav = document.getElementById('nav-patrol');
+  if (patrolNav) patrolNav.style.display = role === 'client' ? 'none' : '';
+
+  // Home screen quick action cards — hide admin-only items from guard/patrol
+  var adminCards = document.querySelectorAll('.admin-only-card');
+  for (var m = 0; m < adminCards.length; m++) {
+    adminCards[m].style.display = (role === 'admin' || role === 'supervisor') ? '' : 'none';
+  }
+
   if (role === 'client') applyClientRestrictions();
 }
 
@@ -3188,7 +3654,7 @@ function switchMsgTab(btn, tab) {
   var tabs = btn.parentNode.querySelectorAll('.tab');
   for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
   btn.classList.add('active');
-  var panels = ['chats','broadcast','siteboards'];
+  var panels = ['direct','broadcast','siteboard'];
   for (var j = 0; j < panels.length; j++) {
     var el = document.getElementById('msg-' + panels[j]);
     if (el) el.style.display = panels[j] === tab ? 'block' : 'none';
@@ -3381,12 +3847,24 @@ var _screenMap = {
 };
 
 navTo = function(tab) {
+  // Role access control
+  var restricted = {
+    client:     ['guards','analytics','invoicing','timesheets','schedule','reports','alerts','visitors','assets','certs','postorders','dar','passdown','messages','patrol','incidents'],
+    guard:      ['guards','analytics','invoicing','timesheets','schedule','reports','alerts'],
+    patrol:     ['guards','analytics','invoicing','timesheets','schedule','reports','alerts','visitors','assets','certs','postorders']
+  };
+  var blocked = restricted[currentRole] || [];
+  if (blocked.indexOf(tab) !== -1) {
+    showToast('Access restricted for your role', 'warning');
+    return;
+  }
   var navItems = document.querySelectorAll('.nav-item');
   for (var i = 0; i < navItems.length; i++) navItems[i].classList.remove('active');
   var navEl = document.getElementById('nav-' + tab);
   if (navEl) navEl.classList.add('active');
   if (tab === 'patrol') {
     if (currentRole === 'client') { showToast('Patrol access not available for clients', 'warning'); return; }
+    if (currentRole === 'patrol') { showScreen('screen-patrol'); return; }
     openPatrolCred();
   } else if (_screenMap[tab]) {
     showScreen(_screenMap[tab]);
@@ -3662,19 +4140,13 @@ function generateAIReport() {
     var now = new Date();
     var time = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
     var date = now.toLocaleDateString();
-    var report = 'INCIDENT REPORT
-
-Date: ' + date + '
-Time: ' + time + '
-Reporting Officer: ' + (window._currentUser ? window._currentUser.displayName || 'Guard' : 'Guard') + '
-
-DESCRIPTION:
-At approximately ' + time + ', this officer observed ' + raw + '. Immediate action was taken in accordance with post orders and site protocol.
-
-ACTION TAKEN:
-The situation was assessed and appropriate response measures were initiated. The incident has been documented for review by the supervising officer.
-
-STATUS: Open — Pending Supervisor Review';
+    var report = 'INCIDENT REPORT' +
+      '\n\nDate: ' + date +
+      '\nTime: ' + time +
+      '\nReporting Officer: ' + (window._currentUser ? window._currentUser.displayName || 'Guard' : 'Guard') +
+      '\n\nDESCRIPTION:\nAt approximately ' + time + ', this officer observed ' + raw + '. Immediate action was taken in accordance with post orders and site protocol.' +
+      '\n\nACTION TAKEN:\nThe situation was assessed and appropriate response measures were initiated. The incident has been documented for review by the supervising officer.' +
+      '\n\nSTATUS: Open - Pending Supervisor Review';
     if (output) { output.textContent = report; output.style.display = 'block'; }
     if (actions) actions.style.display = 'block';
   }, 1500);
