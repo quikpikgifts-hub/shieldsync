@@ -298,40 +298,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 #toast.warning{background:rgba(245,166,35,0.15);color:var(–amber);border:1px solid rgba(245,166,35,0.3)}
 </style>
 
-<!-- Firebase SDK -->
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
-<script>
-  var firebaseConfig = {
-    apiKey: "AIzaSyB8h2Pmz2Yv7Z137ElTFpcWKSeS6cRQ6T0",
-    authDomain: "shieldsync-1ffe0.firebaseapp.com",
-    databaseURL: "https://shieldsync-1ffe0-default-rtdb.firebaseio.com",
-    projectId: "shieldsync-1ffe0",
-    storageBucket: "shieldsync-1ffe0.firebasestorage.app",
-    messagingSenderId: "850242395820",
-    appId: "1:850242395820:web:a74eecd0216edd97e68909"
-  };
-  firebase.initializeApp(firebaseConfig);
-  var auth = firebase.auth();
-</script>
-
-<style>
-#login-email:-webkit-autofill,
-#login-email:-webkit-autofill:hover,
-#login-email:-webkit-autofill:focus,
-#login-pass:-webkit-autofill,
-#login-pass:-webkit-autofill:hover,
-#login-pass:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 100px #131d2e inset !important;
-  -webkit-text-fill-color: #f0f4f8 !important;
-  caret-color: #f0f4f8 !important;
-  border-color: #2a3a50 !important;
-}
-</style>
-
 </head>
 <body>
 <div id="app">
@@ -357,36 +323,36 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div style="text-align:right;margin-bottom:16px"><a onclick="showScreen('screen-reset')" style="color:#00ffb4;font-size:13px;cursor:pointer;text-decoration:none">Forgot password?</a></div>
     <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);font-family:'Rajdhani',sans-serif;margin-bottom:10px">SIGN IN AS</div>
     <div class="role-grid">
-      <div class="role-card selected" id="role-admin" onclick="selectRole('admin')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
+      <button type="button" id="role-admin" onclick="selectRole('admin')" style="background:#0e1420;border:2px solid #00ffb4;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;-webkit-appearance:none;touch-action:manipulation;width:100%">
         <div class="role-icon">🛡️</div>
-        <div class="role-name">Admin</div>
+        <div class="role-name" style="color:#f0f4f8">Admin</div>
         <div class="role-desc">Full access, billing, settings</div>
-      </div>
-      <div class="role-card" id="role-supervisor" onclick="selectRole('supervisor')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
+      </button>
+      <button type="button" id="role-supervisor" onclick="selectRole('supervisor')" style="background:#0e1420;border:2px solid #1a2332;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;-webkit-appearance:none;touch-action:manipulation;width:100%">
         <div class="role-icon">🔑</div>
-        <div class="role-name">Supervisor</div>
+        <div class="role-name" style="color:#f0f4f8">Supervisor</div>
         <div class="role-desc">Dispatch, incidents, guards</div>
-      </div>
-      <div class="role-card" id="role-guard" onclick="selectRole('guard')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
+      </button>
+      <button type="button" id="role-guard" onclick="selectRole('guard')" style="background:#0e1420;border:2px solid #1a2332;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;-webkit-appearance:none;touch-action:manipulation;width:100%">
         <div class="role-icon">👤</div>
-        <div class="role-name">Guard</div>
+        <div class="role-name" style="color:#f0f4f8">Guard</div>
         <div class="role-desc">Static post, access control</div>
-      </div>
-      <div class="role-card" id="role-patrol" onclick="selectRole('patrol')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
+      </button>
+      <button type="button" id="role-patrol" onclick="selectRole('patrol')" style="background:#0e1420;border:2px solid #1a2332;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;-webkit-appearance:none;touch-action:manipulation;width:100%">
         <div class="role-icon">🚔</div>
-        <div class="role-name">Patrol Officer</div>
+        <div class="role-name" style="color:#f0f4f8">Patrol Officer</div>
         <div class="role-desc">Patrol only, checkpoints, SOS</div>
-      </div>
-      <div class="role-card" id="role-guardpatrol" onclick="selectRole('guardpatrol')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
+      </button>
+      <button type="button" id="role-guardpatrol" onclick="selectRole('guardpatrol')" style="background:#0e1420;border:2px solid #1a2332;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;-webkit-appearance:none;touch-action:manipulation;width:100%">
         <div class="role-icon">⚔️</div>
-        <div class="role-name">Guard + Patrol</div>
+        <div class="role-name" style="color:#f0f4f8">Guard + Patrol</div>
         <div class="role-desc">Post duty &amp; patrol combined</div>
-      </div>
-      <div class="role-card" id="role-client" onclick="selectRole('client')" style="cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.2);user-select:none;-webkit-user-select:none">
+      </button>
+      <button type="button" id="role-client" onclick="selectRole('client')" style="background:#0e1420;border:2px solid #1a2332;border-radius:12px;padding:14px 12px;cursor:pointer;text-align:left;-webkit-appearance:none;touch-action:manipulation;width:100%">
         <div class="role-icon">📊</div>
-        <div class="role-name">Client</div>
+        <div class="role-name" style="color:#f0f4f8">Client</div>
         <div class="role-desc">Read-only reports &amp; status</div>
-      </div>
+      </button>
     </div>
     <button id="signin-btn" onclick="signInWithRole()" style="width:100%;padding:16px;background:#00ffb4;color:#000;border:none;border-radius:12px;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;margin-top:8px;-webkit-tap-highlight-color:transparent">SIGN IN</button>
   </div>
@@ -2418,45 +2384,26 @@ function navTo(tab) {
 }
 
 function signInWithRole() {
+  var email = '';
+  var pass = '';
   var emailEl = document.getElementById('login-email');
-  var passEl  = document.getElementById('login-pass');
-  if (!emailEl || !passEl) { showToast('Form error — reload page', 'error'); return; }
-  var email = emailEl.value.trim().toLowerCase();
-  var pass  = passEl.value;
-  if (!email) { showToast('Enter your email', 'warning'); emailEl.focus(); return; }
-  if (!pass)  { showToast('Enter your password', 'warning'); passEl.focus(); return; }
-
-  var btn = document.getElementById('signin-btn');
-  if (btn) { btn.textContent = 'SIGNING IN...'; btn.disabled = true; btn.style.opacity = '0.6'; }
-
-  function resetBtn() {
-    if (btn) { btn.textContent = 'SIGN IN'; btn.disabled = false; btn.style.opacity = '1'; }
+  var passEl = document.getElementById('login-pass');
+  if (emailEl) email = emailEl.value.trim().toLowerCase();
+  if (passEl) pass = passEl.value;
+  if (!email || !pass) {
+    showToast('Enter email and password', 'warning');
+    return;
   }
-
-  function tryDemoLogin() {
-    var user = demoUsers[email];
-    if (!user) { resetBtn(); showToast('No account found for that email', 'error'); return; }
-    if (user.password !== pass) { resetBtn(); showToast('Incorrect password — try again', 'error'); return; }
-    resetBtn();
-    loginSuccess(user);
+  var user = demoUsers[email];
+  if (!user) {
+    showToast('Account not found. Check email.', 'error');
+    return;
   }
-
-  // Try Firebase first, fall back to demo
-  if (typeof auth !== 'undefined' && auth && auth.signInWithEmailAndPassword) {
-    auth.signInWithEmailAndPassword(email, pass)
-      .then(function(result) {
-        resetBtn();
-        var user = demoUsers[email] || { name: (result.user.displayName || email.split('@')[0]), role: currentRole || 'admin' };
-        loginSuccess(user);
-      })
-      .catch(function(err) {
-        // If Firebase fails, try demo
-        tryDemoLogin();
-      });
-  } else {
-    // No Firebase — use demo directly
-    setTimeout(tryDemoLogin, 600);
+  if (user.password !== pass) {
+    showToast('Wrong password. Try again.', 'error');
+    return;
   }
+  loginSuccess(user);
 }
 
 function loginSuccess(user) {
@@ -2515,17 +2462,21 @@ function selectRole(role) {
     var c = document.getElementById('role-' + ids[i]);
     if (!c) continue;
     if (ids[i] === role) {
-      c.style.cssText = 'cursor:pointer;border:2px solid #00ffb4;border-radius:12px;padding:14px 12px;background:rgba(0,255,180,0.12);box-shadow:0 0 0 1px rgba(0,255,180,0.2);transition:all 0.15s;touch-action:manipulation;-webkit-user-select:none';
+      c.style.background = 'rgba(0,255,180,0.12)';
+      c.style.borderColor = '#00ffb4';
+      c.style.boxShadow = '0 0 0 1px rgba(0,255,180,0.2)';
     } else {
-      c.style.cssText = 'cursor:pointer;border:2px solid #1a2332;border-radius:12px;padding:14px 12px;background:#0e1420;transition:all 0.15s;touch-action:manipulation;-webkit-user-select:none';
+      c.style.background = '#0e1420';
+      c.style.borderColor = '#1a2332';
+      c.style.boxShadow = 'none';
     }
   }
   var em = document.getElementById('login-email');
   var pw = document.getElementById('login-pass');
   if (em && _roleEmails[role]) em.value = _roleEmails[role];
   if (pw && _rolePasses[role]) {
-    var demoPasses = ['Admin1234!','Super1234!','Guard1234!','Patrol1234!','GP1234!','Client1234!'];
-    if (!pw.value || demoPasses.indexOf(pw.value) !== -1) pw.value = _rolePasses[role];
+    var demos = ['Admin1234!','Super1234!','Guard1234!','Patrol1234!','GP1234!','Client1234!'];
+    if (!pw.value || demos.indexOf(pw.value) !== -1) pw.value = _rolePasses[role];
   }
 }
 
@@ -3711,20 +3662,6 @@ navTo = function(tab) {
   }
 };
 
-// ── Init — check Firebase session ─────────────────────────────────────────
-if (typeof firebase !== 'undefined' && firebase.auth) {
-  auth.onAuthStateChanged(function(firebaseUser) {
-    if (firebaseUser && !currentRole) {
-      // User already signed in — restore session
-      var email = firebaseUser.email.toLowerCase();
-      var user = demoUsers[email];
-      if (user) {
-        loginSuccess(user);
-        return;
-      }
-    }
-  });
-}
 showScreen('screen-login');
 selectRole('admin');
 startPatrolTimer();
@@ -3805,23 +3742,2003 @@ window._showInstallBanner = function() {
   </div>
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var inputs = ['login-email','login-pass'];
-    inputs.forEach(function(id) {
-      var el = document.getElementById(id);
-      if (!el) return;
-      el.addEventListener('focus', function() {
-        this.style.borderColor = '#00ffb4';
-        this.style.background = '#1a2a40';
-      });
-      el.addEventListener('blur', function() {
-        this.style.borderColor = '#2a3a50';
-        this.style.background = '#131d2e';
-      });
-    });
-  });
-</script>
+</body>
+</html><div class="screen" <div class="screen" id="screen-reset">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-login')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Reset Password</div>
+  </div>
+  <div style="padding:0 20px">
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:14px;color:var(--muted);margin-bottom:16px">Enter your email to receive a reset link.</div>
+      <div class="field"><label>EMAIL</label><input type="email" id="reset-email" placeholder="officer@unit.com"></div>
+      <button class="btn btn-accent" onclick="doReset()">SEND RESET LINK</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+
+<div class="screen" id="screen-home">
+  <div class="topbar">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span></div>
+    <div class="topbar-btn" onclick="openShareModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+    </div>
+    <div class="topbar-btn" style="margin-left:6px;background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openMenu()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </div>
+  </div>
+  <div class="role-banner" style="justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="rb-dot"></div>
+      <div class="rb-text" id="role-banner-text">ADMIN · SHIFT ACTIVE</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button id="enroute-btn" onclick="toggleEnroute()" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);color:var(--blue);font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer">ENROUTE</button>
+      <button id="onsite-btn" onclick="toggleOnSite()" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(0,255,180,0.2);background:transparent;color:var(--muted);font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer">ON SITE</button>
+    </div>
+  </div>
+  <div style="padding:0 16px 16px">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700">Good Morning, <span id="home-name">Admin</span> 👋</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">Shift started 3h 42m ago · All units normal</div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-val" style="color:var(--red)">3</div><div class="stat-label">Open Incidents</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--blue)">2</div><div class="stat-label">Units Enroute</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent)">8</div><div class="stat-label">Active Guards</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--amber)">24</div><div class="stat-label">Access Today</div></div>
+  </div>
+  <div class="section">
+    <div class="section-title">RECENT INCIDENTS</div>
+    <div class="card">
+      <div class="incident-row">
+        <div class="inc-dot" style="background:var(--red)"></div>
+        <div class="inc-info"><div class="inc-title">Perimeter Breach — Gate B</div><div class="inc-sub">12 min ago · Zone 4</div></div>
+        <span class="badge badge-red">OPEN</span>
+      </div>
+      <div class="incident-row">
+        <div class="inc-dot" style="background:var(--amber)"></div>
+        <div class="inc-info"><div class="inc-title">Suspicious Vehicle</div><div class="inc-sub">1h ago · Car Park 2</div></div>
+        <span class="badge badge-amber">IN PROG</span>
+      </div>
+      <div class="incident-row">
+        <div class="inc-dot" style="background:var(--accent)"></div>
+        <div class="inc-info"><div class="inc-title">Guard Check-in Overdue</div><div class="inc-sub">2h ago · North Wing</div></div>
+        <span class="badge badge-green">CLOSED</span>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">THREAT LEVEL</div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;font-weight:600">MODERATE</span>
+        <span style="font-size:13px;color:var(--amber)">Level 2 / 5</span>
+      </div>
+      <div class="threat-bar"><div class="threat-fill" style="width:40%"></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">UNITS STATUS</div>
+    <div class="tab-row" style="margin-bottom:12px">
+      <div class="tab active" onclick="switchUnitsTab(this,'enroute')">Enroute</div>
+      <div class="tab" onclick="switchUnitsTab(this,'onsite')">On Site</div>
+      <div class="tab" onclick="switchUnitsTab(this,'available')">Available</div>
+    </div>
+    <div id="units-enroute">
+      <div class="guard-card"><div class="guard-avatar" style="background:rgba(59,130,246,0.1);color:var(--blue)">MS</div><div class="guard-info"><div class="guard-name">Mike Santos</div><div class="guard-meta">ETA 8 min · North Gate</div></div><span class="badge badge-blue">ENROUTE</span></div>
+      <div class="guard-card"><div class="guard-avatar" style="background:rgba(59,130,246,0.1);color:var(--blue)">TB</div><div class="guard-info"><div class="guard-name">Tom Brown</div><div class="guard-meta">ETA 14 min · South Wing</div></div><span class="badge badge-blue">ENROUTE</span></div>
+    </div>
+    <div id="units-onsite" style="display:none">
+      <div class="guard-card"><div class="guard-avatar">LR</div><div class="guard-info"><div class="guard-name">Lisa Rodriguez</div><div class="guard-meta">CP-09 · South Zone</div></div><span class="badge badge-green">ON SITE</span></div>
+      <div class="guard-card"><div class="guard-avatar">JC</div><div class="guard-info"><div class="guard-name">James Clarke</div><div class="guard-meta">CP-03 · North Zone</div></div><span class="badge badge-green">ON SITE</span></div>
+    </div>
+    <div id="units-available" style="display:none">
+      <div class="guard-card"><div class="guard-avatar" style="background:rgba(245,166,35,0.1);color:var(--amber)">RP</div><div class="guard-info"><div class="guard-name">Raj Patel</div><div class="guard-meta">Base · Ready for dispatch</div></div><span class="badge badge-amber">AVAILABLE</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">QUICK ACTIONS</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('patrol')">🚔 START PATROL</button>
+      <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('incidents')">⚠️ LOG INCIDENT</button>
+      <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('guards')">👮 VIEW GUARDS</button>
+      <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('reports')">📋 REPORTS</button>
+    </div>
+  </div>
+</div>
+
+<!-- INCIDENTS -->
+
+<div class="screen" id="screen-incidents">
+  <div class="topbar"><div class="topbar-title">Incidents</div><div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newIncident()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+  <div style="padding:0 16px 16px">
+    <div class="tab-row">
+      <div class="tab active">All</div>
+      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">Open</div>
+      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">In Progress</div>
+      <div class="tab" onclick="this.parentNode.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});this.classList.add('active')">Closed</div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="font-size:14px;font-weight:600;flex:1">Perimeter Breach — Gate B</div>
+        <span class="badge badge-red">OPEN</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Zone 4 · 12 min ago · Reported by M. Santos</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="dispatchIncident(this)">DISPATCH</button>
+        <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="viewIncident(this)">VIEW</button>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="font-size:14px;font-weight:600;flex:1">Suspicious Vehicle</div>
+        <span class="badge badge-amber">IN PROG</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Car Park 2 · 1h ago · Reported by L. Rodriguez</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="dispatchIncident(this)">DISPATCH</button>
+        <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="viewIncident(this)">VIEW</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VEHICLE INSPECTION -->
+
+<div class="screen" id="screen-vehicle-inspection">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-login')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Vehicle Inspection</div>
+  </div>
+  <div class="vi-steps">
+    <div class="vi-step done" id="vis-1"></div>
+    <div class="vi-step active" id="vis-2"></div>
+    <div class="vi-step" id="vis-3"></div>
+    <div class="vi-step" id="vis-4"></div>
+  </div>
+  <!-- Step 1 -->
+  <div id="vi-step-1" style="padding:0 20px;display:none">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Vehicle Details</div>
+    <div class="field"><label>LICENSE PLATE</label><input class="plate-input" id="vi-plate" placeholder="ABC 1234" style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;text-align:center;letter-spacing:4px"></div>
+    <div class="field"><label>VEHICLE TYPE</label>
+      <select id="vi-type"><option>Patrol Car</option><option>SUV</option><option>Van</option><option>Motorcycle</option></select>
+    </div>
+    <div class="field"><label>MAKE / MODEL</label><input id="vi-make" placeholder="e.g. Toyota Camry"></div>
+    <div class="field"><label>FUEL LEVEL</label>
+      <div class="fuel-row">
+        <div class="fuel-btn" onclick="setFuel(this,'E')">E</div>
+        <div class="fuel-btn" onclick="setFuel(this,'1/4')">¼</div>
+        <div class="fuel-btn active" onclick="setFuel(this,'1/2')">½</div>
+        <div class="fuel-btn" onclick="setFuel(this,'3/4')">¾</div>
+        <div class="fuel-btn" onclick="setFuel(this,'F')">F</div>
+      </div>
+    </div>
+    <button class="btn btn-accent" style="margin-top:8px" onclick="viNextStep(2)">NEXT →</button>
+  </div>
+  <!-- Step 2 -->
+  <div id="vi-step-2" style="padding:0 20px;display:none">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Exterior Photos</div>
+    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoCapture(this)">
+    <div class="photo-grid" style="margin-bottom:10px">
+      <div class="photo-slot" id="ps-front" onclick="triggerCamera('front')">📷<span>FRONT</span></div>
+      <div class="photo-slot" id="ps-rear" onclick="triggerCamera('rear')">📷<span>REAR</span></div>
+      <div class="photo-slot" id="ps-left" onclick="triggerCamera('left')">📷<span>LEFT SIDE</span></div>
+      <div class="photo-slot" id="ps-right" onclick="triggerCamera('right')">📷<span>RIGHT SIDE</span></div>
+    </div>
+    <div class="photo-grid" style="margin-bottom:16px">
+      <div class="photo-slot" id="ps-interior" onclick="triggerCamera('interior')">📷<span>INTERIOR</span></div>
+      <div class="photo-slot" id="ps-odometer" onclick="triggerCamera('odometer')">📷<span>ODOMETER</span></div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">Tap each slot to open camera</div>
+    <button class="btn btn-accent" onclick="viNextStep(3)">NEXT →</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="viNextStep(1)">← BACK</button>
+  </div>
+  <!-- Step 3 -->
+  <div id="vi-step-3" style="padding:0 20px;display:none">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Condition Check</div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="check-row"><span class="check-label">Lights</span><div class="check-toggle"><button class="check-btn ok" onclick="setCheck(this,'ok')">OK</button><button class="check-btn" onclick="setCheck(this,'fail')">FAIL</button></div></div>
+      <div class="check-row"><span class="check-label">Tyres</span><div class="check-toggle"><button class="check-btn ok" onclick="setCheck(this,'ok')">OK</button><button class="check-btn" onclick="setCheck(this,'fail')">FAIL</button></div></div>
+      <div class="check-row"><span class="check-label">Brakes</span><div class="check-toggle"><button class="check-btn ok" onclick="setCheck(this,'ok')">OK</button><button class="check-btn" onclick="setCheck(this,'fail')">FAIL</button></div></div>
+      <div class="check-row"><span class="check-label">Radio</span><div class="check-toggle"><button class="check-btn ok" onclick="setCheck(this,'ok')">OK</button><button class="check-btn" onclick="setCheck(this,'fail')">FAIL</button></div></div>
+      <div class="check-row"><span class="check-label">Safety Equipment</span><div class="check-toggle"><button class="check-btn ok" onclick="setCheck(this,'ok')">OK</button><button class="check-btn" onclick="setCheck(this,'fail')">FAIL</button></div></div>
+    </div>
+    <button class="btn btn-accent" onclick="viNextStep(4)">NEXT →</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="viNextStep(2)">← BACK</button>
+  </div>
+  <!-- Step 4 -->
+  <div id="vi-step-4" style="padding:0 20px;display:none">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;margin-bottom:16px">Sign Off</div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">INSPECTION SUMMARY</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+        <div><div style="color:var(--muted);font-size:11px">PLATE</div><div id="sum-plate" style="font-weight:600;font-family:'Rajdhani',sans-serif;font-size:16px">—</div></div>
+        <div><div style="color:var(--muted);font-size:11px">TYPE</div><div id="sum-type" style="font-weight:600">—</div></div>
+        <div><div style="color:var(--muted);font-size:11px">MAKE</div><div id="sum-make" style="font-weight:600">—</div></div>
+        <div><div style="color:var(--muted);font-size:11px">FUEL</div><div id="sum-fuel" style="font-weight:600;color:var(--accent)">½</div></div>
+      </div>
+    </div>
+    <div class="field"><label>GUARD SIGNATURE</label><div class="sig-box" onclick="signOff()">TAP TO SIGN</div></div>
+    <button class="btn btn-accent" style="margin-top:8px" onclick="goToPatrol()">✓ SIGN OFF &amp; START PATROL</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="viNextStep(3)">← BACK</button>
+  </div>
+</div>
+
+<!-- PATROL -->
+
+<div class="screen" id="screen-patrol">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Live Patrol</div>
+    <div class="topbar-btn" style="background:rgba(255,59,59,0.1);border-color:rgba(255,59,59,0.2)" onclick="openEndPatrol()">
+      <span style="font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--red);letter-spacing:1px">END</span>
+    </div>
+  </div>
+  <div style="margin:0 16px 12px;padding:10px 14px;background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);border-radius:10px;display:flex;align-items:center;gap:8px">
+    <span style="color:var(--red);font-size:18px">⚠️</span>
+    <span style="font-size:12px;color:var(--red);font-weight:500">CP-07 overdue by 12 minutes</span>
+  </div>
+  <div class="patrol-map">
+    <div style="font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px">LIVE MAP — SITE ALPHA</div>
+    <div class="map-grid">
+      <div class="cp cp-scanned" onclick="simulateScan(this,'CP-01')">✓<span>CP-01</span></div>
+      <div class="cp cp-scanned" onclick="simulateScan(this,'CP-02')">✓<span>CP-02</span></div>
+      <div class="cp cp-active" onclick="simulateScan(this,'CP-03')">●<span>CP-03</span></div>
+      <div class="cp cp-scanned" onclick="simulateScan(this,'CP-04')">✓<span>CP-04</span></div>
+      <div class="cp cp-pending" onclick="simulateScan(this,'CP-05')">○<span>CP-05</span></div>
+      <div class="cp cp-pending" onclick="simulateScan(this,'CP-06')">○<span>CP-06</span></div>
+      <div class="cp cp-overdue" onclick="simulateScan(this,'CP-07')">!<span>CP-07</span></div>
+      <div class="cp cp-pending" onclick="simulateScan(this,'CP-08')">○<span>CP-08</span></div>
+      <div class="cp cp-scanned" onclick="simulateScan(this,'CP-09')">✓<span>CP-09</span></div>
+      <div class="cp cp-pending" onclick="simulateScan(this,'CP-10')">○<span>CP-10</span></div>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span style="font-size:12px;font-weight:600"><span id="cp-count">4</span>/10 Checkpoints</span>
+      <span style="font-size:12px;color:var(--accent)" id="patrol-timer">02:14:33</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="patrol-progress" style="width:40%"></div></div>
+  </div>
+  <div class="guard-strip">
+    <div class="guard-chip"><div class="gc-name">M. Santos</div><div class="gc-status"><span class="badge badge-green" style="font-size:9px">ON PATROL</span></div></div>
+    <div class="guard-chip"><div class="gc-name">J. Clarke</div><div class="gc-status"><span class="badge badge-amber" style="font-size:9px">ON BREAK</span></div></div>
+    <div class="guard-chip"><div class="gc-name">T. Brown</div><div class="gc-status"><span class="badge badge-green" style="font-size:9px">ON PATROL</span></div></div>
+    <div class="guard-chip"><div class="gc-name">R. Patel</div><div class="gc-status"><span class="badge badge-red" style="font-size:9px">OFFLINE</span></div></div>
+  </div>
+  <div class="section-title" style="padding:0 16px;margin-bottom:8px">CHECKPOINT LOG</div>
+  <div class="cp-list">
+    <div class="cp-row"><div class="cp-num" style="background:rgba(0,255,180,0.1);color:var(--accent)">01</div><div class="cp-info"><div class="cp-name">Main Entrance</div><div class="cp-meta">QR · Scanned 08:12</div></div><span class="badge badge-green" style="font-size:10px">OK</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(0,255,180,0.1);color:var(--accent)">02</div><div class="cp-info"><div class="cp-name">Car Park A</div><div class="cp-meta">NFC · Scanned 08:28</div></div><span class="badge badge-green" style="font-size:10px">OK</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(59,130,246,0.1);color:var(--blue)">03</div><div class="cp-info"><div class="cp-name">North Perimeter</div><div class="cp-meta">QR · In Progress</div></div><span class="badge badge-blue" style="font-size:10px">ACTIVE</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(0,255,180,0.1);color:var(--accent)">04</div><div class="cp-info"><div class="cp-name">Server Room</div><div class="cp-meta">NFC · Scanned 09:05</div></div><span class="badge badge-green" style="font-size:10px">OK</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(255,255,255,0.05);color:var(--muted)">05</div><div class="cp-info"><div class="cp-name">East Wing</div><div class="cp-meta">QR · Pending</div></div><span class="badge" style="font-size:10px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)">PENDING</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(255,255,255,0.05);color:var(--muted)">06</div><div class="cp-info"><div class="cp-name">Roof Access</div><div class="cp-meta">NFC · Pending</div></div><span class="badge" style="font-size:10px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)">PENDING</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(255,59,59,0.1);color:var(--red)">07</div><div class="cp-info"><div class="cp-name">Gate B</div><div class="cp-meta">QR · Overdue 12min</div></div><span class="badge badge-red" style="font-size:10px">OVERDUE</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(255,255,255,0.05);color:var(--muted)">08</div><div class="cp-info"><div class="cp-name">South Fence</div><div class="cp-meta">NFC · Pending</div></div><span class="badge" style="font-size:10px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)">PENDING</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(0,255,180,0.1);color:var(--accent)">09</div><div class="cp-info"><div class="cp-name">Loading Bay</div><div class="cp-meta">QR · Scanned 09:44</div></div><span class="badge badge-green" style="font-size:10px">OK</span></div>
+    <div class="cp-row"><div class="cp-num" style="background:rgba(255,255,255,0.05);color:var(--muted)">10</div><div class="cp-info"><div class="cp-name">Reception</div><div class="cp-meta">NFC · Pending</div></div><span class="badge" style="font-size:10px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)">PENDING</span></div>
+  </div>
+  <button class="scan-fab" onclick="openScanner()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+  </button>
+</div>
+
+<!-- GUARDS -->
+
+<div class="screen" id="screen-guards">
+  <div class="topbar"><div class="topbar-title">Guards</div><div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="showToast('Add guard feature coming soon','info')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+  <div style="padding:0 16px">
+    <div class="stat-grid" style="padding:0 0 16px">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent)">6</div><div class="stat-label">Active</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--amber)">1</div><div class="stat-label">On Break</div></div>
+    </div>
+    <div class="guard-card"><div class="guard-avatar">MS</div><div class="guard-info"><div class="guard-name">Mike Santos</div><div class="guard-meta">North Zone · CP-03 active</div></div><span class="badge badge-green">ON PATROL</span></div>
+    <div class="guard-card"><div class="guard-avatar">LR</div><div class="guard-info"><div class="guard-name">Lisa Rodriguez</div><div class="guard-meta">South Zone · CP-09 next</div></div><span class="badge badge-green">ON PATROL</span></div>
+    <div class="guard-card"><div class="guard-avatar">JC</div><div class="guard-info"><div class="guard-name">James Clarke</div><div class="guard-meta">Break room · Returns 10:30</div></div><span class="badge badge-amber">ON BREAK</span></div>
+    <div class="guard-card"><div class="guard-avatar">RP</div><div class="guard-info"><div class="guard-name">Raj Patel</div><div class="guard-meta">Last seen 2h ago</div></div><span class="badge badge-red">OFFLINE</span></div>
+  </div>
+</div>
+
+<!-- REPORTS -->
+
+<div class="screen" id="screen-reports">
+  <div class="topbar"><div class="topbar-title">Reports</div></div>
+  <div style="padding:0 16px">
+    <div class="tab-row">
+      <div class="tab active" onclick="switchReportTab(this,'guard')">Guard</div>
+      <div class="tab" onclick="switchReportTab(this,'supervisor')">Supervisor</div>
+      <div class="tab" onclick="switchReportTab(this,'history')">History</div>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">END OF SHIFT REPORT</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div><div style="font-size:10px;color:var(--muted)">GUARD</div><div style="font-weight:600;font-size:14px">Mike Santos</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">DATE</div><div style="font-weight:600;font-size:14px">Today</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">CHECKPOINTS</div><div style="font-weight:600;font-size:14px;color:var(--accent)">9/10</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">INCIDENTS</div><div style="font-weight:600;font-size:14px;color:var(--red)">1</div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="sig-box">SIGN OFF REPORT</div>
+      <button class="btn btn-accent" style="margin-top:12px" onclick="submitReport()">SUBMIT REPORT</button>
+    </div>
+  <div id="report-supervisor" style="display:none">
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">SUPERVISOR SHIFT REPORT</div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">TEAM PERFORMANCE</div>
+        <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Mike Santos</span><span style="color:var(--accent)">9/10</span></div><div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div></div>
+        <div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Lisa Rodriguez</span><span style="color:var(--accent)">10/10</span></div><div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div></div>
+        <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>James Clarke</span><span style="color:var(--amber)">7/10</span></div><div class="progress-bar"><div class="progress-fill" style="width:70%;background:var(--amber)"></div></div></div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div><div style="font-size:10px;color:var(--muted)">INCIDENTS</div><div style="font-weight:700;font-size:18px;font-family:'Rajdhani',sans-serif;color:var(--red)">3</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">RESOLVED</div><div style="font-weight:700;font-size:18px;font-family:'Rajdhani',sans-serif;color:var(--accent)">2</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">GUARDS ON DUTY</div><div style="font-weight:700;font-size:18px;font-family:'Rajdhani',sans-serif">8</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">AVG COMPLETION</div><div style="font-weight:700;font-size:18px;font-family:'Rajdhani',sans-serif;color:var(--accent)">88%</div></div>
+      </div>
+      <div class="field" style="margin-bottom:12px"><label>SUPERVISOR NOTES</label><textarea style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;resize:none;height:80px" placeholder="Actions taken, observations..."></textarea></div>
+      <div class="field" style="margin-bottom:12px"><label>SUPERVISOR SIGN-OFF</label><div class="sig-box" id="sup-sig" onclick="signSupervisor()">TAP TO SIGN</div></div>
+      <button class="btn btn-accent" onclick="submitSupervisorReport()">SUBMIT SUPERVISOR REPORT</button>
+    </div>
+  </div>
+  <div id="report-history" style="display:none">
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:14px;font-weight:600">End of Shift — Mike Santos</div><span class="badge badge-green">SUBMITTED</span></div>
+      <div style="font-size:12px;color:var(--muted)">Yesterday · 9/10 checkpoints · 0 incidents</div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:14px;font-weight:600">Supervisor Report — L. Rodriguez</div><span class="badge badge-green">SUBMITTED</span></div>
+      <div style="font-size:12px;color:var(--muted)">2 days ago · 8 guards · 1 incident</div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:14px;font-weight:600">End of Shift — J. Clarke</div><span class="badge badge-amber">PENDING</span></div>
+      <div style="font-size:12px;color:var(--muted)">3 days ago · 7/10 checkpoints · 1 incident</div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+
+<div class="screen" id="screen-settings">
+  <div class="topbar"><div class="topbar-title">Settings</div></div>
+  <div style="padding:0 20px">
+    <div class="card">
+      <div class="menu-item"><div class="menu-icon">👤</div><div class="menu-label">Profile</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item"><div class="menu-icon">🔒</div><div class="menu-label">Password &amp; Security</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item"><div class="menu-icon">🔔</div><div class="menu-label">Notifications</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item"><div class="menu-icon">💳</div><div class="menu-label">Billing</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item" onclick="navTo('terms')"><div class="menu-icon">📄</div><div class="menu-label">Terms of Service</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+      <div class="menu-item" onclick="navTo('privacy')"><div class="menu-icon">🛡️</div><div class="menu-label">Privacy Policy</div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+    <button class="btn btn-red" style="margin-top:16px" onclick="openLogout()">SIGN OUT</button>
+  </div>
+</div>
+
+<!-- ALERTS -->
+
+<div class="screen" id="screen-alerts">
+  <div class="topbar"><div class="topbar-title">Alerts</div></div>
+  <div style="padding:0 16px">
+    <div class="card" style="margin-bottom:10px;border-color:rgba(255,59,59,0.3)">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:20px">🚨</span>
+        <div><div style="font-size:14px;font-weight:600;color:var(--red)">SOS Alert — Gate B</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Guard R. Patel · 2h ago</div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:10px;border-color:rgba(245,166,35,0.3)">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:20px">⚠️</span>
+        <div><div style="font-size:14px;font-weight:600;color:var(--amber)">Checkpoint Overdue — CP-07</div><div style="font-size:12px;color:var(--muted);margin-top:4px">12 minutes overdue · Gate B</div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:20px">📵</span>
+        <div><div style="font-size:14px;font-weight:600">Guard Offline — R. Patel</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Last seen 2h ago · South Zone</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TIMESHEETS -->
+
+<div class="screen" id="screen-timesheets">
+  <div class="topbar">
+    <div class="topbar-title">Timesheets</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openPTORequest()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div class="tab-row">
+      <div class="tab active" onclick="switchTSTab(this,'hours')">Hours</div>
+      <div class="tab" onclick="switchTSTab(this,'pto')">PTO</div>
+      <div class="tab" onclick="switchTSTab(this,'requests')">Requests</div>
+    </div>
+
+```
+<!-- HOURS TAB -->
+<div id="ts-hours">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent)">132h</div><div class="stat-label">This Month</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--blue)">38h</div><div class="stat-label">This Week</div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">THIS WEEK</div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">Mike Santos</div><div class="inc-sub">Mon–Fri · 08:00–16:00 · Guard</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">38h</div><div style="font-size:10px;color:var(--muted)">+2h OT</div></div>
+    </div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">Lisa Rodriguez</div><div class="inc-sub">Mon–Fri · 16:00–00:00 · Supervisor</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">38h</div><div style="font-size:10px;color:var(--muted)">No OT</div></div>
+    </div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">James Clarke</div><div class="inc-sub">Mon–Thu · 00:00–08:00 · Guard+Patrol</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">32h</div><div style="font-size:10px;color:var(--muted)">No OT</div></div>
+    </div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">Tom Brown</div><div class="inc-sub">Mon–Fri · 08:00–16:00 · Patrol</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">38h</div><div style="font-size:10px;color:var(--muted)">No OT</div></div>
+    </div>
+    <div class="incident-row" style="border-bottom:none">
+      <div class="inc-info"><div class="inc-title">Raj Patel</div><div class="inc-sub">Fri–Sun · 08:00–20:00 · Patrol</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--amber)">24h</div><div style="font-size:10px;color:var(--red)">Under 40h</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PTO TAB -->
+<div id="ts-pto" style="display:none">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent)">12</div><div class="stat-label">Days Available</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--amber)">3</div><div class="stat-label">Days Used</div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">PTO BALANCES</div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">Mike Santos</div><div class="inc-sub">Guard · Started Jan 2023</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">12d</div><div style="font-size:10px;color:var(--muted)">3 used</div></div>
+    </div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">Lisa Rodriguez</div><div class="inc-sub">Supervisor · Started Mar 2022</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">15d</div><div style="font-size:10px;color:var(--muted)">1 used</div></div>
+    </div>
+    <div class="incident-row">
+      <div class="inc-info"><div class="inc-title">Tom Brown</div><div class="inc-sub">Patrol · Started Jun 2023</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--amber)">8d</div><div style="font-size:10px;color:var(--muted)">2 used</div></div>
+    </div>
+    <div class="incident-row" style="border-bottom:none">
+      <div class="inc-info"><div class="inc-title">Raj Patel</div><div class="inc-sub">Patrol · Started Sep 2023</div></div>
+      <div style="text-align:right"><div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--red)">5d</div><div style="font-size:10px;color:var(--muted)">5 used</div></div>
+    </div>
+  </div>
+  <button class="btn btn-accent" onclick="openPTORequest()">+ REQUEST TIME OFF</button>
+</div>
+
+<!-- REQUESTS TAB -->
+<div id="ts-requests" style="display:none">
+  <div class="card" style="margin-bottom:10px;border-color:rgba(245,166,35,0.3)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+      <div><div style="font-size:14px;font-weight:600">Mike Santos</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Dec 24–26 · 3 days · Annual Leave</div></div>
+      <span class="badge badge-amber">PENDING</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="approvePTO(this)">APPROVE</button>
+      <button class="btn btn-red" style="padding:8px;font-size:12px" onclick="denyPTO(this)">DENY</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:10px;border-color:rgba(245,166,35,0.3)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+      <div><div style="font-size:14px;font-weight:600">Tom Brown</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Jan 2–3 · 2 days · Sick Leave</div></div>
+      <span class="badge badge-amber">PENDING</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="approvePTO(this)">APPROVE</button>
+      <button class="btn btn-red" style="padding:8px;font-size:12px" onclick="denyPTO(this)">DENY</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div><div style="font-size:14px;font-weight:600">Lisa Rodriguez</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Nov 15 · 1 day · Personal</div></div>
+      <span class="badge badge-green">APPROVED</span>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- PTO REQUEST MODAL -->
+
+<div class="modal" id="pto-modal">
+  <div class="modal-box">
+    <div class="modal-title">Request Time Off</div>
+    <div class="field"><label>LEAVE TYPE</label>
+      <select id="pto-type"><option>Annual Leave</option><option>Sick Leave</option><option>Personal Day</option><option>Emergency Leave</option><option>Unpaid Leave</option></select>
+    </div>
+    <div class="field"><label>FROM DATE</label><input type="date" id="pto-from"></div>
+    <div class="field"><label>TO DATE</label><input type="date" id="pto-to"></div>
+    <div class="field"><label>REASON (OPTIONAL)</label>
+      <textarea id="pto-reason" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;resize:none;height:70px" placeholder="Brief reason for leave..."></textarea>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="submitPTORequest()">SUBMIT REQUEST</button>
+    <button class="btn btn-outline" onclick="closePTOModal()">CANCEL</button>
+  </div>
+</div>
+
+<!-- GUARD HOME -->
+
+<div class="screen" id="screen-guard-home">
+  <div class="topbar">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span></div>
+    <div class="topbar-btn" onclick="openSOS()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+    <div class="topbar-btn" style="margin-left:6px" onclick="openMenu()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
+  </div>
+  <div style="padding:0 16px 12px">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700">Welcome, <span id="guard-home-name">Guard</span> 👮</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px" id="guard-shift-time">Shift started — ready for patrol</div>
+  </div>
+  <!-- Status card -->
+  <div style="margin:0 16px 16px">
+    <div class="card" style="border-color:rgba(0,255,180,0.2);background:rgba(0,255,180,0.04)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rb-dot"></div>
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--accent)" id="guard-status-text">READY FOR PATROL</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px" id="guard-location-text">Location services off</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Action buttons -->
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px">
+    <button class="btn btn-accent" style="padding:18px;font-size:16px" onclick="openPatrolCred()">🚔 START PATROL</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn btn-outline" style="padding:14px;font-size:13px" onclick="navTo('incidents')">⚠️ LOG INCIDENT</button>
+      <button class="btn btn-outline" style="padding:14px;font-size:13px" onclick="navTo('reports')">📋 MY REPORTS</button>
+    </div>
+    <button class="btn btn-outline" style="padding:14px;font-size:13px;border-color:rgba(255,59,59,0.3);color:var(--red)" onclick="openLogout()">↩ END SHIFT &amp; SIGN OUT</button>
+  </div>
+  <!-- Today stats -->
+  <div style="padding:16px">
+    <div class="section-title">TODAY</div>
+    <div class="stat-grid" style="padding:0">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent)" id="guard-cp-done">0</div><div class="stat-label">Checkpoints Done</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--amber)" id="guard-patrol-time">0h</div><div class="stat-label">Patrol Time</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- INCIDENT REPORT -->
+
+<div class="screen" id="screen-incident-report">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-guard-home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Incident Report</div>
+  </div>
+  <div style="padding:0 20px">
+    <div style="margin-bottom:12px"><button onclick="openAIReport()" style="width:100%;padding:12px;background:linear-gradient(135deg,rgba(0,255,180,0.1),rgba(59,130,246,0.1));border:1px solid rgba(0,255,180,0.3);border-radius:10px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px">✨ USE AI TO WRITE REPORT</button></div>
+    <div class="field"><label>INCIDENT TYPE</label>
+      <select id="ir-type">
+        <option>Suspicious Person</option>
+        <option>Suspicious Vehicle</option>
+        <option>Perimeter Breach</option>
+        <option>Theft / Attempted Theft</option>
+        <option>Vandalism</option>
+        <option>Medical Emergency</option>
+        <option>Fire / Smoke</option>
+        <option>Unauthorized Access</option>
+        <option>Disturbance / Noise</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="field"><label>LOCATION / ZONE</label><input id="ir-location" placeholder="e.g. Gate B, Car Park 2, North Wing"></div>
+    <div class="field"><label>DATE &amp; TIME</label><input type="datetime-local" id="ir-datetime"></div>
+    <div class="field"><label>DESCRIPTION</label>
+      <textarea id="ir-desc" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:100px" placeholder="Describe what happened in detail..."></textarea>
+    </div>
+    <div class="field"><label>ACTION TAKEN</label>
+      <textarea id="ir-action" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:80px" placeholder="What did you do in response?"></textarea>
+    </div>
+    <div class="field"><label>PERSONS INVOLVED</label><input id="ir-persons" placeholder="Names, descriptions, vehicle plates..."></div>
+    <div class="field"><label>EVIDENCE / PHOTOS</label>
+      <div class="photo-grid" style="margin-bottom:8px">
+        <div class="photo-slot" id="ir-photo-1" onclick="takeIncidentPhoto(1)">📷<span>PHOTO 1</span></div>
+        <div class="photo-slot" id="ir-photo-2" onclick="takeIncidentPhoto(2)">📷<span>PHOTO 2</span></div>
+      </div>
+      <input type="file" id="ir-file" accept="image/*" capture="environment" style="display:none" onchange="handleIncidentPhoto(this)">
+    </div>
+    <div class="field"><label>SEVERITY</label>
+      <div style="display:flex;gap:8px">
+        <button class="fuel-btn active" id="sev-low" onclick="setSeverity(this,'low')">LOW</button>
+        <button class="fuel-btn" id="sev-med" onclick="setSeverity(this,'medium')">MEDIUM</button>
+        <button class="fuel-btn" id="sev-high" onclick="setSeverity(this,'high')" style="color:var(--red)">HIGH</button>
+        <button class="fuel-btn" id="sev-sos" onclick="setSeverity(this,'critical')" style="color:var(--red);border-color:rgba(255,59,59,0.3)">CRITICAL</button>
+      </div>
+    </div>
+    <div class="field"><label>GUARD SIGNATURE</label>
+      <div class="sig-box" id="ir-sig" onclick="signIncidentReport()">TAP TO SIGN</div>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="submitIncidentReport()">SUBMIT INCIDENT REPORT</button>
+    <button class="btn btn-outline" style="margin-bottom:20px" onclick="showScreen('screen-guard-home')">SAVE AS DRAFT</button>
+  </div>
+</div>
+
+<!-- END OF PATROL REPORT -->
+
+<div class="screen" id="screen-patrol-report">
+  <div class="topbar">
+    <div class="topbar-title">End of Patrol Report</div>
+  </div>
+  <div style="padding:0 20px">
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">PATROL SUMMARY</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><div style="font-size:10px;color:var(--muted)">CHECKPOINTS</div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--accent)" id="pr-checkpoints">4/10</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">DURATION</div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700" id="pr-duration">2h 14m</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">INCIDENTS</div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--red)" id="pr-incidents">0</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">VEHICLE</div><div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700" id="pr-vehicle">—</div></div>
+      </div>
+    </div>
+    <div class="field"><label>PATROL OBSERVATIONS</label>
+      <textarea id="pr-observations" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:90px" placeholder="Any observations during patrol..."></textarea>
+    </div>
+    <div class="field"><label>HANDOVER NOTES</label>
+      <textarea id="pr-handover" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:80px" placeholder="Notes for next guard..."></textarea>
+    </div>
+    <div class="field"><label>ANY INCIDENTS DURING PATROL?</label>
+      <div style="display:flex;gap:10px;margin-bottom:8px">
+        <button class="fuel-btn active" id="had-incident-no" onclick="toggleIncidentDuring(false)">NO INCIDENTS</button>
+        <button class="fuel-btn" id="had-incident-yes" onclick="toggleIncidentDuring(true)" style="color:var(--red)">LOG INCIDENT</button>
+      </div>
+    </div>
+    <div class="field"><label>GUARD SIGNATURE</label>
+      <div class="sig-box" id="pr-sig" onclick="signPatrolReport()">TAP TO SIGN</div>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="submitPatrolReport()">SUBMIT &amp; RETURN TO BASE</button>
+    <button class="btn btn-outline" style="margin-bottom:20px" onclick="showScreen('screen-guard-home')">SAVE DRAFT &amp; CONTINUE LATER</button>
+  </div>
+</div>
+
+<!-- PATROL CREDENTIAL MODAL -->
+
+<div class="modal" id="patrol-cred-modal">
+  <div class="modal-box">
+    <div class="modal-title">🚔 Start Patrol</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Confirm your guard credentials to begin patrol.</div>
+    <div class="field"><label>GUARD EMAIL</label><input type="email" id="pc-email" placeholder="guard@unit.com"></div>
+    <div class="field"><label>PASSWORD</label><input type="password" id="pc-pass" placeholder="••••••••"></div>
+    <div style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.15);border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--muted)">
+      <div style="color:var(--accent);font-weight:600;font-family:'Rajdhani',sans-serif;margin-bottom:4px">WHY IS THIS REQUIRED?</div>
+      Patrol records are legally signed off against your guard badge ID. Your credentials confirm identity before patrol begins.
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="confirmPatrolCredentials()">CONFIRM &amp; START</button>
+    <button class="btn btn-outline" onclick="closePatrolCred()">CANCEL</button>
+  </div>
+</div>
+
+<!-- SCHEDULING -->
+
+<div class="screen" id="screen-schedule">
+  <div class="topbar">
+    <div class="topbar-title">Schedule</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openAddShift()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div class="tab-row">
+      <div class="tab active" onclick="switchSchedView(this,'week')">Week</div>
+      <div class="tab" onclick="switchSchedView(this,'day')">Today</div>
+      <div class="tab" onclick="switchSchedView(this,'open')">Open Shifts</div>
+    </div>
+    <div id="sched-week">
+      <div class="sched-day">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1.5px">MON · TODAY</div>
+        <div class="sched-shift" onclick="viewShift('Mike Santos','08:00','16:00','Site Alpha')">
+          <div style="width:3px;height:36px;background:var(--accent);border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Mike Santos</div><div style="font-size:11px;color:var(--muted)">08:00–16:00 · Site Alpha · Guard</div></div>
+          <span class="badge badge-green" style="font-size:9px">ACTIVE</span>
+        </div>
+        <div class="sched-shift" onclick="viewShift('Tom Brown','08:00','16:00','Site Beta')">
+          <div style="width:3px;height:36px;background:var(--blue);border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Tom Brown</div><div style="font-size:11px;color:var(--muted)">08:00–16:00 · Site Beta · Patrol</div></div>
+          <span class="badge badge-blue" style="font-size:9px">ENROUTE</span>
+        </div>
+      </div>
+      <div class="sched-day">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1.5px">TUE</div>
+        <div class="sched-shift night" onclick="viewShift('Lisa Rodriguez','16:00','00:00','Site Alpha')">
+          <div style="width:3px;height:36px;background:var(--blue);border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Lisa Rodriguez</div><div style="font-size:11px;color:var(--muted)">16:00–00:00 · Site Alpha · Supervisor</div></div>
+          <span class="badge badge-amber" style="font-size:9px">SCHEDULED</span>
+        </div>
+        <div class="sched-shift off">
+          <div style="width:3px;height:36px;background:var(--border);border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--muted)">Raj Patel</div><div style="font-size:11px;color:var(--muted)">Day Off — PTO Approved</div></div>
+          <span class="badge" style="font-size:9px;background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)">PTO</span>
+        </div>
+      </div>
+      <div class="sched-day">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1.5px">WED — OPEN SHIFT</div>
+        <div class="sched-shift" style="border-color:rgba(245,166,35,0.3);background:rgba(245,166,35,0.05)">
+          <div style="width:3px;height:36px;background:var(--amber);border-radius:2px;flex-shrink:0"></div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--amber)">UNASSIGNED</div><div style="font-size:11px;color:var(--muted)">08:00–16:00 · Site Beta · Guard</div></div>
+          <button style="background:var(--amber);color:#000;border:none;border-radius:8px;padding:5px 10px;font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer" onclick="assignShift(this)">ASSIGN</button>
+        </div>
+      </div>
+    </div>
+    <div id="sched-day" style="display:none">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;margin-bottom:12px">Today's Shifts</div>
+      <div class="guard-card"><div class="guard-avatar">MS</div><div class="guard-info"><div class="guard-name">Mike Santos</div><div class="guard-meta">08:00–16:00 · Site Alpha · 6h 12m remaining</div></div><span class="badge badge-green">ACTIVE</span></div>
+      <div class="guard-card"><div class="guard-avatar">TB</div><div class="guard-info"><div class="guard-name">Tom Brown</div><div class="guard-meta">08:00–16:00 · Site Beta · Enroute</div></div><span class="badge badge-blue">ENROUTE</span></div>
+      <div class="guard-card"><div class="guard-avatar">JC</div><div class="guard-info"><div class="guard-name">James Clarke</div><div class="guard-meta">00:00–08:00 · Site Alpha · Shift ended</div></div><span class="badge" style="background:rgba(255,255,255,0.05);color:var(--muted);border:1px solid var(--border)">ENDED</span></div>
+    </div>
+    <div id="sched-open" style="display:none">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Guards can request to fill open shifts</div>
+      <div class="card" style="margin-bottom:10px;border-color:rgba(245,166,35,0.3)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div><div style="font-size:14px;font-weight:600;color:var(--amber)">Wed · 08:00–16:00</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Site Beta · Guard · 8 hours</div></div>
+          <span class="badge badge-amber">OPEN</span>
+        </div>
+        <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="claimShift(this)">CLAIM SHIFT</button>
+      </div>
+      <div class="card" style="margin-bottom:10px;border-color:rgba(245,166,35,0.3)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div><div style="font-size:14px;font-weight:600;color:var(--amber)">Thu · 16:00–00:00</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Site Alpha · Patrol · 8 hours</div></div>
+          <span class="badge badge-amber">OPEN</span>
+        </div>
+        <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="claimShift(this)">CLAIM SHIFT</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MESSAGING -->
+
+<div class="screen" id="screen-messages">
+  <div class="topbar">
+    <div class="topbar-title">Messages</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newMessage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px 8px">
+    <div class="tab-row">
+      <div class="tab active" onclick="switchMsgTab(this,'chats')">Chats</div>
+      <div class="tab" onclick="switchMsgTab(this,'broadcast')">Broadcast</div>
+      <div class="tab" onclick="switchMsgTab(this,'siteboards')">Site Boards</div>
+    </div>
+  </div>
+  <div id="msg-chats">
+    <div onclick="openChat('supervisor')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer">
+      <div style="width:44px;height:44px;border-radius:14px;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent);position:relative">LR
+        <div style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:var(--accent);border-radius:50%;border:2px solid var(--bg)"></div>
+      </div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Lisa Rodriguez <span style="font-size:10px;color:var(--muted);font-weight:400">Supervisor</span></div><div style="font-size:12px;color:var(--muted);margin-top:2px">CP-07 is overdue — please check in</div></div>
+      <div style="text-align:right"><div style="font-size:10px;color:var(--muted)">2m</div><div style="width:18px;height:18px;background:var(--red);border-radius:50%;font-size:10px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;margin-top:4px;margin-left:auto">2</div></div>
+    </div>
+    <div onclick="openChat('admin')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer">
+      <div style="width:44px;height:44px;border-radius:14px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--blue)">A</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Admin <span style="font-size:10px;color:var(--muted);font-weight:400">System</span></div><div style="font-size:12px;color:var(--muted);margin-top:2px">Your vehicle inspection has been approved</div></div>
+      <div style="font-size:10px;color:var(--muted)">1h</div>
+    </div>
+    <div onclick="openChat('site')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer">
+      <div style="width:44px;height:44px;border-radius:14px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);display:flex;align-items:center;justify-content:center;font-size:18px">🏢</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Site Alpha Board</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Shift handover complete — no incidents</div></div>
+      <div style="font-size:10px;color:var(--muted)">3h</div>
+    </div>
+  </div>
+  <div id="msg-broadcast" style="display:none;padding:0 16px">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Send to all guards on a site or all staff</div>
+    <div class="field"><label>SEND TO</label>
+      <select><option>All Guards — Site Alpha</option><option>All Guards — All Sites</option><option>Supervisors Only</option><option>Patrol Officers Only</option></select>
+    </div>
+    <div class="field"><label>MESSAGE</label>
+      <textarea id="broadcast-msg" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:100px" placeholder="Type your broadcast message..."></textarea>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-accent" onclick="sendBroadcast()">📢 SEND BROADCAST</button>
+    </div>
+  </div>
+  <div id="msg-siteboards" style="display:none;padding:0 16px">
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🏢</span><div style="font-weight:600">Site Alpha Board</div></div>
+      <div style="font-size:12px;color:var(--muted);padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:8px">Important: CCTV offline in sector 3 — manual patrol required every 30 mins</div>
+      <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="openSiteBoard('alpha')">VIEW BOARD</button>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:16px">🏗️</span><div style="font-weight:600">Site Beta Board</div></div>
+      <div style="font-size:12px;color:var(--muted);padding:8px;background:rgba(255,255,255,0.03);border-radius:8px;margin-bottom:8px">New access codes active from Monday — check briefing doc</div>
+      <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="openSiteBoard('beta')">VIEW BOARD</button>
+    </div>
+  </div>
+</div>
+
+<!-- CERTIFICATIONS -->
+
+<div class="screen" id="screen-certs">
+  <div class="topbar">
+    <div class="topbar-title">Certifications</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addCert()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent)">12</div><div class="stat-label">Valid Certs</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--red)">2</div><div class="stat-label">Expiring Soon</div></div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon" style="background:rgba(0,255,180,0.1)">🛡️</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Security Guard License</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Mike Santos · SGL-2024-8821</div></div>
+      <div><span class="cert-expiry good">DEC 2025</span></div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon" style="background:rgba(0,255,180,0.1)">❤️</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">CPR / First Aid</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Mike Santos · Red Cross Cert</div></div>
+      <div><span class="cert-expiry warn">JUN 2025</span></div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon" style="background:rgba(255,59,59,0.1)">🔫</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Firearms License</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Tom Brown · FBL-2023-4421</div></div>
+      <div><span class="cert-expiry exp">EXPIRED</span></div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon" style="background:rgba(59,130,246,0.1)">🚗</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Driver's License</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Lisa Rodriguez · DL-9923-B</div></div>
+      <div><span class="cert-expiry good">MAR 2027</span></div>
+    </div>
+    <div class="cert-card">
+      <div class="cert-icon" style="background:rgba(245,166,35,0.1)">🔒</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:600">Access Control Training</div><div style="font-size:11px;color:var(--muted);margin-top:2px">James Clarke · ACT-2024</div></div>
+      <div><span class="cert-expiry warn">AUG 2025</span></div>
+    </div>
+    <div style="margin-top:4px">
+      <button class="btn btn-outline" onclick="exportCerts()">📄 EXPORT COMPLIANCE REPORT</button>
+    </div>
+  </div>
+</div>
+
+<!-- DAILY ACTIVITY REPORT -->
+
+<div class="screen" id="screen-dar">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Daily Activity Report</div>
+    <div class="topbar-btn" onclick="exportDAR()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><div style="font-size:10px;color:var(--muted)">GUARD</div><div style="font-weight:600;font-size:14px">Mike Santos</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">DATE</div><div style="font-weight:600;font-size:14px">Today</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">SITE</div><div style="font-weight:600;font-size:14px">Site Alpha</div></div>
+        <div><div style="font-size:10px;color:var(--muted)">SHIFT</div><div style="font-weight:600;font-size:14px">08:00–16:00</div></div>
+      </div>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);font-family:'Rajdhani',sans-serif;margin-bottom:8px">ACTIVITY LOG</div>
+    <div class="card" style="margin-bottom:12px;padding:12px">
+      <div class="dar-entry"><div class="dar-time">08:00</div><div class="dar-content">Guard reported for duty. Vehicle inspection completed. All systems normal.</div></div>
+      <div class="dar-entry"><div class="dar-time">08:12</div><div class="dar-content" style="color:var(--accent)">✓ CP-01 Main Entrance — QR scanned. No issues.</div></div>
+      <div class="dar-entry"><div class="dar-time">08:28</div><div class="dar-content" style="color:var(--accent)">✓ CP-02 Car Park A — NFC scanned. 3 vehicles present.</div></div>
+      <div class="dar-entry"><div class="dar-time">08:45</div><div class="dar-content" style="color:var(--accent)">✓ CP-03 North Perimeter — QR scanned. Fence line intact.</div></div>
+      <div class="dar-entry"><div class="dar-time">09:05</div><div class="dar-content" style="color:var(--accent)">✓ CP-04 Server Room — NFC scanned. Access log reviewed.</div></div>
+      <div class="dar-entry"><div class="dar-time">09:22</div><div class="dar-content" style="color:var(--red)">⚠ INCIDENT LOGGED — Suspicious vehicle parked outside Gate B. Plates recorded. Supervisor notified.</div></div>
+      <div class="dar-entry"><div class="dar-time">09:44</div><div class="dar-content" style="color:var(--accent)">✓ CP-09 Loading Bay — QR scanned. Delivery driver verified.</div></div>
+      <div class="dar-entry"><div class="dar-time">10:00</div><div class="dar-content">Break taken. Coverage maintained by J. Clarke.</div></div>
+      <div class="dar-entry" style="border-bottom:none"><div class="dar-time">10:30</div><div class="dar-content">Resumed patrol. All clear.</div></div>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="exportDAR()">📧 EMAIL DAR TO SUPERVISOR</button>
+    <button class="btn btn-outline" style="margin-bottom:20px" onclick="exportDAR()">📄 DOWNLOAD PDF</button>
+  </div>
+</div>
+
+<!-- CLIENT PORTAL -->
+
+<div class="screen" id="screen-client-portal">
+  <div class="topbar">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span></div>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+    <div class="topbar-btn" style="margin-left:8px" onclick="openMenu()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px 12px">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700">Client Dashboard</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">Your security status — live</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px">
+    <div class="client-stat"><div class="client-stat-val" style="color:var(--accent)">8</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Guards On Site</div></div>
+    <div class="client-stat"><div class="client-stat-val" style="color:var(--blue)">2</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Units Enroute</div></div>
+    <div class="client-stat"><div class="client-stat-val" style="color:var(--amber)">1</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Open Incidents</div></div>
+    <div class="client-stat"><div class="client-stat-val" style="color:var(--accent)">94%</div><div style="font-size:11px;color:var(--muted);margin-top:4px">Patrol Coverage</div></div>
+  </div>
+  <div style="padding:0 16px">
+    <div class="section-title">LIVE PATROL STATUS</div>
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:13px;font-weight:600">Site Alpha Patrol</span>
+        <span class="badge badge-green">ACTIVE</span>
+      </div>
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span>Checkpoints completed</span>
+          <span style="color:var(--accent);font-weight:600">9/10</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Guard: Mike Santos · Last scan: CP-09 at 09:44</div>
+    </div>
+    <div class="section-title">RECENT INCIDENTS</div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="incident-row">
+        <div class="inc-dot" style="background:var(--amber)"></div>
+        <div class="inc-info"><div class="inc-title">Suspicious Vehicle — Gate B</div><div class="inc-sub">Today 09:22 · Under investigation</div></div>
+        <span class="badge badge-amber">IN PROG</span>
+      </div>
+      <div class="incident-row" style="border-bottom:none">
+        <div class="inc-dot" style="background:var(--accent)"></div>
+        <div class="inc-info"><div class="inc-title">Unauthorised Access Attempt</div><div class="inc-sub">Yesterday 14:15 · Resolved</div></div>
+        <span class="badge badge-green">CLOSED</span>
+      </div>
+    </div>
+    <div class="section-title">YOUR REPORTS</div>
+    <div class="card" style="margin-bottom:8px">
+      <div class="incident-row">
+        <div style="font-size:20px;margin-right:4px">📋</div>
+        <div class="inc-info"><div class="inc-title">Weekly Security Report</div><div class="inc-sub">This week · 42 patrols · 2 incidents</div></div>
+        <button style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--accent);font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer" onclick="downloadClientReport()">PDF</button>
+      </div>
+      <div class="incident-row" style="border-bottom:none">
+        <div style="font-size:20px;margin-right:4px">📊</div>
+        <div class="inc-info"><div class="inc-title">Monthly Summary — April</div><div class="inc-sub">168 patrols · 5 incidents · 100% uptime</div></div>
+        <button style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--accent);font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer" onclick="downloadClientReport()">PDF</button>
+      </div>
+    </div>
+    <button class="btn btn-outline" style="margin-bottom:20px" onclick="openLogout()">SIGN OUT</button>
+  </div>
+</div>
+
+<!-- ADD SHIFT MODAL -->
+
+<div class="modal" id="shift-modal">
+  <div class="modal-box">
+    <div class="modal-title">Add Shift</div>
+    <div class="field"><label>GUARD</label>
+      <select id="shift-guard"><option>Mike Santos</option><option>Lisa Rodriguez</option><option>Tom Brown</option><option>James Clarke</option><option>Raj Patel</option></select>
+    </div>
+    <div class="field"><label>DATE</label><input type="date" id="shift-date"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="field"><label>START TIME</label><input type="time" id="shift-start" value="08:00"></div>
+      <div class="field"><label>END TIME</label><input type="time" id="shift-end" value="16:00"></div>
+    </div>
+    <div class="field"><label>SITE</label>
+      <select id="shift-site"><option>Site Alpha</option><option>Site Beta</option><option>Site Gamma</option></select>
+    </div>
+    <div class="field"><label>ROLE</label>
+      <select id="shift-role"><option>Guard</option><option>Patrol Officer</option><option>Supervisor</option><option>Guard + Patrol</option></select>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="saveShift()">SAVE SHIFT</button>
+    <button class="btn btn-outline" onclick="closeShiftModal()">CANCEL</button>
+  </div>
+</div>
+
+<!-- CHAT MODAL -->
+
+<div class="modal" id="chat-modal">
+  <div class="modal-box" style="height:85vh;display:flex;flex-direction:column;padding:0">
+    <div class="topbar" style="border-bottom:1px solid var(--border);flex-shrink:0">
+      <div class="topbar-btn" onclick="closeChatModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </div>
+      <div style="flex:1"><div class="topbar-title" id="chat-title">Lisa Rodriguez</div><div style="font-size:11px;color:var(--accent);margin-top:-2px">● Online</div></div>
+    </div>
+    <div class="chat-list" id="chat-messages">
+      <div style="text-align:center;font-size:11px;color:var(--muted);margin:8px 0">Today</div>
+      <div class="chat-bubble recv">CP-07 is overdue by 12 minutes. Please check in.<div class="chat-time">10:18 AM</div></div>
+      <div class="chat-bubble sent">On my way now. Had a minor issue at Gate B — documented.<div class="chat-time">10:19 AM</div></div>
+      <div class="chat-bubble recv">Copy that. Incident report received. Proceed to CP-07.<div class="chat-time">10:20 AM</div></div>
+    </div>
+    <div class="chat-input-bar">
+      <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1;border-radius:24px;padding:10px 14px">
+      <button onclick="sendChatMessage()" style="width:40px;height:40px;background:var(--accent);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- POST ORDERS -->
+
+<div class="screen" id="screen-postorders">
+  <div class="topbar">
+    <div class="topbar-title">Post Orders</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addPostOrder()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Site-specific instructions delivered to guards before each shift</div>
+
+```
+<!-- Site Alpha -->
+<div class="card" style="margin-bottom:10px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div><div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700">Site Alpha</div><div style="font-size:11px;color:var(--muted)">Last updated today · 4 orders active</div></div>
+    <span class="badge badge-green">ACTIVE</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.15);border-radius:10px;padding:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">🚪</span>
+        <div style="font-size:12px;font-weight:600">Gate B Access Check</div>
+        <span style="font-size:9px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto">EVERY PATROL</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Check Gate B is locked and padlock is secure. Log any damage or tampering immediately.</div>
+    </div>
+    <div style="background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);border-radius:10px;padding:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">📷</span>
+        <div style="font-size:12px;font-weight:600">Car Park CCTV Verification</div>
+        <span style="font-size:9px;color:var(--blue);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto">SHIFT START</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Verify all 6 CCTV cameras in Car Park A are operational. Report any offline cameras.</div>
+    </div>
+    <div style="background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.15);border-radius:10px;padding:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">🔑</span>
+        <div style="font-size:12px;font-weight:600">Key Handover Protocol</div>
+        <span style="font-size:9px;color:var(--amber);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto">SHIFT END</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">All 12 master keys must be signed back in before shift end. Missing keys must be reported immediately.</div>
+    </div>
+    <div style="background:rgba(255,59,59,0.05);border:1px solid rgba(255,59,59,0.15);border-radius:10px;padding:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">⚠️</span>
+        <div style="font-size:12px;font-weight:600">Server Room — No Entry</div>
+        <span style="font-size:9px;color:var(--red);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto">ALL TIMES</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Server room access restricted to IT staff only. Scan checkpoint at door — do not enter. Alert supervisor if door is open.</div>
+    </div>
+  </div>
+  <button class="btn btn-outline" style="margin-top:10px;padding:8px;font-size:12px" onclick="editPostOrders('alpha')">EDIT ORDERS</button>
+</div>
+
+<!-- Site Beta -->
+<div class="card" style="margin-bottom:10px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div><div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700">Site Beta</div><div style="font-size:11px;color:var(--muted)">Last updated 2 days ago · 3 orders active</div></div>
+    <span class="badge badge-green">ACTIVE</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.15);border-radius:10px;padding:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">🚗</span>
+        <div style="font-size:12px;font-weight:600">Vehicle Log — Contractor Entrance</div>
+        <span style="font-size:9px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto">EVERY VISIT</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Log every contractor vehicle — plate, company, time in/out. Do not allow access without valid ID.</div>
+    </div>
+    <div style="background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.15);border-radius:10px;padding:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:14px">🏗️</span>
+        <div style="font-size:12px;font-weight:600">Perimeter Walk — North Fence</div>
+        <span style="font-size:9px;color:var(--blue);font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;margin-left:auto">EVERY 2 HRS</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Full walk of north fence line. Check for damage, gaps, or signs of attempted entry. Photo any damage found.</div>
+    </div>
+  </div>
+  <button class="btn btn-outline" style="margin-top:10px;padding:8px;font-size:12px" onclick="editPostOrders('beta')">EDIT ORDERS</button>
+</div>
+
+<button class="btn btn-accent" onclick="addPostOrder()">+ ADD NEW POST ORDER</button>
+```
+
+  </div>
+</div>
+
+<!-- ANALYTICS -->
+
+<div class="screen" id="screen-analytics">
+  <div class="topbar">
+    <div class="topbar-title">Analytics</div>
+    <div class="topbar-btn" onclick="exportAnalytics()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div class="tab-row">
+      <div class="tab active" onclick="switchAnalyticsTab(this,'overview')">Overview</div>
+      <div class="tab" onclick="switchAnalyticsTab(this,'guards')">Guards</div>
+      <div class="tab" onclick="switchAnalyticsTab(this,'incidents')">Incidents</div>
+    </div>
+
+```
+<!-- OVERVIEW TAB -->
+<div id="analytics-overview">
+  <!-- KPI Row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+    <div class="stat-card" style="border-color:rgba(0,255,180,0.2)">
+      <div style="font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:4px">PATROL COVERAGE</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:var(--accent)">94%</div>
+      <div style="font-size:10px;color:var(--accent);margin-top:4px">↑ 3% vs last week</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(59,130,246,0.2)">
+      <div style="font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:4px">AVG RESPONSE TIME</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:var(--blue)">4.2m</div>
+      <div style="font-size:10px;color:var(--accent);margin-top:4px">↓ 0.8m vs last week</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(255,59,59,0.2)">
+      <div style="font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:4px">INCIDENTS THIS MONTH</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:var(--red)">12</div>
+      <div style="font-size:10px;color:var(--red);margin-top:4px">↑ 2 vs last month</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(245,166,35,0.2)">
+      <div style="font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:4px">GUARD ATTENDANCE</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:var(--amber)">97%</div>
+      <div style="font-size:10px;color:var(--accent);margin-top:4px">↑ 1% vs last week</div>
+    </div>
+  </div>
+
+  <!-- Patrol Coverage Bar Chart -->
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">PATROL COVERAGE — LAST 7 DAYS</div>
+    <div style="display:flex;align-items:flex-end;gap:6px;height:80px">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:72px"></div>
+        <div style="font-size:9px;color:var(--muted)">Mon</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:64px"></div>
+        <div style="font-size:9px;color:var(--muted)">Tue</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:68px"></div>
+        <div style="font-size:9px;color:var(--muted)">Wed</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:rgba(0,255,180,0.4);border-radius:4px 4px 0 0;height:56px"></div>
+        <div style="font-size:9px;color:var(--muted)">Thu</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:76px"></div>
+        <div style="font-size:9px;color:var(--muted)">Fri</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:rgba(0,255,180,0.4);border-radius:4px 4px 0 0;height:48px"></div>
+        <div style="font-size:9px;color:var(--muted)">Sat</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:60px"></div>
+        <div style="font-size:9px;color:var(--muted)">Sun</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Incident trend -->
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">INCIDENT TYPES — THIS MONTH</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Suspicious Person</span><span style="color:var(--red);font-weight:600">5</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:42%;background:var(--red)"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Suspicious Vehicle</span><span style="color:var(--amber);font-weight:600">3</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:25%;background:var(--amber)"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Perimeter Breach</span><span style="color:var(--blue);font-weight:600">2</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:17%;background:var(--blue)"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Unauthorized Access</span><span style="color:var(--accent);font-weight:600">2</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:17%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Site performance -->
+  <div class="card" style="margin-bottom:16px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">SITE PERFORMANCE</div>
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px"><span>Site Alpha</span><span style="color:var(--accent)">96%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:96%"></div></div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px"><span>Site Beta</span><span style="color:var(--amber)">88%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:88%;background:var(--amber)"></div></div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px"><span>Site Gamma</span><span style="color:var(--accent)">100%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- GUARDS TAB -->
+<div id="analytics-guards" style="display:none">
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">GUARD PERFORMANCE — THIS MONTH</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="guard-avatar" style="width:28px;height:28px;font-size:11px;border-radius:8px">MS</div>
+            <span style="font-size:13px;font-weight:600">Mike Santos</span>
+          </div>
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">97%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:97%"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">42 patrols · 0 missed · 1 incident</div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="guard-avatar" style="width:28px;height:28px;font-size:11px;border-radius:8px">LR</div>
+            <span style="font-size:13px;font-weight:600">Lisa Rodriguez</span>
+          </div>
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">100%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">38 patrols · 0 missed · 0 incidents</div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="guard-avatar" style="width:28px;height:28px;font-size:11px;border-radius:8px">JC</div>
+            <span style="font-size:13px;font-weight:600">James Clarke</span>
+          </div>
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--amber)">82%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:82%;background:var(--amber)"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">30 patrols · 5 missed · 2 incidents</div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="guard-avatar" style="width:28px;height:28px;font-size:11px;border-radius:8px">TB</div>
+            <span style="font-size:13px;font-weight:600">Tom Brown</span>
+          </div>
+          <span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent)">95%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:95%"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">40 patrols · 2 missed · 1 incident</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INCIDENTS TAB -->
+<div id="analytics-incidents" style="display:none">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+    <div class="stat-card"><div class="stat-val" style="color:var(--red);font-size:28px">12</div><div class="stat-label">Total</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--accent);font-size:28px">9</div><div class="stat-label">Resolved</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--amber);font-size:28px">3</div><div class="stat-label">Open</div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">INCIDENTS BY TIME OF DAY</div>
+    <div style="display:flex;align-items:flex-end;gap:4px;height:60px">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.3);border-radius:3px 3px 0 0;height:10px"></div><div style="font-size:8px;color:var(--muted)">00</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.3);border-radius:3px 3px 0 0;height:8px"></div><div style="font-size:8px;color:var(--muted)">02</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.5);border-radius:3px 3px 0 0;height:20px"></div><div style="font-size:8px;color:var(--muted)">04</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.3);border-radius:3px 3px 0 0;height:12px"></div><div style="font-size:8px;color:var(--muted)">06</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.2);border-radius:3px 3px 0 0;height:6px"></div><div style="font-size:8px;color:var(--muted)">08</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.2);border-radius:3px 3px 0 0;height:8px"></div><div style="font-size:8px;color:var(--muted)">10</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.3);border-radius:3px 3px 0 0;height:14px"></div><div style="font-size:8px;color:var(--muted)">12</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.3);border-radius:3px 3px 0 0;height:16px"></div><div style="font-size:8px;color:var(--muted)">14</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.4);border-radius:3px 3px 0 0;height:22px"></div><div style="font-size:8px;color:var(--muted)">16</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.6);border-radius:3px 3px 0 0;height:40px"></div><div style="font-size:8px;color:var(--muted)">18</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:var(--red);border-radius:3px 3px 0 0;height:56px"></div><div style="font-size:8px;color:var(--muted)">20</div></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="width:100%;background:rgba(255,59,59,0.6);border-radius:3px 3px 0 0;height:36px"></div><div style="font-size:8px;color:var(--muted)">22</div></div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center">Peak risk: 20:00–22:00 · Increase patrols during this window</div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- INVOICING -->
+
+<div class="screen" id="screen-invoicing">
+  <div class="topbar">
+    <div class="topbar-title">Invoicing</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="createInvoice()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent)">$8,420</div><div class="stat-label">Billed This Month</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--amber)">$2,100</div><div class="stat-label">Outstanding</div></div>
+    </div>
+    <div class="tab-row">
+      <div class="tab active" onclick="switchInvoiceTab(this,'all')">All</div>
+      <div class="tab" onclick="switchInvoiceTab(this,'pending')">Pending</div>
+      <div class="tab" onclick="switchInvoiceTab(this,'paid')">Paid</div>
+    </div>
+    <div id="inv-all">
+      <!-- Invoice 1 -->
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <div style="font-size:14px;font-weight:600">INV-2024-0142</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Site Alpha · Nov 1–30 · 8 guards</div>
+          </div>
+          <span class="badge badge-amber">PENDING</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;color:var(--muted)">Due: Dec 15, 2024</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--text)">$4,200</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-accent" style="padding:8px;font-size:12px" onclick="sendInvoice(this)">SEND</button>
+          <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="viewInvoice()">VIEW PDF</button>
+          <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="markPaid(this)">MARK PAID</button>
+        </div>
+      </div>
+      <!-- Invoice 2 -->
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <div style="font-size:14px;font-weight:600">INV-2024-0141</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Site Beta · Nov 1–30 · 5 guards</div>
+          </div>
+          <span class="badge badge-green">PAID</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;color:var(--muted)">Paid: Nov 28, 2024</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--accent)">$2,800</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="viewInvoice()">VIEW PDF</button>
+          <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="downloadInvoice()">DOWNLOAD</button>
+        </div>
+      </div>
+      <!-- Invoice 3 -->
+      <div class="card" style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <div style="font-size:14px;font-weight:600">INV-2024-0140</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Site Alpha · Oct 1–31 · 8 guards</div>
+          </div>
+          <span class="badge badge-green">PAID</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:12px;color:var(--muted)">Paid: Nov 5, 2024</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--accent)">$4,200</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline" style="padding:8px;font-size:12px" onclick="viewInvoice()">VIEW PDF</button>
+        </div>
+      </div>
+    </div>
+    <div id="inv-pending" style="display:none">
+      <div class="card" style="border-color:rgba(245,166,35,0.3)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div><div style="font-size:14px;font-weight:600">INV-2024-0142</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Site Alpha · Nov 1–30</div></div>
+          <span class="badge badge-amber">PENDING</span>
+        </div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;margin-bottom:10px">$4,200</div>
+        <button class="btn btn-accent" style="padding:10px;font-size:13px" onclick="sendInvoice(this)">SEND TO CLIENT</button>
+      </div>
+    </div>
+    <div id="inv-paid" style="display:none">
+      <div style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0">All paid invoices shown here</div>
+    </div>
+    <button class="btn btn-accent" style="margin-top:8px;margin-bottom:20px" onclick="createInvoice()">+ CREATE NEW INVOICE</button>
+  </div>
+</div>
+
+<!-- NEW INVOICE MODAL -->
+
+<div class="modal" id="invoice-modal">
+  <div class="modal-box">
+    <div class="modal-title">Create Invoice</div>
+    <div class="field"><label>CLIENT / SITE</label>
+      <select id="inv-site"><option>Site Alpha</option><option>Site Beta</option><option>Site Gamma</option></select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="field"><label>FROM DATE</label><input type="date" id="inv-from"></div>
+      <div class="field"><label>TO DATE</label><input type="date" id="inv-to"></div>
+    </div>
+    <div class="field"><label>RATE PER GUARD/HOUR ($)</label><input type="number" id="inv-rate" placeholder="25.00" value="25" oninput="updateInvTotal()"></div>
+    <div class="field"><label>NUMBER OF GUARDS</label><input type="number" id="inv-guards" placeholder="8" value="8" oninput="updateInvTotal()"></div>
+    <div class="field"><label>TOTAL HOURS</label><input type="number" id="inv-hours" placeholder="168" value="168" oninput="updateInvTotal()"></div>
+    <div style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.15);border-radius:10px;padding:12px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:var(--muted)">Estimated Total</span>
+        <span style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--accent)" id="inv-total">$33,600</span>
+      </div>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="saveInvoice()">GENERATE INVOICE</button>
+    <button class="btn btn-outline" onclick="closeInvoiceModal()">CANCEL</button>
+  </div>
+</div>
+
+<!-- VISITOR MANAGEMENT -->
+
+<div class="screen" id="screen-visitors">
+  <div class="topbar">
+    <div class="topbar-title">Visitor Log</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="logNewVisitor()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent);font-size:28px">12</div><div class="stat-label">On Site Now</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--blue);font-size:28px">47</div><div class="stat-label">Today Total</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--amber);font-size:28px">2</div><div class="stat-label">Awaiting</div></div>
+    </div>
+    <div class="tab-row">
+      <div class="tab active" onclick="switchVisitorTab(this,'onsite')">On Site</div>
+      <div class="tab" onclick="switchVisitorTab(this,'today')">Today</div>
+      <div class="tab" onclick="switchVisitorTab(this,'preauth')">Pre-Auth</div>
+    </div>
+    <div id="visitor-onsite">
+      <div class="card">
+        <div class="visitor-row">
+          <div class="visitor-avatar">👤</div>
+          <div class="visitor-info">
+            <div class="visitor-name">James Whitfield</div>
+            <div class="visitor-meta">ABC Contractors · Visiting: Site Manager</div>
+          </div>
+          <div class="visitor-time in">IN 09:14<br><span style="font-size:9px;font-weight:400;color:var(--muted)">2h 31m</span></div>
+        </div>
+        <div class="visitor-row">
+          <div class="visitor-avatar">👤</div>
+          <div class="visitor-info">
+            <div class="visitor-name">Sarah Mitchell</div>
+            <div class="visitor-meta">Fire Inspection Co · Badge #FI-221</div>
+          </div>
+          <div class="visitor-time in">IN 10:45<br><span style="font-size:9px;font-weight:400;color:var(--muted)">1h 00m</span></div>
+        </div>
+        <div class="visitor-row">
+          <div class="visitor-avatar">🚗</div>
+          <div class="visitor-info">
+            <div class="visitor-name">Delivery — DHL Express</div>
+            <div class="visitor-meta">Vehicle: BMW Van · Plate: ABC-1234</div>
+          </div>
+          <div class="visitor-time in">IN 11:22<br><span style="font-size:9px;font-weight:400;color:var(--muted)">23m</span></div>
+        </div>
+      </div>
+      <button class="btn btn-accent" style="margin-top:12px" onclick="logNewVisitor()">+ LOG NEW VISITOR</button>
+    </div>
+    <div id="visitor-today" style="display:none">
+      <div class="card">
+        <div class="visitor-row">
+          <div class="visitor-avatar">👤</div>
+          <div class="visitor-info"><div class="visitor-name">John Carver</div><div class="visitor-meta">Maintenance Team</div></div>
+          <div class="visitor-time out">OUT 08:45</div>
+        </div>
+        <div class="visitor-row">
+          <div class="visitor-avatar">👤</div>
+          <div class="visitor-info"><div class="visitor-name">Amy Chen</div><div class="visitor-meta">IT Support</div></div>
+          <div class="visitor-time out">OUT 09:00</div>
+        </div>
+        <div class="visitor-row">
+          <div class="visitor-avatar">👤</div>
+          <div class="visitor-info"><div class="visitor-name">James Whitfield</div><div class="visitor-meta">ABC Contractors</div></div>
+          <div class="visitor-time in">STILL IN</div>
+        </div>
+      </div>
+    </div>
+    <div id="visitor-preauth" style="display:none">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Pre-authorized visitors expected today</div>
+      <div class="card">
+        <div class="visitor-row">
+          <div class="visitor-avatar">📋</div>
+          <div class="visitor-info"><div class="visitor-name">City Council Inspection</div><div class="visitor-meta">Expected 14:00 · 3 persons</div></div>
+          <span class="badge badge-blue">EXPECTED</span>
+        </div>
+        <div class="visitor-row" style="border-bottom:none">
+          <div class="visitor-avatar">🔧</div>
+          <div class="visitor-info"><div class="visitor-name">HVAC Maintenance</div><div class="visitor-meta">Expected 15:30 · 2 persons</div></div>
+          <span class="badge badge-blue">EXPECTED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASS-DOWN LOGS -->
+
+<div class="screen" id="screen-passdown">
+  <div class="topbar">
+    <div class="topbar-title">Pass-Down Log</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newPassdown()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Critical handover notes from outgoing guards to incoming shift</div>
+    <div class="passdown-card">
+      <div class="passdown-from">🔵 Mike Santos → James Clarke · 16:00 handover</div>
+      <div class="passdown-msg">Gate B padlock is loose — maintenance has been called but not yet fixed. Check it every patrol and call supervisor if tampered with. Suspicious silver Toyota Corolla (Plate: XYZ-789) was parked outside Gate B from 14:00–15:30 and left. Document if it returns.</div>
+      <div class="passdown-time">Today at 15:52 · Site Alpha</div>
+    </div>
+    <div class="passdown-card">
+      <div class="passdown-from">🔵 Lisa Rodriguez → Mike Santos · 08:00 handover</div>
+      <div class="passdown-msg">Quiet overnight shift. CP-03 NFC tag may be damaged — scanned manually 3 times. IT was notified. Server room AC was making noise at 02:00 — logged in incident system, maintenance aware. All keys accounted for.</div>
+      <div class="passdown-time">Today at 07:48 · Site Alpha</div>
+    </div>
+    <div class="passdown-card" style="background:rgba(245,166,35,0.05);border-color:rgba(245,166,35,0.2)">
+      <div class="passdown-from" style="color:var(--amber)">⚠️ James Clarke → Night Team · 00:00 handover</div>
+      <div class="passdown-msg">IMPORTANT: Client has event tomorrow 09:00–17:00. Expect 200+ visitors. Extra patrol required at Car Park A and main entrance. Briefing doc uploaded to Site Alpha board. Read before shift starts.</div>
+      <div class="passdown-time">Yesterday at 23:55 · Site Alpha</div>
+    </div>
+    <button class="btn btn-accent" onclick="newPassdown()">+ WRITE PASS-DOWN NOTE</button>
+  </div>
+</div>
+
+<!-- ASSET / EQUIPMENT TRACKING -->
+
+<div class="screen" id="screen-assets">
+  <div class="topbar">
+    <div class="topbar-title">Equipment</div>
+    <div class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addAsset()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+  </div>
+  <div style="padding:0 16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent)">18</div><div class="stat-label">Total Assets</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--red)">4</div><div class="stat-label">Checked Out</div></div>
+    </div>
+    <div class="tab-row">
+      <div class="tab active" onclick="switchAssetTab(this,'all')">All</div>
+      <div class="tab" onclick="switchAssetTab(this,'out')">Checked Out</div>
+      <div class="tab" onclick="switchAssetTab(this,'vehicles')">Vehicles</div>
+    </div>
+    <div id="asset-all">
+      <div class="card">
+        <div class="asset-row">
+          <div class="asset-icon" style="background:rgba(0,255,180,0.1)">📻</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Radio #01</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Assigned to Mike Santos · Site Alpha</div></div>
+          <span class="asset-status out">OUT</span>
+        </div>
+        <div class="asset-row">
+          <div class="asset-icon" style="background:rgba(0,255,180,0.1)">🔦</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Torch #03</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Assigned to Tom Brown · Site Beta</div></div>
+          <span class="asset-status out">OUT</span>
+        </div>
+        <div class="asset-row">
+          <div class="asset-icon" style="background:rgba(0,255,180,0.1)">🔑</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Master Key Set A</div><div style="font-size:11px;color:var(--muted);margin-top:2px">12 keys · Site Alpha lockbox</div></div>
+          <span class="asset-status in">IN</span>
+        </div>
+        <div class="asset-row">
+          <div class="asset-icon" style="background:rgba(59,130,246,0.1)">🚔</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Patrol Vehicle P01</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Toyota Camry · ABC-1234 · 42,100 mi</div></div>
+          <span class="asset-status out">OUT</span>
+        </div>
+        <div class="asset-row">
+          <div class="asset-icon" style="background:rgba(245,166,35,0.1)">📷</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Body Camera #02</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Battery 78% · Last charged today</div></div>
+          <span class="asset-status in">IN</span>
+        </div>
+        <div class="asset-row" style="border-bottom:none">
+          <div class="asset-icon" style="background:rgba(0,255,180,0.1)">🛡️</div>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Stab Vest #04</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Assigned to James Clarke</div></div>
+          <span class="asset-status out">OUT</span>
+        </div>
+      </div>
+      <button class="btn btn-accent" style="margin-top:12px" onclick="checkoutAsset()">CHECKOUT EQUIPMENT</button>
+    </div>
+    <div id="asset-out" style="display:none">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">4 items currently checked out</div>
+      <div class="card">
+        <div class="asset-row"><div class="asset-icon" style="background:rgba(0,255,180,0.1)">📻</div><div style="flex:1"><div style="font-size:13px;font-weight:600">Radio #01</div><div style="font-size:11px;color:var(--muted)">Mike Santos · Out since 08:00</div></div><button style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer" onclick="checkinAsset(this)">CHECK IN</button></div>
+        <div class="asset-row"><div class="asset-icon" style="background:rgba(0,255,180,0.1)">🔦</div><div style="flex:1"><div style="font-size:13px;font-weight:600">Torch #03</div><div style="font-size:11px;color:var(--muted)">Tom Brown · Out since 08:00</div></div><button style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer" onclick="checkinAsset(this)">CHECK IN</button></div>
+      </div>
+    </div>
+    <div id="asset-vehicles" style="display:none">
+      <div class="guard-card"><div class="guard-avatar" style="background:rgba(59,130,246,0.1);color:var(--blue)">P1</div><div class="guard-info"><div class="guard-name">Patrol Vehicle P01</div><div class="guard-meta">Toyota Camry · ABC-1234 · 42,100 mi · Fuel: 3/4</div></div><span class="badge badge-red">OUT</span></div>
+      <div class="guard-card"><div class="guard-avatar" style="background:rgba(0,255,180,0.1);color:var(--accent)">P2</div><div class="guard-info"><div class="guard-name">Patrol Vehicle P02</div><div class="guard-meta">Ford Explorer · XYZ-5678 · 38,200 mi · Fuel: Full</div></div><span class="badge badge-green">AVAILABLE</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CLOCK IN/OUT & LONE WORKER -->
+
+<div class="screen" id="screen-clock">
+  <div class="topbar">
+    <div class="topbar-title">My Shift</div>
+  </div>
+  <div style="padding:0 20px">
+    <!-- Clock -->
+    <div class="card" style="margin-bottom:16px;text-align:center;padding:24px">
+      <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1.5px;margin-bottom:8px">SHIFT ELAPSED TIME</div>
+      <div class="clock-timer" id="shift-elapsed">00:00:00</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;margin-bottom:20px" id="clock-status-text">Not clocked in</div>
+      <button class="clock-btn clocked-out" id="main-clock-btn" onclick="toggleClockIn()">CLOCK IN</button>
+      <div style="font-size:10px;color:var(--muted);margin-top:10px" id="clock-gps-status">📍 GPS verification ready</div>
+    </div>
+
+```
+<!-- Lone Worker Protection -->
+<div class="card" style="margin-bottom:16px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div>
+      <div style="font-size:14px;font-weight:600">Lone Worker Protection</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Check in every 15 mins or auto-alert fires</div>
+    </div>
+    <div id="lone-worker-toggle" onclick="toggleLoneWorker()" style="width:44px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;position:relative;transition:background 0.3s">
+      <div id="lone-toggle-dot" style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left 0.3s"></div>
+    </div>
+  </div>
+  <div id="lone-worker-panel" style="display:none;text-align:center">
+    <div class="lone-worker-ring" id="lone-ring" onclick="confirmLoneWorkerCheckIn()">
+      <div>
+        <div class="lone-worker-countdown" id="lone-countdown">15:00</div>
+        <div class="lone-worker-label">TAP TO CHECK IN</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:12px">If timer reaches 0 your supervisor is automatically alerted with your GPS location</div>
+  </div>
+</div>
+
+<!-- Today Stats -->
+<div class="card" style="margin-bottom:16px">
+  <div style="font-size:11px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:12px">TODAY</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+    <div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--accent)" id="today-hours">0h</div><div style="font-size:10px;color:var(--muted)">HOURS</div></div>
+    <div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--blue)" id="today-cps">0</div><div style="font-size:10px;color:var(--muted)">CHECKPOINTS</div></div>
+    <div><div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--red)" id="today-incidents">0</div><div style="font-size:10px;color:var(--muted)">INCIDENTS</div></div>
+  </div>
+</div>
+
+<!-- Man-Down Detection -->
+<div class="card" style="margin-bottom:16px;border-color:rgba(255,59,59,0.2)">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:24px">🆘</span>
+    <div style="flex:1">
+      <div style="font-size:14px;font-weight:600">Man-Down Detection</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Auto-SOS if phone stops moving for 5 minutes during patrol</div>
+    </div>
+    <div id="man-down-toggle" onclick="toggleManDown()" style="width:44px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;position:relative;transition:background 0.3s">
+      <div id="man-down-dot" style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left 0.3s"></div>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- AI REPORT WRITER MODAL -->
+
+<div class="modal" id="ai-report-modal">
+  <div class="modal-box">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <div class="modal-title" style="margin-bottom:0">AI Report Writer</div>
+      <span class="ai-badge">✨ AI</span>
+    </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Describe what happened in plain words. AI will write a professional report.</div>
+    <div class="field">
+      <label>WHAT HAPPENED? (your words)</label>
+      <textarea id="ai-input" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:90px" placeholder="e.g. saw a guy trying car doors in car park at about 9pm, asked him to leave, he walked off toward the north gate"></textarea>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="generateAIReport()">✨ GENERATE REPORT</button>
+    <div id="ai-output" style="display:none;background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.2);border-radius:10px;padding:12px;font-size:13px;line-height:1.6;margin-bottom:12px;color:var(--text)"></div>
+    <div id="ai-actions" style="display:none">
+      <button class="btn btn-accent" style="margin-bottom:8px" onclick="useAIReport()">USE THIS REPORT</button>
+    </div>
+    <button class="btn btn-outline" onclick="closeAIReport()">CANCEL</button>
+  </div>
+</div>
+
+<!-- VISITOR LOG MODAL -->
+
+<div class="modal" id="visitor-modal">
+  <div class="modal-box">
+    <div class="modal-title">Log Visitor</div>
+    <div class="field"><label>VISITOR NAME</label><input type="text" id="v-name" placeholder="Full name"></div>
+    <div class="field"><label>COMPANY / ORGANISATION</label><input type="text" id="v-company" placeholder="Company or reason for visit"></div>
+    <div class="field"><label>VISITING</label><input type="text" id="v-host" placeholder="Who are they visiting?"></div>
+    <div class="field"><label>ID TYPE</label>
+      <select id="v-id"><option>Driver License</option><option>Passport</option><option>Company Badge</option><option>Other</option></select>
+    </div>
+    <div class="field"><label>VEHICLE PLATE (if applicable)</label><input type="text" id="v-plate" placeholder="Optional"></div>
+    <div class="field"><label>PURPOSE OF VISIT</label>
+      <select id="v-purpose"><option>Meeting</option><option>Delivery</option><option>Maintenance</option><option>Inspection</option><option>Contractor Work</option><option>Other</option></select>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="saveVisitor()">LOG VISITOR IN</button>
+    <button class="btn btn-outline" onclick="closeVisitorModal()">CANCEL</button>
+  </div>
+</div>
+
+<!-- PASS-DOWN MODAL -->
+
+<div class="modal" id="passdown-modal">
+  <div class="modal-box">
+    <div class="modal-title">Write Pass-Down Note</div>
+    <div class="field"><label>SITE</label>
+      <select id="pd-site"><option>Site Alpha</option><option>Site Beta</option><option>All Sites</option></select>
+    </div>
+    <div class="field"><label>PRIORITY</label>
+      <div style="display:flex;gap:8px">
+        <button class="fuel-btn active" id="pd-normal" onclick="setPDPriority(this,'normal')">NORMAL</button>
+        <button class="fuel-btn" id="pd-important" onclick="setPDPriority(this,'important')" style="color:var(--amber)">IMPORTANT</button>
+        <button class="fuel-btn" id="pd-urgent" onclick="setPDPriority(this,'urgent')" style="color:var(--red)">URGENT</button>
+      </div>
+    </div>
+    <div class="field"><label>MESSAGE TO NEXT SHIFT</label>
+      <textarea id="pd-msg" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;resize:none;height:100px" placeholder="What does the incoming guard need to know?"></textarea>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="savePassdown()">SUBMIT PASS-DOWN</button>
+    <button class="btn btn-outline" onclick="closePassdownModal()">CANCEL</button>
+  </div>
+</div>
+
+<!-- ASSET CHECKOUT MODAL -->
+
+<div class="modal" id="asset-modal">
+  <div class="modal-box">
+    <div class="modal-title">Check Out Equipment</div>
+    <div class="field"><label>EQUIPMENT</label>
+      <select id="a-item"><option>Radio #01</option><option>Radio #02</option><option>Torch #01</option><option>Torch #02</option><option>Body Camera #01</option><option>Stab Vest #01</option><option>Master Key Set A</option></select>
+    </div>
+    <div class="field"><label>ASSIGNED TO</label>
+      <select id="a-guard"><option>Mike Santos</option><option>Tom Brown</option><option>Lisa Rodriguez</option><option>James Clarke</option></select>
+    </div>
+    <div class="field"><label>CONDITION</label>
+      <div style="display:flex;gap:8px">
+        <button class="fuel-btn active" onclick="setAssetCond(this,'good')">GOOD</button>
+        <button class="fuel-btn" onclick="setAssetCond(this,'fair')" style="color:var(--amber)">FAIR</button>
+        <button class="fuel-btn" onclick="setAssetCond(this,'damaged')" style="color:var(--red)">DAMAGED</button>
+      </div>
+    </div>
+    <div class="field"><label>NOTES (optional)</label><input type="text" id="a-notes" placeholder="Any damage or issues..."></div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="saveAssetCheckout()">CONFIRM CHECKOUT</button>
+    <button class="btn btn-outline" onclick="closeAssetModal()">CANCEL</button>
+  </div>
+</div>
+
+<!-- TERMS OF SERVICE SCREEN -->
+
+<div class="screen" id="screen-terms">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-settings')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Terms of Service</div>
+  </div>
+  <div style="padding:0 20px;font-size:13px;line-height:1.7;color:var(--muted)">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px">Terms of Service</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Last updated: May 2026</div>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">1. Acceptance of Terms</div>
+    <p style="margin-bottom:12px">By accessing or using ShieldSync, you agree to be bound by these Terms of Service. ShieldSync is a security operations management platform designed for professional security companies and their personnel.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">2. Use of Service</div>
+    <p style="margin-bottom:12px">ShieldSync is licensed for use by authorised security personnel only. You agree not to share login credentials, misrepresent your identity, or use the platform for unlawful purposes.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">3. Data and Privacy</div>
+    <p style="margin-bottom:12px">Location data, patrol logs, incident reports, and personal data are collected to operate the platform. See our Privacy Policy for full details. Data is stored securely and not sold to third parties.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">4. GPS and Location Tracking</div>
+    <p style="margin-bottom:12px">GPS tracking is used to verify guard presence at checkpoints and for lone worker safety. By using patrol features you consent to location tracking during active shifts.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">5. Incident Reports and Evidence</div>
+    <p style="margin-bottom:12px">Reports submitted through ShieldSync may be used in legal proceedings. Guards are responsible for accuracy of all submitted reports. False reporting is grounds for termination and potential legal action.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">6. Limitation of Liability</div>
+    <p style="margin-bottom:12px">ShieldSync provides a platform only. We are not responsible for security incidents, guard conduct, or client outcomes. Platform uptime is targeted at 99.9% but not guaranteed.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">7. Contact</div>
+    <p style="margin-bottom:20px">For questions: shieldsync@gmail.com</p>
+  </div>
+</div>
+
+<!-- PRIVACY POLICY SCREEN -->
+
+<div class="screen" id="screen-privacy">
+  <div class="topbar">
+    <div class="topbar-btn" onclick="showScreen('screen-settings')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="topbar-title">Privacy Policy</div>
+  </div>
+  <div style="padding:0 20px;font-size:13px;line-height:1.7;color:var(--muted)">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px">Privacy Policy</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Last updated: May 2026 · GDPR Compliant</div>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">What Data We Collect</div>
+    <p style="margin-bottom:12px">Name, email, role, employer · GPS location during active shifts · Patrol logs, checkpoint scans · Incident reports and photos · Vehicle inspection records · Clock in/out timestamps</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">How We Use Your Data</div>
+    <p style="margin-bottom:12px">To operate the ShieldSync platform, generate reports for your employer and their clients, ensure guard safety via lone worker monitoring, and comply with legal obligations.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">Data Sharing</div>
+    <p style="margin-bottom:12px">Your data is shared with: your employer (security company), their clients (limited reporting only), and cloud infrastructure providers (Firebase/Google). We do not sell your data.</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">Data Retention</div>
+    <p style="margin-bottom:12px">Incident reports: 7 years · Patrol logs: 3 years · Timesheets: 7 years · Photos: 2 years · GPS logs: 90 days</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">Your Rights (GDPR)</div>
+    <p style="margin-bottom:12px">Right to access, correct, or delete your data. Right to data portability. Right to object to processing. Contact: shieldsync@gmail.com</p>
+    <div style="color:var(--text);font-weight:600;margin-bottom:6px">Cookies</div>
+    <p style="margin-bottom:20px">ShieldSync uses session storage only. No third-party advertising cookies are used.</p>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+
+<nav class="bottom-nav" id="main-bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="navTo('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+    <span>HOME</span>
+  </div>
+  <div class="nav-item" id="nav-incidents" onclick="navTo('incidents')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span>INCIDENTS</span>
+  </div>
+  <div class="nav-sos" onclick="openSOS()">
+    <div class="nav-sos-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+  </div>
+  <div class="nav-item" id="nav-patrol" onclick="navTo('patrol')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+    <span>PATROL</span>
+  </div>
+  <div class="nav-item" id="nav-more" onclick="openMenu()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <span>MORE</span>
+  </div>
+</nav>
+
+<!-- BURGER MENU -->
+
+<div id="menu-overlay" onclick="closeMenu()"></div>
+<div id="burger-menu">
+  <div class="menu-profile">
+    <div class="mp-avatar" id="menu-avatar">A</div>
+    <div><div class="mp-name" id="menu-name">Admin User</div><div class="mp-role" id="menu-role">Admin · admin@shieldsync.app</div></div>
+  </div>
+  <div class="burger-grid">
+    <div class="burger-item" onclick="closeMenu();navTo('guards')"><span class="bi-icon">👮</span><span class="bi-label">Guards</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('alerts')"><span class="bi-icon">🔔</span><span class="bi-label">Alerts</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('reports')"><span class="bi-icon">📋</span><span class="bi-label">Reports</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('timesheets')"><span class="bi-icon">🕐</span><span class="bi-label">Timesheets</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('schedule')"><span class="bi-icon">📅</span><span class="bi-label">Schedule</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('messages')"><span class="bi-icon">💬</span><span class="bi-label">Messages</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('certs')"><span class="bi-icon">🎖️</span><span class="bi-label">Certifications</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('dar')"><span class="bi-icon">📝</span><span class="bi-label">Activity Log</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('postorders')"><span class="bi-icon">📋</span><span class="bi-label">Post Orders</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('analytics')"><span class="bi-icon">📊</span><span class="bi-label">Analytics</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('invoicing')"><span class="bi-icon">💰</span><span class="bi-label">Invoicing</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('visitors')"><span class="bi-icon">🏢</span><span class="bi-label">Visitors</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('passdown')"><span class="bi-icon">📝</span><span class="bi-label">Pass-Down</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('assets')"><span class="bi-icon">🔧</span><span class="bi-label">Equipment</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('clock')"><span class="bi-icon">⏱️</span><span class="bi-label">My Shift</span></div>
+    <div class="burger-item" onclick="closeMenu();openAIReport()"><span class="bi-icon">✨</span><span class="bi-label">AI Reports</span></div>
+    <div class="burger-item" onclick="closeMenu();navTo('settings')"><span class="bi-icon">⚙️</span><span class="bi-label">Settings</span></div>
+    <div class="burger-item" onclick="closeMenu();openShareModal()"><span class="bi-icon">🔗</span><span class="bi-label">Share Link</span></div>
+  </div>
+  <button class="btn btn-red" onclick="closeMenu();openLogout()">SIGN OUT</button>
+</div>
+
+<!-- MODALS -->
+
+<div class="modal" id="sos-modal">
+  <div class="modal-box">
+    <div style="text-align:center;margin-bottom:16px"><div style="font-size:48px;animation:pulse 1s infinite">🚨</div></div>
+    <div class="modal-title" style="text-align:center;color:var(--red)">SEND SOS ALERT?</div>
+    <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px">This will immediately alert all supervisors and dispatch emergency response.</div>
+    <button class="btn btn-red" style="margin-bottom:8px" onclick="confirmSOS()">SEND SOS NOW</button>
+    <button class="btn btn-outline" onclick="closeSOS()">CANCEL</button>
+  </div>
+</div>
+
+<div class="modal" id="end-patrol-modal">
+  <div class="modal-box">
+    <div class="modal-title">End Patrol</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+      <div style="text-align:center;background:rgba(0,255,180,0.05);border:1px solid var(--border);border-radius:10px;padding:10px"><div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--accent)">4</div><div style="font-size:10px;color:var(--muted)">SCANNED</div></div>
+      <div style="text-align:center;background:rgba(255,59,59,0.05);border:1px solid var(--border);border-radius:10px;padding:10px"><div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:var(--red)">1</div><div style="font-size:10px;color:var(--muted)">MISSED</div></div>
+      <div style="text-align:center;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:10px"><div style="font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700">2h</div><div style="font-size:10px;color:var(--muted)">DURATION</div></div>
+    </div>
+    <div class="field" style="margin-bottom:16px"><label>HANDOVER NOTES</label><textarea style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;resize:none;height:70px" placeholder="Any notes for next guard..."></textarea></div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="returnToBase()">RETURN TO BASE</button>
+    <button class="btn btn-outline" style="margin-bottom:8px" onclick="closeEndPatrol()">CONTINUE PATROL</button>
+    <button class="btn btn-outline" onclick="closeEndPatrol()">HANDOVER TO NEXT GUARD</button>
+  </div>
+</div>
+
+<div class="modal" id="logout-modal">
+  <div class="modal-box">
+    <div class="modal-title">Sign Out?</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px">You will be returned to the login screen.</div>
+    <button class="btn btn-red" style="margin-bottom:8px" onclick="performLogout()">SIGN OUT</button>
+    <button class="btn btn-outline" onclick="closeLogout()">CANCEL</button>
+  </div>
+</div>
+
+<div class="modal" id="share-modal">
+  <div class="modal-box">
+    <div class="modal-title">🔗 Live Test Link</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Share these credentials with your team to test the app.</div>
+    <div style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.2);border-radius:10px;padding:12px;margin-bottom:12px"><div style="font-size:12px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:4px">shieldsync-jbsx.vercel.app</div><div style="font-size:11px;color:var(--muted)">📧 shieldsync@gmail.com</div><div style="font-size:11px;color:var(--muted)">📞 407-470-5992</div></div>
+    <div style="display:grid;gap:6px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted)">admin@shieldsync.app</span><span style="color:var(--accent);cursor:pointer" onclick="fillLogin('admin@shieldsync.app','Admin1234!','admin');closeShare()">USE →</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted)">supervisor@shieldsync.app</span><span style="color:var(--accent);cursor:pointer" onclick="fillLogin('supervisor@shieldsync.app','Super1234!','supervisor');closeShare()">USE →</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--muted)">guard@shieldsync.app</span><span style="color:var(--accent);cursor:pointer" onclick="fillLogin('guard@shieldsync.app','Guard1234!','guard');closeShare()">USE →</span></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:12px"><span style="color:var(--muted)">client@shieldsync.app</span><span style="color:var(--accent);cursor:pointer" onclick="fillLogin('client@shieldsync.app','Client1234!','client');closeShare()">USE →</span></div>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="copyLink()">COPY LINK</button>
+    <button class="btn btn-outline" onclick="closeShare()">CLOSE</button>
+  </div>
+</div>
+
+<!-- SCANNER MODAL -->
+
+<div id="scanner-modal">
+  <div class="topbar" style="background:#000;border-bottom:1px solid rgba(0,255,180,0.1)">
+    <div class="topbar-btn" style="background:rgba(255,255,255,0.08)" onclick="closeScanner()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+    <div class="topbar-title">Scan Checkpoint</div>
+  </div>
+  <div class="scanner-view">
+    <div class="scanner-frame">
+      <div class="scanner-line"></div>
+      <div class="scanner-corner sc-tl"></div>
+      <div class="scanner-corner sc-tr"></div>
+      <div class="scanner-corner sc-bl"></div>
+      <div class="scanner-corner sc-br"></div>
+    </div>
+  </div>
+  <div class="scanner-footer">
+    <div class="scan-mode">
+      <button class="scan-mode-btn active" onclick="setScanMode(this)">QR CODE</button>
+      <button class="scan-mode-btn" onclick="setScanMode(this)">NFC TAG</button>
+    </div>
+    <button class="btn btn-accent" onclick="simulateScanFromModal()">✓ CONFIRM SCAN</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+
+<div id="toast"></div>
+
+<!-- ANDROID INSTALL BANNER -->
+
+<div id="install-banner" style="display:none;position:fixed;bottom:90px;left:12px;right:12px;background:#0e1420;border:1px solid rgba(0,255,180,0.3);border-radius:16px;padding:14px 16px;z-index:1000;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+  <div style="width:40px;height:40px;background:rgba(0,255,180,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+    <svg width="22" height="22" viewBox="0 0 36 36" fill="none"><path d="M18 3L5 8.5v9.5C5 25.6 10.8 32.2 18 34c7.2-1.8 13-8.4 13-16V8.5L18 3z" fill="rgba(0,255,180,0.2)" stroke="#00ffb4" stroke-width="1.5"/><path d="M12 18l4 4 8-8" stroke="#00ffb4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div style="flex:1">
+    <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#fff">Install ShieldSync</div>
+    <div style="font-size:11px;color:rgba(240,244,248,0.5);margin-top:1px">Add to home screen for best experience</div>
+  </div>
+  <button onclick="installApp()" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:8px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:1px">INSTALL</button>
+  <button onclick="dismissInstall()" style="background:transparent;border:none;color:rgba(240,244,248,0.4);font-size:18px;cursor:pointer;padding:4px">×</button>
+</div>
+
+<!-- iOS INSTALL BANNER -->
+
+<div id="ios-install-banner" style="display:none;position:fixed;bottom:90px;left:12px;right:12px;background:#0e1420;border:1px solid rgba(0,255,180,0.3);border-radius:16px;padding:14px 16px;z-index:1000;flex-direction:column;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:#fff">📲 Install ShieldSync</div>
+    <button onclick="document.getElementById('ios-install-banner').style.display='none'" style="background:transparent;border:none;color:rgba(240,244,248,0.4);font-size:18px;cursor:pointer">×</button>
+  </div>
+  <div style="font-size:12px;color:rgba(240,244,248,0.6);line-height:1.5">
+    Tap <strong style="color:#fff">Share</strong> <span style="font-size:14px">⬆️</span> then <strong style="color:#fff">Add to Home Screen</strong> to install ShieldSync as an app.
+  </div>
+</div>
 
 </body>
 </html>
