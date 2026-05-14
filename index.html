@@ -738,6 +738,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
         <div><div style="color:var(--muted);font-size:11px">TYPE</div><div id="sum-type" style="font-weight:600">—</div></div>
         <div><div style="color:var(--muted);font-size:11px">MAKE</div><div id="sum-make" style="font-weight:600">—</div></div>
         <div><div style="color:var(--muted);font-size:11px">FUEL</div><div id="sum-fuel" style="font-weight:600;color:var(--accent)">½</div></div>
+        <div><div style="color:var(--muted);font-size:11px">OFFICER</div><div id="sum-officer" style="font-weight:600;font-size:13px">—</div></div>
       </div>
     </div>
     <div class="field"><label>GUARD SIGNATURE</label><div class="sig-box" onclick="signOff()">TAP TO SIGN</div></div>
@@ -1321,8 +1322,8 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
   <div class="modal-box">
     <div class="modal-title">🚔 Start Patrol</div>
     <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Confirm your guard credentials to begin patrol.</div>
-    <div class="field"><label>GUARD EMAIL</label><input type="email" id="pc-email" placeholder="guard@unit.com"></div>
-    <div class="field"><label>PASSWORD</label><input type="password" id="pc-pass" placeholder="••••••••"></div>
+    <div class="field"><label>OFFICER NAME</label><input type="text" id="pc-name" placeholder="Full name"></div>
+    <div class="field"><label>BADGE / ID NUMBER</label><input type="text" id="pc-badge" placeholder="e.g. SG-1042"></div>
     <div style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.15);border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--muted)">
       <div style="color:var(--accent);font-weight:600;font-family:'Rajdhani',sans-serif;margin-bottom:4px">WHY IS THIS REQUIRED?</div>
       Patrol records are legally signed off against your guard badge ID. Your credentials confirm identity before patrol begins.
@@ -1619,10 +1620,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
 <div class="screen" id="screen-client-portal">
   <div class="topbar">
     <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;flex:1">SHIELD<span style="color:var(--accent)">SYNC</span></div>
-    <div class="live-badge"><div class="live-dot"></div>LIVE
-    <button type="button" class="topbar-btn" style="margin-left:8px" onclick="openMenu()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
+    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
   </div>
   <div style="padding:0 16px 12px">
     <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700">Client Dashboard</div>
@@ -3089,9 +3087,17 @@ viNextStep(4);
 }
 
 function signOff() {
-var box = document.querySelector(’.sig-box’);
-if (box) { box.textContent = ’✓ Signed — ’ + new Date().toLocaleTimeString(); box.style.color = ‘var(--accent)’; box.style.borderColor = ‘rgba(0,255,180,0.3)’; }
+var sig = document.querySelector(‘#vi-step-4 .sig-box’);
+var officerName = document.getElementById(‘vi-officer-name’);
+var nm = officerName ? officerName.value || ‘Officer’ : ‘Officer’;
+if (sig) {
+sig.textContent = ‘✓ Signed — ‘ + nm + ‘ · ‘ + new Date().toLocaleTimeString();
+sig.style.color = ‘var(--accent)’;
+sig.style.borderColor = ‘rgba(0,255,180,0.3)’;
+}
+window._viSigned = true;
 inspectionSigned = true;
+showToast(‘Inspection signed ✓’, ‘success’);
 }
 
 function openScanner() { document.getElementById(‘scanner-modal’).classList.add(‘open’); }
@@ -3103,12 +3109,49 @@ btn.classList.add(‘active’);
 }
 function simulateScanFromModal() {
 closeScanner();
+var modes = [‘QR’, ‘NFC’, ‘Barcode’];
+var mode = modes[Math.floor(Math.random() * 2)];
+var now = new Date();
+var timeStr = now.toLocaleTimeString([], {hour:’2-digit’, minute:’2-digit’});
+// Find the next pending or overdue checkpoint in the map grid
+var cps = document.querySelectorAll(‘.cp:not(.cp-scanned)’);
+var target = null;
+for (var i = 0; i < cps.length; i++) {
+if (cps[i].classList.contains(‘cp-overdue’) || cps[i].classList.contains(‘cp-active’) || cps[i].classList.contains(‘cp-pending’)) {
+target = cps[i];
+break;
+}
+}
+var cpId = ‘’;
+if (target) {
+cpId = target.querySelector(‘span’) ? target.querySelector(‘span’).textContent : ‘’;
+target.className = ‘cp cp-scanned’;
+target.childNodes[0].nodeValue = ‘✓’;
+// Update matching cp-row in the log
+var cpRows = document.querySelectorAll(‘.cp-row’);
+for (var j = 0; j < cpRows.length; j++) {
+var numEl = cpRows[j].querySelector(‘.cp-num’);
+var num = cpId.replace(‘CP-’,’’);
+if (numEl && numEl.textContent.trim() === num) {
+numEl.style.background = ‘rgba(0,255,180,0.1)’;
+numEl.style.color = ‘var(--accent)’;
+var metaEl = cpRows[j].querySelector(‘.cp-meta’);
+if (metaEl) metaEl.textContent = mode + ‘ · Scanned ‘ + timeStr;
+var badgeEl = cpRows[j].querySelector(‘.badge’);
+if (badgeEl) { badgeEl.className = ‘badge badge-green’; badgeEl.style.fontSize = ‘10px’; badgeEl.textContent = ‘OK’; }
+break;
+}
+}
+}
 cpScanned = Math.min(cpScanned + 1, 10);
 var cc = document.getElementById(‘cp-count’);
 if (cc) cc.textContent = cpScanned;
 var pp = document.getElementById(‘patrol-progress’);
 if (pp) pp.style.width = (cpScanned * 10) + ‘%’;
-showToast(‘Checkpoint scanned! ’ + cpScanned + ‘/10’, ‘success’);
+// Clear overdue banner if all scanned
+var overdueEl = document.querySelector(‘.patrol-map ~ div’);
+if (cpScanned >= 10 && overdueEl) overdueEl.style.display = ‘none’;
+showToast(cpId ? cpId + ‘ scanned via ‘ + mode + ‘ ✓’ : ‘Checkpoint scanned ✓’, ‘success’);
 }
 function simulateScan(el, name) {
 el.className = ‘cp cp-scanned’;
@@ -3302,13 +3345,18 @@ var reader = new FileReader();
 reader.onload = function(e) {
 var slot = document.getElementById(‘ps-’ + currentPhotoSlot);
 if (slot) {
-slot.style.backgroundImage = ‘url(’ + e.target.result + ‘)’;
+slot.style.backgroundImage = ‘url(‘ + e.target.result + ‘)’;
 slot.style.backgroundSize = ‘cover’;
 slot.style.backgroundPosition = ‘center’;
 slot.classList.add(‘taken’);
-slot.innerHTML = ‘<div style="background:rgba(0,255,180,0.8);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;color:#000;font-family:Rajdhani,sans-serif">✓ ’ + currentPhotoSlot.toUpperCase() + ‘</div>’;
+slot.innerHTML = ‘<div style="background:rgba(0,255,180,0.8);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;color:#000;font-family:Rajdhani,sans-serif">✓ ‘ + currentPhotoSlot.toUpperCase() + ‘</div>’;
 }
-showToast(currentPhotoSlot + ’ photo saved ✓’, ‘success’);
+window._viPhotos = window._viPhotos || {};
+window._viPhotos[window._currentPhotoSlot] = true;
+var count = Object.keys(window._viPhotos).length;
+var counter = document.getElementById(‘vi-photo-count’);
+if (counter) counter.textContent = count;
+showToast(currentPhotoSlot + ‘ photo saved ✓’, ‘success’);
 input.value = ‘’;
 };
 reader.readAsDataURL(file);
@@ -3388,21 +3436,24 @@ viNextStep(4);
 
 // Override completeInspection for final step
 function goToPatrol() {
-var sig = document.querySelector(’#screen-vehicle-inspection .sig-box’);
-if (sig && sig.textContent === ‘TAP TO SIGN’) {
-showToast(‘Please sign off the inspection first’, ‘warning’);
-signOff();
-return;
-}
+if (!window._viSigned) { showToast(‘Please sign the inspection before proceeding’, ‘warning’); return; }
+window._lastInspection = {
+officer: document.getElementById(‘vi-officer-name’) ? document.getElementById(‘vi-officer-name’).value : ‘’,
+badge: document.getElementById(‘vi-badge’) ? document.getElementById(‘vi-badge’).value : ‘’,
+plate: document.getElementById(‘vi-plate’) ? document.getElementById(‘vi-plate’).value : ‘’,
+type: document.getElementById(‘vi-type’) ? document.getElementById(‘vi-type’).value : ‘’,
+time: new Date().toLocaleTimeString(),
+photos: Object.keys(window._viPhotos || {}).length
+};
 patrolSeconds = 0;
 cpScanned = 0;
 var cc = document.getElementById(‘cp-count’);
 if (cc) cc.textContent = ‘0’;
 var pp = document.getElementById(‘patrol-progress’);
 if (pp) pp.style.width = ‘0%’;
-startGPSTracking();
 showScreen(‘screen-patrol’);
-showToast(‘Patrol started — GPS active’, ‘success’);
+showToast(‘Vehicle check complete — patrol started ✓’, ‘success’);
+startGPSTracking();
 }
 
 function startGPSTracking() {
@@ -3623,18 +3674,20 @@ if (modal) modal.classList.remove(‘open’);
 }
 
 function confirmPatrolCredentials() {
-var email = document.getElementById(‘pc-email’);
-var pass = document.getElementById(‘pc-pass’);
-if (!email || !email.value) { showToast(‘Enter your guard email’, ‘warning’); return; }
-if (!pass || !pass.value) { showToast(‘Enter your password’, ‘warning’); return; }
-var user = demoUsers[email.value.trim().toLowerCase()];
-if (!user || user.password !== pass.value) { showToast(‘Invalid credentials’, ‘error’); return; }
+var name = document.getElementById(‘pc-name’);
+var badge = document.getElementById(‘pc-badge’);
+if (name && !name.value.trim()) { showToast(‘Enter your name’, ‘warning’); return; }
+if (badge && !badge.value.trim()) { showToast(‘Enter your badge number’, ‘warning’); return; }
 closePatrolCred();
-showToast(‘Credentials confirmed — starting patrol’, ‘success’);
-setTimeout(function() {
+if (currentRole === ‘patrol’ || currentRole === ‘guardpatrol’) {
+viReset();
 showScreen(‘screen-vehicle-inspection’);
-viNextStep(1);
-}, 500);
+showToast(‘Complete vehicle check to begin patrol’, ‘info’);
+} else {
+showScreen(‘screen-patrol’);
+startGPSTracking();
+showToast(‘Patrol started’, ‘success’);
+}
 }
 
 // ── UPDATE LOGIN FOR NEW ROLES ─────────────────────────────────────────────
@@ -3642,6 +3695,8 @@ viNextStep(1);
 // ── ROLE RESTRICTIONS ─────────────────────────────────────────────────────
 
 function applyClientRestrictions() {
+var nav = document.getElementById(‘main-bottom-nav’);
+if (nav) nav.classList.remove(‘show’);
 // Hide nav items client shouldn’t see
 var patrolNav = document.getElementById(‘nav-patrol’);
 if (patrolNav) patrolNav.style.display = ‘none’;
