@@ -1,5 +1,16 @@
 {
   "version": 2,
-  "builds": [{ "src": "index.html", "use": "@vercel/static" }],
-  "routes": [{ "src": "/(.*)", "dest": "/index.html" }]
+  "routes": [
+    { "src": "/sw.js", "dest": "/sw.js", "headers": { "Cache-Control": "no-cache, no-store, must-revalidate", "Service-Worker-Allowed": "/" } },
+    { "src": "/manifest.json", "dest": "/manifest.json", "headers": { "Cache-Control": "public, max-age=86400" } },
+    { "src": "/shieldsync-icon.svg", "dest": "/shieldsync-icon.svg", "headers": { "Cache-Control": "public, max-age=604800" } },
+    { "src": "/(.*)", "dest": "/index.html", "headers": {
+      "Cache-Control": "no-cache",
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
+      "X-XSS-Protection": "1; mode=block",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Permissions-Policy": "camera=self, geolocation=self, microphone=()"
+    }}
+  ]
 }

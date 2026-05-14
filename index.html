@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- Primary SEO -->
+<title>ShieldSync — AI-Powered Security Operations Platform</title>
+<meta name="description" content="ShieldSync is the all-in-one security workforce management platform. Real-time patrol tracking, incident reporting, vehicle inspection, and AI-powered operations for 2026 and beyond.">
+<meta name="keywords" content="security operations, patrol management, guard tracking, incident reporting, workforce management, ShieldSync">
+<meta name="author" content="ShieldSync">
+<meta name="robots" content="index, follow">
+
+<!-- PWA / Mobile -->
 <meta name="theme-color" content="#080c12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,12 +19,31 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="ShieldSync">
 <meta name="msapplication-TileColor" content="#080c12">
+<meta name="msapplication-config" content="none">
+<meta name="format-detection" content="telephone=no">
+
+<!-- Open Graph / Social -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ShieldSync">
+<meta property="og:title" content="ShieldSync — AI-Powered Security Operations">
+<meta property="og:description" content="Real-time patrol tracking, incident reporting, vehicle inspection, and AI-powered operations. Built for security teams that never stop.">
+<meta property="og:image" content="/shieldsync-icon.svg">
+<meta property="og:url" content="https://shieldsync-app.vercel.app">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ShieldSync — Security Operations Platform">
+<meta name="twitter:description" content="AI-powered patrol management, incident reporting, and workforce operations for security teams.">
+<meta name="twitter:image" content="/shieldsync-icon.svg">
+
+<!-- Icons -->
 <link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/svg+xml" href="/shieldsync-icon.svg">
 <link rel="apple-touch-icon" href="/shieldsync-icon.svg">
 <link rel="apple-touch-icon" sizes="152x152" href="/shieldsync-icon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="/shieldsync-icon.svg">
-<link rel="apple-touch-icon" sizes="167x167" href="/icon-192.png">
-<title>ShieldSync</title>
+<link rel="apple-touch-icon" sizes="167x167" href="/shieldsync-icon.svg">
+
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -3198,6 +3225,18 @@ if (navigator.clipboard) { navigator.clipboard.writeText(‘https://shieldsync-a
 showToast(‘Link copied!’, ‘success’);
 }
 function copyShareLink() { copyLink(); }
+function installApp() {
+if (window._deferredInstall) {
+window._deferredInstall.prompt();
+window._deferredInstall.userChoice.then(function(result) {
+if (result.outcome === 'accepted') { showToast('Installing ShieldSync…', 'success'); }
+document.getElementById('install-banner').style.display = 'none';
+window._deferredInstall = null;
+});
+} else {
+showToast('Already installed or not supported on this browser', 'info');
+}
+}
 function sendShareInvite() {
 var el = document.getElementById(‘share-email’);
 if (!el || !el.value) { showToast(‘Enter an email address’, ‘warning’); return; }
@@ -4494,5 +4533,82 @@ startPatrolTimer();
 </div>
 
 </div>
+
+<!-- APP SHELL SPLASH (shown until JS hydrates) -->
+<div id="app-splash" style="position:fixed;inset:0;background:#080c12;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity 0.4s ease">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="72" height="72" style="margin-bottom:20px">
+    <defs>
+      <linearGradient id="sg1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#00ffb4"/>
+        <stop offset="100%" style="stop-color:#00c896"/>
+      </linearGradient>
+    </defs>
+    <rect width="120" height="120" rx="26" fill="#080c12"/>
+    <rect width="120" height="120" rx="26" fill="#0e2a1e" opacity="0.6"/>
+    <path d="M60 18L26 32v20C26 74 40.5 90 60 95c19.5-5 34-21 34-43V32L60 18z" fill="rgba(0,255,180,0.12)" stroke="url(#sg1)" stroke-width="2.5"/>
+    <path d="M44 58l11 11 21-22" stroke="#00ffb4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </svg>
+  <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:900;letter-spacing:3px;color:#f0f4f8">SHIELD<span style="color:#00ffb4">SYNC</span></div>
+  <div style="font-size:10px;color:rgba(240,244,248,0.4);letter-spacing:3px;margin-top:6px;font-family:'Rajdhani',sans-serif">SECURITY OPERATIONS PLATFORM</div>
+  <div style="margin-top:32px;display:flex;gap:6px">
+    <div style="width:6px;height:6px;border-radius:50%;background:#00ffb4;animation:splashDot 1.2s ease-in-out infinite"></div>
+    <div style="width:6px;height:6px;border-radius:50%;background:#00ffb4;animation:splashDot 1.2s ease-in-out 0.2s infinite"></div>
+    <div style="width:6px;height:6px;border-radius:50%;background:#00ffb4;animation:splashDot 1.2s ease-in-out 0.4s infinite"></div>
+  </div>
+  <style>@keyframes splashDot{0%,80%,100%{opacity:0.2;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}</style>
+</div>
+
+<script>
+// Service Worker registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
+      .then(function(reg) { console.log('[ShieldSync] SW registered:', reg.scope); })
+      .catch(function(err) { console.warn('[ShieldSync] SW registration failed:', err); });
+  });
+}
+
+// Hide splash when app is ready
+window.addEventListener('DOMContentLoaded', function() {
+  var splash = document.getElementById('app-splash');
+  if (splash) {
+    setTimeout(function() {
+      splash.style.opacity = '0';
+      setTimeout(function() { splash.style.display = 'none'; }, 400);
+    }, 800);
+  }
+});
+
+// Install prompt (PWA Add to Home Screen)
+var _deferredInstall = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _deferredInstall = e;
+  window._showInstallBanner = function() {
+    var b = document.getElementById('install-banner');
+    if (b) b.style.display = 'flex';
+  };
+});
+window.addEventListener('appinstalled', function() {
+  _deferredInstall = null;
+  showToast('ShieldSync installed ✓', 'success');
+});
+</script>
+
+<!-- PWA Install Banner -->
+<div id="install-banner" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:358px;background:#0e1420;border:1px solid rgba(0,255,180,0.25);border-radius:14px;padding:12px 16px;z-index:9000;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="36" height="36" style="flex-shrink:0;border-radius:8px">
+    <rect width="120" height="120" rx="26" fill="#080c12"/>
+    <path d="M60 18L26 32v20C26 74 40.5 90 60 95c19.5-5 34-21 34-43V32L60 18z" fill="rgba(0,255,180,0.12)" stroke="#00ffb4" stroke-width="2.5"/>
+    <path d="M44 58l11 11 21-22" stroke="#00ffb4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </svg>
+  <div style="flex:1;min-width:0">
+    <div style="font-size:13px;font-weight:600;color:#f0f4f8">Install ShieldSync</div>
+    <div style="font-size:11px;color:rgba(240,244,248,0.5);margin-top:2px">Add to home screen for offline access</div>
+  </div>
+  <button onclick="installApp()" style="background:#00ffb4;color:#000;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px;cursor:pointer;white-space:nowrap">INSTALL</button>
+  <button onclick="document.getElementById('install-banner').style.display='none'" style="background:transparent;border:none;color:rgba(240,244,248,0.4);font-size:18px;cursor:pointer;padding:4px;line-height:1">×</button>
+</div>
+
 </body>
 </html>
