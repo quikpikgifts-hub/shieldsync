@@ -654,10 +654,27 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
     <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   </div>
   <div class="vi-steps">
-    <div class="vi-step done" id="vis-1"></div>
-    <div class="vi-step active" id="vis-2"></div>
+    <div class="vi-step active" id="vis-0"></div>
+    <div class="vi-step" id="vis-1"></div>
+    <div class="vi-step" id="vis-2"></div>
     <div class="vi-step" id="vis-3"></div>
     <div class="vi-step" id="vis-4"></div>
+  </div>
+  <!-- Step 0: Officer Sign-In -->
+  <div id="vi-step-0" style="padding:0 20px">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px">Officer Sign-In</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Confirm your identity before starting the vehicle check</div>
+    <div class="field"><label>OFFICER NAME</label><input id="vi-officer-name" placeholder="Full name" style="width:100%;padding:14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;box-sizing:border-box;-webkit-appearance:none;outline:none"></div>
+    <div class="field"><label>BADGE / ID NUMBER</label><input id="vi-badge" placeholder="e.g. SG-1042" style="width:100%;padding:14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;box-sizing:border-box;-webkit-appearance:none;outline:none"></div>
+    <div class="field"><label>DATE &amp; TIME</label>
+      <div id="vi-datetime" style="padding:14px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;font-size:14px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:600"></div>
+    </div>
+    <div class="field"><label>SITE / LOCATION</label>
+      <select id="vi-site" style="width:100%;padding:14px;background:#131d2e;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;-webkit-appearance:none;box-sizing:border-box">
+        <option>Site Alpha</option><option>Site Beta</option><option>Site Gamma</option><option>Head Office</option>
+      </select>
+    </div>
+    <button class="btn btn-accent" style="margin-top:8px" onclick="viNextStep(1)">NEXT →</button>
   </div>
   <!-- Step 1 -->
   <div id="vi-step-1" style="padding:0 20px;display:none">
@@ -692,7 +709,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
       <div class="photo-slot" id="ps-interior" onclick="triggerCamera('interior')">📷<span>INTERIOR</span></div>
       <div class="photo-slot" id="ps-odometer" onclick="triggerCamera('odometer')">📷<span>ODOMETER</span></div>
     </div>
-    <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">Tap each slot to open camera</div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-bottom:12px">
+      <span id="vi-photo-count">0</span>/6 photos taken · Tap each slot to capture
+    </div>
     <button class="btn btn-accent" onclick="viNextStep(3)">NEXT →</button>
     <button class="btn btn-outline" style="margin-top:8px" onclick="viNextStep(1)">← BACK</button>
   </div>
@@ -1156,6 +1175,12 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
     </button>
   </div>
 
+  <div id="vehicle-check-banner" style="padding:0 16px;margin-bottom:10px;display:none">
+    <button type="button" onclick="startVehicleInspection()" style="width:100%;padding:16px;border-radius:14px;border:2px solid rgba(0,255,180,0.4);background:rgba(0,255,180,0.08);color:var(--accent);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;letter-spacing:1.5px;cursor:pointer;-webkit-appearance:none;touch-action:manipulation;display:flex;align-items:center;justify-content:center;gap:10px">
+      <span style="font-size:22px">🚗</span> VEHICLE PRE-SHIFT CHECK
+    </button>
+  </div>
+
   <!-- Clock In/Out -->
 
   <div style="margin:0 16px 12px">
@@ -1169,7 +1194,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);fon
   <!-- Guard actions -->
 
   <div style="padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-    <button type="button" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="startGuardPatrol()"><span style="font-size:20px">🚔</span><span>PATROL</span></button>
+    <button type="button" id="guard-patrol-btn" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="startGuardPatrol()"><span style="font-size:20px">🚔</span><span>PATROL</span></button>
     <button type="button" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="openScanner()"><span style="font-size:20px">📷</span><span>SCAN CP</span></button>
     <button type="button" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="navTo('schedule')"><span style="font-size:20px">📅</span><span>SCHEDULE</span></button>
     <button type="button" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="navTo('certs')"><span style="font-size:20px">🎖️</span><span>TRAINING</span></button>
@@ -2658,14 +2683,20 @@ if (statusEl) statusEl.textContent = ‘GUARD — READY FOR DUTY’;
 showScreen(‘screen-guard-home’);
 startGPSTracking();
 } else if (role === ‘patrol’) {
-// Patrol officer goes straight to patrol screen
 var ghn2 = document.getElementById(‘guard-home-name’);
-if (ghn2) ghn2.textContent = user.name.split(’ ’)[0];
+if (ghn2) ghn2.textContent = user.name.split(‘ ‘)[0];
 var gst2 = document.getElementById(‘guard-shift-time’);
-if (gst2) gst2.textContent = ’Patrol Officer · Shift started ’ + new Date().toLocaleTimeString();
+if (gst2) gst2.textContent = ‘Patrol Officer · Shift started ‘ + new Date().toLocaleTimeString();
 var statusEl2 = document.getElementById(‘guard-status-text’);
-if (statusEl2) statusEl2.textContent = ‘PATROL OFFICER — READY’;
-showScreen(‘screen-patrol’);
+if (statusEl2) statusEl2.textContent = ‘PATROL OFFICER — VEHICLE CHECK REQUIRED’;
+showScreen(‘screen-guard-home’);
+startGPSTracking();
+} else if (role === ‘guardpatrol’) {
+var ghn3 = document.getElementById(‘guard-home-name’);
+if (ghn3) ghn3.textContent = user.name.split(‘ ‘)[0];
+var gst3 = document.getElementById(‘guard-shift-time’);
+if (gst3) gst3.textContent = ‘Guard/Patrol · Shift started ‘ + new Date().toLocaleTimeString();
+showScreen(‘screen-guard-home’);
 startGPSTracking();
 } else if (role === ‘client’) {
 showScreen(‘screen-client-portal’);
@@ -2968,12 +2999,58 @@ setTimeout(function(){ if(typeof selectRole===‘function’) selectRole(‘admi
 }
 
 function viNextStep(step) {
-for (var i = 1; i <= 4; i++) {
-var el = document.getElementById(‘vi-step-’ + i);
-if (el) el.style.display = (i === step) ? ‘block’ : ‘none’;
-var bar = document.getElementById(‘vis-’ + i);
-if (bar) { bar.className = ‘vi-step’ + (i < step ? ’ done’ : i === step ? ’ active’ : ‘’); }
+if (step === 1) {
+var name = document.getElementById(‘vi-officer-name’);
+if (name && !name.value.trim()) { showToast(‘Enter your name’, ‘warning’); return; }
+var badge = document.getElementById(‘vi-badge’);
+if (badge && !badge.value.trim()) { showToast(‘Enter your badge number’, ‘warning’); return; }
 }
+if (step === 2) {
+var plate = document.getElementById(‘vi-plate’);
+if (plate && !plate.value.trim()) { showToast(‘Enter the license plate’, ‘warning’); return; }
+}
+if (step === 4) {
+var sp = document.getElementById(‘sum-plate’);
+var st = document.getElementById(‘sum-type’);
+var sm = document.getElementById(‘sum-make’);
+var sf = document.getElementById(‘sum-fuel’);
+if (sp) sp.textContent = document.getElementById(‘vi-plate’) ? document.getElementById(‘vi-plate’).value || ‘—‘ : ‘—‘;
+if (st) st.textContent = document.getElementById(‘vi-type’) ? document.getElementById(‘vi-type’).value || ‘—‘ : ‘—‘;
+if (sm) sm.textContent = document.getElementById(‘vi-make’) ? document.getElementById(‘vi-make’).value || ‘—‘ : ‘—‘;
+if (sf) sf.textContent = window._viFuel || ‘½’;
+var son = document.getElementById(‘sum-officer’);
+if (son) son.textContent = (document.getElementById(‘vi-officer-name’) ? document.getElementById(‘vi-officer-name’).value : ‘’) + ‘ · ‘ + (document.getElementById(‘vi-badge’) ? document.getElementById(‘vi-badge’).value : ‘’);
+}
+for (var i = 0; i <= 4; i++) {
+var el = document.getElementById(‘vi-step-’ + i);
+if (el) el.style.display = i === step ? ‘block’ : ‘none’;
+}
+for (var j = 0; j <= 4; j++) {
+var dot = document.getElementById(‘vis-’ + j);
+if (dot) { dot.className = j < step ? ‘vi-step done’ : j === step ? ‘vi-step active’ : ‘vi-step’; }
+}
+}
+
+function viReset() {
+viNextStep(0);
+var dt = document.getElementById(‘vi-datetime’);
+if (dt) dt.textContent = new Date().toLocaleString();
+var fields = [‘vi-officer-name’,’vi-badge’,’vi-plate’,’vi-make’];
+for (var i = 0; i < fields.length; i++) {
+var el = document.getElementById(fields[i]);
+if (el) el.value = ‘’;
+}
+var slots = document.querySelectorAll(‘.photo-slot’);
+for (var j = 0; j < slots.length; j++) {
+slots[j].style.backgroundImage = ‘’;
+slots[j].style.backgroundSize = ‘’;
+slots[j].innerHTML = ‘📷<span>’ + (slots[j].id.replace(‘ps-’,’’).toUpperCase()) + ‘</span>’;
+}
+window._viPhotos = {};
+window._viFuel = ‘½’;
+window._viSigned = false;
+var sb = document.querySelector(‘#vi-step-4 .sig-box’);
+if (sb) { sb.textContent = ‘TAP TO SIGN’; sb.style.color = ‘’; sb.style.borderColor = ‘’; }
 }
 
 function setFuel(btn, val) {
@@ -3206,7 +3283,13 @@ showScreen(‘screen-vehicle-inspection’);
 viNextStep(1);
 }
 
+function startVehicleInspection() {
+viReset();
+showScreen(‘screen-vehicle-inspection’);
+}
+
 function triggerCamera(slot) {
+window._currentPhotoSlot = slot;
 currentPhotoSlot = slot;
 var input = document.getElementById(‘camera-input’);
 if (input) input.click();
@@ -3585,16 +3668,16 @@ for (var i = 0; i < allItems.length; i++) allItems[i].style.display = ‘’;
 
 // GUARD: can see incidents, visitors, messages, dar, passdown, assets, certs, postorders, clock, schedule
 // GUARD cannot see: guards mgmt, analytics, invoicing, timesheets, alerts, reports
-var guardHide    = [‘guards’,‘analytics’,‘invoicing’,‘timesheets’,‘alerts’,‘reports’];
+var guardHide    = [‘guards’,’analytics’,’invoicing’,’timesheets’,’alerts’,’reports’];
 // PATROL: can see incidents, dar, messages, passdown, clock
 // PATROL cannot see: guards, analytics, invoicing, timesheets, alerts, reports, visitors, assets, certs, postorders, schedule
-var patrolHide   = [‘guards’,‘analytics’,‘invoicing’,‘timesheets’,‘alerts’,‘reports’,‘visitors’,‘assets’,‘certs’,‘postorders’,‘schedule’];
-// SUPERVISOR: cannot see invoicing (admin only)
-var supervisorHide = [‘invoicing’];
+var patrolHide   = [‘guards’,’analytics’,’invoicing’,’timesheets’,’alerts’,’reports’,’visitors’,’assets’,’certs’,’postorders’,’schedule’];
+// SUPERVISOR: sees everything including invoicing
+var supervisorHide = [];
 // CLIENT: only sees client portal
-var clientHide   = [‘guards’,‘analytics’,‘invoicing’,‘timesheets’,‘alerts’,‘reports’,‘visitors’,‘assets’,‘certs’,‘postorders’,‘schedule’,‘dar’,‘passdown’,‘messages’,‘incidents’];
+var clientHide   = [‘guards’,’analytics’,’invoicing’,’timesheets’,’alerts’,’reports’,’visitors’,’assets’,’certs’,’postorders’,’schedule’,’dar’,’passdown’,’messages’,’incidents’];
 
-var toHide = role === ‘guard’ ? guardHide : role === ‘patrol’ ? patrolHide : role === ‘supervisor’ ? supervisorHide : role === ‘client’ ? clientHide : [];
+var toHide = role === ‘guard’ ? guardHide : role === ‘patrol’ ? patrolHide : role === ‘supervisor’ ? supervisorHide : (role === ‘client’ ? clientHide : []);
 
 for (var j = 0; j < allItems.length; j++) {
 var oc = allItems[j].getAttribute(‘onclick’) || ‘’;
@@ -3613,7 +3696,19 @@ if (patrolNav) patrolNav.style.display = role === ‘client’ ? ‘none’ : �
 // Home screen quick action cards — hide admin-only items from guard/patrol
 var adminCards = document.querySelectorAll(’.admin-only-card’);
 for (var m = 0; m < adminCards.length; m++) {
-adminCards[m].style.display = (role === ‘admin’ || role === ‘supervisor’) ? ‘’ : ‘none’;
+adminCards[m].style.display = (role === ‘admin’ || role === ‘supervisor’ || role === ‘guardpatrol’) ? ‘’ : ‘none’;
+}
+
+var viBanner = document.getElementById(‘vehicle-check-banner’);
+if (viBanner) viBanner.style.display = (role === ‘patrol’ || role === ‘guardpatrol’) ? ‘block’ : ‘none’;
+
+var patrolBtnInGrid = document.getElementById(‘guard-patrol-btn’);
+if (patrolBtnInGrid) {
+if (role === ‘patrol’ || role === ‘guardpatrol’) {
+patrolBtnInGrid.onclick = function() { openPatrolCred(); };
+} else {
+patrolBtnInGrid.onclick = function() { startGuardPatrol(); };
+}
 }
 
 if (role === ‘client’) applyClientRestrictions();
