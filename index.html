@@ -49,77 +49,77 @@ html,body{height:100%;width:100%;background:var(--bg,#080c12);font-family:'Inter
 
 /* Chat / Messaging */
 .chat-bubble{max-width:75%;padding:10px 14px;border-radius:16px;font-size:13px;line-height:1.4;margin-bottom:8px}
-.chat-bubble.sent{background:var(–accent);color:#000;border-radius:16px 16px 4px 16px;align-self:flex-end;margin-left:auto}
-.chat-bubble.recv{background:var(–card);color:var(–text);border:1px solid var(–border);border-radius:16px 16px 16px 4px}
-.chat-time{font-size:10px;color:var(–muted);margin-top:3px}
+.chat-bubble.sent{background:var(--accent);color:#000;border-radius:16px 16px 4px 16px;align-self:flex-end;margin-left:auto}
+.chat-bubble.recv{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:16px 16px 16px 4px}
+.chat-time{font-size:10px;color:var(--muted);margin-top:3px}
 .chat-list{display:flex;flex-direction:column;padding:12px 16px;gap:2px;flex:1;overflow-y:auto}
-.chat-input-bar{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(–border);background:var(–bg)}
+.chat-input-bar{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);background:var(--bg)}
 
 /* Schedule */
-.sched-day{background:var(–card);border:1px solid var(–border);border-radius:12px;padding:12px;margin-bottom:8px}
+.sched-day{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px}
 .sched-shift{background:rgba(0,255,180,0.06);border:1px solid rgba(0,255,180,0.15);border-radius:8px;padding:8px 10px;margin-top:8px;display:flex;align-items:center;gap:8px}
 .sched-shift.night{background:rgba(59,130,246,0.06);border-color:rgba(59,130,246,0.15)}
-.sched-shift.off{background:rgba(255,255,255,0.03);border-color:var(–border)}
+.sched-shift.off{background:rgba(255,255,255,0.03);border-color:var(--border)}
 
 /* DAR Report */
-.dar-entry{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(–border)}
-.dar-time{font-family:‘Rajdhani’,sans-serif;font-size:11px;font-weight:700;color:var(–accent);min-width:48px;margin-top:2px}
+.dar-entry{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.dar-time{font-family:‘Rajdhani’,sans-serif;font-size:11px;font-weight:700;color:var(--accent);min-width:48px;margin-top:2px}
 .dar-content{flex:1;font-size:12px;line-height:1.4}
 
 /* Cert badge */
-.cert-card{background:var(–card);border:1px solid var(–border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.cert-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
 .cert-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .cert-expiry{font-size:10px;font-weight:700;font-family:‘Rajdhani’,sans-serif;letter-spacing:1px;padding:2px 8px;border-radius:6px}
-.cert-expiry.good{background:rgba(0,255,180,0.1);color:var(–accent)}
-.cert-expiry.warn{background:rgba(245,166,35,0.1);color:var(–amber)}
-.cert-expiry.exp{background:rgba(255,59,59,0.1);color:var(–red)}
+.cert-expiry.good{background:rgba(0,255,180,0.1);color:var(--accent)}
+.cert-expiry.warn{background:rgba(245,166,35,0.1);color:var(--amber)}
+.cert-expiry.exp{background:rgba(255,59,59,0.1);color:var(--red)}
 
 /* Client portal premium */
-.client-stat{background:var(–card);border:1px solid var(–border);border-radius:14px;padding:16px;text-align:center}
+.client-stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
 .client-stat-val{font-family:‘Rajdhani’,sans-serif;font-size:36px;font-weight:700;line-height:1}
-.live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,59,59,0.1);border:1px solid rgba(255,59,59,0.3);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:var(–red);font-family:‘Rajdhani’,sans-serif;letter-spacing:1px}
+.live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,59,59,0.1);border:1px solid rgba(255,59,59,0.3);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--red);font-family:‘Rajdhani’,sans-serif;letter-spacing:1px}
 
 /* Clock In/Out */
 .clock-btn{width:100%;padding:20px;border:none;border-radius:16px;font-family:‘Rajdhani’,sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;cursor:pointer;-webkit-appearance:none;transition:all 0.3s}
-.clock-btn.clocked-in{background:var(–red);color:#fff;box-shadow:0 0 30px rgba(255,59,59,0.3)}
-.clock-btn.clocked-out{background:var(–accent);color:#000;box-shadow:0 0 30px rgba(0,255,180,0.3)}
-.clock-timer{font-family:‘Rajdhani’,sans-serif;font-size:48px;font-weight:700;text-align:center;color:var(–accent);letter-spacing:2px;line-height:1}
+.clock-btn.clocked-in{background:var(--red);color:#fff;box-shadow:0 0 30px rgba(255,59,59,0.3)}
+.clock-btn.clocked-out{background:var(--accent);color:#000;box-shadow:0 0 30px rgba(0,255,180,0.3)}
+.clock-timer{font-family:‘Rajdhani’,sans-serif;font-size:48px;font-weight:700;text-align:center;color:var(--accent);letter-spacing:2px;line-height:1}
 
 /* Lone Worker */
-.lone-worker-ring{width:120px;height:120px;border-radius:50%;border:4px solid var(–accent);display:flex;align-items:center;justify-content:center;margin:0 auto;position:relative;cursor:pointer;transition:all 0.3s}
-.lone-worker-ring.warning{border-color:var(–amber);animation:glow 1s infinite}
-.lone-worker-ring.danger{border-color:var(–red);animation:glow 0.5s infinite}
-.lone-worker-countdown{font-family:‘Rajdhani’,sans-serif;font-size:32px;font-weight:700;color:var(–accent);text-align:center;line-height:1}
-.lone-worker-label{font-size:10px;color:var(–muted);text-align:center;margin-top:4px;font-family:‘Rajdhani’,sans-serif;letter-spacing:1px}
+.lone-worker-ring{width:120px;height:120px;border-radius:50%;border:4px solid var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto;position:relative;cursor:pointer;transition:all 0.3s}
+.lone-worker-ring.warning{border-color:var(--amber);animation:glow 1s infinite}
+.lone-worker-ring.danger{border-color:var(--red);animation:glow 0.5s infinite}
+.lone-worker-countdown{font-family:‘Rajdhani’,sans-serif;font-size:32px;font-weight:700;color:var(--accent);text-align:center;line-height:1}
+.lone-worker-label{font-size:10px;color:var(--muted);text-align:center;margin-top:4px;font-family:‘Rajdhani’,sans-serif;letter-spacing:1px}
 
 /* Visitor Log */
-.visitor-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(–border)}
+.visitor-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
 .visitor-row:last-child{border-bottom:none}
 .visitor-avatar{width:36px;height:36px;border-radius:10px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .visitor-info{flex:1}
 .visitor-name{font-size:13px;font-weight:600}
-.visitor-meta{font-size:11px;color:var(–muted);margin-top:2px}
+.visitor-meta{font-size:11px;color:var(--muted);margin-top:2px}
 .visitor-time{text-align:right;font-size:11px;font-family:‘Rajdhani’,sans-serif;font-weight:700}
-.visitor-time.out{color:var(–muted)}
-.visitor-time.in{color:var(–accent)}
+.visitor-time.out{color:var(--muted)}
+.visitor-time.in{color:var(--accent)}
 
 /* Pass-down */
 .passdown-card{background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:14px;margin-bottom:10px}
-.passdown-from{font-size:11px;color:var(–blue);font-weight:600;font-family:‘Rajdhani’,sans-serif;letter-spacing:0.5px;margin-bottom:6px}
+.passdown-from{font-size:11px;color:var(--blue);font-weight:600;font-family:‘Rajdhani’,sans-serif;letter-spacing:0.5px;margin-bottom:6px}
 .passdown-msg{font-size:13px;line-height:1.5}
-.passdown-time{font-size:10px;color:var(–muted);margin-top:6px}
+.passdown-time{font-size:10px;color:var(--muted);margin-top:6px}
 
 /* AI Report */
-.ai-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,rgba(0,255,180,0.15),rgba(59,130,246,0.15));border:1px solid rgba(0,255,180,0.3);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:var(–accent);font-family:‘Rajdhani’,sans-serif;letter-spacing:1px}
+.ai-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,rgba(0,255,180,0.15),rgba(59,130,246,0.15));border:1px solid rgba(0,255,180,0.3);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:var(--accent);font-family:‘Rajdhani’,sans-serif;letter-spacing:1px}
 
 /* Asset tracking */
-.asset-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(–border)}
+.asset-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
 .asset-row:last-child{border-bottom:none}
 .asset-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .asset-status{font-size:10px;font-weight:700;font-family:‘Rajdhani’,sans-serif;padding:2px 8px;border-radius:6px}
-.asset-status.out{background:rgba(255,59,59,0.1);color:var(–red)}
-.asset-status.in{background:rgba(0,255,180,0.1);color:var(–accent)}
-.live-dot{width:6px;height:6px;background:var(–red);border-radius:50%;animation:pulse 1s infinite}
+.asset-status.out{background:rgba(255,59,59,0.1);color:var(--red)}
+.asset-status.in{background:rgba(0,255,180,0.1);color:var(--accent)}
+.live-dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1s infinite}
 
 /* Geofence indicator */
 .geo-ring{position:absolute;border-radius:50%;border:2px solid rgba(0,255,180,0.3);animation:expand 2s ease-out infinite}
@@ -129,172 +129,174 @@ html,body{height:100%;width:100%;background:var(--bg,#080c12);font-family:'Inter
 .nav-item.active svg{filter:drop-shadow(0 0 4px rgba(0,255,180,0.6))}
 
 /* Offline banner */
-.offline-banner{background:rgba(245,166,35,0.15);border:1px solid rgba(245,166,35,0.3);padding:8px 16px;font-size:11px;color:var(–amber);font-weight:600;font-family:‘Rajdhani’,sans-serif;letter-spacing:1px;text-align:center;display:none}
+.offline-banner{background:rgba(245,166,35,0.15);border:1px solid rgba(245,166,35,0.3);padding:8px 16px;font-size:11px;color:var(--amber);font-weight:600;font-family:‘Rajdhani’,sans-serif;letter-spacing:1px;text-align:center;display:none}
 .offline-banner.show{display:block}
-.badge-red{background:rgba(255,59,59,0.1);color:var(–red);border:1px solid rgba(255,59,59,0.2)}
-.badge-amber{background:rgba(245,166,35,0.1);color:var(–amber);border:1px solid rgba(245,166,35,0.2)}
-.badge-blue{background:rgba(59,130,246,0.1);color:var(–blue);border:1px solid rgba(59,130,246,0.2)}
+.badge-red{background:rgba(255,59,59,0.1);color:var(--red);border:1px solid rgba(255,59,59,0.2)}
+.badge-amber{background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.2)}
+.badge-blue{background:rgba(59,130,246,0.1);color:var(--blue);border:1px solid rgba(59,130,246,0.2)}
 .btn{width:100%;padding:15px;border:none;border-radius:12px;font-family:‘Rajdhani’,sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;cursor:pointer;-webkit-appearance:none}
-.btn-accent{background:var(–accent);color:#000 !important;-webkit-appearance:none;border:none}
-.btn-outline{background:transparent;color:var(–text);border:1px solid var(–border)}
-.btn-red{background:var(–red);color:#fff}
-input,select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(–border);border-radius:10px;padding:13px 14px;color:var(–text);font-size:15px;font-family:‘Inter’,sans-serif;-webkit-appearance:none;outline:none}
+.btn-accent{background:var(--accent);color:#000 !important;-webkit-appearance:none;border:none}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-red{background:var(--red);color:#fff}
+input,select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:13px 14px;color:var(--text);font-size:15px;font-family:‘Inter’,sans-serif;-webkit-appearance:none;outline:none}
 #login-email,#login-pass{width:100%;background:#1a2332;border:1.5px solid #2a3a50;border-radius:12px;padding:14px 16px;color:#f0f4f8 !important;font-family:‘Inter’,sans-serif;font-size:15px;font-weight:400;letter-spacing:0;text-align:left;-webkit-text-fill-color:#f0f4f8;box-sizing:border-box}
 #login-email:focus,#login-pass:focus{border-color:#00ffb4;outline:none;background:#1e2a3e}
 #login-email::placeholder,#login-pass::placeholder{color:#4a5568;-webkit-text-fill-color:#4a5568}
 #login-email:-webkit-autofill,#login-pass:-webkit-autofill{-webkit-box-shadow:0 0 0 100px #1a2332 inset !important;-webkit-text-fill-color:#f0f4f8 !important;border-color:#2a3a50 !important}
-input:focus,select:focus{border-color:var(–accent)}
-input::placeholder{color:var(–muted)}
-label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);font-family:‘Rajdhani’,sans-serif;display:block;margin-bottom:6px}
+input:focus,select:focus{border-color:var(--accent)}
+input::placeholder{color:var(--muted)}
+label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);font-family:‘Rajdhani’,sans-serif;display:block;margin-bottom:6px}
 .modal{position:absolute;inset:0;background:rgba(0,0,0,0.85);z-index:9500;display:none;align-items:flex-end}
 .modal.open{display:flex}
-.modal-box{background:#0e1420;border-top:1px solid var(–border);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%}
+.modal-box{background:#0e1420;border-top:1px solid var(--border);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%}
 .modal-title{font-family:‘Rajdhani’,sans-serif;font-size:18px;font-weight:700;margin-bottom:16px}
-.divider{height:1px;background:var(–border);margin:16px 0}
+.divider{height:1px;background:var(--border);margin:16px 0}
 /* LOGIN */
 .login-brand{text-align:center;padding:32px 0 20px}
 .logo-icon{width:60px;height:60px;background:rgba(0,255,180,0.08);border:1px solid rgba(0,255,180,0.2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
 .login-title{font-family:‘Rajdhani’,sans-serif;font-size:32px;font-weight:700;letter-spacing:2px}
-.login-title span{color:var(–accent)}
-.login-sub{font-size:11px;letter-spacing:3px;color:var(–muted);margin-top:4px}
+.login-title span{color:var(--accent)}
+.login-sub{font-size:11px;letter-spacing:3px;color:var(--muted);margin-top:4px}
 .login-form{padding:0 24px}
 .field{margin-bottom:16px}
 .forgot{text-align:right;margin-top:-8px;margin-bottom:20px}
-.forgot a{color:var(–accent);font-size:13px;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.forgot a{color:var(--accent);font-size:13px;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
 .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.role-card{background:var(–card);border:2px solid var(–border);border-radius:12px;padding:14px 12px;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:rgba(0,255,180,0.15);touch-action:manipulation}
+.role-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:14px 12px;cursor:pointer;transition:all 0.15s;-webkit-tap-highlight-color:rgba(0,255,180,0.15);touch-action:manipulation}
 .role-card.selected{border-color:#00ffb4;background:rgba(0,255,180,0.08);box-shadow:0 0 0 1px rgba(0,255,180,0.2)}
-.role-card.selected .role-name{color:var(–accent)}
+.role-card.selected .role-name{color:var(--accent)}
 .role-icon{font-size:20px;margin-bottom:4px}
 .role-name{font-family:‘Rajdhani’,sans-serif;font-size:14px;font-weight:700}
-.role-desc{font-size:10px;color:var(–muted);margin-top:1px}
-.quick-logins{background:rgba(255,255,255,0.03);border:1px solid var(–border);border-radius:14px;padding:14px;margin:16px 24px}
-.ql-title{font-size:10px;font-weight:700;letter-spacing:2px;color:var(–muted);font-family:‘Rajdhani’,sans-serif;margin-bottom:10px}
-.ql-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(–border)}
+.role-desc{font-size:10px;color:var(--muted);margin-top:1px}
+.quick-logins{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:14px;padding:14px;margin:16px 24px}
+.ql-title{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);font-family:‘Rajdhani’,sans-serif;margin-bottom:10px}
+.ql-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
 .ql-row:last-child{border-bottom:none}
-.ql-email{font-size:12px;color:var(–muted)}
-.ql-use{font-size:12px;color:var(–accent);cursor:pointer;font-weight:600;padding:4px 8px}
+.ql-email{font-size:12px;color:var(--muted)}
+.ql-use{font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;padding:4px 8px}
 /* HOME */
 .role-banner{margin:0 16px 16px;padding:12px 16px;background:rgba(0,255,180,0.06);border:1px solid rgba(0,255,180,0.15);border-radius:12px;display:flex;align-items:center;gap:10px}
-.rb-dot{width:8px;height:8px;background:var(–accent);border-radius:50%;animation:pulse 2s infinite}
+.rb-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-.rb-text{font-size:12px;color:var(–accent);font-weight:500}
+.rb-text{font-size:12px;color:var(--accent);font-weight:500}
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px}
-.stat-card{background:var(–card);border:1px solid var(–border);border-radius:14px;padding:14px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
 .stat-val{font-family:‘Rajdhani’,sans-serif;font-size:32px;font-weight:700;line-height:1}
-.stat-label{font-size:11px;color:var(–muted);margin-top:4px}
+.stat-label{font-size:11px;color:var(--muted);margin-top:4px}
 .section{padding:0 16px 16px}
-.section-title{font-family:‘Rajdhani’,sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(–muted);margin-bottom:12px}
+.section-title{font-family:‘Rajdhani’,sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px}
 .tab-row{display:flex;gap:8px;margin-bottom:12px}
-.tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:transparent;border:1px solid var(–border);color:var(–muted);font-family:‘Rajdhani’,sans-serif;letter-spacing:0.5px}
-.tab.active{background:var(–accent);color:#000;border-color:var(–accent)}
-.incident-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(–border)}
+.tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:‘Rajdhani’,sans-serif;letter-spacing:0.5px}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent)}
+.incident-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
 .incident-row:last-child{border-bottom:none}
 .inc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .inc-info{flex:1}
 .inc-title{font-size:13px;font-weight:500}
-.inc-sub{font-size:11px;color:var(–muted);margin-top:2px}
+.inc-sub{font-size:11px;color:var(--muted);margin-top:2px}
 .threat-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
-.threat-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(–accent),var(–amber))}
+.threat-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--amber))}
 /* PATROL */
 .patrol-map{margin:0 16px 16px;background:rgba(0,255,180,0.03);border:1px solid rgba(0,255,180,0.1);border-radius:16px;padding:16px;position:relative;overflow:hidden}
 .map-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .cp{border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer;transition:all 0.2s;border:1px solid transparent;position:relative}
 .cp span{font-size:9px;font-family:‘Rajdhani’,sans-serif;font-weight:700;letter-spacing:0.5px;display:block;margin-top:4px}
-.cp-scanned{background:rgba(0,255,180,0.15);border-color:rgba(0,255,180,0.3);color:var(–accent)}
-.cp-active{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.3);color:var(–blue)}
-.cp-overdue{background:rgba(255,59,59,0.15);border-color:rgba(255,59,59,0.3);color:var(–red)}
-.cp-pending{background:rgba(255,255,255,0.04);border-color:var(–border);color:var(–muted)}
+.cp-scanned{background:rgba(0,255,180,0.15);border-color:rgba(0,255,180,0.3);color:var(--accent)}
+.cp-active{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.3);color:var(--blue)}
+.cp-overdue{background:rgba(255,59,59,0.15);border-color:rgba(255,59,59,0.3);color:var(--red)}
+.cp-pending{background:rgba(255,255,255,0.04);border-color:var(--border);color:var(--muted)}
 .progress-wrap{padding:0 16px 16px}
 .progress-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px}
 .progress-bar{height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden}
-.progress-fill{height:100%;background:var(–accent);border-radius:4px;transition:width 0.4s ease}
+.progress-fill{height:100%;background:var(--accent);border-radius:4px;transition:width 0.4s ease}
 .guard-strip{display:flex;gap:8px;padding:0 16px 16px;overflow-x:auto}
-.guard-chip{background:var(–card);border:1px solid var(–border);border-radius:10px;padding:8px 12px;flex-shrink:0;min-width:100px}
+.guard-chip{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 12px;flex-shrink:0;min-width:100px}
 .gc-name{font-size:12px;font-weight:600;margin-bottom:4px}
 .gc-status{font-size:10px}
 .cp-list{padding:0 16px}
-.cp-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(–border)}
+.cp-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
 .cp-row:last-child{border-bottom:none}
 .cp-num{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:‘Rajdhani’,sans-serif;flex-shrink:0}
 .cp-info{flex:1}
 .cp-name{font-size:13px;font-weight:500}
-.cp-meta{font-size:11px;color:var(–muted);margin-top:2px}
-.scan-fab{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);width:56px;height:56px;background:var(–accent);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,180,0.4);cursor:pointer;z-index:50;border:none}
+.cp-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.scan-fab{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);width:56px;height:56px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,180,0.4);cursor:pointer;z-index:50;border:none}
 /* VEHICLE INSPECTION */
 .vi-steps{display:flex;padding:16px 24px;gap:8px}
-.vi-step{flex:1;height:3px;border-radius:2px;background:var(–border)}
-.vi-step.done{background:var(–accent)}
+.vi-step{flex:1;height:3px;border-radius:2px;background:var(--border)}
+.vi-step.done{background:var(--accent)}
 .vi-step.active{background:rgba(0,255,180,0.5)}
-.plate-input{font-family:‘Rajdhani’,sans-serif;font-size:28px;font-weight:700;text-align:center;letter-spacing:4px;border-radius:12px;border:2px solid var(–border)}
-.plate-input:focus{border-color:var(–accent)}
+.plate-input{font-family:‘Rajdhani’,sans-serif;font-size:28px;font-weight:700;text-align:center;letter-spacing:4px;border-radius:12px;border:2px solid var(--border)}
+.plate-input:focus{border-color:var(--accent)}
 .fuel-row{display:flex;gap:6px}
-.fuel-btn{flex:1;padding:10px 4px;border-radius:8px;border:1px solid var(–border);background:transparent;color:var(–muted);font-size:12px;font-family:‘Rajdhani’,sans-serif;font-weight:600;cursor:pointer;text-align:center}
-.fuel-btn.active{border-color:var(–accent);color:var(–accent);background:rgba(0,255,180,0.08)}
+.fuel-btn{flex:1;padding:10px 4px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-family:’Rajdhani’,sans-serif;font-weight:600;cursor:pointer;text-align:center}
+.fuel-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,180,0.08)}
+.wf-filter{padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-family:’Rajdhani’,sans-serif;font-weight:700;letter-spacing:0.5px;cursor:pointer;white-space:nowrap;flex-shrink:0;-webkit-appearance:none;touch-action:manipulation}
+.wf-filter.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,180,0.08)}
 .photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.photo-slot{background:rgba(255,255,255,0.03);border:1px dashed var(–border);border-radius:12px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:11px;color:var(–muted);font-family:‘Rajdhani’,sans-serif;letter-spacing:1px}
-.photo-slot.taken{border-color:var(–accent);background:rgba(0,255,180,0.05);color:var(–accent)}
+.photo-slot{background:rgba(255,255,255,0.03);border:1px dashed var(--border);border-radius:12px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:11px;color:var(--muted);font-family:‘Rajdhani’,sans-serif;letter-spacing:1px}
+.photo-slot.taken{border-color:var(--accent);background:rgba(0,255,180,0.05);color:var(--accent)}
 .damage-car{width:100%;max-width:200px;margin:0 auto;display:block}
 .damage-point{cursor:pointer;transition:all 0.2s}
 .damage-point:hover circle,.damage-point.hit circle{fill:rgba(255,59,59,0.8)}
-.check-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(–border)}
+.check-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
 .check-row:last-child{border-bottom:none}
 .check-label{font-size:14px}
 .check-toggle{display:flex;gap:6px}
-.check-btn{padding:6px 14px;border-radius:8px;border:1px solid var(–border);background:transparent;font-size:12px;font-family:‘Rajdhani’,sans-serif;font-weight:600;cursor:pointer;color:var(–muted)}
-.check-btn.ok{border-color:var(–accent);color:var(–accent);background:rgba(0,255,180,0.08)}
-.check-btn.fail{border-color:var(–red);color:var(–red);background:rgba(255,59,59,0.08)}
+.check-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;font-size:12px;font-family:‘Rajdhani’,sans-serif;font-weight:600;cursor:pointer;color:var(--muted)}
+.check-btn.ok{border-color:var(--accent);color:var(--accent);background:rgba(0,255,180,0.08)}
+.check-btn.fail{border-color:var(--red);color:var(--red);background:rgba(255,59,59,0.08)}
 /* GUARDS */
-.guard-card{background:var(–card);border:1px solid var(–border);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
-.guard-avatar{width:44px;height:44px;border-radius:12px;background:rgba(0,255,180,0.1);display:flex;align-items:center;justify-content:center;font-family:‘Rajdhani’,sans-serif;font-weight:700;font-size:16px;color:var(–accent);flex-shrink:0}
+.guard-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.guard-avatar{width:44px;height:44px;border-radius:12px;background:rgba(0,255,180,0.1);display:flex;align-items:center;justify-content:center;font-family:‘Rajdhani’,sans-serif;font-weight:700;font-size:16px;color:var(--accent);flex-shrink:0}
 .guard-info{flex:1}
 .guard-name{font-size:14px;font-weight:600}
-.guard-meta{font-size:11px;color:var(–muted);margin-top:2px}
+.guard-meta{font-size:11px;color:var(--muted);margin-top:2px}
 /* REPORTS */
 .report-section{margin-bottom:16px}
-.report-label{font-size:11px;color:var(–muted);font-family:‘Rajdhani’,sans-serif;letter-spacing:1px;margin-bottom:6px}
+.report-label{font-size:11px;color:var(--muted);font-family:‘Rajdhani’,sans-serif;letter-spacing:1px;margin-bottom:6px}
 .report-val{font-size:14px;font-weight:500}
-.sig-box{height:80px;border:1px dashed var(–border);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(–muted);font-size:13px}
+.sig-box{height:80px;border:1px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
 /* SETTINGS */
-.menu-item{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(–border);cursor:pointer;gap:12px}
+.menu-item{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;gap:12px}
 .menu-item:last-child{border-bottom:none}
 .menu-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center}
 .menu-label{flex:1;font-size:14px}
 /* OVERLAY MENU */
 
 .menu-profile{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.mp-avatar{width:48px;height:48px;border-radius:14px;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;font-family:‘Rajdhani’,sans-serif;font-size:18px;font-weight:700;color:var(–accent)}
+.mp-avatar{width:48px;height:48px;border-radius:14px;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;font-family:‘Rajdhani’,sans-serif;font-size:18px;font-weight:700;color:var(--accent)}
 .mp-name{font-size:15px;font-weight:600}
-.mp-role{font-size:12px;color:var(–muted);margin-top:2px}
+.mp-role{font-size:12px;color:var(--muted);margin-top:2px}
 .burger-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
 #burger-menu{visibility:hidden;height:0;overflow:hidden;padding:0;border:none}
 #burger-menu.menu-open{visibility:visible;height:auto;overflow-y:auto;padding:20px 20px 40px;border-top:1px solid #1a2332}
-.burger-item{background:rgba(255,255,255,0.04);border:1px solid var(–border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,255,180,0.1);-webkit-appearance:none;text-align:left;width:100%}
+.burger-item{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,255,180,0.1);-webkit-appearance:none;text-align:left;width:100%}
 .bi-icon{font-size:20px}
 .bi-label{font-size:13px;font-weight:600;font-family:‘Rajdhani’,sans-serif;letter-spacing:0.5px}
 /* SCANNER MODAL */
 #scanner-modal{position:absolute;inset:0;background:#000;z-index:9100;display:none;flex-direction:column}
 #scanner-modal.open{display:flex}
 .scanner-view{flex:1;position:relative;overflow:hidden;background:#050a0f;display:flex;align-items:center;justify-content:center}
-.scanner-frame{width:200px;height:200px;border:2px solid var(–accent);border-radius:16px;position:relative}
-.scanner-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(–accent),transparent);animation:scan 2s linear infinite}
+.scanner-frame{width:200px;height:200px;border:2px solid var(--accent);border-radius:16px;position:relative}
+.scanner-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scan 2s linear infinite}
 @keyframes scan{0%{top:0}100%{top:100%}}
-.scanner-corner{position:absolute;width:20px;height:20px;border-color:var(–accent);border-style:solid}
+.scanner-corner{position:absolute;width:20px;height:20px;border-color:var(--accent);border-style:solid}
 .sc-tl{top:-2px;left:-2px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
 .sc-tr{top:-2px;right:-2px;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
 .sc-bl{bottom:-2px;left:-2px;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
 .sc-br{bottom:-2px;right:-2px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
 .scanner-footer{padding:20px;background:#080c12}
 .scan-mode{display:flex;gap:8px;margin-bottom:16px}
-.scan-mode-btn{flex:1;padding:10px;border-radius:10px;border:1px solid var(–border);background:transparent;color:var(–muted);font-family:‘Rajdhani’,sans-serif;font-size:13px;font-weight:600;cursor:pointer}
-.scan-mode-btn.active{border-color:var(–accent);color:var(–accent);background:rgba(0,255,180,0.08)}
+.scan-mode-btn{flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:‘Rajdhani’,sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.scan-mode-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,180,0.08)}
 /* TOAST */
 #toast{position:absolute;bottom:96px;left:16px;right:16px;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:600;font-family:‘Rajdhani’,sans-serif;letter-spacing:0.5px;z-index:9999;display:none;text-align:center}
 #toast.show{display:block}
-#toast.success{background:rgba(0,255,180,0.15);color:var(–accent);border:1px solid rgba(0,255,180,0.3)}
-#toast.error{background:rgba(255,59,59,0.15);color:var(–red);border:1px solid rgba(255,59,59,0.3)}
-#toast.info{background:rgba(59,130,246,0.15);color:var(–blue);border:1px solid rgba(59,130,246,0.3)}
-#toast.warning{background:rgba(245,166,35,0.15);color:var(–amber);border:1px solid rgba(245,166,35,0.3)}
+#toast.success{background:rgba(0,255,180,0.15);color:var(--accent);border:1px solid rgba(0,255,180,0.3)}
+#toast.error{background:rgba(255,59,59,0.15);color:var(--red);border:1px solid rgba(255,59,59,0.3)}
+#toast.info{background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3)}
+#toast.warning{background:rgba(245,166,35,0.15);color:var(--amber);border:1px solid rgba(245,166,35,0.3)}
 #menu-wrapper{display:none}
 #menu-wrapper.open{display:flex;flex-direction:column;justify-content:flex-end}
 </style>
@@ -339,7 +341,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
   </div>
   <div style="padding:0 20px 24px">
 
-```
 <div style="margin-bottom:12px">
   <div style="font-size:10px;font-weight:700;color:#6b7a8d;letter-spacing:1.5px;margin-bottom:6px">EMAIL / BADGE ID</div>
   <input id="login-email" type="email" autocomplete="email" placeholder="officer@unit.com"
@@ -433,7 +434,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <span style="font-size:12px;color:#00ffb4;font-weight:700;font-family:'Rajdhani',sans-serif">USE →</span>
   </button>
 </div>
-```
 
   </div>
 </div>
@@ -442,9 +442,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <button type="button" class="topbar-btn" onclick="showScreen('screen-login')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-```
 
   </div>
   <div style="padding:0 20px">
@@ -465,11 +463,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
     </button>
 
-```
 <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:4px;background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </button>
-```
 
   </div>
   <div class="role-banner" style="justify-content:space-between">
@@ -577,6 +573,34 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
       <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('incidents')">⚠️ LOG INCIDENT</button>
       <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('guards')" class="admin-only-card">👮 VIEW GUARDS</button>
       <button class="btn btn-outline" style="padding:12px;font-size:12px" onclick="navTo('reports')">📋 REPORTS</button>
+    </div>
+  </div>
+  <div class="section admin-only-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="section-title" style="margin-bottom:0">SYSTEM HEALTH</div>
+      <div style="display:flex;align-items:center;gap:5px"><div style="width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite"></div><span style="font-size:10px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:700">LIVE</span></div>
+    </div>
+    <div class="card" style="padding:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;background:var(--accent);border-radius:50%"></div><span style="font-size:12px">Server Uptime</span></div>
+        <span id="sys-uptime" style="font-size:12px;font-weight:600;color:var(--accent);font-family:'Rajdhani',sans-serif">99.98%</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;background:var(--accent);border-radius:50%"></div><span style="font-size:12px">Database</span></div>
+        <span style="font-size:12px;font-weight:600;color:var(--accent);font-family:'Rajdhani',sans-serif">HEALTHY</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;background:var(--accent);border-radius:50%"></div><span style="font-size:12px">API Response</span></div>
+        <span id="sys-api" style="font-size:12px;font-weight:600;color:var(--accent);font-family:'Rajdhani',sans-serif">42ms</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:8px"><div id="sys-error-dot" style="width:8px;height:8px;background:var(--accent);border-radius:50%"></div><span style="font-size:12px">Error Rate</span></div>
+        <span id="sys-errors" style="font-size:12px;font-weight:600;color:var(--accent);font-family:'Rajdhani',sans-serif">0.02%</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px">
+        <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;background:var(--accent);border-radius:50%"></div><span style="font-size:12px">Active Sessions</span></div>
+        <span id="sys-sessions" style="font-size:12px;font-weight:600;font-family:'Rajdhani',sans-serif">7</span>
+      </div>
     </div>
   </div>
 
@@ -715,11 +739,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
       <span style="font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--red);letter-spacing:1px">END</span>
     </button>
 
-```
 <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:4px">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </button>
-```
 
   </div>
   <div style="margin:0 16px 12px;padding:10px 14px;background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);border-radius:10px;display:flex;align-items:center;gap:8px">
@@ -780,14 +802,28 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
   <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="showToast('Add guard feature coming soon','info')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
   </div>
   <div style="padding:0 16px">
-    <div class="stat-grid" style="padding:0 0 16px">
-      <div class="stat-card"><div class="stat-val" style="color:var(--accent)">6</div><div class="stat-label">Active</div></div>
+    <div class="stat-grid" style="padding:0 0 12px">
+      <div class="stat-card"><div class="stat-val" style="color:var(--accent)">6</div><div class="stat-label">On Duty</div></div>
       <div class="stat-card"><div class="stat-val" style="color:var(--amber)">1</div><div class="stat-label">On Break</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--red)">1</div><div class="stat-label">Emergency</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--blue)">1</div><div class="stat-label">Dispatch</div></div>
     </div>
-    <div class="guard-card"><div class="guard-avatar">MS</div><div class="guard-info"><div class="guard-name">Mike Santos</div><div class="guard-meta">North Zone · CP-03 active</div></div><span class="badge badge-green">ON PATROL</span></div>
-    <div class="guard-card"><div class="guard-avatar">LR</div><div class="guard-info"><div class="guard-name">Lisa Rodriguez</div><div class="guard-meta">South Zone · CP-09 next</div></div><span class="badge badge-green">ON PATROL</span></div>
-    <div class="guard-card"><div class="guard-avatar">JC</div><div class="guard-info"><div class="guard-name">James Clarke</div><div class="guard-meta">Break room · Returns 10:30</div></div><span class="badge badge-amber">ON BREAK</span></div>
-    <div class="guard-card"><div class="guard-avatar">RP</div><div class="guard-info"><div class="guard-name">Raj Patel</div><div class="guard-meta">Last seen 2h ago</div></div><span class="badge badge-red">OFFLINE</span></div>
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch">
+      <button class="wf-filter active" onclick="filterGuards(this,'all')">ALL</button>
+      <button class="wf-filter" onclick="filterGuards(this,'on-duty')">ON DUTY</button>
+      <button class="wf-filter" onclick="filterGuards(this,'off-duty')">OFF DUTY</button>
+      <button class="wf-filter" onclick="filterGuards(this,'dispatch')">DISPATCH</button>
+      <button class="wf-filter" onclick="filterGuards(this,'emergency')">EMERGENCY</button>
+      <button class="wf-filter" onclick="filterGuards(this,'break')">ON BREAK</button>
+    </div>
+    <div id="guards-list">
+      <div class="guard-card" data-status="on-duty"><div class="guard-avatar">MS</div><div class="guard-info"><div class="guard-name">Mike Santos</div><div class="guard-meta">North Zone · CP-03 active</div></div><span class="badge badge-green">ON PATROL</span></div>
+      <div class="guard-card" data-status="on-duty"><div class="guard-avatar">LR</div><div class="guard-info"><div class="guard-name">Lisa Rodriguez</div><div class="guard-meta">South Zone · CP-09 next</div></div><span class="badge badge-green">ON PATROL</span></div>
+      <div class="guard-card" data-status="break"><div class="guard-avatar">JC</div><div class="guard-info"><div class="guard-name">James Clarke</div><div class="guard-meta">Break room · Returns 10:30</div></div><span class="badge badge-amber">ON BREAK</span></div>
+      <div class="guard-card" data-status="off-duty"><div class="guard-avatar">RP</div><div class="guard-info"><div class="guard-name">Raj Patel</div><div class="guard-meta">Last seen 2h ago</div></div><span class="badge badge-red">OFFLINE</span></div>
+      <div class="guard-card" data-status="dispatch"><div class="guard-avatar" style="background:rgba(59,130,246,0.15);color:var(--blue)">TB</div><div class="guard-info"><div class="guard-name">Tom Brown</div><div class="guard-meta">Dispatched to Gate B · ETA 4 min</div></div><span class="badge badge-blue">DISPATCH</span></div>
+      <div class="guard-card" data-status="emergency"><div class="guard-avatar" style="background:rgba(255,59,59,0.15);color:var(--red)">AK</div><div class="guard-info"><div class="guard-name">Alex Kim</div><div class="guard-meta">South perimeter · Incident active</div></div><span class="badge badge-red" style="animation:pulse 1s infinite">EMERGENCY</span></div>
+    </div>
   </div>
 </div>
 
@@ -879,11 +915,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="topbar-title">Dispatch & Alerts</div>
     <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" style="background:rgba(255,59,59,0.1);border-color:rgba(255,59,59,0.3)" onclick="newDispatch()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 </button>
-```
 
   </div>
   <div style="padding:0 16px">
@@ -952,12 +986,10 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="topbar-title">Timesheets</div>
     <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" onclick="exportPayroll()" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" title="Export Payroll CSV" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
 <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openPTORequest()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 </button>
-```
 
   </div>
   <div style="padding:0 16px">
@@ -967,7 +999,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
       <div class="tab" onclick="switchTSTab(this,'requests')">Requests</div>
     </div>
 
-```
 <!-- HOURS TAB -->
 <div id="ts-hours">
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
@@ -1056,7 +1087,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     </div>
   </div>
 </div>
-```
 
   </div>
 </div>
@@ -1126,17 +1156,30 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     </button>
   </div>
 
+  <!-- Clock In/Out -->
+
+  <div style="margin:0 16px 12px">
+    <div class="card" style="text-align:center;padding:20px 16px">
+      <div id="guard-clock-timer" style="font-family:'Rajdhani',sans-serif;font-size:42px;font-weight:700;color:var(--accent);letter-spacing:2px;line-height:1">00:00:00</div>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0 14px;font-family:'Rajdhani',sans-serif;letter-spacing:1px" id="guard-clock-label">NOT CLOCKED IN</div>
+      <button id="guard-clock-btn" type="button" onclick="toggleGuardClock()" style="width:100%;padding:14px;border-radius:12px;border:none;background:var(--accent);color:#000;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.5px;cursor:pointer;-webkit-appearance:none;touch-action:manipulation">CLOCK IN</button>
+    </div>
+  </div>
+
   <!-- Guard actions -->
 
-  <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px">
-    <button type="button" class="btn btn-outline" style="padding:15px;font-size:14px" onclick="navTo('incidents')">⚠️ LOG INCIDENT</button>
-    <button type="button" class="btn btn-outline" style="padding:15px;font-size:14px" onclick="navTo('visitors')">🏢 VISITOR LOG</button>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button type="button" class="btn btn-outline" style="padding:13px;font-size:13px" onclick="navTo('passdown')">📝 PASS-DOWN</button>
-      <button type="button" class="btn btn-outline" style="padding:13px;font-size:13px" onclick="navTo('messages')">💬 MESSAGES</button>
-    </div>
-    <button type="button" class="btn btn-outline" style="padding:15px;font-size:14px" onclick="startGuardPatrol()">🚔 START PATROL</button>
-    <button type="button" class="btn btn-outline" style="padding:13px;font-size:13px;border-color:rgba(255,59,59,0.3);color:var(--red)" onclick="openLogout()">↩ END SHIFT &amp; SIGN OUT</button>
+  <div style="padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+    <button type="button" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="startGuardPatrol()"><span style="font-size:20px">🚔</span><span>PATROL</span></button>
+    <button type="button" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="openScanner()"><span style="font-size:20px">📷</span><span>SCAN CP</span></button>
+    <button type="button" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="navTo('schedule')"><span style="font-size:20px">📅</span><span>SCHEDULE</span></button>
+    <button type="button" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="navTo('certs')"><span style="font-size:20px">🎖️</span><span>TRAINING</span></button>
+    <button type="button" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="navTo('incidents')"><span style="font-size:20px">⚠️</span><span>INCIDENT</span></button>
+    <button type="button" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="navTo('visitors')"><span style="font-size:20px">🏢</span><span>VISITORS</span></button>
+    <button type="button" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="navTo('passdown')"><span style="font-size:20px">📝</span><span>PASS-DOWN</span></button>
+    <button type="button" class="btn btn-outline" style="padding:14px;font-size:12px;flex-direction:column;gap:4px;display:flex;align-items:center;justify-content:center" onclick="navTo('messages')"><span style="font-size:20px">💬</span><span>MESSAGES</span></button>
+  </div>
+  <div style="padding:0 16px;margin-bottom:12px">
+    <button type="button" class="btn btn-outline" style="width:100%;padding:13px;font-size:13px;border-color:rgba(255,59,59,0.3);color:var(--red)" onclick="openLogout()">↩ END SHIFT &amp; SIGN OUT</button>
   </div>
 
   <!-- Today stats -->
@@ -1158,9 +1201,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <button type="button" class="topbar-btn" onclick="showScreen('screen-guard-home')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-```
 
   </div>
   <div style="padding:0 20px">
@@ -1273,11 +1314,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="topbar-title">Schedule</div>
     <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="openAddShift()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 </button>
-```
 
   </div>
   <div style="padding:0 16px">
@@ -1371,7 +1410,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
   <div id="msg-direct">
     <div style="padding:8px 16px;font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1.5px">GUARD ↔ SUPERVISOR MESSAGES</div>
 
-```
 <div onclick="openChat('supervisor')" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:rgba(0,255,180,0.1)">
   <div style="width:44px;height:44px;border-radius:14px;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--accent);font-size:14px;position:relative;flex-shrink:0">LR
     <div style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:var(--accent);border-radius:50%;border:2px solid var(--bg)"></div>
@@ -1406,7 +1444,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
   </div>
   <div style="font-size:10px;color:var(--muted);flex-shrink:0">3h</div>
 </div>
-```
 
   </div>
 
@@ -1471,11 +1508,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="topbar-title">Certifications</div>
     <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addCert()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 </button>
-```
 
   </div>
   <div style="padding:0 16px">
@@ -1521,13 +1556,11 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <button type="button" class="topbar-btn" onclick="showScreen('screen-home')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 
 <button type="button" class="topbar-btn" onclick="exportDAR()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
 </button>
-```
 
   </div>
   <div style="padding:0 16px">
@@ -1678,17 +1711,14 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="topbar-title">Post Orders</div>
     <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addPostOrder()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 </button>
-```
 
   </div>
   <div style="padding:0 16px">
     <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Site-specific instructions delivered to guards before each shift</div>
 
-```
 <!-- Site Alpha -->
 <div class="card" style="margin-bottom:10px">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -1760,7 +1790,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
 </div>
 
 <button class="btn btn-accent" onclick="addPostOrder()">+ ADD NEW POST ORDER</button>
-```
 
   </div>
 </div>
@@ -1772,11 +1801,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="topbar-title">Analytics</div>
     <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" onclick="exportAnalytics()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
 </button>
-```
 
   </div>
   <div style="padding:0 16px">
@@ -1786,7 +1813,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
       <div class="tab" onclick="switchAnalyticsTab(this,'incidents')">Incidents</div>
     </div>
 
-```
 <!-- OVERVIEW TAB -->
 <div id="analytics-overview">
   <!-- KPI Row -->
@@ -1968,7 +1994,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div style="font-size:10px;color:var(--muted);margin-top:6px;text-align:center">Peak risk: 20:00–22:00 · Increase patrols during this window</div>
   </div>
 </div>
-```
 
   </div>
 </div>
@@ -1980,11 +2005,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="topbar-title">Invoicing</div>
     <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="createInvoice()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 </button>
-```
 
   </div>
   <div style="padding:0 16px">
@@ -2103,11 +2126,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="topbar-title">Visitor Log</div>
     <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="logNewVisitor()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 </button>
-```
 
   </div>
   <div style="padding:0 16px">
@@ -2194,11 +2215,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="topbar-title">Pass-Down Log</div>
     <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="newPassdown()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 </button>
-```
 
   </div>
   <div style="padding:0 16px">
@@ -2229,11 +2248,9 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <div class="topbar-title">Equipment</div>
     <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" style="background:rgba(0,255,180,0.1);border-color:rgba(0,255,180,0.2)" onclick="addAsset()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 </button>
-```
 
   </div>
   <div style="padding:0 16px">
@@ -2313,7 +2330,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
       <div style="font-size:10px;color:var(--muted);margin-top:10px" id="clock-gps-status">📍 GPS verification ready</div>
     </div>
 
-```
 <!-- Lone Worker Protection -->
 <div class="card" style="margin-bottom:16px">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -2359,7 +2375,6 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     </div>
   </div>
 </div>
-```
 
   </div>
 </div>
@@ -2460,9 +2475,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <button type="button" class="topbar-btn" onclick="showScreen('screen-settings')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-```
 
   </div>
   <div style="padding:0 20px;font-size:13px;line-height:1.7;color:var(--muted)">
@@ -2492,9 +2505,7 @@ label{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(–muted);fo
     <button type="button" class="topbar-btn" onclick="showScreen('screen-settings')" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
 
-```
 <button type="button" class="topbar-btn" onclick="openMenu()" style="margin-left:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-```
 
   </div>
   <div style="padding:0 20px;font-size:13px;line-height:1.7;color:var(--muted)">
@@ -2742,10 +2753,50 @@ showToast(‘Status: On Site’, ‘success’);
 }
 }
 
+var _guardClockIn = false;
+var _guardClockStart = null;
+var _guardClockInterval = null;
+function toggleGuardClock() {
+var btn = document.getElementById(‘guard-clock-btn’);
+var timer = document.getElementById(‘guard-clock-timer’);
+var label = document.getElementById(‘guard-clock-label’);
+if (!_guardClockIn) {
+_guardClockIn = true;
+_guardClockStart = Date.now();
+if (btn) { btn.textContent = ‘CLOCK OUT’; btn.style.background = ‘rgba(255,59,59,0.15)’; btn.style.color = ‘#ff3b3b’; btn.style.border = ‘1px solid rgba(255,59,59,0.3)’; }
+if (label) label.textContent = ‘SHIFT ACTIVE’;
+_guardClockInterval = setInterval(function() {
+var elapsed = Math.floor((Date.now() - _guardClockStart) / 1000);
+var h = Math.floor(elapsed / 3600);
+var m = Math.floor((elapsed % 3600) / 60);
+var s = elapsed % 60;
+if (timer) timer.textContent = (h<10?’0’:’’)+h+’:’+(m<10?’0’:’’)+m+’:’+(s<10?’0’:’’)+s;
+}, 1000);
+showToast(‘Clocked in ✓’, ‘success’);
+} else {
+_guardClockIn = false;
+if (_guardClockInterval) { clearInterval(_guardClockInterval); _guardClockInterval = null; }
+if (btn) { btn.textContent = ‘CLOCK IN’; btn.style.background = ‘var(--accent)’; btn.style.color = ‘#000’; btn.style.border = ‘none’; }
+if (timer) timer.textContent = ‘00:00:00’;
+if (label) label.textContent = ‘NOT CLOCKED IN’;
+showToast(‘Clocked out — shift ended’, ‘info’);
+}
+}
 function startGuardPatrol() {
 showScreen(‘screen-patrol’);
 startGPSTracking();
 showToast(‘Patrol started’, ‘success’);
+}
+
+function filterGuards(btn, status) {
+var filters = document.querySelectorAll('.wf-filter');
+for (var i = 0; i < filters.length; i++) filters[i].classList.remove('active');
+btn.classList.add('active');
+var cards = document.querySelectorAll('#guards-list .guard-card');
+for (var j = 0; j < cards.length; j++) {
+var ds = cards[j].getAttribute('data-status') || '';
+cards[j].style.display = (status === 'all' || ds === status) ? 'flex' : 'none';
+}
 }
 
 // ── DISPATCH & ALERTS ─────────────────────────────────────────────────────
@@ -2837,7 +2888,7 @@ function returnAsset(btn) {
 var row = btn.parentNode;
 btn.textContent = ‘✓ RETURNED’;
 btn.style.background = ‘rgba(0,255,180,0.1)’;
-btn.style.color = ‘var(–accent)’;
+btn.style.color = ‘var(--accent)’;
 btn.disabled = true;
 showToast(‘Equipment returned ✓’, ‘success’);
 }
@@ -2962,7 +3013,7 @@ viNextStep(4);
 
 function signOff() {
 var box = document.querySelector(’.sig-box’);
-if (box) { box.textContent = ’✓ Signed — ’ + new Date().toLocaleTimeString(); box.style.color = ‘var(–accent)’; box.style.borderColor = ‘rgba(0,255,180,0.3)’; }
+if (box) { box.textContent = ’✓ Signed — ’ + new Date().toLocaleTimeString(); box.style.color = ‘var(--accent)’; box.style.borderColor = ‘rgba(0,255,180,0.3)’; }
 inspectionSigned = true;
 }
 
@@ -3021,10 +3072,21 @@ function closeMenu() { var w=document.getElementById(‘menu-wrapper’); if(w) 
 
 function openShareModal() { document.getElementById(‘share-modal’).classList.add(‘open’); }
 function closeShare() { document.getElementById(‘share-modal’).classList.remove(‘open’); }
+function closeShareModal() { closeShare(); }
 function copyLink() {
-if (navigator.clipboard) { navigator.clipboard.writeText(‘https://shieldsync-jbsx.vercel.app’); }
+if (navigator.clipboard) { navigator.clipboard.writeText(‘https://shieldsync-app.vercel.app’); }
 showToast(‘Link copied!’, ‘success’);
 }
+function copyShareLink() { copyLink(); }
+function sendShareInvite() {
+var el = document.getElementById(‘share-email’);
+if (!el || !el.value) { showToast(‘Enter an email address’, ‘warning’); return; }
+showToast(‘Invite sent to ‘ + el.value, ‘success’);
+el.value = ‘’;
+}
+function cancelSOS() { closeSOS(); }
+function confirmLogout() { performLogout(); }
+function confirmEndPatrol() { returnToBase(); }
 
 function startPatrolTimer() {
 if (timerInterval) clearInterval(timerInterval);
@@ -3069,11 +3131,11 @@ var sig = document.querySelector(’.sig-box’);
 if (sig && sig.textContent === ‘SIGN OFF REPORT’) {
 showToast(‘Please sign off the report first’, ‘warning’);
 sig.style.borderColor = ‘rgba(245,166,35,0.5)’;
-sig.style.color = ‘var(–amber)’;
+sig.style.color = ‘var(--amber)’;
 sig.textContent = ‘TAP HERE TO SIGN’;
 sig.onclick = function() {
 sig.textContent = ‘✓ Signed — ’ + new Date().toLocaleTimeString();
-sig.style.color = ‘var(–accent)’;
+sig.style.color = ‘var(--accent)’;
 sig.style.borderColor = ‘rgba(0,255,180,0.3)’;
 };
 return;
@@ -3081,7 +3143,7 @@ return;
 var btn = document.querySelector(’#screen-reports .btn-accent’);
 if (btn) { btn.textContent = ‘SUBMITTING…’; btn.disabled = true; btn.style.opacity = ‘0.7’; }
 setTimeout(function() {
-if (btn) { btn.textContent = ‘✓ REPORT SUBMITTED’; btn.style.background = ‘rgba(0,255,180,0.2)’; btn.style.color = ‘var(–accent)’; btn.style.border = ‘1px solid rgba(0,255,180,0.3)’; }
+if (btn) { btn.textContent = ‘✓ REPORT SUBMITTED’; btn.style.background = ‘rgba(0,255,180,0.2)’; btn.style.color = ‘var(--accent)’; btn.style.border = ‘1px solid rgba(0,255,180,0.3)’; }
 showToast(‘End of shift report submitted!’, ‘success’);
 }, 1000);
 }
@@ -3101,7 +3163,7 @@ if (el) el.style.display = panels[j] === tab ? ‘block’ : ‘none’;
 
 function signSupervisor() {
 var sig = document.getElementById(‘sup-sig’);
-if (sig) { sig.textContent = ’✓ Signed — ’ + new Date().toLocaleTimeString(); sig.style.color = ‘var(–accent)’; sig.style.borderColor = ‘rgba(0,255,180,0.3)’; }
+if (sig) { sig.textContent = ’✓ Signed — ’ + new Date().toLocaleTimeString(); sig.style.color = ‘var(--accent)’; sig.style.borderColor = ‘rgba(0,255,180,0.3)’; }
 }
 
 function submitSupervisorReport() {
@@ -3110,7 +3172,7 @@ if (sig && sig.textContent === ‘TAP TO SIGN’) { showToast(‘Please sign off
 var btn = event.target;
 btn.textContent = ‘SUBMITTING…’; btn.disabled = true; btn.style.opacity = ‘0.7’;
 setTimeout(function() {
-btn.textContent = ‘✓ SUBMITTED’; btn.style.background = ‘rgba(0,255,180,0.15)’; btn.style.color = ‘var(–accent)’;
+btn.textContent = ‘✓ SUBMITTED’; btn.style.background = ‘rgba(0,255,180,0.15)’; btn.style.color = ‘var(--accent)’;
 showToast(‘Supervisor report submitted!’, ‘success’);
 }, 1000);
 }
@@ -3202,7 +3264,7 @@ btn.classList.add(‘active’);
 
 function signIncidentReport() {
 var sig = document.getElementById(‘ir-sig’);
-if (sig) { sig.textContent = ’✓ Signed — ’ + new Date().toLocaleTimeString(); sig.style.color = ‘var(–accent)’; sig.style.borderColor = ‘rgba(0,255,180,0.3)’; }
+if (sig) { sig.textContent = ’✓ Signed — ’ + new Date().toLocaleTimeString(); sig.style.color = ‘var(--accent)’; sig.style.borderColor = ‘rgba(0,255,180,0.3)’; }
 }
 
 function submitIncidentReport() {
@@ -3344,7 +3406,7 @@ showScreen(‘screen-patrol-report’);
 
 function signPatrolReport() {
 var sig = document.getElementById(‘pr-sig’);
-if (sig) { sig.textContent = ’✓ Signed — ’ + new Date().toLocaleTimeString(); sig.style.color = ‘var(–accent)’; sig.style.borderColor = ‘rgba(0,255,180,0.3)’; }
+if (sig) { sig.textContent = ’✓ Signed — ’ + new Date().toLocaleTimeString(); sig.style.color = ‘var(--accent)’; sig.style.borderColor = ‘rgba(0,255,180,0.3)’; }
 }
 
 function toggleIncidentDuring(hasIncident) {
@@ -3440,12 +3502,12 @@ var btn = document.getElementById(‘enroute-btn’);
 var siteBtn = document.getElementById(‘onsite-btn’);
 if (officerStatus === ‘enroute’) {
 officerStatus = ‘off’;
-if (btn) { btn.style.background = ‘rgba(59,130,246,0.1)’; btn.style.color = ‘var(–blue)’; btn.style.borderColor = ‘rgba(59,130,246,0.4)’; btn.textContent = ‘ENROUTE’; }
+if (btn) { btn.style.background = ‘rgba(59,130,246,0.1)’; btn.style.color = ‘var(--blue)’; btn.style.borderColor = ‘rgba(59,130,246,0.4)’; btn.textContent = ‘ENROUTE’; }
 showToast(‘Status cleared’, ‘info’);
 } else {
 officerStatus = ‘enroute’;
-if (btn) { btn.style.background = ‘var(–blue)’; btn.style.color = ‘#fff’; btn.style.borderColor = ‘var(–blue)’; btn.textContent = ‘● ENROUTE’; }
-if (siteBtn) { siteBtn.style.background = ‘transparent’; siteBtn.style.color = ‘var(–muted)’; }
+if (btn) { btn.style.background = ‘var(--blue)’; btn.style.color = ‘#fff’; btn.style.borderColor = ‘var(--blue)’; btn.textContent = ‘● ENROUTE’; }
+if (siteBtn) { siteBtn.style.background = ‘transparent’; siteBtn.style.color = ‘var(--muted)’; }
 showToast(‘Status: En Route to site’, ‘info’);
 }
 }
@@ -3455,12 +3517,12 @@ var btn = document.getElementById(‘onsite-btn’);
 var erBtn = document.getElementById(‘enroute-btn’);
 if (officerStatus === ‘onsite’) {
 officerStatus = ‘off’;
-if (btn) { btn.style.background = ‘transparent’; btn.style.color = ‘var(–muted)’; btn.style.borderColor = ‘rgba(255,255,255,0.07)’; btn.textContent = ‘ON SITE’; }
+if (btn) { btn.style.background = ‘transparent’; btn.style.color = ‘var(--muted)’; btn.style.borderColor = ‘rgba(255,255,255,0.07)’; btn.textContent = ‘ON SITE’; }
 showToast(‘Status cleared’, ‘info’);
 } else {
 officerStatus = ‘onsite’;
-if (btn) { btn.style.background = ‘var(–accent)’; btn.style.color = ‘#000’; btn.style.borderColor = ‘var(–accent)’; btn.textContent = ‘● ON SITE’; }
-if (erBtn) { erBtn.style.background = ‘rgba(59,130,246,0.1)’; erBtn.style.color = ‘var(–blue)’; erBtn.textContent = ‘ENROUTE’; }
+if (btn) { btn.style.background = ‘var(--accent)’; btn.style.color = ‘#000’; btn.style.borderColor = ‘var(--accent)’; btn.textContent = ‘● ON SITE’; }
+if (erBtn) { erBtn.style.background = ‘rgba(59,130,246,0.1)’; erBtn.style.color = ‘var(--blue)’; erBtn.textContent = ‘ENROUTE’; }
 showToast(‘Status: On Site — shift active’, ‘success’);
 }
 }
@@ -3557,6 +3619,16 @@ adminCards[m].style.display = (role === ‘admin’ || role === ‘supervisor’
 if (role === ‘client’) applyClientRestrictions();
 }
 
+function initSystemHealth() {
+setInterval(function() {
+var api = document.getElementById(‘sys-api’);
+if (api) api.textContent = (Math.floor(Math.random()*30)+28) + ‘ms’;
+var sessions = document.getElementById(‘sys-sessions’);
+if (sessions) sessions.textContent = Math.floor(Math.random()*4)+5;
+}, 5000);
+}
+initSystemHealth();
+
 // ── SCHEDULING ────────────────────────────────────────────────────────────
 function switchSchedView(btn, tab) {
 var tabs = btn.parentNode.querySelectorAll(’.tab’);
@@ -3590,7 +3662,7 @@ showToast(name + ’ · ’ + start + ‘–’ + end + ’ · ’ + site, ‘in
 }
 function assignShift(btn) {
 btn.textContent = ‘ASSIGNED’;
-btn.style.background = ‘var(–accent)’;
+btn.style.background = ‘var(--accent)’;
 btn.disabled = true;
 showToast(‘Shift assigned successfully’, ‘success’);
 }
@@ -3623,18 +3695,33 @@ function closeChatModal() {
 var modal = document.getElementById(‘chat-modal’);
 if (modal) modal.classList.remove(‘open’);
 }
+var _chatExchanges = 0;
 function sendChatMessage() {
 var input = document.getElementById(‘chat-input’);
 if (!input || !input.value.trim()) return;
 var list = document.getElementById(‘chat-messages’);
-if (list) {
-var bubble = document.createElement(‘div’);
-bubble.className = ‘chat-bubble sent’;
-bubble.innerHTML = input.value + ‘<div class="chat-time">’ + new Date().toLocaleTimeString([], {hour:‘2-digit’,minute:‘2-digit’}) + ‘</div>’;
-list.appendChild(bubble);
-list.scrollTop = list.scrollHeight;
+if (!list) { input.value = ‘’; return; }
+if (_chatExchanges >= 6) {
+showToast(‘Message limit reached — start a new conversation’, ‘warning’);
+return;
 }
+var now = new Date().toLocaleTimeString([], {hour:’2-digit’,minute:’2-digit’});
+var sentBubble = document.createElement(‘div’);
+sentBubble.className = ‘chat-bubble sent’;
+sentBubble.innerHTML = input.value + ‘<div class="chat-time">’ + now + ‘</div>’;
+list.appendChild(sentBubble);
+var text = input.value;
 input.value = ‘’;
+_chatExchanges++;
+list.scrollTop = list.scrollHeight;
+setTimeout(function() {
+var recvBubble = document.createElement(‘div’);
+recvBubble.className = ‘chat-bubble recv’;
+var replies = [‘Copy that — acknowledged.’,’Received. Proceeding now.’,’Roger, on it.’,’Understood. Heading over.’,’Confirmed — logged.’];
+recvBubble.innerHTML = replies[Math.floor(Math.random()*replies.length)] + ‘<div class="chat-time">’ + new Date().toLocaleTimeString([], {hour:’2-digit’,minute:’2-digit’}) + ‘</div>’;
+list.appendChild(recvBubble);
+list.scrollTop = list.scrollHeight;
+}, 800);
 }
 function newMessage() { showToast(‘Select a contact to message’, ‘info’); }
 function sendBroadcast() {
@@ -3892,13 +3979,13 @@ var toggle = document.getElementById(‘lone-worker-toggle’);
 var dot = document.getElementById(‘lone-toggle-dot’);
 var panel = document.getElementById(‘lone-worker-panel’);
 if (loneWorkerActive) {
-if (toggle) toggle.style.background = ‘var(–accent)’;
+if (toggle) toggle.style.background = ‘var(--accent)’;
 if (dot) dot.style.left = ‘22px’;
 if (panel) panel.style.display = ‘block’;
 startLoneWorkerTimer();
 showToast(‘Lone worker protection ON’, ‘success’);
 } else {
-if (toggle) toggle.style.background = ‘var(–border)’;
+if (toggle) toggle.style.background = ‘var(--border)’;
 if (dot) dot.style.left = ‘2px’;
 if (panel) panel.style.display = ‘none’;
 if (loneWorkerInterval) clearInterval(loneWorkerInterval);
@@ -3919,11 +4006,11 @@ var ring = document.getElementById(‘lone-ring’);
 if (loneWorkerSeconds <= 300 && loneWorkerSeconds > 60) {
 if (ring) ring.className = ‘lone-worker-ring warning’;
 var cd = document.getElementById(‘lone-countdown’);
-if (cd) cd.style.color = ‘var(–amber)’;
+if (cd) cd.style.color = ‘var(--amber)’;
 } else if (loneWorkerSeconds <= 60) {
 if (ring) ring.className = ‘lone-worker-ring danger’;
 var cd = document.getElementById(‘lone-countdown’);
-if (cd) cd.style.color = ‘var(–red)’;
+if (cd) cd.style.color = ‘var(--red)’;
 }
 if (loneWorkerSeconds <= 0) {
 clearInterval(loneWorkerInterval);
@@ -3938,7 +4025,7 @@ startLoneWorkerTimer();
 var ring = document.getElementById(‘lone-ring’);
 if (ring) ring.className = ‘lone-worker-ring’;
 var cd = document.getElementById(‘lone-countdown’);
-if (cd) cd.style.color = ‘var(–accent)’;
+if (cd) cd.style.color = ‘var(--accent)’;
 showToast(‘✓ Check-in confirmed — timer reset’, ‘success’);
 }
 
@@ -3948,12 +4035,12 @@ manDownActive = !manDownActive;
 var toggle = document.getElementById(‘man-down-toggle’);
 var dot = document.getElementById(‘man-down-dot’);
 if (manDownActive) {
-if (toggle) toggle.style.background = ‘var(–red)’;
+if (toggle) toggle.style.background = ‘var(--red)’;
 if (dot) dot.style.left = ‘22px’;
 startManDownDetection();
 showToast(‘Man-down detection ON’, ‘success’);
 } else {
-if (toggle) toggle.style.background = ‘var(–border)’;
+if (toggle) toggle.style.background = ‘var(--border)’;
 if (dot) dot.style.left = ‘2px’;
 if (manDownInterval) clearInterval(manDownInterval);
 showToast(‘Man-down detection OFF’, ‘info’);
@@ -4059,7 +4146,7 @@ function checkinAsset(btn) {
 var row = btn.parentNode;
 btn.textContent = ‘✓ IN’;
 btn.style.background = ‘rgba(0,255,180,0.1)’;
-btn.style.color = ‘var(–accent)’;
+btn.style.color = ‘var(--accent)’;
 btn.disabled = true;
 showToast(‘Equipment checked in ✓’, ‘success’);
 }
@@ -4158,7 +4245,7 @@ startPatrolTimer();
     <button class="btn btn-accent" style="margin-bottom:8px" onclick="submitPTORequest()">SUBMIT REQUEST</button>
     <button class="btn btn-outline" onclick="closePTOModal()">CANCEL</button>
   </div>
-<
+</div>
 <div id="scanner-modal">
   <div class="topbar" style="background:#000;border-bottom:1px solid rgba(0,255,180,0.1)">
     <button type="button" class="topbar-btn" style="background:rgba(255,255,255,0.08)" onclick="closeScanner()" style="touch-action:manipulation;-webkit-appearance:none;cursor:pointer;background:var(--card);border:1px solid var(--border);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -4189,58 +4276,73 @@ startPatrolTimer();
 
 <div id="toast"></div>
 
-E html>
-
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#080c12">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ShieldSync">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="ShieldSync">
-<meta name="msapplication-TileColor" content="#080c12">
-<link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/shieldsync-icon.svg">
-<link rel="apple-touch-icon" sizes="152x152" href="/shieldsync-icon.svg">
-<link rel="apple-touch-icon" sizes="180x180" href="/shieldsync-icon.svg">
-<link rel="apple-touch-icon" sizes="167x167" href="/icon-192.png">
-<title>ShieldSync</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-</head>
-<body style="margin:0;padding:0;background:#080c12;display:flex;justify-content:center;min-height:100vh">
-
-<div id="app">
-<div id="menu-wrapper">
-  <button type="button" style="position:absolute;inset:0;background:rgba(0,0,0,0.75);border:none;cursor:pointer;-webkit-appearance:none;touch-action:manipulation;padding:0;margin:0;width:100%;height:100%" onclick="closeMenu()"></button>
-  <div style="position:relative;z-index:1;background:#0e1420;border-top:1px solid #1a2332;border-radius:20px 20px 0 0;padding:20px 20px 50px;max-height:85%;overflow-y:auto">
-    <div class="menu-profile"><div class="mp-avatar" id="menu-avatar">A</div><div><div class="mp-name" id="menu-name">Admin</div><div class="mp-role" id="menu-role">Admin</div></div></div>
-    <div class="burger-grid">
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('guards')"><span class="bi-icon">👮</span><span class="bi-label">Guards</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('alerts')"><span class="bi-icon">🔔</span><span class="bi-label">Alerts</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('reports')"><span class="bi-icon">📋</span><span class="bi-label">Reports</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('timesheets')"><span class="bi-icon">🕐</span><span class="bi-label">Timesheets</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('schedule')"><span class="bi-icon">📅</span><span class="bi-label">Schedule</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('messages')"><span class="bi-icon">💬</span><span class="bi-label">Messages</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('certs')"><span class="bi-icon">🎖️</span><span class="bi-label">Certs</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('dar')"><span class="bi-icon">📝</span><span class="bi-label">Activity Log</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('postorders')"><span class="bi-icon">📋</span><span class="bi-label">Post Orders</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('analytics')"><span class="bi-icon">📊</span><span class="bi-label">Analytics</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('invoicing')"><span class="bi-icon">💰</span><span class="bi-label">Invoicing</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('visitors')"><span class="bi-icon">🏢</span><span class="bi-label">Visitors</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('passdown')"><span class="bi-icon">📝</span><span class="bi-label">Pass-Down</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('assets')"><span class="bi-icon">🔧</span><span class="bi-label">Equipment</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('clock')"><span class="bi-icon">⏱️</span><span class="bi-label">My Shift</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();openAIReport()"><span class="bi-icon">✨</span><span class="bi-label">AI Reports</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();navTo('settings')"><span class="bi-icon">⚙️</span><span class="bi-label">Settings</span></button>
-      <button type="button" class="burger-item" onclick="closeMenu();openShareModal()"><span class="bi-icon">🔗</span><span class="bi-label">Share</span></button>
+<!-- SOS MODAL -->
+<div class="modal" id="sos-modal">
+  <div class="modal-box" style="border:2px solid rgba(255,59,59,0.5);background:#0e0a0a">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:48px;margin-bottom:8px">🚨</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#ff3b3b;letter-spacing:2px">SOS EMERGENCY</div>
+      <div style="font-size:12px;color:#6b7a8d;margin-top:6px">Emergency services and supervisors will be notified with your GPS location</div>
     </div>
-    <button type="button" onclick="closeMenu();openLogout()" style="width:100%;margin-top:16px;padding:14px;background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.2);border-radius:12px;color:#ff3b3b;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;cursor:pointer;-webkit-appearance:none;touch-action:manipulation">↩ SIGN OUT</button>
+    <div id="sos-countdown" style="text-align:center;font-family:'Rajdhani',sans-serif;font-size:48px;font-weight:700;color:#ff3b3b;margin:16px 0">5</div>
+    <div style="font-size:11px;color:#6b7a8d;text-align:center;margin-bottom:16px">Sending alert in <span id="sos-count-label">5</span> seconds...</div>
+    <button class="btn" style="width:100%;background:rgba(255,59,59,0.15);border:1px solid rgba(255,59,59,0.4);color:#ff3b3b;font-weight:700;margin-bottom:8px" onclick="confirmSOS()">SEND SOS NOW</button>
+    <button class="btn btn-outline" onclick="cancelSOS()">CANCEL — I'M SAFE</button>
   </div>
 </div>
+
+<!-- END PATROL MODAL -->
+<div class="modal" id="end-patrol-modal">
+  <div class="modal-box">
+    <div class="modal-title">End Patrol</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Confirm you have completed your patrol route and all checkpoints have been logged.</div>
+    <div id="end-patrol-summary" style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.15);border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted)">Checkpoints Scanned</span><span id="pr-checkpoints" style="font-weight:600">0 / 10</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--muted)">Duration</span><span id="pr-duration" style="font-weight:600">0h 0m</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Vehicle</span><span id="pr-vehicle" style="font-weight:600">—</span></div>
+    </div>
+    <div class="field" style="margin-bottom:12px">
+      <label>PATROL NOTES (OPTIONAL)</label>
+      <textarea id="end-patrol-notes" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;resize:none;height:70px;box-sizing:border-box" placeholder="Any observations, anomalies, or notes..."></textarea>
+    </div>
+    <button class="btn btn-accent" style="margin-bottom:8px" onclick="confirmEndPatrol()">CONFIRM END PATROL</button>
+    <button class="btn btn-outline" onclick="closeEndPatrol()">CONTINUE PATROL</button>
+  </div>
+</div>
+
+<!-- LOGOUT MODAL -->
+<div class="modal" id="logout-modal">
+  <div class="modal-box">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:40px;margin-bottom:8px">👋</div>
+      <div class="modal-title" style="margin-bottom:6px">Sign Out?</div>
+      <div style="font-size:13px;color:var(--muted)">Make sure you've clocked out before signing out. Any unsynced data will be saved locally.</div>
+    </div>
+    <button class="btn" style="width:100%;background:rgba(255,59,59,0.1);border:1px solid rgba(255,59,59,0.3);color:#ff3b3b;font-weight:700;margin-bottom:8px" onclick="confirmLogout()">SIGN OUT</button>
+    <button class="btn btn-outline" onclick="closeLogout()">STAY SIGNED IN</button>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="modal" id="share-modal">
+  <div class="modal-box">
+    <div class="modal-title">Share ShieldSync</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Share access to this platform with team members or clients.</div>
+    <div style="background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.15);border-radius:10px;padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <div style="flex:1;font-size:12px;color:var(--text);word-break:break-all;font-family:monospace">https://shieldsync-app.vercel.app</div>
+      <button type="button" onclick="copyShareLink()" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;font-family:'Rajdhani',sans-serif;cursor:pointer;white-space:nowrap">COPY</button>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;margin-bottom:8px">INVITE BY EMAIL</div>
+      <div style="display:flex;gap:8px">
+        <input type="email" id="share-email" placeholder="officer@company.com" style="flex:1;padding:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;outline:none">
+        <button type="button" onclick="sendShareInvite()" style="background:var(--accent);color:#000;border:none;border-radius:10px;padding:12px 16px;font-size:12px;font-weight:700;font-family:'Rajdhani',sans-serif;cursor:pointer">INVITE</button>
+      </div>
+    </div>
+    <button class="btn btn-outline" onclick="closeShareModal()">CLOSE</button>
+  </div>
+</div>
+
 </div>
 </body>
 </html>
