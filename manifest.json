@@ -1,0 +1,30 @@
+{
+  "name": "ShieldSync — Security Operations",
+  "short_name": "ShieldSync",
+  "description": "AI-powered workforce operations and patrol management platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080c12",
+  "theme_color": "#00ffb4",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/shieldsync-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "categories": ["productivity", "security", "business"],
+  "shortcuts": [
+    {
+      "name": "Log Incident",
+      "short_name": "Incident",
+      "url": "/?action=incident",
+      "description": "Quickly log a security incident"
+    },
+    {
+      "name": "Start Patrol",
+      "short_name": "Patrol",
+      "url": "/?action=patrol",
+      "description": "Begin a patrol shift"
+    }
+  ]
+}
