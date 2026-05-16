@@ -370,6 +370,51 @@ textarea.finp{resize:vertical;min-height:70px;}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--g);color:var(--bg0);padding:10px 18px;border-radius:9px;font-size:12px;font-weight:700;z-index:999;animation:fi .2s ease;font-family:var(--ui);}
 @media(max-width:900px){.sg{grid-template-columns:repeat(2,minmax(0,1fr));}#sidebar{width:170px;min-width:170px;}.scval{font-size:20px;}}
 @media(max-width:600px){.sg{grid-template-columns:repeat(2,minmax(0,1fr));}}
+
+/* ===== AI Business Operations Center ===== */
+.ai-tab{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px 8px 0 0;font-family:var(--ui);font-size:11px;font-weight:700;color:var(--t3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s;white-space:nowrap;}
+.ai-tab:hover{color:var(--t1);background:var(--bg3);}
+.ai-tab.on{color:var(--p);border-bottom-color:var(--p);}
+.bi-grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:14px;}
+.bi-kpi{background:var(--bg2);border:1px solid var(--b1);border-radius:11px;padding:14px;position:relative;overflow:hidden;}
+.bi-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.bi-kpi-c::before{background:var(--c);}
+.bi-kpi-g::before{background:var(--g);}
+.bi-kpi-p::before{background:var(--p);}
+.bi-kpi-a::before{background:var(--a);}
+.bi-kpi-val{font-family:var(--mono);font-size:22px;font-weight:700;}
+.bi-kpi-lbl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;}
+.bi-kpi-dl{font-size:10px;margin-top:4px;display:flex;align-items:center;gap:3px;}
+.pred-heat-grid{display:grid;grid-template-columns:80px repeat(7,1fr);gap:3px;}
+.heat-lbl{display:flex;align-items:center;font-size:9px;color:var(--t3);padding:2px 0;}
+.heat-hdr{font-size:8px;font-weight:700;color:var(--t4);text-align:center;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;padding:3px 0;}
+.heat-cell{border-radius:4px;height:24px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;}
+.heat-ok{background:rgba(34,211,165,.15);color:var(--g);}
+.heat-warn{background:rgba(245,158,11,.14);color:var(--a);}
+.heat-gap{background:rgba(244,63,94,.12);color:var(--r);}
+.auto-item{display:flex;align-items:center;gap:11px;padding:11px 14px;border-bottom:1px solid var(--b1);transition:background .1s;}
+.auto-item:last-child{border-bottom:none;}
+.auto-item:hover{background:var(--bg3);}
+.auto-ico{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.auto-name{font-size:12px;font-weight:600;color:var(--t1);}
+.auto-desc{font-size:10px;color:var(--t3);margin-top:1px;}
+.ins-item{padding:12px 14px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .12s;}
+.ins-item:hover{background:var(--bg3);}
+.ins-item:last-child{border-bottom:none;}
+.ins-type{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.ins-title{font-size:12px;font-weight:600;color:var(--t1);margin-bottom:3px;}
+.ins-body{font-size:10px;color:var(--t3);line-height:1.45;}
+.ins-meta{font-size:9px;color:var(--t4);margin-top:5px;font-family:var(--mono);}
+.ai-typing{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;background:var(--bg3);border-radius:7px;}
+.ai-typing span{width:5px;height:5px;border-radius:50%;background:var(--p);animation:dotpulse 1.2s infinite;}
+.ai-typing span:nth-child(2){animation-delay:.2s;}
+.ai-typing span:nth-child(3){animation-delay:.4s;}
+@keyframes dotpulse{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+.ai-act-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px;}
+.ai-act-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--b2);background:var(--bg3);color:var(--t3);font-family:var(--ui);transition:all .12s;}
+.ai-act-btn:hover{border-color:var(--c);color:var(--c);}
+.health-score-ring{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.health-inner{width:76px;height:76px;border-radius:50%;background:var(--bg1);display:flex;flex-direction:column;align-items:center;justify-content:center;}
 </style>
 </head>
 <body>
@@ -463,7 +508,7 @@ textarea.finp{resize:vertical;min-height:70px;}
     <button class="nt" onclick="nav('patrol',this)"><i class="ti ti-route"></i> Patrol</button>
     <button class="nt" onclick="nav('dispatch',this)"><i class="ti ti-broadcast"></i> Dispatch <span class="nb a">3</span></button>
     <button class="nt" onclick="nav('reports',this)"><i class="ti ti-file-report"></i> Reports <span class="nb g">12</span></button>
-    <button class="nt" onclick="nav('ai',this)"><i class="ti ti-brain"></i> AI Copilot</button>
+    <button class="nt" onclick="nav('ai',this)"><i class="ti ti-brain"></i> AI Operations <span class="nb c">NEW</span></button>
     <button class="nt" onclick="nav('schedule',this)"><i class="ti ti-calendar"></i> Schedule</button>
     <button class="nt" onclick="nav('payroll',this)"><i class="ti ti-cash"></i> Payroll</button>
     <button class="nt" onclick="nav('visitors',this)"><i class="ti ti-id-badge"></i> Visitors</button>
@@ -516,7 +561,7 @@ textarea.finp{resize:vertical;min-height:70px;}
   <div class="sbdiv"></div>
   <div class="sbsec">
     <div class="sblbl">Intelligence</div>
-    <button class="sbi" onclick="nav('ai',null,this)"><span class="ico"><i class="ti ti-brain"></i></span>AI Copilot</button>
+    <button class="sbi" onclick="nav('ai',null,this)"><span class="ico"><i class="ti ti-brain"></i></span>AI Operations<span class="sbg c">NEW</span></button>
     <button class="sbi" onclick="nav('analytics',null,this)"><span class="ico"><i class="ti ti-chart-arrows"></i></span>Analytics</button>
     <button class="sbi" onclick="nav('compliance',null,this)"><span class="ico"><i class="ti ti-shield-check"></i></span>Compliance</button>
     <button class="sbi" onclick="nav('academy',null,this)"><span class="ico"><i class="ti ti-school"></i></span>Academy</button>
@@ -771,38 +816,325 @@ textarea.finp{resize:vertical;min-height:70px;}
   </tbody></table></div></div>
 </div>
 
-<!-- AI COPILOT -->
+<!-- AI BUSINESS OPERATIONS CENTER -->
 <div id="panel-ai" class="panel">
-  <div class="ph"><div><div class="phtag"><i class="ti ti-sparkles"></i> AI-Powered</div><div class="phtitle">AI Operations Copilot</div><div class="phsub">Operational intelligence · Anomaly detection · Predictive staffing</div></div></div>
-  <div class="g2">
-    <div><div class="card"><div class="ch"><div class="ct"><i class="ti ti-message"></i>Ask Copilot</div><span style="font-size:9px;color:var(--p)"><i class="ti ti-sparkles"></i> Claude-Powered</span></div><div class="cb">
-      <div style="margin-bottom:9px">
-        <div style="font-size:8.5px;color:var(--t4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Quick prompts</div>
-        <button class="ai-chip" onclick="askAI('Show highest-risk site right now.')"><i class="ti ti-flame"></i> Highest-risk</button>
-        <button class="ai-chip" onclick="askAI('Summarize overnight operations.')"><i class="ti ti-moon"></i> Overnight</button>
-        <button class="ai-chip" onclick="askAI('Which officers missed checkpoints today?')"><i class="ti ti-route"></i> Missed CPs</button>
-        <button class="ai-chip" onclick="askAI('Detect time theft patterns this week.')"><i class="ti ti-clock-x"></i> Time theft</button>
-        <button class="ai-chip" onclick="askAI('Predict staffing gaps for tomorrow.')"><i class="ti ti-users"></i> Staffing gaps</button>
-        <button class="ai-chip" onclick="askAI('Show fatigue risk officers.')"><i class="ti ti-zzz"></i> Fatigue risk</button>
-        <button class="ai-chip" onclick="askAI('Identify recurring incident patterns this month.')"><i class="ti ti-repeat"></i> Patterns</button>
-        <button class="ai-chip" onclick="askAI('Give me a full compliance report.')"><i class="ti ti-shield-check"></i> Compliance</button>
-      </div>
-      <div class="ai-inrow"><i class="ti ti-brain" style="color:var(--p);font-size:15px"></i><input class="ai-in" id="ai-in" placeholder="Ask anything about your operations..." onkeydown="if(event.key==='Enter'&&this.value.trim())askAI(this.value)"><button class="btn btn-p btn-sm" onclick="askAI(document.getElementById('ai-in').value)">Run</button></div>
-      <div class="ai-conv" id="ai-conv"></div>
-    </div></div></div>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="card"><div class="ch"><div class="ct"><i class="ti ti-alert-triangle" style="color:var(--r)"></i>AI Anomalies</div></div><div class="cb">
-        <div class="ir"><div class="irdot" style="background:var(--r)"></div><div><div class="irtitle">Patrol Gap — Concourse B</div><div class="irmeta">47 min no scan · 94% conf</div></div><span class="sev sev-h">CRITICAL</span></div>
-        <div class="ir"><div class="irdot" style="background:var(--a)"></div><div><div class="irtitle">Attendance — R.Walsh</div><div class="irmeta">3 late clock-ins this week</div></div><span class="sev sev-m">REVIEW</span></div>
-        <div class="ir"><div class="irdot" style="background:var(--p)"></div><div><div class="irtitle">Fatigue Risk — Sofia R.</div><div class="irmeta">68hrs · rest recommended</div></div><span class="sev sev-c">FATIGUE</span></div>
-      </div></div>
-      <div class="card"><div class="ch"><div class="ct"><i class="ti ti-users"></i>Predictive Staffing</div></div><div class="cb" style="display:flex;flex-direction:column;gap:6px">
-        <div style="background:var(--bg3);border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;font-weight:600;color:var(--t1)">Tomorrow Morning</div><div style="font-size:10px;color:var(--t4)">06:00–14:00 · All sites</div></div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--g)">✓ Covered</div></div>
-        <div style="background:var(--bg3);border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(245,158,11,.16)"><div><div style="font-size:12px;font-weight:600;color:var(--t1)">Tomorrow Evening</div><div style="font-size:10px;color:var(--t4)">18:00–02:00 · Downtown</div></div><div style="text-align:right"><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--a)">⚠ Gap</div><div style="font-size:9px;color:var(--t4)">Need +2</div></div></div>
-        <div style="background:var(--bg3);border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;font-weight:600;color:var(--t1)">Airport Night</div><div style="font-size:10px;color:var(--t4)">22:00–06:00</div></div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--g)">✓ Covered</div></div>
-      </div></div>
+  <div class="ph">
+    <div>
+      <div class="phtag"><i class="ti ti-sparkles"></i> State-of-the-Art AI</div>
+      <div class="phtitle">AI Business Operations Center</div>
+      <div class="phsub">Conversational intelligence · Business analytics · Predictive ops · Automated workflows · Live insights</div>
+    </div>
+    <div class="phacts">
+      <div style="display:inline-flex;align-items:center;gap:5px;font-size:9px;color:var(--p);font-weight:800;letter-spacing:.1em;background:var(--pg);border:1px solid rgba(129,140,248,.25);border-radius:20px;padding:3px 11px"><span style="width:6px;height:6px;border-radius:50%;background:var(--p);display:inline-block;animation:lp 1.8s ease-out infinite"></span> AI ACTIVE</div>
+      <button class="btn btn-g btn-sm"><i class="ti ti-download"></i> Export</button>
     </div>
   </div>
+
+  <!-- AI MODULE TABS -->
+  <div style="display:flex;gap:1px;border-bottom:1px solid var(--b1);margin-bottom:16px;overflow-x:auto;scrollbar-width:none">
+    <button class="ai-tab on" onclick="aiTab('chat',this)"><i class="ti ti-message-2"></i> AI Copilot</button>
+    <button class="ai-tab" onclick="aiTab('intel',this)"><i class="ti ti-chart-line"></i> Business Intel</button>
+    <button class="ai-tab" onclick="aiTab('predict',this)"><i class="ti ti-telescope"></i> Predictive Ops</button>
+    <button class="ai-tab" onclick="aiTab('automate',this)"><i class="ti ti-robot"></i> Automation</button>
+    <button class="ai-tab" onclick="aiTab('insights',this)"><i class="ti ti-bulb"></i> AI Insights</button>
+  </div>
+
+  <!-- ── TAB: AI COPILOT ── -->
+  <div id="ait-chat">
+    <div class="g2">
+      <div>
+        <div class="card">
+          <div class="ch"><div class="ct"><i class="ti ti-message-2" style="color:var(--p)"></i>AI Copilot</div><span style="font-size:9px;color:var(--p);font-weight:700"><i class="ti ti-sparkles"></i> Claude-Powered</span></div>
+          <div class="cb">
+            <div style="margin-bottom:11px">
+              <div style="font-size:8px;color:var(--t4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px">Quick Prompts</div>
+              <div style="margin-bottom:6px">
+                <div style="font-size:8px;color:var(--t4);margin-bottom:4px;letter-spacing:.06em;text-transform:uppercase">Security Ops</div>
+                <button class="ai-chip" onclick="askAI('Show the highest-risk site right now.')"><i class="ti ti-flame"></i> Highest Risk</button>
+                <button class="ai-chip" onclick="askAI('Which officers missed checkpoints today?')"><i class="ti ti-route"></i> Missed CPs</button>
+                <button class="ai-chip" onclick="askAI('Show fatigue risk officers.')"><i class="ti ti-zzz"></i> Fatigue Risk</button>
+                <button class="ai-chip" onclick="askAI('Identify recurring incident patterns this month.')"><i class="ti ti-repeat"></i> Patterns</button>
+              </div>
+              <div style="margin-bottom:6px">
+                <div style="font-size:8px;color:var(--t4);margin-bottom:4px;letter-spacing:.06em;text-transform:uppercase">Business</div>
+                <button class="ai-chip" onclick="askAI('What is our revenue forecast for this month?')"><i class="ti ti-cash"></i> Revenue</button>
+                <button class="ai-chip" onclick="askAI('Which contracts are at risk of non-renewal?')"><i class="ti ti-file-dollar"></i> Contracts</button>
+                <button class="ai-chip" onclick="askAI('Show our labor cost breakdown and optimization opportunities.')"><i class="ti ti-trending-down"></i> Cost Opt</button>
+                <button class="ai-chip" onclick="askAI('What is our profit margin per site?')"><i class="ti ti-chart-bar"></i> Margins</button>
+              </div>
+              <div>
+                <div style="font-size:8px;color:var(--t4);margin-bottom:4px;letter-spacing:.06em;text-transform:uppercase">Workforce</div>
+                <button class="ai-chip" onclick="askAI('Predict staffing gaps for tomorrow.')"><i class="ti ti-users"></i> Staffing Gaps</button>
+                <button class="ai-chip" onclick="askAI('Detect time theft patterns this week.')"><i class="ti ti-clock-x"></i> Time Theft</button>
+                <button class="ai-chip" onclick="askAI('Who are my top performers this month?')"><i class="ti ti-star"></i> Top Performers</button>
+                <button class="ai-chip" onclick="askAI('Give me a full compliance report.')"><i class="ti ti-shield-check"></i> Compliance</button>
+              </div>
+            </div>
+            <div class="ai-inrow"><i class="ti ti-brain" style="color:var(--p);font-size:15px"></i><input class="ai-in" id="ai-in" placeholder="Ask anything — operations, finances, staffing, compliance..." onkeydown="if(event.key==='Enter'&&this.value.trim())askAI(this.value)"><button class="btn btn-p btn-sm" onclick="askAI(document.getElementById('ai-in').value)"><i class="ti ti-send"></i> Run</button></div>
+            <div class="ai-conv" id="ai-conv" style="max-height:400px"></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card">
+          <div class="ch"><div class="ct"><i class="ti ti-alert-triangle" style="color:var(--r)"></i>Live AI Anomalies</div><div class="live-ind"><span class="dlive"></span>Now</div></div>
+          <div class="cb">
+            <div class="ir"><div class="irdot" style="background:var(--r)"></div><div><div class="irtitle">Patrol Gap — Concourse B</div><div class="irmeta">47 min no scan · 94% confidence</div></div><span class="sev sev-h">CRITICAL</span></div>
+            <div class="ir"><div class="irdot" style="background:var(--a)"></div><div><div class="irtitle">Time Anomaly — R.Walsh</div><div class="irmeta">3 late clock-ins · GPS mismatch</div></div><span class="sev sev-m">REVIEW</span></div>
+            <div class="ir"><div class="irdot" style="background:var(--p)"></div><div><div class="irtitle">Fatigue Risk — Sofia R.</div><div class="irmeta">68hrs this week · rest required</div></div><span class="sev sev-c">FATIGUE</span></div>
+            <div class="ir"><div class="irdot" style="background:var(--a)"></div><div><div class="irtitle">Budget Overrun Risk — Q2</div><div class="irmeta">OT spend +18% above forecast</div></div><span class="sev sev-m">FINANCE</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct"><i class="ti ti-users"></i>Predictive Staffing</div></div>
+          <div class="cb" style="display:flex;flex-direction:column;gap:6px">
+            <div style="background:var(--bg3);border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;font-weight:600;color:var(--t1)">Tomorrow Morning</div><div style="font-size:10px;color:var(--t4)">06:00–14:00 · All sites</div></div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--g)">✓ Covered</div></div>
+            <div style="background:var(--bg3);border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(245,158,11,.16)"><div><div style="font-size:12px;font-weight:600;color:var(--t1)">Tomorrow Evening</div><div style="font-size:10px;color:var(--t4)">18:00–02:00 · Downtown</div></div><div style="text-align:right"><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--a)">⚠ Gap</div><div style="font-size:9px;color:var(--t4)">Need +2 officers</div></div></div>
+            <div style="background:var(--bg3);border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;font-weight:600;color:var(--t1)">Airport Night</div><div style="font-size:10px;color:var(--t4)">22:00–06:00 · Airport</div></div><div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--g)">✓ Covered</div></div>
+          </div>
+        </div>
+        <div class="card" style="border-color:rgba(129,140,248,.2)">
+          <div class="ch" style="background:rgba(129,140,248,.04)"><div class="ct"><i class="ti ti-brain" style="color:var(--p)"></i>AI Business Alert</div><span style="font-size:9px;color:var(--p)">Just now</span></div>
+          <div class="cb">
+            <div style="font-size:11px;color:var(--t3);line-height:1.55"><strong style="color:var(--a)">REVENUE RISK:</strong> Client "Harbor Logistics" SLA score dropped to 71% this week. Risk of non-renewal in 45 days. Estimated revenue at risk: <strong style="color:var(--r)">$320k/yr</strong>. Schedule QBR immediately.</div>
+            <button class="btn btn-g btn-sm" style="margin-top:9px" onclick="askAI('What actions should I take to retain the Harbor Logistics contract?')"><i class="ti ti-brain"></i> Get Recommendations</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: BUSINESS INTEL ── -->
+  <div id="ait-intel" style="display:none">
+    <div class="bi-grid4">
+      <div class="bi-kpi bi-kpi-g"><div class="bi-kpi-lbl">Monthly Revenue</div><div class="bi-kpi-val" style="color:var(--g)">$284k</div><div class="bi-kpi-dl up"><i class="ti ti-trending-up"></i> +11.2% vs last month</div></div>
+      <div class="bi-kpi bi-kpi-c"><div class="bi-kpi-lbl">Gross Margin</div><div class="bi-kpi-val" style="color:var(--c)">34.8%</div><div class="bi-kpi-dl dn"><i class="ti ti-trending-down"></i> -2.1% OT pressure</div></div>
+      <div class="bi-kpi bi-kpi-p"><div class="bi-kpi-lbl">Contract Portfolio</div><div class="bi-kpi-val" style="color:var(--p)">$3.4M</div><div class="bi-kpi-dl up"><i class="ti ti-check"></i> 8 active contracts</div></div>
+      <div class="bi-kpi bi-kpi-a"><div class="bi-kpi-lbl">Client NPS</div><div class="bi-kpi-val" style="color:var(--a)">72</div><div class="bi-kpi-dl dn"><i class="ti ti-trending-down"></i> -4 pts this quarter</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><div class="ct"><i class="ti ti-chart-bar"></i>Revenue by Month — 2026</div><button class="btn btn-g btn-sm"><i class="ti ti-download"></i></button></div>
+        <div class="cb">
+          <div style="display:flex;align-items:flex-end;gap:5px;height:110px;margin-bottom:9px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%"><div style="width:100%;margin-top:auto;border-radius:3px 3px 0 0;height:68%;background:rgba(56,189,248,.22)"></div><span style="font-size:8px;color:var(--t4)">J</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%"><div style="width:100%;margin-top:auto;border-radius:3px 3px 0 0;height:72%;background:rgba(56,189,248,.22)"></div><span style="font-size:8px;color:var(--t4)">F</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%"><div style="width:100%;margin-top:auto;border-radius:3px 3px 0 0;height:78%;background:rgba(56,189,248,.22)"></div><span style="font-size:8px;color:var(--t4)">M</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%"><div style="width:100%;margin-top:auto;border-radius:3px 3px 0 0;height:82%;background:rgba(56,189,248,.32)"></div><span style="font-size:8px;color:var(--t4)">A</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%"><div style="width:100%;margin-top:auto;border-radius:3px 3px 0 0;height:100%;background:var(--c)"></div><span style="font-size:8px;color:var(--c);font-weight:700">M◆</span></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;border-top:1px solid var(--b1);padding-top:11px">
+            <div style="text-align:center"><div style="font-size:9px;color:var(--t4)">YTD Revenue</div><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t1)">$1.28M</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--t4)">Avg Monthly</div><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t1)">$256k</div></div>
+            <div style="text-align:center"><div style="font-size:9px;color:var(--t4)">Annual Run Rate</div><div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--g)">$3.1M</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct"><i class="ti ti-file-dollar"></i>Contract Portfolio</div><button class="btn btn-g btn-sm"><i class="ti ti-plus"></i> New</button></div>
+        <div class="tw"><table>
+          <thead><tr><th>Client</th><th>Value/yr</th><th>SLA</th><th>Renews</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Downtown Properties</strong></td><td style="font-family:var(--mono);color:var(--g)">$820k</td><td style="color:var(--g)">97%</td><td style="font-family:var(--mono);color:var(--t4)">Dec 2026</td><td><span class="s s-onsite">Healthy</span></td></tr>
+            <tr><td><strong>Miami Airport Auth.</strong></td><td style="font-family:var(--mono);color:var(--g)">$640k</td><td style="color:var(--c)">94%</td><td style="font-family:var(--mono);color:var(--t4)">Sep 2026</td><td><span class="s s-patrol">Renewing</span></td></tr>
+            <tr><td><strong>Westside Mall Corp</strong></td><td style="font-family:var(--mono);color:var(--c)">$480k</td><td style="color:var(--c)">91%</td><td style="font-family:var(--mono);color:var(--t4)">Mar 2027</td><td><span class="s s-onsite">Healthy</span></td></tr>
+            <tr><td><strong>Harbor Logistics</strong></td><td style="font-family:var(--mono);color:var(--a)">$320k</td><td style="color:var(--r)">71%</td><td style="font-family:var(--mono);color:var(--r)">Jul 2026</td><td><span class="s s-incident">At Risk</span></td></tr>
+            <tr><td><strong>Corp HQ — Nexus</strong></td><td style="font-family:var(--mono);color:var(--c)">$280k</td><td style="color:var(--g)">99%</td><td style="font-family:var(--mono);color:var(--t4)">Jan 2027</td><td><span class="s s-onsite">Healthy</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><div class="ct"><i class="ti ti-chart-pie"></i>Cost Breakdown — May 2026</div></div>
+        <div class="cb">
+          <div class="ab"><span class="ablbl">Labor (Officers)</span><div class="abtrack"><div class="abfill" style="width:62%;background:var(--c)"></div></div><span class="abval" style="color:var(--c)">62%</span></div>
+          <div class="ab"><span class="ablbl">Overtime</span><div class="abtrack"><div class="abfill" style="width:14%;background:var(--a)"></div></div><span class="abval" style="color:var(--a)">14%</span></div>
+          <div class="ab"><span class="ablbl">Fleet & Equipment</span><div class="abtrack"><div class="abfill" style="width:9%;background:var(--p)"></div></div><span class="abval" style="color:var(--p)">9%</span></div>
+          <div class="ab"><span class="ablbl">Training & Academy</span><div class="abtrack"><div class="abfill" style="width:6%;background:var(--g)"></div></div><span class="abval" style="color:var(--g)">6%</span></div>
+          <div class="ab"><span class="ablbl">Platform & Tech</span><div class="abtrack"><div class="abfill" style="width:5%;background:var(--t3)"></div></div><span class="abval">5%</span></div>
+          <div style="margin-top:11px;padding-top:11px;border-top:1px solid var(--b1)"><div style="display:flex;align-items:center;gap:7px;background:var(--pg);border:1px solid rgba(129,140,248,.18);border-radius:7px;padding:9px 11px"><i class="ti ti-sparkles" style="color:var(--p)"></i><div style="font-size:11px;color:var(--t3)"><strong style="color:var(--p)">AI Recommendation:</strong> Reducing overtime 30% via AI scheduling could save <strong style="color:var(--g)">$47k/quarter</strong>.</div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct"><i class="ti ti-map-pin"></i>Profit Margin by Site</div></div>
+        <div class="cb">
+          <div class="ab"><span class="ablbl">Corporate HQ</span><div class="abtrack"><div class="abfill" style="width:84%;background:var(--g)"></div></div><span class="abval" style="color:var(--g)">41%</span></div>
+          <div class="ab"><span class="ablbl">Downtown Tower</span><div class="abtrack"><div class="abfill" style="width:71%;background:var(--c)"></div></div><span class="abval" style="color:var(--c)">35%</span></div>
+          <div class="ab"><span class="ablbl">Airport</span><div class="abtrack"><div class="abfill" style="width:61%;background:var(--c)"></div></div><span class="abval" style="color:var(--c)">30%</span></div>
+          <div class="ab"><span class="ablbl">Westside Mall</span><div class="abtrack"><div class="abfill" style="width:55%;background:var(--a)"></div></div><span class="abval" style="color:var(--a)">27%</span></div>
+          <div class="ab"><span class="ablbl">Harbor District</span><div class="abtrack"><div class="abfill" style="width:32%;background:var(--r)"></div></div><span class="abval" style="color:var(--r)">16%</span></div>
+          <div style="margin-top:11px;padding-top:11px;border-top:1px solid var(--b1);font-size:10px;color:var(--t3)"><i class="ti ti-alert-triangle" style="color:var(--a)"></i> Harbor margin below 20% threshold. AI suggests <strong style="color:var(--t1)">contract renegotiation or staffing optimization</strong> within 30 days.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: PREDICTIVE OPS ── -->
+  <div id="ait-predict" style="display:none">
+    <div class="sg">
+      <div class="sc sc-c"><div class="sclbl">Forecast Accuracy</div><div class="scval">91%</div><div class="scdl up"><i class="ti ti-check"></i> 30-day model</div></div>
+      <div class="sc sc-a"><div class="sclbl">Predicted Incidents</div><div class="scval">8</div><div class="scdl nu"><i class="ti ti-calendar-week"></i> Next 7 days</div></div>
+      <div class="sc sc-g"><div class="sclbl">Staffing Shortfalls</div><div class="scval">2</div><div class="scdl dn"><i class="ti ti-users"></i> Gaps identified</div></div>
+      <div class="sc sc-r"><div class="sclbl">Budget Burn Rate</div><div class="scval">104%</div><div class="scdl dn"><i class="ti ti-trending-up"></i> Over forecast</div></div>
+    </div>
+    <div class="g2" style="margin-bottom:12px">
+      <div class="card">
+        <div class="ch"><div class="ct"><i class="ti ti-calendar-week"></i>7-Day Staffing Heatmap</div><span style="font-size:9px;color:var(--p)"><i class="ti ti-sparkles"></i> AI Forecast</span></div>
+        <div class="cb">
+          <div class="pred-heat-grid" style="margin-bottom:4px">
+            <div class="heat-hdr"></div><div class="heat-hdr">MON</div><div class="heat-hdr">TUE</div><div class="heat-hdr" style="color:var(--c)">WED◆</div><div class="heat-hdr">THU</div><div class="heat-hdr">FRI</div><div class="heat-hdr">SAT</div><div class="heat-hdr">SUN</div>
+          </div>
+          <div class="pred-heat-grid">
+            <div class="heat-lbl">Downtown</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-warn">⚠</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-gap">!</div><div class="heat-cell heat-gap">!</div>
+            <div class="heat-lbl">Airport</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div>
+            <div class="heat-lbl">Westside</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-warn">⚠</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-gap">!</div><div class="heat-cell heat-gap">!</div>
+            <div class="heat-lbl">Harbor</div><div class="heat-cell heat-warn">⚠</div><div class="heat-cell heat-gap">!</div><div class="heat-cell heat-warn">⚠</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div>
+            <div class="heat-lbl">Corp HQ</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-ok">✓</div><div class="heat-cell heat-gap">!</div><div class="heat-cell heat-gap">!</div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:10px;font-size:9px;color:var(--t4)">
+            <span style="display:flex;align-items:center;gap:3px"><span style="width:9px;height:9px;border-radius:2px;background:rgba(34,211,165,.15);display:inline-block"></span> Covered</span>
+            <span style="display:flex;align-items:center;gap:3px"><span style="width:9px;height:9px;border-radius:2px;background:rgba(245,158,11,.14);display:inline-block"></span> Risk</span>
+            <span style="display:flex;align-items:center;gap:3px"><span style="width:9px;height:9px;border-radius:2px;background:rgba(244,63,94,.12);display:inline-block"></span> Gap</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct"><i class="ti ti-flame"></i>Incident Risk Forecast</div><span style="font-size:9px;color:var(--p)"><i class="ti ti-sparkles"></i> 7-Day Outlook</span></div>
+        <div class="cb">
+          <div style="font-size:10px;color:var(--t3);margin-bottom:10px">Probability of incident per site — next 7 days</div>
+          <div class="ab"><span class="ablbl">Downtown Gate 3</span><div class="abtrack"><div class="abfill" style="width:87%;background:var(--r)"></div></div><span class="abval" style="color:var(--r)">87%</span></div>
+          <div class="ab"><span class="ablbl">Westside Floor 8</span><div class="abtrack"><div class="abfill" style="width:62%;background:var(--a)"></div></div><span class="abval" style="color:var(--a)">62%</span></div>
+          <div class="ab"><span class="ablbl">Airport Concourse</span><div class="abtrack"><div class="abfill" style="width:44%;background:var(--a)"></div></div><span class="abval" style="color:var(--a)">44%</span></div>
+          <div class="ab"><span class="ablbl">Harbor Dock A</span><div class="abtrack"><div class="abfill" style="width:31%;background:var(--c)"></div></div><span class="abval" style="color:var(--c)">31%</span></div>
+          <div class="ab"><span class="ablbl">Corp HQ Lobby</span><div class="abtrack"><div class="abfill" style="width:12%;background:var(--g)"></div></div><span class="abval" style="color:var(--g)">12%</span></div>
+          <div style="margin-top:10px;font-size:10px;color:var(--t3);background:var(--rg);border:1px solid rgba(244,63,94,.18);border-radius:7px;padding:9px 11px"><i class="ti ti-alert-triangle" style="color:var(--r)"></i> <strong style="color:var(--r)">High Alert:</strong> Downtown Gate 3 pattern predicts repeat incident Thu 17:00–19:00.</div>
+        </div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ch"><div class="ct"><i class="ti ti-cash"></i>Budget Burn Rate Forecast</div></div>
+        <div class="cb">
+          <div style="display:flex;gap:10px;margin-bottom:14px">
+            <div style="flex:1;text-align:center;background:var(--bg3);border-radius:9px;padding:11px"><div style="font-size:9px;color:var(--t4);margin-bottom:3px">May Budget</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--t1)">$178k</div></div>
+            <div style="flex:1;text-align:center;background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.15);border-radius:9px;padding:11px"><div style="font-size:9px;color:var(--t4);margin-bottom:3px">Projected Spend</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--r)">$185k</div></div>
+            <div style="flex:1;text-align:center;background:var(--bg3);border-radius:9px;padding:11px"><div style="font-size:9px;color:var(--t4);margin-bottom:3px">Variance</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--a)">+$7k</div></div>
+          </div>
+          <div style="font-size:9px;color:var(--t4);margin-bottom:4px">Spend progress — May 2026 (74% of month elapsed)</div>
+          <div class="prog" style="height:8px;margin-bottom:4px"><div class="pf" style="width:77%;background:linear-gradient(90deg,var(--c),var(--a))"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t4)"><span>$137k spent</span><span>$178k budget</span></div>
+          <div style="margin-top:11px;font-size:10px;color:var(--t3)">Primary driver: <strong style="color:var(--a)">Overtime +18%</strong> vs. forecast. AI suggests freezing discretionary training spend 2 weeks to offset overrun.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct"><i class="ti ti-car"></i>Equipment Maintenance Forecast</div></div>
+        <div class="cb" style="display:flex;flex-direction:column;gap:7px">
+          <div style="background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.15);border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;font-weight:600;color:var(--r)">Body Camera × 3</div><div style="font-size:10px;color:var(--t4)">Battery degraded — replace now</div></div><div style="text-align:right"><div style="font-size:11px;font-weight:700;color:var(--r)">Immediate</div><div style="font-size:9px;color:var(--t4)">Est. $340</div></div></div>
+          <div style="background:var(--bg3);border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;font-weight:600;color:var(--a)">V-07 · Dodge Charger</div><div style="font-size:10px;color:var(--t4)">Service due · 28,500 mi</div></div><div style="text-align:right"><div style="font-size:11px;font-weight:700;color:var(--a)">~3 days</div><div style="font-size:9px;color:var(--t4)">Est. $420</div></div></div>
+          <div style="background:var(--bg3);border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;font-weight:600;color:var(--c)">V-12 · Ford Explorer</div><div style="font-size:10px;color:var(--t4)">Oil change · 15,000 mi</div></div><div style="text-align:right"><div style="font-size:11px;font-weight:700;color:var(--c)">~18 days</div><div style="font-size:9px;color:var(--t4)">Est. $180</div></div></div>
+          <div style="background:var(--bg3);border-radius:7px;padding:9px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;font-weight:600;color:var(--g)">Radio Fleet (14 units)</div><div style="font-size:10px;color:var(--t4)">All units operational</div></div><div style="font-size:11px;font-weight:700;color:var(--g)">✓ Good</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: AUTOMATION ENGINE ── -->
+  <div id="ait-automate" style="display:none">
+    <div class="g32">
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="ch"><div class="ct"><i class="ti ti-robot"></i>Active Automations</div><button class="btn btn-p btn-sm"><i class="ti ti-plus"></i> New Workflow</button></div>
+          <div class="auto-item"><div class="auto-ico" style="background:var(--rg);color:var(--r)"><i class="ti ti-urgent"></i></div><div style="flex:1"><div class="auto-name">SOS Emergency Protocol</div><div class="auto-desc">SOS activated → Notify supervisor + dispatch nearest unit + SMS client</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="auto-item"><div class="auto-ico" style="background:var(--cg);color:var(--c)"><i class="ti ti-route"></i></div><div style="flex:1"><div class="auto-name">Patrol Gap Alert</div><div class="auto-desc">No scan >30 min → AI alert + auto-reassign nearest available officer</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="auto-item"><div class="auto-ico" style="background:var(--ag);color:var(--a)"><i class="ti ti-clock"></i></div><div style="flex:1"><div class="auto-name">Late Clock-In Escalation</div><div class="auto-desc">Clock-in >15 min late → Supervisor SMS + flag timesheet for review</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="auto-item"><div class="auto-ico" style="background:var(--pg);color:var(--p)"><i class="ti ti-file-report"></i></div><div style="flex:1"><div class="auto-name">Daily AI Ops Report</div><div class="auto-desc">23:59 daily → AI generates full ops report + emails to admin &amp; clients</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="auto-item"><div class="auto-ico" style="background:var(--gg);color:var(--g)"><i class="ti ti-calendar"></i></div><div style="flex:1"><div class="auto-name">Smart Shift Backfill</div><div class="auto-desc">Shift uncovered >2h → Notify qualified officers + push open-shift marketplace</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="auto-item"><div class="auto-ico" style="background:rgba(59,130,246,.1);color:#60a5fa"><i class="ti ti-certificate"></i></div><div style="flex:1"><div class="auto-name">Cert Expiry Reminder</div><div class="auto-desc">Cert expires <30 days → Push to officer + auto-enroll in recert course</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="auto-item"><div class="auto-ico" style="background:var(--rg);color:var(--r)"><i class="ti ti-brain"></i></div><div style="flex:1"><div class="auto-name">AI Risk Score Escalation</div><div class="auto-desc">AI risk score >8 at any site → Instant supervisor alert + live camera review</div></div><div class="tog" onclick="this.classList.toggle('on')"></div></div>
+          <div class="auto-item"><div class="auto-ico" style="background:var(--ag);color:var(--a)"><i class="ti ti-cash"></i></div><div style="flex:1"><div class="auto-name">OT Budget Threshold Alert</div><div class="auto-desc">OT exceeds 10% of budget → Finance director + ops lead notified immediately</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="auto-item"><div class="auto-ico" style="background:var(--pg);color:var(--p)"><i class="ti ti-user-star"></i></div><div style="flex:1"><div class="auto-name">Client SLA Breach Alert</div><div class="auto-desc">Client SLA drops below 85% → Account manager + ops director notified</div></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card">
+          <div class="ch"><div class="ct"><i class="ti ti-list-details"></i>Recent Automation Log</div><div class="live-ind"><span class="dlive"></span>Live</div></div>
+          <div>
+            <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 13px;border-bottom:1px solid var(--b1);font-size:10px"><span style="font-family:var(--mono);color:var(--t4);width:38px;flex-shrink:0;margin-top:1px">18:42</span><i class="ti ti-urgent" style="color:var(--r);margin-top:1px"></i><span style="color:var(--t3);flex:1">SOS Protocol fired · K.Foster · Airport · 4 actions executed</span></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 13px;border-bottom:1px solid var(--b1);font-size:10px"><span style="font-family:var(--mono);color:var(--t4);width:38px;flex-shrink:0;margin-top:1px">18:15</span><i class="ti ti-brain" style="color:var(--p);margin-top:1px"></i><span style="color:var(--t3);flex:1">Patrol Gap detected · Concourse B · Supervisor alerted</span></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 13px;border-bottom:1px solid var(--b1);font-size:10px"><span style="font-family:var(--mono);color:var(--t4);width:38px;flex-shrink:0;margin-top:1px">17:55</span><i class="ti ti-clock" style="color:var(--a);margin-top:1px"></i><span style="color:var(--t3);flex:1">Late clock-in · R.Walsh · +14 min · Timesheet flagged</span></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 13px;border-bottom:1px solid var(--b1);font-size:10px"><span style="font-family:var(--mono);color:var(--t4);width:38px;flex-shrink:0;margin-top:1px">16:30</span><i class="ti ti-user-star" style="color:var(--p);margin-top:1px"></i><span style="color:var(--t3);flex:1">SLA breach alert · Harbor Logistics dropped to 71% · AM notified</span></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 13px;border-bottom:1px solid var(--b1);font-size:10px"><span style="font-family:var(--mono);color:var(--t4);width:38px;flex-shrink:0;margin-top:1px">06:00</span><i class="ti ti-file-report" style="color:var(--g);margin-top:1px"></i><span style="color:var(--t3);flex:1">Daily report generated · May 15 · Emailed to 3 recipients</span></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 13px;font-size:10px"><span style="font-family:var(--mono);color:var(--t4);width:38px;flex-shrink:0;margin-top:1px">00:10</span><i class="ti ti-certificate" style="color:var(--c);margin-top:1px"></i><span style="color:var(--t3);flex:1">Cert expiry reminder · D.Johnson · Emergency Response · 28 days</span></div>
+          </div>
+        </div>
+        <div class="card" style="border-color:rgba(129,140,248,.2)">
+          <div class="ch" style="background:rgba(129,140,248,.04)"><div class="ct"><i class="ti ti-wand" style="color:var(--p)"></i>AI Workflow Builder</div><span style="font-size:9px;color:var(--p)">Natural Language</span></div>
+          <div class="cb">
+            <div style="font-size:11px;color:var(--t3);margin-bottom:11px;line-height:1.5">Describe a workflow in plain English and AI will build and activate it for you.</div>
+            <div class="ai-inrow"><i class="ti ti-robot" style="color:var(--p);font-size:14px"></i><input class="ai-in" placeholder='E.g. "When an officer is dispatched, SMS the client contact"' onkeydown="if(event.key==='Enter')showToast('AI Workflow created and activated')"><button class="btn btn-p btn-sm" onclick="showToast('AI Workflow created and activated')"><i class="ti ti-wand"></i> Build</button></div>
+            <div style="margin-top:11px;display:flex;gap:5px;flex-wrap:wrap">
+              <button class="ai-act-btn" onclick="showToast('AI Workflow created and activated')"><i class="ti ti-clock"></i> Auto OT Alert</button>
+              <button class="ai-act-btn" onclick="showToast('AI Workflow created and activated')"><i class="ti ti-user-check"></i> New Hire Onboarding</button>
+              <button class="ai-act-btn" onclick="showToast('AI Workflow created and activated')"><i class="ti ti-file-invoice"></i> Invoice on Contract Renewal</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: AI INSIGHTS ── -->
+  <div id="ait-insights" style="display:none">
+    <div class="g32">
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="ch"><div class="ct"><i class="ti ti-bulb" style="color:var(--p)"></i>AI Insights Feed</div><div class="live-ind"><span class="dlive"></span>Live · AI Generated</div></div>
+          <div class="ins-item"><div class="ins-type" style="color:var(--r)"><i class="ti ti-flame"></i> HIGH PRIORITY — REVENUE</div><div class="ins-title">Contract Non-Renewal Risk — Harbor Logistics</div><div class="ins-body">SLA score dropped to 71% (threshold 85%). Client had 3 SLA breaches this month. If unaddressed, 78% probability of non-renewal in July. Revenue at risk: $320k/yr.</div><div class="ins-meta">Recommended: Schedule QBR · Reassign top-rated officer to site</div></div>
+          <div class="ins-item"><div class="ins-type" style="color:var(--a)"><i class="ti ti-trending-down"></i> COST ALERT — FINANCE</div><div class="ins-title">Overtime Spend 18% Above Q2 Forecast</div><div class="ins-body">$23k in OT costs above budget so far this month. Root cause: Harbor and Downtown understaffed on evenings. AI scheduling optimization could recover $47k this quarter.</div><div class="ins-meta">Recommended: Run AI Schedule Optimizer · Review Q3 hiring plan</div></div>
+          <div class="ins-item"><div class="ins-type" style="color:var(--g)"><i class="ti ti-trending-up"></i> OPPORTUNITY — GROWTH</div><div class="ins-title">Upsell Window — Downtown Properties</div><div class="ins-body">Client NPS at 97%, SLA at 97%, zero complaints in 90 days. Optimal window to propose 24/7 coverage expansion at gates 5 &amp; 6. Potential upside: +$180k/yr revenue.</div><div class="ins-meta">Recommended: Schedule account review call this week</div></div>
+          <div class="ins-item"><div class="ins-type" style="color:var(--c)"><i class="ti ti-users"></i> WORKFORCE — PIPELINE</div><div class="ins-title">Officer Pipeline Thinning — 60-Day Outlook</div><div class="ins-body">Contract growth trajectory requires +6 officers within 60 days. Current hiring pipeline has only 3 candidates. Begin recruiting now to avoid coverage gaps and SLA breaches.</div><div class="ins-meta">Recommended: Post 3 open positions · Fast-track 2 trainees</div></div>
+          <div class="ins-item"><div class="ins-type" style="color:var(--p)"><i class="ti ti-shield-check"></i> COMPLIANCE — CERTIFICATIONS</div><div class="ins-title">3 Emergency Response Certs Expiring in 28 Days</div><div class="ins-body">D. Johnson, K. Foster, T. Brown have Emergency Response certs expiring May 14. Non-compliance could void insurance coverage and trigger client contract penalties.</div><div class="ins-meta">Recommended: Auto-enroll in recertification course today</div></div>
+          <div class="ins-item"><div class="ins-type" style="color:var(--a)"><i class="ti ti-alert-triangle"></i> SECURITY — PATTERN</div><div class="ins-title">Recurring Threat Pattern — Downtown Gate 3</div><div class="ins-body">4 unauthorized entry incidents in 30 days, all between 17:00–19:00. High probability same individual. AI recommends permanent coverage reassignment and CCTV review for that window.</div><div class="ins-meta">Recommended: Reassign officer · Submit CCTV review request</div></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card" style="border-color:rgba(129,140,248,.2)">
+          <div class="ch" style="background:rgba(129,140,248,.04)"><div class="ct"><i class="ti ti-heart-rate-monitor" style="color:var(--p)"></i>Business Health Score</div><span style="font-size:9px;color:var(--p)"><i class="ti ti-sparkles"></i> AI</span></div>
+          <div class="cb" style="display:flex;align-items:center;gap:16px">
+            <div class="health-score-ring" style="background:conic-gradient(var(--c) 76%,var(--bg4) 0)">
+              <div class="health-inner">
+                <div style="font-family:var(--mono);font-size:20px;font-weight:800;color:var(--c)">76</div>
+                <div style="font-size:8px;color:var(--t4)">/100</div>
+              </div>
+            </div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:4px">Good — Improving</div>
+              <div style="font-size:10px;color:var(--t3);line-height:1.5;margin-bottom:9px">Up from 71 last month. Revenue and client retention improving. OT spend and Harbor SLA remain concerns.</div>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <div style="display:flex;align-items:center;gap:6px;font-size:10px"><span style="color:var(--t4);width:72px;flex-shrink:0">Operations</span><div class="prog" style="flex:1;margin:0"><div class="pf" style="width:97%;background:var(--g)"></div></div><span style="color:var(--t3);font-family:var(--mono);width:28px;text-align:right">97</span></div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:10px"><span style="color:var(--t4);width:72px;flex-shrink:0">Finance</span><div class="prog" style="flex:1;margin:0"><div class="pf" style="width:82%;background:var(--c)"></div></div><span style="color:var(--t3);font-family:var(--mono);width:28px;text-align:right">82</span></div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:10px"><span style="color:var(--t4);width:72px;flex-shrink:0">Clients</span><div class="prog" style="flex:1;margin:0"><div class="pf" style="width:71%;background:var(--a)"></div></div><span style="color:var(--t3);font-family:var(--mono);width:28px;text-align:right">71</span></div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:10px"><span style="color:var(--t4);width:72px;flex-shrink:0">Workforce</span><div class="prog" style="flex:1;margin:0"><div class="pf" style="width:62%;background:var(--a)"></div></div><span style="color:var(--t3);font-family:var(--mono);width:28px;text-align:right">62</span></div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:10px"><span style="color:var(--t4);width:72px;flex-shrink:0">Compliance</span><div class="prog" style="flex:1;margin:0"><div class="pf" style="width:89%;background:var(--p)"></div></div><span style="color:var(--t3);font-family:var(--mono);width:28px;text-align:right">89</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct"><i class="ti ti-checklist"></i>Priority Action List</div><span style="font-size:9px;color:var(--p)"><i class="ti ti-sparkles"></i> AI Generated</span></div>
+          <div class="cb" style="padding:10px 14px;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:flex-start;gap:8px;font-size:11px"><div style="width:18px;height:18px;border-radius:4px;background:var(--rg);color:var(--r);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px">1</div><div><div style="color:var(--t1);font-weight:600">Schedule Harbor Logistics QBR</div><div style="color:var(--t4);font-size:10px;margin-top:1px">At-risk $320k contract · Do today</div></div></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;font-size:11px"><div style="width:18px;height:18px;border-radius:4px;background:var(--rg);color:var(--r);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px">2</div><div><div style="color:var(--t1);font-weight:600">Assign +2 officers to Downtown evening</div><div style="color:var(--t4);font-size:10px;margin-top:1px">Staffing gap Thu–Sat · High incident risk</div></div></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;font-size:11px"><div style="width:18px;height:18px;border-radius:4px;background:var(--ag);color:var(--a);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px">3</div><div><div style="color:var(--t1);font-weight:600">Enroll 3 officers in Emergency Recert</div><div style="color:var(--t4);font-size:10px;margin-top:1px">Certs expire in 28 days · Compliance risk</div></div></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;font-size:11px"><div style="width:18px;height:18px;border-radius:4px;background:var(--ag);color:var(--a);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px">4</div><div><div style="color:var(--t1);font-weight:600">Review R.Walsh time theft case</div><div style="color:var(--t4);font-size:10px;margin-top:1px">~34 min unaccounted · 3 incidents this week</div></div></div>
+            <div style="display:flex;align-items:flex-start;gap:8px;font-size:11px"><div style="width:18px;height:18px;border-radius:4px;background:var(--cg);color:var(--c);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;margin-top:1px">5</div><div><div style="color:var(--t1);font-weight:600">Propose expansion to Downtown Properties</div><div style="color:var(--t4);font-size:10px;margin-top:1px">NPS 97 · Optimal upsell window · +$180k/yr</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- SCHEDULE -->
@@ -1257,42 +1589,76 @@ window.showToast=function(msg){
   setTimeout(function(){t.remove();},3000);
 };
 
-// AI COPILOT
+// AI TAB SWITCHER
+window.aiTab=function(name,btn){
+  if(btn){
+    btn.closest('div').querySelectorAll('.ai-tab').forEach(function(t){t.classList.remove('on');});
+    btn.classList.add('on');
+  }
+  ['chat','intel','predict','automate','insights'].forEach(function(n){
+    var el=document.getElementById('ait-'+n);
+    if(el) el.style.display=(n===name)?'block':'none';
+  });
+};
+
+// AI COPILOT — Enhanced responses with action buttons
 var aiR={
-  'highest':'<strong style="color:var(--r)">Downtown Tower — Risk Score 8.2</strong><br><br>Active factors:<br>• Unauthorized entry Gate 3 (14 min ongoing)<br>• Rooftop checkpoint CP-12 missed<br>• Recurring pattern 17:00–19:00 (4 incidents this month)<br><br><strong>Action:</strong> Deploy backup to Gate 3. Escalate to Derek J.',
-  'overnight':'<strong>Overnight Summary — May 12/13</strong><br><br>284 checkpoints completed (97.2%). Zero SOS events. 8 missed/late at Harbor. Sofia completed Airport 100%. 2 alarms Westside resolved. AI flagged Concourse B gap at 03:22.',
-  'missed':'<strong>Checkpoint Gaps — Today</strong><br><br>• <span style="color:var(--r)">Marcus T.</span> — CP-12 Rooftop (responding to incident)<br>• <span style="color:var(--a)">Ryan W.</span> — CP-05, CP-09 late avg +12m<br>• <span style="color:var(--a)">Harbor Unit</span> — CP-C04, C07, C09 missed<br><br>5 missed, 3 late of 284.',
-  'theft':'<strong>Time Theft Analysis</strong><br><br>• <span style="color:var(--a)">Ryan Walsh</span> — 3 clock-ins 8–14 min late. GPS on-site, no patrol. ~34 min unaccounted.<br><br>Recommend GPS audit for R. Walsh Tue–Thu.',
-  'staffing':'<strong>Staffing Forecast — May 14</strong><br><br>• 06:00–14:00: All sites covered ✓<br>• <span style="color:var(--a)">18:00–22:00 Downtown: GAP RISK</span> — Need +2<br>• 22:00–06:00: Airport covered ✓',
-  'fatigue':'<strong>Fatigue Risk</strong><br><br>• <span style="color:var(--r)">Sofia Reyes</span> — 68hrs, 6th consecutive shift. Mandatory rest required.<br>• <span style="color:var(--a)">Kai Nguyen</span> — 54hrs, approaching OT threshold.',
-  'pattern':'<strong>Recurring Patterns — May 2026</strong><br><br>• <span style="color:var(--r)">Gate 3 entries</span>: 4 incidents, 17:00–19:00. Same individual likely. CCTV review recommended.<br>• <span style="color:var(--a)">Westside Floor 8</span>: 3 alarms, possibly faulty sensor.',
-  'compliance':'<strong>Compliance — May 2026: <span style="color:var(--g)">96%</span></strong><br><br>✓ 14,821 events logged<br>✓ All GPS clock-ins verified<br>✓ 187 certs current<br>⚠ 3 certs expiring 28 days<br>⚠ 2 policy violations<br>✓ SOC2 audit trail active'
+  'highest':'<strong style="color:var(--r)">Downtown Tower — Risk Score 8.2 / 10</strong><br><br>Active threat factors:<br>• Unauthorized entry Gate 3 ongoing (14 min) · HIGH severity<br>• Rooftop checkpoint CP-12 missed · response required<br>• Recurring pattern 17:00–19:00 → 4 incidents this month<br>• 1 officer currently on incident response, thinning coverage<br><br><strong style="color:var(--t1)">Recommended actions:</strong><br>1. Deploy backup officer to Gate 3 immediately<br>2. Escalate to Supervisor Derek J.<br>3. Pull CCTV footage for pattern analysis<div class="ai-act-row"><button class="ai-act-btn" onclick="nav(\'dispatch\',null,null)"><i class="ti ti-broadcast"></i> Open Dispatch</button><button class="ai-act-btn" onclick="nav(\'command\',null,null)"><i class="ti ti-map"></i> View Live Map</button></div>',
+  'overnight':'<strong>Overnight Ops Summary — May 12/13</strong><br><br>✓ 284 checkpoints completed (97.2% compliance)<br>✓ Zero SOS events across all sites<br>✓ Sofia R. completed Airport Route B at 100%<br>⚠ 8 missed/late checkpoints at Harbor District<br>⚠ Concourse B unscanned for 47 min (AI flagged 03:22)<br>✓ 2 Westside alarms resolved, no escalation<br><br>Overall overnight grade: <strong style="color:var(--g)">B+ (91%)</strong>',
+  'missed':'<strong>Checkpoint Gaps — Today (284 total)</strong><br><br>• <span style="color:var(--r)">Marcus T.</span> — CP-12 Rooftop · Missed (responding to incident)<br>• <span style="color:var(--a)">Ryan W.</span> — CP-05, CP-09 · Late avg +12 min<br>• <span style="color:var(--a)">Harbor Unit</span> — CP-C04, C07, C09 · Missed<br><br><strong>Total: 5 missed, 3 late</strong> of 284 checkpoints (98.0% rate)<div class="ai-act-row"><button class="ai-act-btn" onclick="nav(\'patrol\',null,null)"><i class="ti ti-route"></i> View Patrol Intel</button></div>',
+  'theft':'<strong>Time Theft Risk Analysis — This Week</strong><br><br>🚨 <span style="color:var(--a)">Ryan Walsh — Flagged</span><br>• 3 clock-ins 8–14 min late (Mon/Tue/Wed)<br>• GPS shows officer on-site during gap periods<br>• No patrol activity recorded during those windows<br>• ~34 min unaccounted across 3 shifts<br><br><strong>Estimated cost:</strong> ~$28 in unearned wages<br><strong>Recommended:</strong> GPS audit Tue–Thu · Formal review<div class="ai-act-row"><button class="ai-act-btn" onclick="nav(\'payroll\',null,null)"><i class="ti ti-cash"></i> Review Timesheets</button></div>',
+  'staffing':'<strong>Staffing Forecast — Tomorrow May 17</strong><br><br>✓ 06:00–14:00 · All sites: Covered (47 officers)<br>⚠ <span style="color:var(--a)">18:00–02:00 · Downtown: GAP RISK</span> — Need +2 officers<br>✓ 22:00–06:00 · Airport Night: Covered (8 officers)<br>⚠ <span style="color:var(--a)">Weekend Harbor: 2-officer shortfall predicted</span><br><br><strong>AI Suggestion:</strong> Offer open shift to K.Nguyen and R.Walsh for Downtown evening.<div class="ai-act-row"><button class="ai-act-btn" onclick="nav(\'schedule\',null,null)"><i class="ti ti-calendar"></i> Open Scheduling</button></div>',
+  'fatigue':'<strong>Fatigue Risk Report</strong><br><br>🔴 <span style="color:var(--r)">Sofia Reyes — CRITICAL</span><br>• 68 hours this week · 6th consecutive shift<br>• Mandatory rest required under labor regulations<br>• Continued assignment creates liability risk<br><br>🟡 <span style="color:var(--a)">Kai Nguyen — MONITOR</span><br>• 54 hours this week · Approaching OT threshold<br>• No fatigue indicators yet — watchlist<div class="ai-act-row"><button class="ai-act-btn" onclick="nav(\'payroll\',null,null)"><i class="ti ti-clock"></i> View Timesheets</button></div>',
+  'pattern':'<strong>Recurring Incident Patterns — May 2026</strong><br><br>🔴 <strong>Downtown Gate 3 — Unauthorized Entry</strong><br>• 4 incidents · All between 17:00–19:00<br>• Same entry vector · likely same individual<br>• 87% probability of repeat this Thursday<br>• CCTV review strongly recommended<br><br>🟡 <strong>Westside Floor 8 — Alarm</strong><br>• 3 alarms this month · Possibly faulty sensor<br>• Maintenance ticket recommended<div class="ai-act-row"><button class="ai-act-btn" onclick="nav(\'dispatch\',null,null)"><i class="ti ti-broadcast"></i> View Incidents</button><button class="ai-act-btn" onclick="nav(\'analytics\',null,null)"><i class="ti ti-chart-arrows"></i> Full Analytics</button></div>',
+  'compliance':'<strong>Compliance Report — May 2026: <span style="color:var(--g)">96%</span></strong><br><br>✓ 14,821 events logged and immutable<br>✓ All GPS clock-ins verified<br>✓ 187 active certifications current<br>✓ SOC2 audit trail active<br>⚠ 3 certs expiring within 28 days<br>⚠ 2 policy violations under review<br><br><strong>Risk areas:</strong> Emergency Response recertification for 3 officers due urgently.<div class="ai-act-row"><button class="ai-act-btn" onclick="nav(\'compliance\',null,null)"><i class="ti ti-shield-check"></i> Full Compliance Log</button></div>',
+  'revenue':'<strong>Revenue Forecast — May 2026</strong><br><br>📈 <span style="color:var(--g)">Current Month: $284k</span> (+11.2% vs April)<br>YTD Revenue: $1.28M<br>Annual Run Rate: <span style="color:var(--g)">$3.1M</span><br><br>⚠ <strong>Risk:</strong> Harbor Logistics ($320k contract) at risk due to SLA breach. If lost, annual run rate drops to $2.78M.<br><br>💡 <strong>Opportunity:</strong> Downtown Properties upsell ($180k) could offset Harbor risk entirely.<div class="ai-act-row"><button class="ai-act-btn" onclick="aiTab(\'intel\',document.querySelector(\'.ai-tab:nth-child(2)\'))"><i class="ti ti-chart-line"></i> Business Intel</button></div>',
+  'contracts':'<strong>Contract Risk Analysis</strong><br><br>🔴 <span style="color:var(--r)">Harbor Logistics — AT RISK</span><br>• SLA: 71% (threshold 85%)<br>• 3 breaches this month<br>• Renewal: Jul 2026 (45 days)<br>• Revenue at risk: $320k/yr<br><br>🟡 <span style="color:var(--a)">Miami Airport Auth. — RENEWING</span><br>• SLA: 94% · Renewal Sep 2026<br>• Renewal discussion needed<br><br>✓ All others healthy.',
+  'cost':'<strong>Labor Cost Optimization — May 2026</strong><br><br>Total labor cost: $136k (76% of $178k budget)<br>⚠ Overtime: $19k — 18% above forecast<br><br><strong style="color:var(--p)">AI Optimization opportunities:</strong><br>• AI-optimized scheduling → -30% OT → save $47k/qtr<br>• Harbor site restructure → save $12k/mo in overstaffing<br>• Reduce training schedule 2 weeks → save $3.4k immediately<div class="ai-act-row"><button class="ai-act-btn" onclick="aiTab(\'intel\',document.querySelector(\'.ai-tab:nth-child(2)\'))"><i class="ti ti-chart-pie"></i> Cost Breakdown</button></div>',
+  'margins':'<strong>Profit Margin by Site — May 2026</strong><br><br>✓ Corporate HQ: <span style="color:var(--g)">41%</span> margin<br>✓ Downtown Tower: <span style="color:var(--c)">35%</span> margin<br>✓ Airport: <span style="color:var(--c)">30%</span> margin<br>✓ Westside Mall: <span style="color:var(--a)">27%</span> margin<br>⚠ Harbor District: <span style="color:var(--r)">16%</span> margin — below 20% threshold<br><br><strong>Harbor action required:</strong> Renegotiate contract rates or restructure staffing model within 30 days.',
+  'performers':'<strong>Top Performers — May 2026</strong><br><br>🥇 <span style="color:var(--g)">Sofia Reyes</span> — Score 10.0/10 · 100% patrol compliance<br>🥈 <span style="color:var(--g)">Tara Chen</span> — Score 9.7/10 · Zero incidents<br>🥉 <span style="color:var(--c)">Kai Nguyen</span> — Score 9.1/10 · Excellent response time<br><br>📉 Needs attention:<br>• <span style="color:var(--r)">Ryan Walsh</span> — 5.2/10 · Time theft investigation<br>• <span style="color:var(--a)">Aisha Lawrence</span> — 7.6/10 · 3 missed checkpoints<div class="ai-act-row"><button class="ai-act-btn" onclick="nav(\'analytics\',null,null)"><i class="ti ti-user-star"></i> Full Performance</button></div>',
+  'harbor':'<strong>Harbor Logistics Retention Plan</strong><br><br>Current SLA: <span style="color:var(--r)">71%</span> (target 85%). Root causes:<br>• 3 missed patrol windows at Dock A<br>• 1 unresolved incident report from May 9<br>• Response time averaging 7.2 min (target 5 min)<br><br><strong style="color:var(--p)">Recommended 30-day action plan:</strong><br>1. Schedule QBR this week — acknowledge issues<br>2. Assign Sofia Reyes (top-rated) to Harbor as dedicated lead<br>3. Increase patrol frequency at Dock A × 2<br>4. Resolve May 9 incident report today<br>5. Provide weekly SLA dashboard to client<div class="ai-act-row"><button class="ai-act-btn"><i class="ti ti-building"></i> Open Client Portal</button></div>'
 };
 window.askAI=function(q){
   if(!q||!q.trim()) return;
   var conv=document.getElementById('ai-conv');
+  if(!conv) return;
   var ql=q.toLowerCase();
   var key='compliance';
   if(ql.includes('risk')||ql.includes('highest')) key='highest';
   else if(ql.includes('overnight')||ql.includes('summary')) key='overnight';
   else if(ql.includes('missed')||ql.includes('checkpoint')) key='missed';
-  else if(ql.includes('theft')||ql.includes('time')) key='theft';
+  else if(ql.includes('theft')||ql.includes('time theft')) key='theft';
   else if(ql.includes('staffing')||ql.includes('gap')) key='staffing';
   else if(ql.includes('fatigue')||ql.includes('rest')) key='fatigue';
   else if(ql.includes('pattern')||ql.includes('recurring')) key='pattern';
+  else if(ql.includes('revenue')||ql.includes('forecast')) key='revenue';
+  else if(ql.includes('contract')||ql.includes('renewal')) key='contracts';
+  else if(ql.includes('cost')||ql.includes('labor')||ql.includes('optim')) key='cost';
+  else if(ql.includes('margin')) key='margins';
+  else if(ql.includes('performer')||ql.includes('top')) key='performers';
+  else if(ql.includes('harbor')||ql.includes('retain')) key='harbor';
+  // User message bubble
   var um=document.createElement('div'); um.className='ai-umsg'; um.textContent=q;
-  var wrap=document.createElement('div'); wrap.className='ai-resp';
-  var badge=document.createElement('div'); badge.className='ai-badge';
-  badge.innerHTML='<i class="ti ti-sparkles"></i> AI Analysis';
-  var body=document.createElement('div');
-  body.style.color='var(--t4)'; body.textContent='Analyzing operations data...';
-  wrap.appendChild(badge); wrap.appendChild(body);
-  conv.appendChild(um); conv.appendChild(wrap);
+  // Typing indicator
+  var typing=document.createElement('div'); typing.style.marginBottom='6px';
+  typing.innerHTML='<div class="ai-typing"><span></span><span></span><span></span></div>';
+  conv.appendChild(um); conv.appendChild(typing);
   var items=conv.children;
-  while(items.length>14) conv.removeChild(items[0]);
+  while(items.length>16) conv.removeChild(items[0]);
   conv.scrollTop=conv.scrollHeight;
   var inp=document.getElementById('ai-in'); if(inp) inp.value='';
-  setTimeout(function(){body.innerHTML=aiR[key];conv.scrollTop=conv.scrollHeight;},650);
+  setTimeout(function(){
+    typing.remove();
+    var wrap=document.createElement('div'); wrap.className='ai-resp';
+    var badge=document.createElement('div'); badge.className='ai-badge';
+    badge.innerHTML='<i class="ti ti-sparkles"></i> AI Analysis';
+    var body=document.createElement('div');
+    body.innerHTML=aiR[key]||aiR['compliance'];
+    wrap.appendChild(badge); wrap.appendChild(body);
+    conv.appendChild(wrap);
+    while(conv.children.length>16) conv.removeChild(conv.children[0]);
+    conv.scrollTop=conv.scrollHeight;
+  },700);
 };
 
 })();
