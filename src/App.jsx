@@ -1,19 +1,45 @@
 import React, { Component, useState, useEffect, useRef, useCallback, memo, useMemo, useTransition } from "react";
 
 // ─────────────────────────────────────────────────────────────────
-// SESSION MANAGEMENT  (8-hour shift TTL, stored in localStorage)
+// LOCAL STORAGE LAYER
+// ─────────────────────────────────────────────────────────────────
+const LS={
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}},
+  del:(k)=>{try{localStorage.removeItem(k);}catch{}},
+};
+function useLS(key,init){
+  const[val,setVal]=useState(()=>LS.get(key,typeof init==="function"?init():init));
+  const set=useCallback(v=>{
+    setVal(p=>{const n=typeof v==="function"?v(p):v;LS.set(key,n);return n;});
+  },[key]);
+  return[val,set];
+}
+
+// ─────────────────────────────────────────────────────────────────
+// AUDIT LOG
+// ─────────────────────────────────────────────────────────────────
+const AUD_KEY="ss_audit_v1";
+function logAction(user,action,detail=""){
+  const entries=LS.get(AUD_KEY,[]);
+  entries.unshift({
+    id:`A${Date.now()}`,ts:new Date().toISOString(),
+    user:user?.name||"System",badge:user?.badge||"—",role:user?.role||"—",
+    action,detail,
+  });
+  LS.set(AUD_KEY,entries.slice(0,1000));
+}
+function getAuditLog(){return LS.get(AUD_KEY,[]);}
+function clearAuditLog(){LS.del(AUD_KEY);}
+
+// ─────────────────────────────────────────────────────────────────
+// SESSION MANAGEMENT  (8-hour shift TTL)
 // ─────────────────────────────────────────────────────────────────
 const SS_KEY="ss_v1";
 const SS_TTL=8*60*60*1000;
-function saveSession(u){try{localStorage.setItem(SS_KEY,JSON.stringify({u,exp:Date.now()+SS_TTL}));}catch{}}
-function loadSession(){
-  try{
-    const d=JSON.parse(localStorage.getItem(SS_KEY)||"null");
-    if(!d||Date.now()>d.exp){localStorage.removeItem(SS_KEY);return null;}
-    return d.u;
-  }catch{return null;}
-}
-function clearSession(){try{localStorage.removeItem(SS_KEY);}catch{}}
+function saveSession(u){LS.set(SS_KEY,{u,exp:Date.now()+SS_TTL});}
+function loadSession(){const d=LS.get(SS_KEY,null);if(!d||Date.now()>d.exp){LS.del(SS_KEY);return null;}return d.u;}
+function clearSession(){LS.del(SS_KEY);}
 
 // ─────────────────────────────────────────────────────────────────
 // DESIGN TOKENS
@@ -115,12 +141,35 @@ const LEAVE_REQUESTS=[
   {id:"LV-038",officer:"Marcus Webb",badge:"S-0041",type:"Emergency",from:"2026-06-04",to:"2026-06-04",days:1,notes:"Family emergency.",status:"Pending"},
 ];
 const LEAVE_BALANCES={Annual:18,Sick:10,Training:5,Emergency:3};
+const TRAINING_DATA=[
+  {id:"TR-001",officer:"Marcus Webb",badge:"S-0041",cert:"SIA Door Supervisor",issuer:"SIA UK",expiry:"2026-08-20",status:"Expiring Soon"},
+  {id:"TR-002",officer:"Marcus Webb",badge:"S-0041",cert:"First Aid & CPR",issuer:"Red Cross",expiry:"2027-03-15",status:"Valid"},
+  {id:"TR-003",officer:"Diana Reyes",badge:"S-0067",cert:"SIA Door Supervisor",issuer:"SIA UK",expiry:"2027-01-10",status:"Valid"},
+  {id:"TR-004",officer:"Diana Reyes",badge:"S-0067",cert:"First Aid & CPR",issuer:"Red Cross",expiry:"2028-06-01",status:"Valid"},
+  {id:"TR-005",officer:"Theo Okafor",badge:"S-0083",cert:"SIA Door Supervisor",issuer:"SIA UK",expiry:"2025-11-05",status:"Expired"},
+  {id:"TR-006",officer:"Theo Okafor",badge:"S-0083",cert:"Conflict Resolution",issuer:"City & Guilds",expiry:"2027-05-12",status:"Valid"},
+  {id:"TR-007",officer:"Ava Simmons",badge:"S-0092",cert:"SIA Door Supervisor",issuer:"SIA UK",expiry:"2027-03-22",status:"Valid"},
+  {id:"TR-008",officer:"Jordan Park",badge:"S-0105",cert:"SIA Door Supervisor",issuer:"SIA UK",expiry:"2026-12-01",status:"Valid"},
+  {id:"TR-009",officer:"Jordan Park",badge:"S-0105",cert:"First Aid & CPR",issuer:"Red Cross",expiry:"2025-09-14",status:"Expired"},
+  {id:"TR-010",officer:"Elena Voss",badge:"S-0118",cert:"SIA Door Supervisor",issuer:"SIA UK",expiry:"2027-06-30",status:"Valid"},
+];
+const SCAN_LOG_INIT=[
+  {id:"SC-001",checkpoint:"Main Entrance",site:"Northgate Tower",officer:"Marcus Webb",badge:"S-0041",ts:"09:14:22",method:"QR"},
+  {id:"SC-002",checkpoint:"Server Room",site:"Eastside Mall",officer:"Ava Simmons",badge:"S-0092",ts:"09:18:07",method:"QR"},
+  {id:"SC-003",checkpoint:"Loading Dock",site:"Harbor Logistics",officer:"Diana Reyes",badge:"S-0067",ts:"09:02:45",method:"QR"},
+  {id:"SC-004",checkpoint:"Parking Deck B",site:"Northgate Tower",officer:"Marcus Webb",badge:"S-0041",ts:"08:55:13",method:"QR"},
+];
+const PRE_REGISTERED=[
+  {id:"PR-001",name:"Claire Hoffman",host:"C-Suite",site:"Northgate Tower",expected:"11:00",purpose:"Board Meeting"},
+  {id:"PR-002",name:"Mike Tanaka",host:"IT Dept",site:"Eastside Mall",expected:"13:30",purpose:"Vendor Review"},
+];
 const AI_INSIGHTS=[
   {text:"Perimeter Gate 3 — 2 missed checkpoints in 2hrs. Plaza West elevated risk pattern.",priority:"critical"},
   {text:"Parking Deck B missed 1 scan. Recommend immediate patrol verification at Northgate Tower.",priority:"high"},
   {text:"Theo Okafor has active incident for 27+ min. Consider dispatching backup to Plaza West.",priority:"high"},
   {text:"Jordan Park at hour 3.5 without logged break. Monitor for fatigue indicators.",priority:"medium"},
   {text:"Patrol completion 94% — above 7-day avg 88%. Operations performing above baseline.",priority:"info"},
+  {text:"Certificate alert: Theo Okafor — SIA Door Supervisor expired Nov 2025. Non-compliant deployment.",priority:"critical"},
 ];
 const REPORT_TYPES=["Daily Operations Summary","Incident Report","Patrol Analysis","Workforce Performance","Risk Assessment"];
 const NAV=[
@@ -134,6 +183,8 @@ const NAV=[
   {id:"dispatch",label:"Dispatch",icon:"📡",roles:["Company Admin","Supervisor"]},
   {id:"equipment",label:"Equipment",icon:"🔧",roles:["Company Admin","Supervisor","Officer"]},
   {id:"leave",label:"Leave",icon:"📅",roles:["Company Admin","Supervisor","Officer"]},
+  {id:"training",label:"Training",icon:"🎓",roles:["Company Admin","Supervisor"]},
+  {id:"auditlog",label:"Audit Log",icon:"📋",roles:["Company Admin"]},
 ];
 const KPI_DATA=[
   {label:"Active Officers",value:"5",sub:"1 off duty",icon:"👮",color:T.accent,trend:"+2"},
@@ -375,7 +426,7 @@ function AuthScreen({onLogin}){
     startTransition(async()=>{
       await new Promise(r=>setTimeout(r,850));
       const u=AUTH_USERS.find(u=>u.email.toLowerCase()===email.toLowerCase().trim()&&u.password===pw);
-      if(u){saveSession(u);onLogin(u);}
+      if(u){saveSession(u);logAction(u,"LOGIN",`Signed in from ${navigator.userAgent.includes("Mobile")?"mobile":"desktop"}`);onLogin(u);}
       else setErr("Incorrect email or password. Please try again.");
     });
   };
@@ -1106,7 +1157,33 @@ function Workforce(){
   );
 }
 
-function Patrol(){
+function Patrol({user,showToast}){
+  const[scanLog,setScanLog]=useLS("ss_scans",SCAN_LOG_INIT);
+  const[scanning,setScanning]=useState(false);
+  const[scanTarget,setScanTarget]=useState(null);
+  const[scanProgress,setScanProgress]=useState(0);
+  const scanRef=useRef(null);
+
+  const startScan=(cp)=>{
+    if(scanning)return;
+    setScanTarget(cp);setScanProgress(0);setScanning(true);
+    let p=0;
+    scanRef.current=setInterval(()=>{
+      p+=3;setScanProgress(p);
+      if(p>=100){
+        clearInterval(scanRef.current);
+        const now=new Date();
+        const ts=now.toLocaleTimeString([],{hour12:false});
+        const entry={id:`SC-${Date.now()}`,checkpoint:cp.name,site:cp.site,officer:user?.name||"Officer",badge:user?.badge||"—",ts,method:"QR"};
+        setScanLog(l=>[entry,...l.slice(0,99)]);
+        logAction(user,"CHECKPOINT_SCAN",`${cp.name} — ${cp.site}`);
+        showToast(`✓ ${cp.name} scanned successfully`,"success");
+        setScanning(false);setScanTarget(null);setScanProgress(0);
+      }
+    },55);
+  };
+  useEffect(()=>()=>clearInterval(scanRef.current),[]);
+
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(138px,1fr))",gap:10}}>
@@ -1120,6 +1197,29 @@ function Patrol(){
           </Card>
         ))}
       </div>
+
+      {/* QR Scan modal */}
+      {scanning&&scanTarget&&(
+        <ModalWrap>
+          <div style={{background:T.surface,border:`1px solid ${T.border}`,borderRadius:18,padding:28,width:"100%",maxWidth:340,textAlign:"center"}}>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:T.textSub,marginBottom:12}}>Scanning QR Code</div>
+            <div style={{width:160,height:160,margin:"0 auto 16px",borderRadius:12,background:T.raised,border:`2px solid ${T.accentB}`,position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <div style={{position:"absolute",top:0,left:0,width:"100%",height:3,background:`linear-gradient(90deg,transparent,${T.accent},transparent)`,animation:"ssQR 1s ease-in-out infinite"}}/>
+              {["tl","tr","bl","br"].map(c=>(
+                <div key={c} style={{position:"absolute",...(c==="tl"?{top:8,left:8}:c==="tr"?{top:8,right:8}:c==="bl"?{bottom:8,left:8}:{bottom:8,right:8}),width:20,height:20,borderTop:c.startsWith("t")?`3px solid ${T.accent}`:"none",borderBottom:c.startsWith("b")?`3px solid ${T.accent}`:"none",borderLeft:c.endsWith("l")?`3px solid ${T.accent}`:"none",borderRight:c.endsWith("r")?`3px solid ${T.accent}`:"none"}}/>
+              ))}
+              <div style={{fontSize:28}}>📷</div>
+            </div>
+            <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:4}}>{scanTarget.name}</div>
+            <div style={{fontSize:11,color:T.textSub,marginBottom:16}}>{scanTarget.site}</div>
+            <div style={{height:6,background:T.raised,borderRadius:3,marginBottom:16,overflow:"hidden"}}>
+              <div style={{height:"100%",width:`${scanProgress}%`,background:`linear-gradient(90deg,${T.accent},${T.green})`,borderRadius:3,transition:"width 0.05s linear"}}/>
+            </div>
+            <div style={{fontSize:12,color:T.accent}}>{scanProgress<100?"Reading code…":"Confirmed ✓"}</div>
+          </div>
+        </ModalWrap>
+      )}
+
       <Card>
         <CB>
           <SH title="Checkpoint Status"/>
@@ -1130,19 +1230,40 @@ function Patrol(){
               return(
                 <div key={cp.id} style={{padding:"13px 15px",background:T.raised,borderRadius:10}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
-                    <div>
+                    <div style={{flex:1,minWidth:0}}>
                       <div style={{fontSize:13,fontWeight:700,color:T.text}}>{cp.name}</div>
                       <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{cp.site} · Last: {cp.last}</div>
                     </div>
-                    <div style={{textAlign:"right"}}>
-                      <div style={{fontSize:14,fontWeight:800,color:c}}>{cp.scans}/{total}</div>
-                      {cp.missed>0&&<div style={{fontSize:10,color:T.red,fontWeight:700}}>{cp.missed} missed</div>}
+                    <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+                      <div style={{textAlign:"right"}}>
+                        <div style={{fontSize:14,fontWeight:800,color:c}}>{cp.scans}/{total}</div>
+                        {cp.missed>0&&<div style={{fontSize:10,color:T.red,fontWeight:700}}>{cp.missed} missed</div>}
+                      </div>
+                      <button onClick={()=>startScan(cp)} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"6px 10px",borderRadius:7,cursor:"pointer",fontWeight:700,fontSize:11}}>QR</button>
                     </div>
                   </div>
                   <PBar value={cp.scans} max={total} color={c}/>
                 </div>
               );
             })}
+          </div>
+        </CB>
+      </Card>
+
+      <Card>
+        <CB>
+          <SH title="Scan Log"/>
+          <div style={{display:"flex",flexDirection:"column",gap:6}}>
+            {scanLog.slice(0,10).map(s=>(
+              <div key={s.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",background:T.raised,borderRadius:8}}>
+                <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace",flexShrink:0,width:60}}>{s.ts}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:12,fontWeight:700,color:T.text}}>{s.checkpoint}</div>
+                  <div style={{fontSize:10,color:T.textSub}}>{s.site} · {s.officer}</div>
+                </div>
+                <Pill label={s.method} color={T.green}/>
+              </div>
+            ))}
           </div>
         </CB>
       </Card>
@@ -1185,11 +1306,30 @@ function Fleet({openModal}){
   );
 }
 
-function Visitors({openModal}){
+function Visitors({openModal,user,showToast}){
+  const[visitors,setVisitors]=useLS("ss_visitors",VISITORS_DATA);
+  const active=visitors.filter(v=>v.status==="Active").length;
+  const out=visitors.filter(v=>v.status==="Checked Out").length;
+
+  const checkOut=(id)=>{
+    const now=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    setVisitors(v=>v.map(x=>x.id===id?{...x,status:"Checked Out",out:now}:x));
+    logAction(user,"VISITOR_CHECKOUT",`Visitor ${id} checked out`);
+    showToast("Visitor checked out","success");
+  };
+  const checkInPreReg=(pr)=>{
+    const now=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    const bnum=`TEMP-${Math.floor(Math.random()*900)+100}`;
+    const newV={id:`V-${Date.now()}`,name:pr.name,host:pr.host,site:pr.site,in:now,out:"—",badge:bnum,status:"Active"};
+    setVisitors(v=>[newV,...v]);
+    logAction(user,"VISITOR_CHECKIN",`Pre-registered: ${pr.name} (${pr.purpose})`);
+    showToast(`${pr.name} checked in — Badge ${bnum}`,"success");
+  };
+
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-        {[["Active","1",T.green],["Out Today","2",T.textSub],["Watchlist","0",T.red]].map(([l,v,c])=>(
+        {[["Active",active,T.green],["Out Today",out,T.textSub],["Watchlist","0",T.red]].map(([l,v,c])=>(
           <Card key={l} glow={c}>
             <CB style={{textAlign:"center"}}>
               <div style={{fontSize:30,fontWeight:900,color:c}}>{v}</div>
@@ -1198,11 +1338,32 @@ function Visitors({openModal}){
           </Card>
         ))}
       </div>
+
+      {PRE_REGISTERED.length>0&&(
+        <Card glow={T.purple}>
+          <CB>
+            <SH title="Expected Arrivals"/>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {PRE_REGISTERED.map(pr=>(
+                <div key={pr.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{pr.name}</div>
+                    <div style={{fontSize:11,color:T.textSub}}>{pr.host} · {pr.site} · {pr.purpose}</div>
+                  </div>
+                  <div style={{fontSize:11,color:T.purple,fontWeight:700,flexShrink:0}}>{pr.expected}</div>
+                  <button onClick={()=>checkInPreReg(pr)} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"7px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11,flexShrink:0}}>Check In</button>
+                </div>
+              ))}
+            </div>
+          </CB>
+        </Card>
+      )}
+
       <Card>
         <CB>
           <SH title="Visitor Log" action={{label:"+ Check In",fn:()=>openModal({type:"checkin"})}}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {VISITORS_DATA.map(v=>(
+            {visitors.map(v=>(
               <div key={v.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
                 <div style={{width:36,height:36,borderRadius:10,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>👤</div>
                 <div style={{flex:1,minWidth:0}}>
@@ -1210,9 +1371,10 @@ function Visitors({openModal}){
                   <div style={{fontSize:11,color:T.textSub}}>Host: {v.host} · {v.site}</div>
                 </div>
                 <div style={{textAlign:"right",fontSize:11,color:T.textSub,flexShrink:0}}><div>In: {v.in}</div><div>Out: {v.out}</div></div>
-                <div style={{textAlign:"right",flexShrink:0}}>
-                  <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace",marginBottom:4}}>{v.badge}</div>
+                <div style={{textAlign:"right",flexShrink:0,display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
+                  <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace"}}>{v.badge}</div>
                   <Pill label={v.status} color={v.status==="Active"?T.green:T.textSub}/>
+                  {v.status==="Active"&&<button onClick={()=>checkOut(v.id)} style={{fontSize:10,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"3px 8px",borderRadius:5,cursor:"pointer",fontWeight:700}}>Check Out</button>}
                 </div>
               </div>
             ))}
@@ -1253,8 +1415,22 @@ function Reports(){
             {loading?"⚡ Generating Report…":`Generate ${rtype}`}
           </button>
           {report&&(
-            <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:12,padding:"20px 22px"}}>
-              <pre style={{margin:0,fontSize:13,color:T.text,whiteSpace:"pre-wrap",lineHeight:1.75,fontFamily:"inherit"}}>{report}</pre>
+            <div>
+              <div style={{display:"flex",gap:8,marginBottom:12}}>
+                <button onClick={()=>{
+                  const w=window.open("","_blank");
+                  w.document.write(`<!DOCTYPE html><html><head><title>ShieldSync — ${rtype}</title><style>body{font-family:monospace;padding:40px;white-space:pre-wrap;font-size:13px;line-height:1.75;color:#111;}@media print{body{padding:20px;}}</style></head><body>${report.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</body></html>`);
+                  w.document.close();w.print();
+                }} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>🖨 Print / PDF</button>
+                <button onClick={()=>{
+                  const blob=new Blob([report],{type:"text/plain"});
+                  const url=URL.createObjectURL(blob);
+                  const a=document.createElement("a");a.href=url;a.download=`${rtype.replace(/ /g,"_")}.txt`;a.click();URL.revokeObjectURL(url);
+                }} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>⬇ Export</button>
+              </div>
+              <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:12,padding:"20px 22px"}}>
+                <pre style={{margin:0,fontSize:13,color:T.text,whiteSpace:"pre-wrap",lineHeight:1.75,fontFamily:"inherit"}}>{report}</pre>
+              </div>
             </div>
           )}
         </CB>
@@ -1263,16 +1439,38 @@ function Reports(){
   );
 }
 
-function Dispatch({showToast}){
+function Dispatch({showToast,user}){
   const[dispatched,setDispatched]=useState({});
   const[radioState,setRadioState]=useState("idle");
+  const[notifPerm,setNotifPerm]=useState(typeof Notification!=="undefined"?Notification.permission:"denied");
+
+  const enableNotifs=async()=>{
+    if(typeof Notification==="undefined"){showToast("Notifications not supported in this browser","error");return;}
+    const p=await Notification.requestPermission();
+    setNotifPerm(p);
+    if(p==="granted")showToast("Push notifications enabled","success");
+  };
+  const pushNotif=(title,body)=>{
+    if(typeof Notification!=="undefined"&&Notification.permission==="granted"){
+      new Notification(title,{body,icon:"/favicon.svg"});
+    }
+  };
+
+  const dispatchOfficer=(o,dest)=>{
+    setDispatched(p=>({...p,[o.id]:dest}));
+    logAction(user,"DISPATCH",`${o.name} → ${dest}`);
+    showToast(`${o.name} dispatched to ${dest}`,"success");
+    pushNotif("ShieldSync Dispatch",`${o.name} dispatched to ${dest}`);
+  };
 
   const radioAll=()=>{
     if(radioState!=="idle")return;
     setRadioState("broadcasting");
     setTimeout(()=>{
       setRadioState("sent");
+      logAction(user,"RADIO_ALL","All-units broadcast on Channel 4");
       showToast("All active field units notified · Broadcast on Channel 4","success");
+      pushNotif("ShieldSync Radio","All-units broadcast transmitted on Channel 4");
       setTimeout(()=>setRadioState("idle"),5000);
     },1800);
   };
@@ -1315,7 +1513,7 @@ function Dispatch({showToast}){
                   {dispatched[o.id]?(
                     <div style={{fontSize:11,color:T.green,fontWeight:700,whiteSpace:"nowrap",background:T.greenGlow,border:`1px solid ${T.greenB}`,padding:"5px 10px",borderRadius:7}}>→ {dispatched[o.id]}</div>
                   ):(
-                    <button onClick={()=>{setDispatched(p=>({...p,[o.id]:"Plaza West"}));showToast(`${o.name} dispatched to Plaza West`,"success");}}
+                    <button onClick={()=>dispatchOfficer(o,"Plaza West")}
                       style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"6px 12px",borderRadius:8,cursor:"pointer",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>Dispatch</button>
                   )}
                 </div>
@@ -1324,6 +1522,17 @@ function Dispatch({showToast}){
           </div>
         </CB>
       </Card>
+      {notifPerm!=="granted"&&(
+        <Card glow={T.purple}>
+          <CB style={{display:"flex",alignItems:"center",gap:14}}>
+            <div style={{flex:1}}>
+              <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:3}}>Enable Push Notifications</div>
+              <div style={{fontSize:11,color:T.textSub}}>Receive instant dispatch and emergency alerts on this device.</div>
+            </div>
+            <button onClick={enableNotifs} style={{background:`linear-gradient(135deg,${T.purple},${T.accent})`,border:"none",color:"#000",padding:"10px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,flexShrink:0}}>Enable →</button>
+          </CB>
+        </Card>
+      )}
     </div>
   );
 }
@@ -1340,14 +1549,45 @@ function MyShift({user,showToast}){
   const[enRouteDest,setEnRouteDest]=useState("");
   const[enRouteETA,setEnRouteETA]=useState(0);
   const[enRouteElapsed,setEnRouteElapsed]=useState(0);
-  const[activity,setActivity]=useState([
+  const[activity,setActivity]=useLS("ss_shift_activity",[
     {time:"08:55",text:"Checkpoint scanned — Parking Deck B"},
     {time:"08:41",text:"Checkpoint scanned — Main Entrance"},
     {time:"07:58",text:"Patrol route started — Northgate Tower"},
     {time:"06:00",text:"Shift started"},
   ]);
+  const[loneWorker,setLoneWorker]=useState(30*60);
+  const[loneWorkerActive,setLoneWorkerActive]=useState(false);
+  const[handoverNote,setHandoverNote]=useState("");
+  const[handoverSent,setHandoverSent]=useState(false);
   const timerRef=useRef(null);
   const enRouteRef=useRef(null);
+  const lwRef=useRef(null);
+
+  useEffect(()=>{
+    if(loneWorkerActive&&clocked){
+      lwRef.current=setInterval(()=>{
+        setLoneWorker(t=>{
+          if(t<=1){
+            clearInterval(lwRef.current);
+            showToast("⚠️ Lone worker check-in MISSED — supervisor alerted","error");
+            logAction(user,"LONE_WORKER_MISSED","Automatic alert triggered");
+            return 30*60;
+          }
+          return t-1;
+        });
+      },1000);
+    }else{
+      clearInterval(lwRef.current);
+    }
+    return()=>clearInterval(lwRef.current);
+  },[loneWorkerActive,clocked]);
+
+  const lwCheckIn=()=>{
+    setLoneWorker(30*60);
+    addActivity("Lone worker check-in confirmed ✓");
+    showToast("Check-in confirmed — next in 30 min","success");
+    logAction(user,"LONE_WORKER_CHECKIN","Manual check-in");
+  };
 
   useEffect(()=>{
     if(clocked){
@@ -1380,21 +1620,22 @@ function MyShift({user,showToast}){
     return h>0?`${h}h ${String(m).padStart(2,"0")}m`:`${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
   };
 
+  const addActivity=(text)=>{
+    const t=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    setActivity(a=>[{time:t,text},...a.slice(0,19)]);
+  };
   const clockIn=()=>{
     const t=new Date();
     setClocked(true);setClockInTime(t);setElapsed(0);
     addActivity("Clocked in — shift started");
+    logAction(user,"CLOCK_IN","Shift started");
     showToast("Shift started — have a safe tour","success");
   };
   const clockOut=()=>{
-    setClocked(false);setEnRoute(false);
+    setClocked(false);setEnRoute(false);setLoneWorkerActive(false);
     addActivity("Clocked out — shift ended");
+    logAction(user,"CLOCK_OUT",`Shift ended after ${fmt(elapsed)}`);
     showToast("Shift ended — stay safe","info");
-  };
-  const addActivity=(text)=>{
-    const now=new Date();
-    const t=now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-    setActivity(a=>[{time:t,text},...a.slice(0,9)]);
   };
   const startEnRoute=()=>{
     if(!enRouteDest)return;
@@ -1499,9 +1740,45 @@ function MyShift({user,showToast}){
         </div>
       )}
 
+      {/* Lone Worker */}
+      {clocked&&(
+        <Card glow={loneWorkerActive&&loneWorker<300?T.red:loneWorkerActive?T.amber:undefined}>
+          <CB>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:loneWorkerActive?10:0}}>
+              <div>
+                <div style={{fontSize:13,fontWeight:700,color:T.text}}>Lone Worker Protection</div>
+                {loneWorkerActive&&<div style={{fontSize:11,color:loneWorker<300?T.red:T.amber,marginTop:3}}>Next check-in in {Math.floor(loneWorker/60)}:{String(loneWorker%60).padStart(2,"0")}</div>}
+              </div>
+              <div style={{display:"flex",gap:7}}>
+                {loneWorkerActive&&<button onClick={lwCheckIn} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>✓ Check In</button>}
+                <button onClick={()=>setLoneWorkerActive(a=>!a)} style={{background:loneWorkerActive?T.redGlow:T.accentGlow,border:`1px solid ${loneWorkerActive?T.redB:T.accentB}`,color:loneWorkerActive?T.red:T.accent,padding:"8px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{loneWorkerActive?"Disable":"Enable"}</button>
+              </div>
+            </div>
+            {loneWorkerActive&&<PBar value={30*60-loneWorker} max={30*60} color={loneWorker<300?T.red:T.amber}/>}
+          </CB>
+        </Card>
+      )}
+
       {/* SOS */}
       {clocked&&(
         <button onClick={sos} style={{width:"100%",background:"rgba(240,68,68,0.12)",border:`2px solid ${T.red}`,color:T.red,padding:"16px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:16,letterSpacing:"0.08em"}}>🚨 SOS — Emergency Alert</button>
+      )}
+
+      {/* Shift Handover */}
+      {clocked&&(
+        <Card>
+          <CB>
+            <SH title="Shift Handover Notes"/>
+            {!handoverSent?(
+              <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                <textarea value={handoverNote} onChange={e=>setHandoverNote(e.target.value)} rows={3} placeholder="Outstanding incidents, patrol notes, equipment status…" style={{background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"11px 13px",borderRadius:9,fontSize:12,resize:"vertical",outline:"none"}}/>
+                <button onClick={()=>{if(!handoverNote.trim())return;logAction(user,"HANDOVER_NOTES",handoverNote.slice(0,120));setHandoverSent(true);showToast("Handover notes submitted","success");}} style={{background:handoverNote.trim()?T.accentGlow:T.raised,border:`1px solid ${handoverNote.trim()?T.accentB:T.border}`,color:handoverNote.trim()?T.accent:T.textDim,padding:"10px",borderRadius:9,cursor:handoverNote.trim()?"pointer":"not-allowed",fontWeight:700,fontSize:13}}>Submit Handover</button>
+              </div>
+            ):(
+              <div style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,borderRadius:9,padding:"13px 15px",color:T.green,fontWeight:700,fontSize:13}}>✓ Handover notes submitted to incoming shift</div>
+            )}
+          </CB>
+        </Card>
       )}
 
       {/* Activity */}
@@ -1763,6 +2040,153 @@ function LeaveModule({user,showToast}){
 }
 
 // ─────────────────────────────────────────────────────────────────
+// TRAINING TRACKER
+// ─────────────────────────────────────────────────────────────────
+function TrainingModule(){
+  const[filter,setFilter]=useState("All");
+  const statuses=["All","Valid","Expiring Soon","Expired"];
+  const filtered=filter==="All"?TRAINING_DATA:TRAINING_DATA.filter(t=>t.status===filter);
+  const expired=TRAINING_DATA.filter(t=>t.status==="Expired").length;
+  const expiring=TRAINING_DATA.filter(t=>t.status==="Expiring Soon").length;
+
+  const certColor=(s)=>s==="Valid"?T.green:s==="Expiring Soon"?T.amber:T.red;
+
+  const byOfficer=OFFICERS.map(o=>({
+    ...o,
+    certs:TRAINING_DATA.filter(t=>t.badge===o.badge),
+    valid:TRAINING_DATA.filter(t=>t.badge===o.badge&&t.status==="Valid").length,
+    issues:TRAINING_DATA.filter(t=>t.badge===o.badge&&(t.status==="Expired"||t.status==="Expiring Soon")).length,
+  }));
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+        {[["Total Certs",TRAINING_DATA.length,T.accent],["Expiring Soon",expiring,T.amber],["Expired",expired,T.red]].map(([l,v,c])=>(
+          <Card key={l} glow={c}>
+            <CB style={{textAlign:"center",padding:"14px 10px"}}>
+              <div style={{fontSize:26,fontWeight:900,color:c}}>{v}</div>
+              <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{l}</div>
+            </CB>
+          </Card>
+        ))}
+      </div>
+      {expired>0&&(
+        <div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",gap:10,alignItems:"center"}}>
+          <span style={{fontSize:18}}>⚠️</span>
+          <div style={{fontSize:12,color:T.red,fontWeight:700}}>Action Required: {expired} expired certificate{expired!==1?"s":" "} — officers may not be legally compliant for deployment. Escalate to HR.</div>
+        </div>
+      )}
+      <Card>
+        <CB>
+          <SH title="Compliance Overview"/>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {byOfficer.filter(o=>o.status!=="Off Duty").map(o=>(
+              <div key={o.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
+                <Av initials={o.av} color={o.issues>0?T.red:T.green} size={32}/>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:13,fontWeight:700,color:T.text}}>{o.name}</div>
+                  <div style={{fontSize:10,color:T.textSub}}>{o.certs.length} certs · {o.valid} valid</div>
+                </div>
+                {o.issues>0
+                  ?<Pill label={`${o.issues} issue${o.issues!==1?"s":""}`} color={T.red}/>
+                  :<Pill label="Compliant" color={T.green}/>
+                }
+              </div>
+            ))}
+          </div>
+        </CB>
+      </Card>
+      <Card>
+        <CB>
+          <div style={{display:"flex",gap:7,marginBottom:14,flexWrap:"wrap"}}>
+            {statuses.map(s=>(
+              <button key={s} onClick={()=>setFilter(s)} style={{background:filter===s?`${certColor(s)}20`:T.raised,border:`1px solid ${filter===s?certColor(s):T.border}`,color:filter===s?certColor(s):T.textSub,padding:"7px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11}}>{s}</button>
+            ))}
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:7}}>
+            {filtered.map(t=>(
+              <div key={t.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 13px",background:T.raised,borderRadius:9}}>
+                <div style={{width:8,height:8,borderRadius:"50%",background:certColor(t.status),flexShrink:0}}/>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:12,fontWeight:700,color:T.text}}>{t.cert}</div>
+                  <div style={{fontSize:10,color:T.textSub}}>{t.officer} · {t.issuer}</div>
+                </div>
+                <div style={{textAlign:"right",flexShrink:0}}>
+                  <div style={{fontSize:10,color:certColor(t.status),fontWeight:700}}>{t.expiry}</div>
+                  <Pill label={t.status} color={certColor(t.status)}/>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CB>
+      </Card>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// AUDIT LOG
+// ─────────────────────────────────────────────────────────────────
+function AuditLogModule({showToast}){
+  const[log,setLog]=useState(()=>getAuditLog());
+  const[filter,setFilter]=useState("");
+
+  const refresh=()=>setLog(getAuditLog());
+  const clear=()=>{clearAuditLog();setLog([]);showToast("Audit log cleared","info");};
+
+  const fmt=(iso)=>{
+    const d=new Date(iso);
+    return d.toLocaleDateString([],{month:"short",day:"numeric"})+" "+d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+  };
+  const actionColor=(a)=>a==="LOGIN"?T.accent:a.includes("DISPATCH")||a.includes("RADIO")?T.red:a.includes("CLOCK")||a.includes("LONE_WORKER")?T.green:a.includes("CHECKOUT")||a.includes("CHECKIN")?T.gold:T.textSub;
+
+  const filtered=filter?log.filter(e=>e.action.toLowerCase().includes(filter.toLowerCase())||e.user.toLowerCase().includes(filter.toLowerCase())):log;
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+        {[["Total Events",log.length,T.accent],["This Session",log.filter(e=>e.ts>new Date(Date.now()-SS_TTL).toISOString()).length,T.green],["Users",new Set(log.map(e=>e.user)).size,T.gold]].map(([l,v,c])=>(
+          <Card key={l} glow={c}>
+            <CB style={{textAlign:"center",padding:"14px 10px"}}>
+              <div style={{fontSize:26,fontWeight:900,color:c}}>{v}</div>
+              <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{l}</div>
+            </CB>
+          </Card>
+        ))}
+      </div>
+      <Card>
+        <CB>
+          <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center"}}>
+            <input value={filter} onChange={e=>setFilter(e.target.value)} placeholder="Filter by action or user…" style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"9px 12px",borderRadius:8,fontSize:12,outline:"none"}}/>
+            <button onClick={refresh} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>↻</button>
+            <button onClick={clear} style={{background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"9px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>Clear</button>
+          </div>
+          {filtered.length===0?(
+            <div style={{textAlign:"center",padding:24,color:T.textSub,fontSize:13}}>No audit events recorded yet. Actions taken in the platform are logged here.</div>
+          ):(
+            <div style={{display:"flex",flexDirection:"column",gap:5}}>
+              {filtered.slice(0,100).map(e=>(
+                <div key={e.id} style={{display:"flex",gap:10,alignItems:"flex-start",padding:"9px 10px",background:T.raised,borderRadius:8}}>
+                  <div style={{width:8,height:8,borderRadius:"50%",background:actionColor(e.action),flexShrink:0,marginTop:3}}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+                      <span style={{fontSize:11,fontWeight:700,color:actionColor(e.action)}}>{e.action}</span>
+                      <span style={{fontSize:10,color:T.textSub}}>{e.user} · {e.role}</span>
+                    </div>
+                    {e.detail&&<div style={{fontSize:10,color:T.textDim,marginTop:2}}>{e.detail}</div>}
+                  </div>
+                  <div style={{fontSize:9,color:T.textDim,fontFamily:"monospace",flexShrink:0}}>{fmt(e.ts)}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CB>
+      </Card>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
 // LAYOUT
 // ─────────────────────────────────────────────────────────────────
 function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
@@ -1882,23 +2306,25 @@ export default function App(){
     setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),4500);
   },[]);
 
-  const logout=useCallback(()=>{clearSession();setUser(null);setMod("dashboard");setModal(null);},[]);
+  const logout=useCallback(()=>{logAction(user,"LOGOUT","Session ended");clearSession();setUser(null);setMod("dashboard");setModal(null);},[user]);
 
   if(!user)return <AuthScreen onLogin={u=>setUser(u)}/>;
 
   const renderMod=()=>{
     switch(mod){
-      case "dashboard": return <Dashboard openModal={openModal}/>;
+      case "dashboard": return <Dashboard openModal={openModal} showToast={showToast}/>;
       case "myshift":   return <MyShift user={user} showToast={showToast}/>;
       case "workforce": return <Workforce/>;
-      case "patrol":    return <Patrol/>;
+      case "patrol":    return <Patrol user={user} showToast={showToast}/>;
       case "fleet":     return <Fleet openModal={openModal}/>;
-      case "visitors":  return <Visitors openModal={openModal}/>;
+      case "visitors":  return <Visitors openModal={openModal} user={user} showToast={showToast}/>;
       case "reports":   return <Reports/>;
-      case "dispatch":  return <Dispatch showToast={showToast}/>;
+      case "dispatch":  return <Dispatch showToast={showToast} user={user}/>;
       case "equipment": return <EquipmentModule user={user} showToast={showToast}/>;
       case "leave":     return <LeaveModule user={user} showToast={showToast}/>;
-      default:          return <Dashboard openModal={openModal}/>;
+      case "training":  return <TrainingModule/>;
+      case "auditlog":  return <AuditLogModule showToast={showToast}/>;
+      default:          return <Dashboard openModal={openModal} showToast={showToast}/>;
     }
   };
 
@@ -1919,6 +2345,7 @@ export default function App(){
         @keyframes ssDots{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
         @keyframes glow{0%,100%{opacity:.07}50%{opacity:.15}}
         @keyframes ssToast{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+        @keyframes ssQR{0%{top:0;opacity:1}50%{top:calc(100% - 3px);opacity:.7}100%{top:0;opacity:1}}
       `}</style>
 
       {/* Toast notifications */}
