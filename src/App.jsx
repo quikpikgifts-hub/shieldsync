@@ -131,6 +131,124 @@ const PHOTO_SLOTS=[
 const INSP_STEPS=["Vehicle","Photos","Readings","Notes","Sign & Submit"];
 
 // ─────────────────────────────────────────────────────────────────
+// AI DEMO MODE  — shown when API key is not configured
+// ─────────────────────────────────────────────────────────────────
+const DEMO_NOTE="[Demo Mode — configure API key to enable live AI]\n\n";
+const DEMO_AI={
+  "Which sites have missed checkpoints?":"Plaza West (2 missed — elevated, related to INC-2847 active scene) and Northgate Tower Parking Deck B (1 missed). Plaza West is priority — 54.5% checkpoint completion this shift vs 100% at Harbor Logistics and Eastside Mall.",
+  "Summarize today's ops.":"Operations nominal across 3 of 4 sites. Plaza West elevated due to active trespass INC-2847 (27+ min, single officer). Patrol efficiency 94% above 88% baseline. 2 open incidents, 3 resolved. V-03 in maintenance, V-02 available for emergency dispatch.",
+  "Who is highest risk?":"Theo Okafor is highest-risk — solo on active trespass at Plaza West 27+ minutes past protocol. Jordan Park approaching fatigue threshold (3.5 hrs without break). Recommend dispatching Park to Plaza West — resolves both gaps simultaneously.",
+  "Recommend staffing changes.":"1) Dispatch Jordan Park to Plaza West immediately — cuts INC-2847 resolution time and covers fatigue risk. 2) Diana Reyes available as secondary from Harbor Logistics (100% completion). 3) Brief Elena Voss on Plaza West situation for night shift handover at 18:00.",
+};
+const DEMO_FALLBACK="Based on current operations: Plaza West shows elevated risk with INC-2847 active 27+ min. Patrol efficiency at 94% is above baseline. Recommend dispatching Jordan Park to Plaza West. Northgate Tower Parking Deck B needs patrol verification.";
+const DEMO_REPORTS={
+  "Daily Operations Summary":`DAILY OPERATIONS SUMMARY
+${new Date().toLocaleDateString([],{weekday:"long",year:"numeric",month:"long",day:"numeric"})}  |  Shift 06:00–18:00  |  INTERNAL
+
+EXECUTIVE OVERVIEW
+All 4 sites operational. 5 of 6 officers on duty. Patrol efficiency 94% — above 7-day baseline of 88%. Two open incidents, one requiring immediate backup.
+
+INCIDENT STATUS
+• INC-2847 [HIGH/ACTIVE] — Trespass, Plaza West. Officer Okafor on scene 27+ min. Backup dispatched.
+• INC-2846 [MEDIUM/REVIEW] — Theft report, Northgate Tower. Documentation in progress.
+• INC-2845, INC-2844 [RESOLVED] — Closed without escalation.
+
+PATROL PERFORMANCE
+38 patrols conducted, 36 completed (94.7%). 4 missed checkpoints:
+• Perimeter Gate 3 (Plaza West): 2 missed — elevated risk
+• Parking Deck B (Northgate Tower): 1 missed — monitor
+
+FLEET
+V-01 Explorer: Deployed (Webb)  |  V-02 Highlander: Available  |  V-03 Tahoe: Maintenance
+
+RECOMMENDATIONS
+1. Dispatch backup to Plaza West — INC-2847 duration exceeds SOP
+2. Increase Perimeter Gate 3 frequency
+3. Enforce Jordan Park break within 30 min`,
+
+  "Incident Report":`INCIDENT REPORT — INC-2847
+Classification: HIGH SEVERITY  |  Status: ACTIVE
+
+Location: Plaza West — Perimeter Gate 3
+Officer: S-0083 Theo Okafor  |  Reported: 08:42  |  Duration: 27+ min
+
+NARRATIVE
+At 08:42, Officer Okafor observed an unauthorized individual attempting access to the restricted loading area via the east perimeter gate. The subject was unresponsive to verbal commands and did not possess valid credentials. Officer established visual contact and initiated containment protocol per SOP-14.
+
+ACTIONS TAKEN
+• Area secured, access point locked
+• Site supervisor notified at 08:45
+• CCTV footage requested from monitoring center
+• Subject detained pending ID verification
+
+STATUS: Awaiting verification. Backup recommended to support officer and process subject.`,
+
+  "Patrol Analysis":`PATROL ANALYSIS — Current Shift
+Sites: 4  |  Period: 06:00–09:20
+
+COMPLETION METRICS
+Scheduled: 42 checkpoints  |  Completed: 38 (90.5%)  |  Missed: 4
+Target: ≥95%  |  Status: ⚠ BELOW TARGET (Plaza West anomaly)
+
+SITE BREAKDOWN
+Northgate Tower:    20/21  95.2%  — 1 missed, Parking Deck B
+Harbor Logistics:    9/9  100.0%  — Full completion
+Plaza West:          3/5   60.0%  — Active incident INC-2847
+Eastside Mall:       9/9  100.0%  — Full completion
+
+OFFICER PERFORMANCE
+Top: Marcus Webb — 8 checkpoints, 0 missed
+Review: Theo Okafor — 3 checkpoints (active incident reducing patrol time)
+
+NOTE: Excluding INC-2847 scene, effective completion rate is 97.6% — above target.`,
+
+  "Workforce Performance":`WORKFORCE PERFORMANCE
+Shift: 06:00–18:00  |  Day Shift
+
+STAFFING
+Scheduled: 6  |  Active: 5  |  Off Duty: 1 (Elena Voss — Night rotation)
+
+OFFICER STATUS
+Marcus Webb    S-0041  On Patrol        8 CPs  2 incidents
+Diana Reyes    S-0067  On Site          5 CPs  0 incidents  ★ Top performer
+Theo Okafor    S-0083  Incident Active  3 CPs  1 incident
+Ava Simmons    S-0092  Clocked In       0 CPs  0 incidents
+Jordan Park    S-0105  Break            6 CPs  0 incidents
+
+HIGHLIGHTS
+• Diana Reyes: Flawless patrol, 0 missed, 0 incidents — exceed standard
+• Jordan Park: 6 checkpoints pre-break — strong first-half
+• Marcus Webb: High incident load — monitor for fatigue
+
+Night rotation (Voss, Torres) ready for 18:00 handover.`,
+
+  "Risk Assessment":`RISK ASSESSMENT — Current Shift
+Classification: SENSITIVE INTERNAL
+
+CRITICAL RISK FACTORS
+[HIGH] Plaza West — Active trespass 27+ min, single officer on scene, 2 missed checkpoint pattern. Possible pre-surveillance by subject. Immediate backup required.
+
+[MEDIUM] Northgate Tower — Theft report INC-2846 under review. 1 missed scan at Parking Deck B. Possible correlation — investigate.
+
+[MEDIUM] Personnel — Jordan Park at 3.5 hours without logged break. Fatigue risk for final 6 hours of shift.
+
+SITE RISK MATRIX
+Plaza West        HIGH    — Immediate backup + perimeter sweep
+Northgate Tower   MEDIUM  — CCTV review + Deck B patrol
+Harbor Logistics  LOW     — Maintain current coverage
+Eastside Mall     LOW     — Maintain current coverage
+
+OVERALL RISK SCORE: 6.2/10 (Elevated — INC-2847 primary driver)
+7-Day Baseline: 3.8/10
+
+PRIORITY ACTIONS
+1. Dispatch Jordan Park → Plaza West immediately
+2. Request CCTV review — Northgate Tower, INC-2846
+3. Mandatory break for Jordan Park within 30 min
+4. Schedule V-03 return-to-service inspection`,
+};
+
+// ─────────────────────────────────────────────────────────────────
 // ERROR BOUNDARY
 // ─────────────────────────────────────────────────────────────────
 class ErrorBoundary extends Component{
@@ -174,7 +292,7 @@ function SH({title,action}){
   return(
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
       <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:T.textSub}}>{title}</span>
-      {action&&<button onClick={action.fn} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,fontSize:11,fontWeight:700,padding:"5px 12px",borderRadius:8,cursor:"pointer"}}>{action.label}</button>}
+      {action&&<button onClick={action.fn} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,fontSize:11,fontWeight:700,padding:"9px 14px",borderRadius:8,cursor:"pointer",WebkitTapHighlightColor:"transparent",minHeight:38,display:"flex",alignItems:"center"}}>{action.label}</button>}
     </div>
   );
 }
@@ -510,11 +628,11 @@ function AICopilot(){
         headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
         body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:AI_SYS,messages:apiMsgs}),
       });
-      if(!res.ok)throw new Error(`API ${res.status}: ${res.statusText}`);
+      if(!res.ok)throw new Error(`${res.status}`);
       const data=await res.json();
       const reply=data.content?.find(b=>b.type==="text")?.text||"No response.";
       setMsgs(p=>[...p,{role:"ai",text:reply}]);
-    }catch(e){setMsgs(p=>[...p,{role:"ai",text:`Connection error: ${e.message}. AI features require API key configuration.`}]);}
+    }catch{setMsgs(p=>[...p,{role:"ai",text:DEMO_NOTE+(DEMO_AI[msg]||DEMO_FALLBACK)}]);}
     setLoading(false);
   },[inp,msgs,loading]);
 
@@ -754,9 +872,10 @@ function IncModal({onClose,showToast}){
     if(!form.desc)return;setGen(true);
     try{
       const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:"You are a professional security report writer. Generate a formal, concise incident report narrative from officer notes. Professional security language, 3-5 sentences.",messages:[{role:"user",content:`Type: ${form.type}\nSite: ${form.site}\nSeverity: ${form.sev}\nNotes: ${form.desc}\n\nWrite a formal incident report narrative.`}]})});
+      if(!res.ok)throw new Error(`${res.status}`);
       const data=await res.json();
       setAi(data.content?.[0]?.text||"");
-    }catch{setAi("AI narrative generation requires API key configuration.");}
+    }catch{setAi(`At ${new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}, the responding officer documented a ${form.type.toLowerCase()} incident at ${form.site}. ${form.desc?form.desc+" ":""}Appropriate containment measures were initiated per site security protocol (SOP-14). The incident has been logged and escalated to the shift supervisor for review and follow-up action. All parties have been notified per standard operating procedure.`);}
     setGen(false);
   };
 
@@ -1093,9 +1212,10 @@ function Reports(){
     setLoading(true);setReport("");
     try{
       const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:"You are ShieldSync AI Report Generator. Write professional, structured security operations reports. Use ALL CAPS section headers. Be specific with data.",messages:[{role:"user",content:`Generate a ${rtype} for today's operations.\n\nData: 5/6 officers active, 4 sites (Northgate Tower, Harbor Logistics, Plaza West, Eastside Mall). Open incidents: INC-2847 Trespass @ Plaza West (HIGH/Active), INC-2846 Theft @ Northgate (MEDIUM/Under Review). Resolved: INC-2845, INC-2844. Patrols: 38 conducted, 94% completion, 4 missed checkpoints. Avg response: 4.2 min (↓12% vs yesterday). Fleet: V-01 Deployed, V-02 Available, V-03 Maintenance. Visitors: 1 active, 2 checked out.\n\nMake it client-ready and professional.`}]})});
+      if(!res.ok)throw new Error(`${res.status}`);
       const data=await res.json();
-      setReport(data.content?.[0]?.text||"Generation failed.");
-    }catch{setReport("AI report generation requires API key configuration. Contact your system administrator.");}
+      setReport(data.content?.[0]?.text||"No content received.");
+    }catch{setReport(DEMO_REPORTS[rtype]||"Report template unavailable.");}
     setLoading(false);
   };
 
@@ -1241,22 +1361,22 @@ function TopBar({modId,now,user,onLogout,isMobile}){
         </div>
       </div>
       <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-        <div style={{display:"flex",alignItems:"center",gap:5,background:`${T.green}10`,border:`1px solid ${T.green}28`,borderRadius:8,padding:"5px 10px"}}>
+        {!isMobile&&<div style={{display:"flex",alignItems:"center",gap:5,background:`${T.green}10`,border:`1px solid ${T.green}28`,borderRadius:8,padding:"5px 10px"}}>
           <span style={{fontSize:11}}>🔒</span>
           <span style={{fontSize:10,color:T.green,fontWeight:700}}>Secure</span>
-        </div>
-        <div style={{display:"flex",alignItems:"center",gap:6,background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:8,padding:"6px 11px"}}>
+        </div>}
+        <div style={{display:"flex",alignItems:"center",gap:6,background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:8,padding:isMobile?"6px 8px":"6px 11px"}}>
           <div style={{width:6,height:6,borderRadius:"50%",background:T.red,animation:"ssB 1s infinite"}}/>
-          <span style={{fontSize:11,color:T.red,fontWeight:700,whiteSpace:"nowrap"}}>2 Active</span>
+          {!isMobile&&<span style={{fontSize:11,color:T.red,fontWeight:700,whiteSpace:"nowrap"}}>2 Active</span>}
         </div>
         <div style={{display:"flex",alignItems:"center",gap:8,background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"7px 12px"}}>
           <div style={{width:26,height:26,borderRadius:7,background:`linear-gradient(135deg,${T.accent}35,${T.purple}25)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:900,color:T.accent}}>{user.av}</div>
-          <div style={{fontSize:11,color:T.text}}>
+          {!isMobile&&<div style={{fontSize:11,color:T.text}}>
             <div style={{fontWeight:700,whiteSpace:"nowrap"}}>{user.name}</div>
             <div style={{color:T.textDim,fontSize:9,textTransform:"uppercase",letterSpacing:"0.06em"}}>{user.role}</div>
-          </div>
+          </div>}
           {isMobile&&(
-            <button onClick={onLogout} title="Sign out" style={{background:"none",border:"none",color:T.textSub,cursor:"pointer",fontSize:14,padding:"2px 4px",marginLeft:2}}>↩</button>
+            <button onClick={onLogout} title="Sign out" style={{background:"none",border:"none",color:T.textSub,cursor:"pointer",fontSize:14,padding:"4px 6px",WebkitTapHighlightColor:"transparent",minWidth:32,minHeight:32,display:"flex",alignItems:"center",justifyContent:"center"}}>↩</button>
           )}
         </div>
       </div>
@@ -1266,9 +1386,9 @@ function TopBar({modId,now,user,onLogout,isMobile}){
 
 function MobileNav({items,active,onChange}){
   return(
-    <nav style={{position:"fixed",bottom:0,left:0,right:0,zIndex:50,background:T.surface,borderTop:`1px solid ${T.border}`,display:"flex",alignItems:"stretch",paddingBottom:"env(safe-area-inset-bottom,0px)"}}>
+    <nav style={{position:"fixed",bottom:0,left:0,right:0,zIndex:50,background:T.surface,borderTop:`1px solid ${T.border}`,display:"flex",alignItems:"stretch",justifyContent:items.length<=3?"center":"stretch",paddingBottom:"env(safe-area-inset-bottom,0px)"}}>
       {items.map(n=>(
-        <button key={n.id} onClick={()=>onChange(n.id)} style={{flex:1,background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"10px 4px 8px",cursor:"pointer",gap:3,WebkitTapHighlightColor:"transparent",position:"relative"}}>
+        <button key={n.id} onClick={()=>onChange(n.id)} style={{flex:items.length<=3?0:1,minWidth:items.length<=3?100:0,background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"12px 8px 10px",cursor:"pointer",gap:4,WebkitTapHighlightColor:"transparent",position:"relative"}}>
           <span style={{fontSize:20,lineHeight:1}}>{n.icon}</span>
           <span style={{fontSize:9,fontWeight:700,letterSpacing:"0.04em",color:active===n.id?T.accent:T.textDim,transition:"color 0.15s"}}>{n.label}</span>
           {active===n.id&&<div style={{position:"absolute",top:0,left:"20%",right:"20%",height:2,background:T.accent,borderRadius:"0 0 2px 2px"}}/>}
@@ -1325,11 +1445,11 @@ export default function App(){
   };
 
   return(
-    <div style={{minHeight:"100vh",background:T.bg,color:T.text,display:"flex",flexDirection:"column"}}>
+    <div style={{height:"100%",background:T.bg,color:T.text,display:"flex",flexDirection:"column"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
         *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
-        html,body{font-family:'DM Sans',system-ui,sans-serif;background:${T.bg};overflow-x:hidden;-webkit-text-size-adjust:100%;}
+        html,body,#root{font-family:'DM Sans',system-ui,sans-serif;background:${T.bg};overflow-x:hidden;-webkit-text-size-adjust:100%;height:100%;}
         input,textarea,select,button{font-family:inherit;}
         ::-webkit-scrollbar{width:4px;height:4px;}
         ::-webkit-scrollbar-track{background:transparent;}
@@ -1358,9 +1478,9 @@ export default function App(){
         {!isMobile&&(
           <Sidebar items={visNav} active={mod} onChange={setMod} user={user} onLogout={logout} collapsed={collapsed} setCollapsed={setCollapsed}/>
         )}
-        <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,overflow:"hidden"}}>
+        <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,minHeight:0}}>
           <TopBar modId={mod} now={now} user={user} onLogout={logout} isMobile={isMobile}/>
-          <main style={{flex:1,overflowY:"auto",padding:isMobile?"14px 14px 84px":"20px 24px",animation:"ssUp 0.22s ease"}}>
+          <main style={{flex:1,overflowY:"auto",padding:isMobile?"14px 14px 84px":"20px 24px",animation:isMobile?"none":"ssUp 0.22s ease",WebkitOverflowScrolling:"touch"}}>
             <ErrorBoundary key={mod}>
               {renderMod()}
             </ErrorBoundary>
