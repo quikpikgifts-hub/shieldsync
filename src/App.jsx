@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect, useRef, useCallback, memo } from "react";
+import React, { Component, useState, useEffect, useRef, useCallback, memo, useMemo, useTransition } from "react";
 
 // ─────────────────────────────────────────────────────────────────
 // SESSION MANAGEMENT  (8-hour shift TTL, stored in localStorage)
@@ -227,18 +227,19 @@ function AuthScreen({onLogin}){
   const[email,setEmail]=useState("");
   const[pw,setPw]=useState("");
   const[showPw,setShowPw]=useState(false);
-  const[loading,setLoading]=useState(false);
   const[err,setErr]=useState("");
   const[showDemo,setShowDemo]=useState(false);
+  const[pending,startTransition]=useTransition();
 
-  const attempt=async()=>{
+  const attempt=()=>{
     if(!email.trim()||!pw){setErr("Please enter your email and password.");return;}
-    setLoading(true);setErr("");
-    await new Promise(r=>setTimeout(r,850));
-    const u=AUTH_USERS.find(u=>u.email.toLowerCase()===email.toLowerCase().trim()&&u.password===pw);
-    if(u){saveSession(u);onLogin(u);}
-    else setErr("Incorrect email or password. Please try again.");
-    setLoading(false);
+    setErr("");
+    startTransition(async()=>{
+      await new Promise(r=>setTimeout(r,850));
+      const u=AUTH_USERS.find(u=>u.email.toLowerCase()===email.toLowerCase().trim()&&u.password===pw);
+      if(u){saveSession(u);onLogin(u);}
+      else setErr("Incorrect email or password. Please try again.");
+    });
   };
 
   return(
@@ -293,9 +294,9 @@ function AuthScreen({onLogin}){
               <button onClick={()=>setShowPw(p=>!p)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:T.textSub,cursor:"pointer",fontSize:15,lineHeight:1,padding:4}}>{showPw?"●":"○"}</button>
             </div>
           </div>
-          <button onClick={attempt} disabled={loading}
-            style={{width:"100%",marginTop:4,background:loading?T.raised:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:loading?`1px solid ${T.border}`:"none",borderRadius:12,padding:"14px",color:loading?T.textSub:"#000",fontWeight:800,fontSize:15,cursor:loading?"not-allowed":"pointer",transition:"all .2s",letterSpacing:"-0.01em"}}>
-            {loading?"Verifying credentials…":"Sign In →"}
+          <button onClick={attempt} disabled={pending}
+            style={{width:"100%",marginTop:4,background:pending?T.raised:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:pending?`1px solid ${T.border}`:"none",borderRadius:12,padding:"14px",color:pending?T.textSub:"#000",fontWeight:800,fontSize:15,cursor:pending?"not-allowed":"pointer",transition:"all .2s",letterSpacing:"-0.01em"}}>
+            {pending?"Verifying credentials…":"Sign In →"}
           </button>
         </div>
 
@@ -507,7 +508,7 @@ function AICopilot(){
       const res=await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",
         headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
-        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:AI_SYS,messages:apiMsgs}),
+        body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:AI_SYS,messages:apiMsgs}),
       });
       if(!res.ok)throw new Error(`API ${res.status}: ${res.statusText}`);
       const data=await res.json();
@@ -752,7 +753,7 @@ function IncModal({onClose,showToast}){
   const genNarrative=async()=>{
     if(!form.desc)return;setGen(true);
     try{
-      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:"You are a professional security report writer. Generate a formal, concise incident report narrative from officer notes. Professional security language, 3-5 sentences.",messages:[{role:"user",content:`Type: ${form.type}\nSite: ${form.site}\nSeverity: ${form.sev}\nNotes: ${form.desc}\n\nWrite a formal incident report narrative.`}]})});
+      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:"You are a professional security report writer. Generate a formal, concise incident report narrative from officer notes. Professional security language, 3-5 sentences.",messages:[{role:"user",content:`Type: ${form.type}\nSite: ${form.site}\nSeverity: ${form.sev}\nNotes: ${form.desc}\n\nWrite a formal incident report narrative.`}]})});
       const data=await res.json();
       setAi(data.content?.[0]?.text||"");
     }catch{setAi("AI narrative generation requires API key configuration.");}
@@ -1091,7 +1092,7 @@ function Reports(){
   const generate=async()=>{
     setLoading(true);setReport("");
     try{
-      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:"You are ShieldSync AI Report Generator. Write professional, structured security operations reports. Use ALL CAPS section headers. Be specific with data.",messages:[{role:"user",content:`Generate a ${rtype} for today's operations.\n\nData: 5/6 officers active, 4 sites (Northgate Tower, Harbor Logistics, Plaza West, Eastside Mall). Open incidents: INC-2847 Trespass @ Plaza West (HIGH/Active), INC-2846 Theft @ Northgate (MEDIUM/Under Review). Resolved: INC-2845, INC-2844. Patrols: 38 conducted, 94% completion, 4 missed checkpoints. Avg response: 4.2 min (↓12% vs yesterday). Fleet: V-01 Deployed, V-02 Available, V-03 Maintenance. Visitors: 1 active, 2 checked out.\n\nMake it client-ready and professional.`}]})});
+      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:"You are ShieldSync AI Report Generator. Write professional, structured security operations reports. Use ALL CAPS section headers. Be specific with data.",messages:[{role:"user",content:`Generate a ${rtype} for today's operations.\n\nData: 5/6 officers active, 4 sites (Northgate Tower, Harbor Logistics, Plaza West, Eastside Mall). Open incidents: INC-2847 Trespass @ Plaza West (HIGH/Active), INC-2846 Theft @ Northgate (MEDIUM/Under Review). Resolved: INC-2845, INC-2844. Patrols: 38 conducted, 94% completion, 4 missed checkpoints. Avg response: 4.2 min (↓12% vs yesterday). Fleet: V-01 Deployed, V-02 Available, V-03 Maintenance. Visitors: 1 active, 2 checked out.\n\nMake it client-ready and professional.`}]})});
       const data=await res.json();
       setReport(data.content?.[0]?.text||"Generation failed.");
     }catch{setReport("AI report generation requires API key configuration. Contact your system administrator.");}
@@ -1293,9 +1294,9 @@ export default function App(){
   useEffect(()=>{const t=setInterval(()=>setNow(new Date()),30000);return()=>clearInterval(t);},[]);
 
   const role=user?.role||"Company Admin";
-  const visNav=NAV.filter(n=>n.roles.includes(role));
+  const visNav=useMemo(()=>NAV.filter(n=>n.roles.includes(role)),[role]);
 
-  useEffect(()=>{if(user&&!visNav.find(n=>n.id===mod))setMod(visNav[0]?.id||"dashboard");},[role]);
+  useEffect(()=>{if(user&&!visNav.find(n=>n.id===mod))setMod(visNav[0]?.id||"dashboard");},[visNav]);
 
   const openModal=useCallback(m=>setModal(m),[]);
   const closeModal=useCallback(()=>setModal(null),[]);
