@@ -8,11 +8,17 @@ ShieldSync Sentinel is a physical security operations dashboard — a single-pag
 
 ## Architecture
 
-**No build system.** There is no `package.json`, no `node_modules`, and no build step. The project consists of three files:
+**Stack:** React 19.2.7 · Vite 8 (Rolldown) · Vercel Edge Functions · localStorage (→ Supabase ready)
 
-- `index.html` — The entire React application as a JSX component file (misleadingly named `.html`; it is actually JSX/React source). This file `export default function App()` is the root component.
-- `styles.css` — CSS classes for the legacy vanilla-JS auth screens and dashboard layout (`.auth-bg`, `.sidebar`, `.topbar`, `.panel`, etc.). These coexist with the inline styles used in the React code.
-- `README.md` — Describes the original Firebase-backed vanilla JS version; the current code has no Firebase integration (all data is hardcoded).
+Key files:
+- `src/App.jsx` — entire React application (~2,500 lines). All UI, modules, modals, layout.
+- `src/db.js` — data abstraction layer. All mutations go through here. Currently backed by localStorage; set `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` to switch to real Postgres with zero App.jsx changes.
+- `src/main.jsx` — React 19 entry point + Service Worker registration.
+- `api/ai.js` — Vercel Edge Function. Proxies Anthropic API calls server-side so the key never reaches the browser. Set `ANTHROPIC_API_KEY` in Vercel environment variables.
+- `public/sw.js` — Service Worker for offline-first PWA (cache-first shell, network-first API).
+- `vercel.json` — Edge Function routing, SPA rewrites, security headers, asset caching.
+
+**Supabase migration path:** `src/db.js` exports `incidents`, `officers`, `equipment`, `leave`, `visitors`, `scans`, `audit`. Each has `.list()`, `.get()`, `.insert()`, `.update()`, `.remove()`, `.subscribe()` — identical to Supabase's JS client. Add one env var to flip the backend.
 
 **Two coexisting style systems:**
 - `styles.css` uses BEM-style class names (`.auth-card`, `.stat-card`, `.nav-item`), fonts loaded via `@import` (Bebas Neue, DM Sans, JetBrains Mono), and CSS custom properties (`--accent`, `--bg`, etc.).

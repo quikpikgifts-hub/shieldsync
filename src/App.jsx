@@ -1,4 +1,5 @@
 import React, { Component, useState, useEffect, useRef, useCallback, memo, useMemo, useTransition } from "react";
+import { audit, callAI, watchPosition, onlineStatus, HAS_SUPABASE } from "./db.js";
 
 // ─────────────────────────────────────────────────────────────────
 // LOCAL STORAGE LAYER
@@ -17,20 +18,11 @@ function useLS(key,init){
 }
 
 // ─────────────────────────────────────────────────────────────────
-// AUDIT LOG
+// AUDIT (delegates to db.js — localStorage today, Supabase tomorrow)
 // ─────────────────────────────────────────────────────────────────
-const AUD_KEY="ss_audit_v1";
-function logAction(user,action,detail=""){
-  const entries=LS.get(AUD_KEY,[]);
-  entries.unshift({
-    id:`A${Date.now()}`,ts:new Date().toISOString(),
-    user:user?.name||"System",badge:user?.badge||"—",role:user?.role||"—",
-    action,detail,
-  });
-  LS.set(AUD_KEY,entries.slice(0,1000));
-}
-function getAuditLog(){return LS.get(AUD_KEY,[]);}
-function clearAuditLog(){LS.del(AUD_KEY);}
+const logAction=(user,action,detail="")=>audit.log(user,action,detail);
+function getAuditLog(){const r=LS.get("ss_audit_v1",[]);return r;}
+const clearAuditLog=()=>audit.clear();
 
 // ─────────────────────────────────────────────────────────────────
 // SESSION MANAGEMENT  (8-hour shift TTL)
@@ -614,7 +606,9 @@ function CheckInModal({onClose,showToast}){
 // ─────────────────────────────────────────────────────────────────
 // LIVE MAP
 // ─────────────────────────────────────────────────────────────────
-const LiveMap=memo(function LiveMap({officers}){
+const LiveMap=memo(function LiveMap({officers,positions}){
+  // Use animated positions if provided, fall back to static data
+  const pos=positions||officers.filter(o=>o.status!=="Off Duty").map(o=>({...o,cx:o.x,cy:o.y}));
   const siteOfs={};
   officers.forEach(o=>{if(o.site!=="—"){if(!siteOfs[o.site])siteOfs[o.site]=[];siteOfs[o.site].push(o);}});
   return(
@@ -642,11 +636,14 @@ const LiveMap=memo(function LiveMap({officers}){
               <div style={{position:"absolute",top:18,left:"50%",transform:"translateX(-50%)",background:"rgba(6,9,16,.92)",border:`1px solid ${T.border}`,padding:"3px 8px",borderRadius:5,whiteSpace:"nowrap",fontSize:9,color:T.textSub,fontWeight:700,zIndex:3}}>
                 {site.name}{ofs.length>0&&<span style={{color:col,marginLeft:5}}>· {ofs.length}</span>}
               </div>
-              {ofs.map((o,i)=>{
-                const angle=(i/Math.max(ofs.length,1))*Math.PI*2;
-                const r=10,x=Math.cos(angle)*r,y=Math.sin(angle)*r;
+              {ofs.map((o)=>{
+                const p=pos.find(x=>x.id===o.id);
+                const cx=p?p.cx:o.x; const cy=p?p.cy:o.y;
                 return(
-                  <div key={o.id} title={`${o.name} — ${o.status}`} style={{position:"absolute",top:"50%",left:"50%",transform:`translate(calc(-50% + ${x}px),calc(-50% + ${y}px))`,width:7,height:7,borderRadius:"50%",background:SM(o.status).c,border:"1.5px solid rgba(0,0,0,.4)",boxShadow:`0 0 5px ${SM(o.status).c}`,zIndex:2}}/>
+                  <div key={o.id} title={`${o.name} — ${o.status}`} style={{position:"absolute",left:`${cx}%`,top:`${cy}%`,transform:"translate(-50%,-50%)",transition:"left 3.5s ease, top 3.5s ease",zIndex:4}}>
+                    <div style={{width:9,height:9,borderRadius:"50%",background:SM(o.status).c,border:"2px solid rgba(255,255,255,.3)",boxShadow:`0 0 7px ${SM(o.status).c}`}}/>
+                    <div style={{position:"absolute",top:11,left:"50%",transform:"translateX(-50%)",background:"rgba(6,9,16,.9)",border:`1px solid ${SM(o.status).c}30`,padding:"2px 5px",borderRadius:4,whiteSpace:"nowrap",fontSize:8,color:SM(o.status).c,fontWeight:800}}>{o.av}</div>
+                  </div>
                 );
               })}
             </div>
@@ -694,15 +691,8 @@ function AICopilot(){
     setMsgs(next);setLoading(true);
     const apiMsgs=next.map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
     try{
-      const res=await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",
-        headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
-        body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:AI_SYS,messages:apiMsgs}),
-      });
-      if(!res.ok)throw new Error(`${res.status}`);
-      const data=await res.json();
-      const reply=data.content?.find(b=>b.type==="text")?.text||"No response.";
-      setMsgs(p=>[...p,{role:"ai",text:reply}]);
+      const reply=await callAI(apiMsgs,AI_SYS,1000);
+      setMsgs(p=>[...p,{role:"ai",text:reply||"No response."}]);
     }catch{setMsgs(p=>[...p,{role:"ai",text:DEMO_NOTE+(DEMO_AI[msg]||DEMO_FALLBACK)}]);}
     setLoading(false);
   },[inp,msgs,loading]);
@@ -942,10 +932,12 @@ function IncModal({onClose,showToast}){
   const genNarrative=async()=>{
     if(!form.desc)return;setGen(true);
     try{
-      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:"You are a professional security report writer. Generate a formal, concise incident report narrative from officer notes. Professional security language, 3-5 sentences.",messages:[{role:"user",content:`Type: ${form.type}\nSite: ${form.site}\nSeverity: ${form.sev}\nNotes: ${form.desc}\n\nWrite a formal incident report narrative.`}]})});
-      if(!res.ok)throw new Error(`${res.status}`);
-      const data=await res.json();
-      setAi(data.content?.[0]?.text||"");
+      const text=await callAI(
+        [{role:"user",content:`Type: ${form.type}\nSite: ${form.site}\nSeverity: ${form.sev}\nNotes: ${form.desc}\n\nWrite a formal incident report narrative.`}],
+        "You are a professional security report writer. Generate a formal, concise incident report narrative from officer notes. Professional security language, 3-5 sentences.",
+        1000
+      );
+      setAi(text||"");
     }catch{setAi(`At ${new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}, the responding officer documented a ${form.type.toLowerCase()} incident at ${form.site}. ${form.desc?form.desc+" ":""}Appropriate containment measures were initiated per site security protocol (SOP-14). The incident has been logged and escalated to the shift supervisor for review and follow-up action. All parties have been notified per standard operating procedure.`);}
     setGen(false);
   };
@@ -1024,7 +1016,46 @@ function IncModal({onClose,showToast}){
 // ─────────────────────────────────────────────────────────────────
 // MODULES
 // ─────────────────────────────────────────────────────────────────
-function Dashboard({openModal}){
+// Live event ticker — simulates the real-time event stream from a WebSocket backend
+const LIVE_TICKER=[
+  {t:12000,msg:"Marcus Webb — Checkpoint scanned: Main Entrance",type:"scan"},
+  {t:25000,msg:"INC-2847 update — subject contained at Plaza West",type:"success"},
+  {t:40000,msg:"Jordan Park — Break ended, returning to patrol",type:"info"},
+  {t:57000,msg:"V-02 Highlander dispatched — authorised by Supervisor Chen",type:"dispatch"},
+  {t:73000,msg:"Diana Reyes — Checkpoint scanned: Loading Dock",type:"scan"},
+  {t:88000,msg:"⚠ Lone worker check-in pending — Jordan Park",type:"warning"},
+  {t:104000,msg:"INC-2847 resolved — subject processed by Northgate PD",type:"success"},
+  {t:119000,msg:"Ava Simmons — Started patrol route, Eastside Mall",type:"info"},
+];
+
+function Dashboard({openModal,showToast}){
+  const[feed,setFeed]=useState([]);
+  const[positions,setPositions]=useState(
+    OFFICERS.filter(o=>o.status!=="Off Duty").map(o=>({...o,cx:o.x,cy:o.y}))
+  );
+
+  // Live event feed
+  useEffect(()=>{
+    const timers=LIVE_TICKER.map(e=>setTimeout(()=>{
+      setFeed(f=>[{...e,id:Date.now(),time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})},...f.slice(0,19)]);
+      if(e.type==="warning")showToast(e.msg,"error");
+      else if(e.type==="success")showToast(e.msg,"success");
+    },e.t));
+    return()=>timers.forEach(clearTimeout);
+  },[]);
+
+  // Animated officer positions — smooth drift simulating real GPS movement
+  useEffect(()=>{
+    const t=setInterval(()=>{
+      setPositions(prev=>prev.map(p=>({
+        ...p,
+        cx:Math.max(4,Math.min(96,p.cx+(Math.random()-0.5)*1.8)),
+        cy:Math.max(4,Math.min(96,p.cy+(Math.random()-0.5)*1.8)),
+      })));
+    },3500);
+    return()=>clearInterval(t);
+  },[]);
+
   return(
     <div style={{display:"flex",flexDirection:"column",gap:18}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(148px,1fr))",gap:10}}>
@@ -1043,7 +1074,7 @@ function Dashboard({openModal}){
         ))}
       </div>
       <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.5fr) minmax(0,1fr)",gap:16}}>
-        <Card><CB><SH title="Live Operations Map"/><LiveMap officers={OFFICERS}/></CB></Card>
+        <Card><CB><SH title="Live Operations Map"/><LiveMap officers={OFFICERS} positions={positions}/></CB></Card>
         <Card style={{display:"flex",flexDirection:"column"}}>
           <CB style={{flex:1,display:"flex",flexDirection:"column"}}>
             <SH title="ShieldSync AI Copilot"/>
@@ -1051,6 +1082,30 @@ function Dashboard({openModal}){
           </CB>
         </Card>
       </div>
+      {/* Live ops feed */}
+      {feed.length>0&&(
+        <Card glow={T.accent}>
+          <CB>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+              <div style={{width:7,height:7,borderRadius:"50%",background:T.green,boxShadow:`0 0 6px ${T.green}`,animation:"ssB 1s infinite"}}/>
+              <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:T.textSub}}>Live Ops Feed</span>
+              <span style={{fontSize:10,color:T.textDim,marginLeft:"auto"}}>{feed.length} events</span>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:5}}>
+              {feed.slice(0,6).map((e,i)=>{
+                const c=e.type==="success"?T.green:e.type==="warning"?T.red:e.type==="dispatch"?T.gold:e.type==="scan"?T.accent:T.textSub;
+                return(
+                  <div key={e.id} style={{display:"flex",gap:10,alignItems:"center",padding:"7px 10px",background:T.raised,borderRadius:7,animation:i===0?"ssUp 0.2s ease":"none"}}>
+                    <div style={{width:6,height:6,borderRadius:"50%",background:c,flexShrink:0}}/>
+                    <span style={{flex:1,fontSize:12,color:T.text}}>{e.msg}</span>
+                    <span style={{fontSize:10,color:T.textDim,fontFamily:"monospace",flexShrink:0}}>{e.time}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </CB>
+        </Card>
+      )}
       <Card>
         <CB>
           <SH title="AI Risk Intelligence"/>
@@ -1393,10 +1448,12 @@ function Reports(){
   const generate=async()=>{
     setLoading(true);setReport("");
     try{
-      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:"You are ShieldSync AI Report Generator. Write professional, structured security operations reports. Use ALL CAPS section headers. Be specific with data.",messages:[{role:"user",content:`Generate a ${rtype} for today's operations.\n\nData: 5/6 officers active, 4 sites (Northgate Tower, Harbor Logistics, Plaza West, Eastside Mall). Open incidents: INC-2847 Trespass @ Plaza West (HIGH/Active), INC-2846 Theft @ Northgate (MEDIUM/Under Review). Resolved: INC-2845, INC-2844. Patrols: 38 conducted, 94% completion, 4 missed checkpoints. Avg response: 4.2 min (↓12% vs yesterday). Fleet: V-01 Deployed, V-02 Available, V-03 Maintenance. Visitors: 1 active, 2 checked out.\n\nMake it client-ready and professional.`}]})});
-      if(!res.ok)throw new Error(`${res.status}`);
-      const data=await res.json();
-      setReport(data.content?.[0]?.text||"No content received.");
+      const text=await callAI(
+        [{role:"user",content:`Generate a ${rtype} for today's operations.\n\nData: 5/6 officers active, 4 sites (Northgate Tower, Harbor Logistics, Plaza West, Eastside Mall). Open incidents: INC-2847 Trespass @ Plaza West (HIGH/Active), INC-2846 Theft @ Northgate (MEDIUM/Under Review). Resolved: INC-2845, INC-2844. Patrols: 38 conducted, 94% completion, 4 missed checkpoints. Avg response: 4.2 min. Fleet: V-01 Deployed, V-02 Available, V-03 Maintenance. Visitors: 1 active, 2 checked out.\n\nMake it client-ready and professional.`}],
+        "You are ShieldSync AI Report Generator. Write professional, structured security operations reports. Use ALL CAPS section headers. Be specific with data.",
+        1000
+      );
+      setReport(text||"No content received.");
     }catch{setReport(DEMO_REPORTS[rtype]||"Report template unavailable.");}
     setLoading(false);
   };
@@ -1559,9 +1616,21 @@ function MyShift({user,showToast}){
   const[loneWorkerActive,setLoneWorkerActive]=useState(false);
   const[handoverNote,setHandoverNote]=useState("");
   const[handoverSent,setHandoverSent]=useState(false);
+  const[gps,setGps]=useState(null);
+  const[gpsErr,setGpsErr]=useState(null);
   const timerRef=useRef(null);
   const enRouteRef=useRef(null);
   const lwRef=useRef(null);
+
+  // Real GPS — updates while clocked in
+  useEffect(()=>{
+    if(!clocked)return;
+    const stop=watchPosition(
+      pos=>{setGps(pos);setGpsErr(null);},
+      err=>{setGpsErr(err.code===1?"Location access denied":"GPS unavailable");}
+    );
+    return stop;
+  },[clocked]);
 
   useEffect(()=>{
     if(loneWorkerActive&&clocked){
@@ -1721,6 +1790,30 @@ function MyShift({user,showToast}){
                 <PBar value={enRouteElapsed} max={enRouteETA*60} color={T.gold}/>
               </div>
             )}
+          </CB>
+        </Card>
+      )}
+
+      {/* GPS status */}
+      {clocked&&(
+        <Card glow={gps?T.green:undefined}>
+          <CB style={{padding:"12px 16px"}}>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <span style={{fontSize:18}}>📍</span>
+              <div style={{flex:1,minWidth:0}}>
+                {gps?(
+                  <>
+                    <div style={{fontSize:12,fontWeight:700,color:T.green}}>GPS Active · {Math.round(gps.acc)}m accuracy</div>
+                    <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace"}}>{gps.lat.toFixed(5)}°N, {gps.lng.toFixed(5)}°W · Updated {new Date(gps.ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"})}</div>
+                  </>
+                ):gpsErr?(
+                  <div style={{fontSize:12,color:T.amber}}>{gpsErr} — position not broadcasting</div>
+                ):(
+                  <div style={{fontSize:12,color:T.textSub}}>Acquiring GPS signal…</div>
+                )}
+              </div>
+              {gps&&<div style={{width:8,height:8,borderRadius:"50%",background:T.green,animation:"ssB 2s infinite",flexShrink:0}}/>}
+            </div>
           </CB>
         </Card>
       )}
@@ -2289,8 +2382,10 @@ export default function App(){
   const[isMobile,setIsMobile]=useState(false);
   const[toasts,setToasts]=useState([]);
 
+  const[online,setOnline]=useState(navigator.onLine);
   useEffect(()=>{const c=()=>setIsMobile(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c);},[]);
   useEffect(()=>{const t=setInterval(()=>setNow(new Date()),30000);return()=>clearInterval(t);},[]);
+  useEffect(()=>onlineStatus(setOnline),[]);
 
   const role=user?.role||"Company Admin";
   const visNav=useMemo(()=>NAV.filter(n=>n.roles.includes(role)),[role]);
@@ -2347,6 +2442,13 @@ export default function App(){
         @keyframes ssToast{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
         @keyframes ssQR{0%{top:0;opacity:1}50%{top:calc(100% - 3px);opacity:.7}100%{top:0;opacity:1}}
       `}</style>
+
+      {/* Offline banner */}
+      {!online&&(
+        <div style={{background:T.amber,color:"#000",padding:"8px 16px",fontSize:12,fontWeight:700,textAlign:"center",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+          <span>⚡</span> Offline mode — actions are queued and will sync when connection is restored
+        </div>
+      )}
 
       {/* Toast notifications */}
       {toasts.length>0&&(
