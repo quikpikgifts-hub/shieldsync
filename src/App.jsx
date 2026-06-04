@@ -68,6 +68,23 @@ const AUTH_USERS=[
   {id:"U-003",email:"officer@shieldsync.com",   password:"Sentinel2025!",name:"Marcus Webb",   role:"Officer",      badge:"S-0041",  av:"MW"},
   {id:"U-004",email:"client@shieldsync.com",    password:"Sentinel2025!",name:"James Holloway",role:"Client",       badge:"CLT-001", av:"JH"},
 ];
+const ROLES=["Company Admin","Supervisor","Officer","Client"];
+const PERM_LABELS={
+  dashboard:"Command Center",executive:"Executive Dashboard",workforce:"Workforce",
+  timekeeping:"Timekeeping",patrol:"Patrol",fleet:"Fleet",visitors:"Visitors",
+  reports:"Reports",dispatch:"Dispatch",equipment:"Equipment",leave:"Leave/PTO",
+  training:"Training",aicommand:"AI Command",procurement:"Procurement",
+  auditlog:"Audit Log",users:"User Management",settings:"Company Settings",myshift:"My Shift",
+};
+const ROLE_PERMS={
+  "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings"],
+  "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand"],
+  "Officer":["dashboard","myshift","patrol","visitors","equipment","leave"],
+  "Client":["dashboard","reports"],
+};
+function getUsers(){const s=LS.get("ss_users_v1",null);if(s)return s;const init=AUTH_USERS.map(u=>({...u,active:true,createdAt:"2024-01-01",mfaEnabled:false,company:"ShieldSync Demo"}));LS.set("ss_users_v1",init);return init;}
+function saveUsers(list){LS.set("ss_users_v1",list);}
+function authUser(email,pw){return getUsers().find(u=>u.email.toLowerCase()===email.toLowerCase().trim()&&u.password===pw&&u.active!==false)||null;}
 
 // ─────────────────────────────────────────────────────────────────
 // DATA
@@ -181,6 +198,8 @@ const NAV=[
   {id:"aicommand",label:"AI Command",icon:"🤖",roles:["Company Admin","Supervisor"]},
   {id:"procurement",label:"Procurement",icon:"📦",roles:["Company Admin"]},
   {id:"auditlog",label:"Audit Log",icon:"📋",roles:["Company Admin"]},
+  {id:"users",label:"Users",icon:"👥",roles:["Company Admin"]},
+  {id:"settings",label:"Settings",icon:"⚙️",roles:["Company Admin"]},
 ];
 const KPI_DATA=[
   {label:"Active Officers",value:"5",sub:"1 off duty",icon:"👮",color:T.accent,trend:"+2"},
@@ -457,23 +476,63 @@ function ModalWrap({children}){
 // ─────────────────────────────────────────────────────────────────
 // AUTH SCREEN
 // ─────────────────────────────────────────────────────────────────
-function AuthScreen({onLogin}){
+function AuthScreen({onLogin,onRegister}){
+  const[tab,setTab]=useState("login");
   const[email,setEmail]=useState("");
   const[pw,setPw]=useState("");
   const[showPw,setShowPw]=useState(false);
   const[err,setErr]=useState("");
   const[showDemo,setShowDemo]=useState(false);
   const[pending,startTransition]=useTransition();
+  const[reg,setReg]=useState({company:"",name:"",email:"",pw:"",pw2:"",industry:"Security Services",size:"11-50"});
+  const[regErr,setRegErr]=useState("");
+  const[regDone,setRegDone]=useState(false);
+  const[forgotStep,setForgotStep]=useState(0);
+  const[forgotEmail,setForgotEmail]=useState("");
+  const[forgotCode,setForgotCode]=useState("");
+  const[forgotNewPw,setForgotNewPw]=useState("");
+  const[forgotErr,setForgotErr]=useState("");
+  const[codeSent,setCodeSent]=useState(false);
+  const DEMO_CODE="123456";
+  const inp=(ex={})=>({width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px",color:T.text,fontSize:14,outline:"none",transition:"border-color .2s",boxSizing:"border-box",...ex});
 
   const attempt=()=>{
     if(!email.trim()||!pw){setErr("Please enter your email and password.");return;}
     setErr("");
     startTransition(async()=>{
       await new Promise(r=>setTimeout(r,850));
-      const u=AUTH_USERS.find(u=>u.email.toLowerCase()===email.toLowerCase().trim()&&u.password===pw);
+      const u=authUser(email,pw);
       if(u){saveSession(u);logAction(u,"LOGIN",`Signed in from ${navigator.userAgent.includes("Mobile")?"mobile":"desktop"}`);onLogin(u);}
       else setErr("Incorrect email or password. Please try again.");
     });
+  };
+  const regUpd=(k,v)=>setReg(r=>({...r,[k]:v}));
+  const submitReg=()=>{
+    if(!reg.company.trim()||!reg.name.trim()||!reg.email.trim()||!reg.pw){setRegErr("All fields are required.");return;}
+    if(!/\S+@\S+\.\S+/.test(reg.email)){setRegErr("Please enter a valid email address.");return;}
+    if(reg.pw.length<8){setRegErr("Password must be at least 8 characters.");return;}
+    if(reg.pw!==reg.pw2){setRegErr("Passwords do not match.");return;}
+    const users=getUsers();
+    if(users.find(u=>u.email.toLowerCase()===reg.email.toLowerCase())){setRegErr("An account with this email already exists.");return;}
+    const newUser={id:`U-${Date.now()}`,email:reg.email,password:reg.pw,name:reg.name,role:"Company Admin",badge:"ADMIN-NEW",av:reg.name.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2),active:true,createdAt:new Date().toISOString().slice(0,10),mfaEnabled:false,company:reg.company,isNewCompany:true};
+    saveUsers([...users,newUser]);
+    setRegErr("");setRegDone(true);
+    onRegister&&onRegister(newUser);
+  };
+  const forgotSend=()=>{
+    if(!forgotEmail.trim()){setForgotErr("Enter your email.");return;}
+    const u=getUsers().find(u=>u.email.toLowerCase()===forgotEmail.toLowerCase());
+    if(!u){setForgotErr("No account found with that email.");return;}
+    setForgotErr("");setForgotStep(2);setCodeSent(true);
+  };
+  const forgotVerify=()=>{
+    if(forgotCode!==DEMO_CODE){setForgotErr(`Invalid code. Demo: ${DEMO_CODE}`);return;}
+    setForgotErr("");setForgotStep(3);
+  };
+  const forgotReset=()=>{
+    if(forgotNewPw.length<8){setForgotErr("Minimum 8 characters.");return;}
+    saveUsers(getUsers().map(u=>u.email.toLowerCase()===forgotEmail.toLowerCase()?{...u,password:forgotNewPw}:u));
+    setForgotErr("");setForgotStep(4);
   };
 
   return(
@@ -485,85 +544,190 @@ function AuthScreen({onLogin}){
         @keyframes ssUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
         @keyframes glow{0%,100%{opacity:.07}50%{opacity:.15}}
         input:focus{border-color:${T.accentB}!important;}
+        select:focus{outline:none;border-color:${T.accentB}!important;}
       `}</style>
-
-      {/* Ambient grid */}
       <svg style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none"}} preserveAspectRatio="none">
         {[...Array(22)].map((_,i)=><line key={`v${i}`} x1={`${i*4.76}%`} y1="0" x2={`${i*4.76}%`} y2="100%" stroke={T.accent} strokeWidth=".5" opacity=".05"/>)}
         {[...Array(16)].map((_,i)=><line key={`h${i}`} x1="0" y1={`${i*6.67}%`} x2="100%" y2={`${i*6.67}%`} stroke={T.accent} strokeWidth=".5" opacity=".05"/>)}
       </svg>
       <div style={{position:"absolute",top:"5%",left:"50%",transform:"translateX(-50%)",width:"90vw",maxWidth:800,height:"55vh",background:`radial-gradient(ellipse at center,${T.accentGlow} 0%,transparent 65%)`,pointerEvents:"none",animation:"glow 4s ease-in-out infinite"}}/>
 
-      {/* Branding */}
-      <div style={{textAlign:"center",marginBottom:36,animation:"ssUp .35s ease",position:"relative",zIndex:1}}>
-        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,margin:"0 auto 16px",boxShadow:`0 0 60px ${T.accent}38,0 0 120px ${T.accent}12`}}>⚡</div>
-        <div style={{fontSize:34,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>ShieldSync</div>
-        <div style={{fontSize:9,color:T.textDim,letterSpacing:"0.24em",textTransform:"uppercase",marginTop:6}}>SENTINEL · ENTERPRISE SECURITY PLATFORM</div>
+      <div style={{textAlign:"center",marginBottom:24,animation:"ssUp .35s ease",position:"relative",zIndex:1}}>
+        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,margin:"0 auto 14px",boxShadow:`0 0 60px ${T.accent}38,0 0 120px ${T.accent}12`}}>⚡</div>
+        <div style={{fontSize:32,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>ShieldSync</div>
+        <div style={{fontSize:9,color:T.textDim,letterSpacing:"0.24em",textTransform:"uppercase",marginTop:5}}>SENTINEL · ENTERPRISE SECURITY PLATFORM</div>
       </div>
 
-      {/* Card */}
-      <div style={{width:"min(420px,100%)",background:T.surface,border:`1px solid ${T.border}`,borderRadius:22,padding:32,boxShadow:`0 48px 96px rgba(0,0,0,0.7),0 0 0 1px ${T.border}`,animation:"ssUp .45s ease .08s both",position:"relative",zIndex:1}}>
-        <div style={{marginBottom:22}}>
-          <div style={{fontSize:19,fontWeight:800,color:T.text,letterSpacing:"-0.01em"}}>Secure Access</div>
-          <div style={{fontSize:12,color:T.textSub,marginTop:4,lineHeight:1.6}}>Authorized personnel only. All sessions are monitored and logged.</div>
+      {/* Tab bar — hidden during forgot-password flow */}
+      {forgotStep===0&&(
+        <div style={{display:"flex",gap:2,background:T.surface,border:`1px solid ${T.border}`,borderRadius:12,padding:3,marginBottom:16,position:"relative",zIndex:1,animation:"ssUp .4s ease .04s both"}}>
+          {[["login","Sign In"],["register","Register Company"]].map(([k,lb])=>(
+            <button key={k} onClick={()=>{setTab(k);setErr("");setRegErr("");}}
+              style={{padding:"8px 20px",borderRadius:9,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,transition:"all .15s",background:tab===k?T.accent:"transparent",color:tab===k?"#000":T.textSub}}>
+              {lb}
+            </button>
+          ))}
         </div>
+      )}
 
-        {err&&(
-          <div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"11px 14px",marginBottom:16,fontSize:13,color:T.red,display:"flex",gap:9,alignItems:"center"}}>
-            <span style={{flexShrink:0,fontSize:15}}>⚠</span><span>{err}</span>
+      <div style={{width:"min(450px,100%)",background:T.surface,border:`1px solid ${T.border}`,borderRadius:22,padding:32,boxShadow:`0 48px 96px rgba(0,0,0,0.7),0 0 0 1px ${T.border}`,animation:"ssUp .45s ease .08s both",position:"relative",zIndex:1}}>
+
+        {/* ── FORGOT PASSWORD ── */}
+        {forgotStep>0&&(
+          <div>
+            <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:22}}>
+              <button onClick={()=>{setForgotStep(0);setForgotErr("");setForgotCode("");}} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:30,height:30,borderRadius:8,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center"}}>←</button>
+              <div>
+                <div style={{fontSize:17,fontWeight:800,color:T.text}}>
+                  {forgotStep===1?"Forgot Password":forgotStep===2?"Check Your Email":forgotStep===3?"New Password":"Reset Complete"}
+                </div>
+                <div style={{fontSize:12,color:T.textSub,marginTop:2}}>
+                  {forgotStep===1?"Enter your registered email"
+                   :forgotStep===2?`Code sent to ${forgotEmail} · demo: ${DEMO_CODE}`
+                   :forgotStep===3?"Choose a new secure password"
+                   :"Sign in with your new password"}
+                </div>
+              </div>
+            </div>
+            {forgotErr&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:13,color:T.red}}>{forgotErr}</div>}
+            {forgotStep===4&&(
+              <button onClick={()=>{setForgotStep(0);setForgotEmail("");setForgotNewPw("");setTab("login");}}
+                style={{width:"100%",background:`linear-gradient(135deg,${T.green},${T.accent})`,border:"none",borderRadius:12,padding:14,color:"#000",fontWeight:800,fontSize:15,cursor:"pointer"}}>
+                Sign In with New Password →
+              </button>
+            )}
+            {forgotStep===1&&(
+              <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                <input value={forgotEmail} onChange={e=>setForgotEmail(e.target.value)} placeholder="your@email.com" style={inp()} onKeyDown={e=>e.key==="Enter"&&forgotSend()}/>
+                <button onClick={forgotSend} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:14,color:"#000",fontWeight:800,fontSize:15,cursor:"pointer"}}>Send Reset Code</button>
+              </div>
+            )}
+            {forgotStep===2&&(
+              <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                <input value={forgotCode} onChange={e=>setForgotCode(e.target.value.replace(/\D/,"").slice(0,6))} placeholder="6-digit code" maxLength={6}
+                  style={inp({textAlign:"center",fontSize:24,letterSpacing:"0.3em",fontFamily:"monospace"})} onKeyDown={e=>e.key==="Enter"&&forgotVerify()}/>
+                <button onClick={forgotVerify} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:14,color:"#000",fontWeight:800,fontSize:15,cursor:"pointer"}}>Verify Code</button>
+              </div>
+            )}
+            {forgotStep===3&&(
+              <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                <input type="password" value={forgotNewPw} onChange={e=>setForgotNewPw(e.target.value)} placeholder="New password (min 8 chars)" style={inp()} onKeyDown={e=>e.key==="Enter"&&forgotReset()}/>
+                <button onClick={forgotReset} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:14,color:"#000",fontWeight:800,fontSize:15,cursor:"pointer"}}>Reset Password</button>
+              </div>
+            )}
           </div>
         )}
 
-        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+        {/* ── SIGN IN ── */}
+        {forgotStep===0&&tab==="login"&&(
           <div>
-            <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Email Address</label>
-            <input type="email" value={email} onChange={e=>{setEmail(e.target.value);setErr("");}} onKeyDown={e=>e.key==="Enter"&&attempt()} placeholder="you@yourcompany.com" autoComplete="email"
-              style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px",color:T.text,fontSize:14,outline:"none",transition:"border-color .2s",boxSizing:"border-box"}}/>
-          </div>
-          <div>
-            <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Password</label>
-            <div style={{position:"relative"}}>
-              <input type={showPw?"text":"password"} value={pw} onChange={e=>{setPw(e.target.value);setErr("");}} onKeyDown={e=>e.key==="Enter"&&attempt()} placeholder="••••••••••" autoComplete="current-password"
-                style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 44px 12px 14px",color:T.text,fontSize:14,outline:"none",transition:"border-color .2s",boxSizing:"border-box"}}/>
-              <button onClick={()=>setShowPw(p=>!p)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:T.textSub,cursor:"pointer",fontSize:15,lineHeight:1,padding:4}}>{showPw?"●":"○"}</button>
+            <div style={{marginBottom:20}}>
+              <div style={{fontSize:19,fontWeight:800,color:T.text}}>Secure Access</div>
+              <div style={{fontSize:12,color:T.textSub,marginTop:4,lineHeight:1.6}}>Authorized personnel only. All sessions are monitored and logged.</div>
             </div>
-          </div>
-          <button onClick={attempt} disabled={pending}
-            style={{width:"100%",marginTop:4,background:pending?T.raised:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:pending?`1px solid ${T.border}`:"none",borderRadius:12,padding:"14px",color:pending?T.textSub:"#000",fontWeight:800,fontSize:15,cursor:pending?"not-allowed":"pointer",transition:"all .2s",letterSpacing:"-0.01em"}}>
-            {pending?"Verifying credentials…":"Sign In →"}
-          </button>
-        </div>
-
-        {/* Trust signals */}
-        <div style={{display:"flex",justifyContent:"center",gap:22,marginTop:22,paddingTop:18,borderTop:`1px solid ${T.border}`}}>
-          {[["🔒","TLS 1.3"],["🛡","SOC 2 Ready"],["✓","ISO 27001"]].map(([ic,lb])=>(
-            <div key={lb} style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:T.textDim}}>
-              <span style={{color:T.textSub}}>{ic}</span><span>{lb}</span>
+            {err&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"11px 14px",marginBottom:16,fontSize:13,color:T.red,display:"flex",gap:9,alignItems:"center"}}><span>⚠</span><span>{err}</span></div>}
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+              <div>
+                <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Email Address</label>
+                <input type="email" value={email} onChange={e=>{setEmail(e.target.value);setErr("");}} onKeyDown={e=>e.key==="Enter"&&attempt()} placeholder="you@yourcompany.com" autoComplete="email" style={inp()}/>
+              </div>
+              <div>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:7}}>
+                  <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase"}}>Password</label>
+                  <button onClick={()=>{setForgotStep(1);setForgotEmail(email);}} style={{background:"none",border:"none",color:T.accent,fontSize:11,cursor:"pointer",padding:0,fontWeight:600}}>Forgot password?</button>
+                </div>
+                <div style={{position:"relative"}}>
+                  <input type={showPw?"text":"password"} value={pw} onChange={e=>{setPw(e.target.value);setErr("");}} onKeyDown={e=>e.key==="Enter"&&attempt()} placeholder="••••••••••" autoComplete="current-password" style={inp({paddingRight:44})}/>
+                  <button onClick={()=>setShowPw(p=>!p)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:T.textSub,cursor:"pointer",fontSize:15,padding:4}}>{showPw?"●":"○"}</button>
+                </div>
+              </div>
+              <button onClick={attempt} disabled={pending}
+                style={{width:"100%",marginTop:4,background:pending?T.raised:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:pending?`1px solid ${T.border}`:"none",borderRadius:12,padding:"14px",color:pending?T.textSub:"#000",fontWeight:800,fontSize:15,cursor:pending?"not-allowed":"pointer",transition:"all .2s"}}>
+                {pending?"Verifying credentials…":"Sign In →"}
+              </button>
             </div>
-          ))}
-        </div>
-
-        {/* Demo credentials */}
-        <div style={{marginTop:16}}>
-          <button onClick={()=>setShowDemo(p=>!p)} style={{width:"100%",background:"none",border:"none",color:T.textDim,fontSize:11,cursor:"pointer",padding:"6px 0",letterSpacing:"0.03em"}}>
-            {showDemo?"▲ Hide demo access":"▼ Demo access · Sales & Procurement"}
-          </button>
-          {showDemo&&(
-            <div style={{marginTop:10,display:"flex",flexDirection:"column",gap:6}}>
-              <div style={{fontSize:10,color:T.textDim,letterSpacing:"0.1em",textTransform:"uppercase",textAlign:"center",marginBottom:4}}>Click a role to auto-fill</div>
-              {AUTH_USERS.map(u=>(
-                <button key={u.id} onClick={()=>{setEmail(u.email);setPw(u.password);setErr("");}}
-                  style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:9,padding:"10px 13px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",textAlign:"left",WebkitTapHighlightColor:"transparent"}}>
-                  <div>
-                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{u.name}</div>
-                    <div style={{fontSize:10,color:T.textSub,marginTop:1,fontFamily:"monospace"}}>{u.email}</div>
-                  </div>
-                  <div style={{fontSize:9,fontWeight:700,color:T.accent,background:T.accentGlow,border:`1px solid ${T.accentB}`,padding:"3px 9px",borderRadius:5,whiteSpace:"nowrap",flexShrink:0,marginLeft:8}}>{u.role}</div>
-                </button>
+            <div style={{display:"flex",justifyContent:"center",gap:22,marginTop:20,paddingTop:16,borderTop:`1px solid ${T.border}`}}>
+              {[["🔒","TLS 1.3"],["🛡","SOC 2 Ready"],["✓","ISO 27001"]].map(([ic,lb])=>(
+                <div key={lb} style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:T.textDim}}><span style={{color:T.textSub}}>{ic}</span><span>{lb}</span></div>
               ))}
             </div>
-          )}
-        </div>
+            <div style={{marginTop:14}}>
+              <button onClick={()=>setShowDemo(p=>!p)} style={{width:"100%",background:"none",border:"none",color:T.textDim,fontSize:11,cursor:"pointer",padding:"6px 0",letterSpacing:"0.03em"}}>
+                {showDemo?"▲ Hide demo access":"▼ Demo access · Sales & Procurement"}
+              </button>
+              {showDemo&&(
+                <div style={{marginTop:10,display:"flex",flexDirection:"column",gap:6}}>
+                  <div style={{fontSize:10,color:T.textDim,letterSpacing:"0.1em",textTransform:"uppercase",textAlign:"center",marginBottom:4}}>Click a role to auto-fill</div>
+                  {AUTH_USERS.map(u=>(
+                    <button key={u.id} onClick={()=>{setEmail(u.email);setPw(u.password);setErr("");}}
+                      style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:9,padding:"10px 13px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",textAlign:"left",WebkitTapHighlightColor:"transparent"}}>
+                      <div>
+                        <div style={{fontSize:12,fontWeight:700,color:T.text}}>{u.name}</div>
+                        <div style={{fontSize:10,color:T.textSub,marginTop:1,fontFamily:"monospace"}}>{u.email}</div>
+                      </div>
+                      <div style={{fontSize:9,fontWeight:700,color:T.accent,background:T.accentGlow,border:`1px solid ${T.accentB}`,padding:"3px 9px",borderRadius:5,whiteSpace:"nowrap",flexShrink:0,marginLeft:8}}>{u.role}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── REGISTER COMPANY ── */}
+        {forgotStep===0&&tab==="register"&&(
+          regDone?(
+            <div style={{textAlign:"center",padding:"24px 0"}}>
+              <div style={{fontSize:48,marginBottom:14}}>🏢</div>
+              <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:10}}>Company Registered!</div>
+              <div style={{fontSize:13,color:T.textSub,lineHeight:1.7,marginBottom:22}}>
+                <strong style={{color:T.text}}>{reg.company}</strong> is set up. Sign in to start your onboarding.
+              </div>
+              <button onClick={()=>{setTab("login");setEmail(reg.email);setPw(reg.pw);}}
+                style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:14,color:"#000",fontWeight:800,fontSize:15,cursor:"pointer",width:"100%"}}>
+                Continue to Sign In →
+              </button>
+            </div>
+          ):(
+            <div>
+              <div style={{marginBottom:18}}>
+                <div style={{fontSize:18,fontWeight:800,color:T.text}}>Register Your Company</div>
+                <div style={{fontSize:12,color:T.textSub,marginTop:4,lineHeight:1.6}}>You'll be the Company Admin with full platform access.</div>
+              </div>
+              {regErr&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:13,color:T.red}}>{regErr}</div>}
+              <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                {[{label:"Company Name",k:"company",ph:"Acme Security Inc."},{label:"Your Full Name",k:"name",ph:"John Smith"},{label:"Admin Email",k:"email",ph:"admin@yourcompany.com",type:"email"}].map(({label,k,ph,type})=>(
+                  <div key={k}>
+                    <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:6}}>{label}</label>
+                    <input type={type||"text"} value={reg[k]} onChange={e=>regUpd(k,e.target.value)} placeholder={ph} style={inp()}/>
+                  </div>
+                ))}
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                  <div>
+                    <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:6}}>Industry</label>
+                    <select value={reg.industry} onChange={e=>regUpd("industry",e.target.value)} style={inp({appearance:"none",cursor:"pointer"})}>
+                      {["Security Services","Property Management","Logistics","Retail","Healthcare","Government","Other"].map(o=><option key={o}>{o}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:6}}>Company Size</label>
+                    <select value={reg.size} onChange={e=>regUpd("size",e.target.value)} style={inp({appearance:"none",cursor:"pointer"})}>
+                      {["1-10","11-50","51-200","201-500","500+"].map(o=><option key={o}>{o}</option>)}
+                    </select>
+                  </div>
+                </div>
+                {[{label:"Password",k:"pw",ph:"Min 8 characters"},{label:"Confirm Password",k:"pw2",ph:"Repeat password"}].map(({label,k,ph})=>(
+                  <div key={k}>
+                    <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:6}}>{label}</label>
+                    <input type="password" value={reg[k]} onChange={e=>regUpd(k,e.target.value)} placeholder={ph} style={inp()} onKeyDown={e=>k==="pw2"&&e.key==="Enter"&&submitReg()}/>
+                  </div>
+                ))}
+                <button onClick={submitReg} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:14,color:"#000",fontWeight:800,fontSize:15,cursor:"pointer",marginTop:4}}>Create Company Account →</button>
+                <div style={{fontSize:11,color:T.textDim,textAlign:"center",lineHeight:1.6}}>By registering you agree to our Terms of Service and Privacy Policy.</div>
+              </div>
+            </div>
+          )
+        )}
       </div>
 
       <div style={{marginTop:20,fontSize:10,color:T.textDim,textAlign:"center",position:"relative",zIndex:1,lineHeight:1.8}}>
@@ -3245,6 +3409,443 @@ function MobileNav({items,active,onChange}){
 }
 
 // ─────────────────────────────────────────────────────────────────
+// MFA SCREEN
+// ─────────────────────────────────────────────────────────────────
+function MFAScreen({user,onVerify,onCancel}){
+  const[code,setCode]=useState("");
+  const[err,setErr]=useState("");
+  const[resent,setResent]=useState(false);
+  const DEMO="123456";
+  const verify=()=>{
+    if(code!==DEMO){setErr(`Incorrect code. Demo: ${DEMO}`);return;}
+    setErr("");onVerify();
+  };
+  return(
+    <div style={{minHeight:"100vh",background:T.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20,position:"relative",overflow:"hidden"}}>
+      <style>{`*{box-sizing:border-box;margin:0;padding:0;}html,body{font-family:'DM Sans',system-ui,sans-serif;background:${T.bg};}@keyframes ssUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}input:focus{border-color:${T.accentB}!important;outline:none;}`}</style>
+      <div style={{textAlign:"center",marginBottom:28,animation:"ssUp .35s ease",position:"relative",zIndex:1}}>
+        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,margin:"0 auto 16px",boxShadow:`0 0 60px ${T.accent}38`}}>🔐</div>
+        <div style={{fontSize:26,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>Two-Factor Auth</div>
+        <div style={{fontSize:12,color:T.textSub,marginTop:6}}>Signed in as <strong style={{color:T.text}}>{user.name}</strong></div>
+      </div>
+      <div style={{width:"min(400px,100%)",background:T.surface,border:`1px solid ${T.border}`,borderRadius:22,padding:32,boxShadow:`0 48px 96px rgba(0,0,0,0.7)`,animation:"ssUp .45s ease .08s both",position:"relative",zIndex:1}}>
+        <div style={{textAlign:"center",marginBottom:20}}>
+          <div style={{fontSize:14,fontWeight:700,color:T.text}}>Verification Required</div>
+          <div style={{fontSize:12,color:T.textSub,marginTop:5,lineHeight:1.65}}>Enter the 6-digit code from your authenticator app.<br/><span style={{color:T.textDim,fontSize:11}}>Demo code: <span style={{fontFamily:"monospace",color:T.accent}}>{DEMO}</span></span></div>
+        </div>
+        {err&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:13,color:T.red,textAlign:"center"}}>{err}</div>}
+        <input value={code} onChange={e=>{setCode(e.target.value.replace(/\D/,"").slice(0,6));setErr("");}} onKeyDown={e=>e.key==="Enter"&&code.length===6&&verify()} maxLength={6} placeholder="• • • • • •"
+          style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:14,padding:"18px",color:T.text,fontSize:32,outline:"none",textAlign:"center",letterSpacing:"0.4em",fontFamily:"monospace",boxSizing:"border-box",transition:"border-color .2s",marginBottom:14}}/>
+        <button onClick={verify} disabled={code.length!==6}
+          style={{width:"100%",background:code.length===6?`linear-gradient(135deg,${T.accent},${T.accentH})`:T.raised,border:code.length===6?"none":`1px solid ${T.border}`,borderRadius:12,padding:14,color:code.length===6?"#000":T.textSub,fontWeight:800,fontSize:15,cursor:code.length===6?"pointer":"not-allowed",transition:"all .2s",marginBottom:12}}>
+          Verify Identity →
+        </button>
+        <div style={{display:"flex",justifyContent:"space-between"}}>
+          <button onClick={()=>{setResent(true);setTimeout(()=>setResent(false),3000);}} style={{background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer",padding:0}}>{resent?"Code re-sent ✓":"Resend code"}</button>
+          <button onClick={onCancel} style={{background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer",padding:0}}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ONBOARDING WIZARD
+// ─────────────────────────────────────────────────────────────────
+function OnboardingWizard({user,onComplete}){
+  const STEPS=["Welcome","Add Site","Add Officer","Configure Alerts","You're Live"];
+  const ICONS=["👋","🏢","👮","🔔","🚀"];
+  const[step,setStep]=useState(0);
+  const[form,setForm]=useState({site:"",address:"",officer:"",email:"",badge:"",alertEmail:true,alertSMS:false,alertPush:true});
+  const upd=(k,v)=>setForm(f=>({...f,[k]:v}));
+  const iinp=(ex={})=>({width:"100%",background:T.bg,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px",color:T.text,fontSize:13,outline:"none",boxSizing:"border-box",...ex});
+
+  return(
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.92)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999,padding:20,backdropFilter:"blur(8px)"}}>
+      <div style={{width:"min(600px,100%)",background:T.surface,border:`1px solid ${T.border}`,borderRadius:24,overflow:"hidden",boxShadow:`0 80px 160px rgba(0,0,0,0.8)`,animation:"ssUp .3s ease"}}>
+        <div style={{height:4,background:T.raised}}>
+          <div style={{height:"100%",width:`${Math.round(step/(STEPS.length-1)*100)}%`,background:`linear-gradient(90deg,${T.accent},${T.purple})`,transition:"width .4s ease"}}/>
+        </div>
+        <div style={{display:"flex",borderBottom:`1px solid ${T.border}`,padding:"14px 24px 0"}}>
+          {STEPS.map((s,i)=>(
+            <div key={s} style={{flex:1,textAlign:"center",paddingBottom:12,borderBottom:`2px solid ${i<=step?T.accent:"transparent"}`,transition:"border-color .3s"}}>
+              <div style={{fontSize:16,marginBottom:3}}>{ICONS[i]}</div>
+              <div style={{fontSize:9,color:i===step?T.accent:i<step?T.green:T.textDim,fontWeight:700,letterSpacing:"0.06em",textTransform:"uppercase"}}>{s}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{padding:32}}>
+          {step===0&&(
+            <div style={{textAlign:"center"}}>
+              <div style={{fontSize:36,marginBottom:14}}>👋</div>
+              <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:10}}>Welcome to ShieldSync, {user.name.split(" ")[0]}!</div>
+              <div style={{fontSize:13,color:T.textSub,lineHeight:1.75,marginBottom:24}}>Your account is ready. Let's set up your first site, add an officer, and configure alerts in under 2 minutes.</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
+                {[["📍","Add Site","Set patrol locations"],["👮","Add Officer","Invite your team"],["🔔","Alerts","Real-time notifications"]].map(([ic,t,s])=>(
+                  <div key={t} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:14,padding:16}}>
+                    <div style={{fontSize:22,marginBottom:8}}>{ic}</div>
+                    <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:3}}>{t}</div>
+                    <div style={{fontSize:11,color:T.textSub,lineHeight:1.5}}>{s}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {step===1&&(
+            <div>
+              <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Add Your First Site</div>
+              <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>A site is any physical location your officers protect.</div>
+              <div style={{display:"flex",flexDirection:"column",gap:14}}>
+                {[{label:"Site Name",k:"site",ph:"Headquarters, Warehouse, Tower A…"},{label:"Address",k:"address",ph:"123 Main St, New York, NY 10001"}].map(({label,k,ph})=>(
+                  <div key={k}>
+                    <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>{label}</label>
+                    <input value={form[k]} onChange={e=>upd(k,e.target.value)} placeholder={ph} style={iinp()}/>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {step===2&&(
+            <div>
+              <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Invite First Officer</div>
+              <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>They'll receive an email with login credentials.</div>
+              <div style={{display:"flex",flexDirection:"column",gap:14}}>
+                {[{label:"Full Name",k:"officer",ph:"Jane Smith"},{label:"Email",k:"email",ph:"officer@yourcompany.com"},{label:"Badge Number",k:"badge",ph:"S-0001"}].map(({label,k,ph})=>(
+                  <div key={k}>
+                    <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>{label}</label>
+                    <input value={form[k]} onChange={e=>upd(k,e.target.value)} placeholder={ph} style={iinp()}/>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {step===3&&(
+            <div>
+              <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Configure Alert Channels</div>
+              <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>Choose how your team gets notified for SOS, missed checkpoints, and incidents.</div>
+              <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                {[{k:"alertEmail",label:"Email Alerts",sub:"Incident reports and daily summaries",icon:"📧"},{k:"alertSMS",label:"SMS / Text Alerts",sub:"SOS and critical incidents only",icon:"📱"},{k:"alertPush",label:"Push Notifications",sub:"Real-time browser and mobile alerts",icon:"🔔"}].map(({k,label,sub,icon})=>(
+                  <div key={k} onClick={()=>upd(k,!form[k])} style={{display:"flex",alignItems:"center",gap:14,background:form[k]?T.accentGlow:T.raised,border:`1px solid ${form[k]?T.accentB:T.border}`,borderRadius:14,padding:"14px 16px",cursor:"pointer",transition:"all .2s"}}>
+                    <span style={{fontSize:20}}>{icon}</span>
+                    <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:T.text}}>{label}</div><div style={{fontSize:11,color:T.textSub,marginTop:2}}>{sub}</div></div>
+                    <div style={{width:22,height:22,borderRadius:6,background:form[k]?T.accent:T.raised,border:`2px solid ${form[k]?T.accent:T.borderLight}`,display:"flex",alignItems:"center",justifyContent:"center",transition:"all .2s",flexShrink:0}}>
+                      {form[k]&&<span style={{color:"#000",fontSize:13,fontWeight:900}}>✓</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {step===4&&(
+            <div style={{textAlign:"center"}}>
+              <div style={{fontSize:48,marginBottom:14}}>🚀</div>
+              <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:10}}>You're All Set!</div>
+              <div style={{fontSize:13,color:T.textSub,lineHeight:1.75,marginBottom:22}}>Your ShieldSync workspace is live with demo data. AI features work immediately, and all modules are ready to explore.</div>
+              <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:14,padding:18,textAlign:"left",marginBottom:22}}>
+                <div style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:10}}>Configured</div>
+                {[["✅","Site",form.site||"Demo sites pre-loaded"],["✅","Officer",form.officer||"Demo team pre-loaded"],["✅","Alerts",`Email ${form.alertEmail?"on":"off"} · SMS ${form.alertSMS?"on":"off"} · Push ${form.alertPush?"on":"off"}`],["✅","AI Command","5 specialist advisors ready"],["✅","Access control","4-tier RBAC configured"]].map(([ic,lb,v])=>(
+                  <div key={lb} style={{display:"flex",gap:10,fontSize:13,marginBottom:6}}><span>{ic}</span><span style={{color:T.textSub,minWidth:100}}>{lb}</span><span style={{color:T.text,fontWeight:600}}>{v}</span></div>
+                ))}
+              </div>
+            </div>
+          )}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:24}}>
+            {step>0?<button onClick={()=>setStep(s=>s-1)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px 20px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:600}}>← Back</button>:<div/>}
+            {step<STEPS.length-1
+              ?<button onClick={()=>setStep(s=>s+1)} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",color:"#000",padding:"12px 28px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800}}>{step===0?"Let's Go →":"Continue →"}</button>
+              :<button onClick={onComplete} style={{background:`linear-gradient(135deg,${T.green},${T.accent})`,border:"none",color:"#000",padding:"13px 32px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800}}>Enter Dashboard →</button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// USER MANAGEMENT MODULE
+// ─────────────────────────────────────────────────────────────────
+function UserManagement({user,showToast}){
+  const[users,setUsers]=useState(()=>getUsers());
+  const[tab,setTab]=useState("users");
+  const[search,setSearch]=useState("");
+  const[roleFilter,setRoleFilter]=useState("All");
+  const[showInvite,setShowInvite]=useState(false);
+  const[editingId,setEditingId]=useState(null);
+  const[invite,setInvite]=useState({name:"",email:"",role:"Officer",badge:""});
+  const[inviteErr,setInviteErr]=useState("");
+  const[inviteDone,setInviteDone]=useState(false);
+  const roleColors={"Company Admin":T.purple,"Supervisor":T.accent,"Officer":T.green,"Client":T.gold};
+
+  const filtered=users.filter(u=>{
+    const q=search.toLowerCase();
+    return(!q||u.name.toLowerCase().includes(q)||u.email.toLowerCase().includes(q)||(u.badge||"").toLowerCase().includes(q))&&(roleFilter==="All"||u.role===roleFilter);
+  });
+
+  const toggleActive=(id)=>{
+    const updated=users.map(u=>u.id===id?{...u,active:u.active===false}:u);
+    setUsers(updated);saveUsers(updated);
+    const u=updated.find(u=>u.id===id);
+    showToast(`${u.name} ${u.active!==false?"activated":"deactivated"}`,"success");
+    logAction(user,"USER_STATUS",`${u.name} → ${u.active!==false?"Active":"Inactive"}`);
+  };
+  const updateRole=(id,role)=>{
+    const updated=users.map(u=>u.id===id?{...u,role}:u);
+    setUsers(updated);saveUsers(updated);
+    showToast(`Role updated to ${role}`,"success");
+    logAction(user,"ROLE_CHANGE",`${users.find(u=>u.id===id)?.name} → ${role}`);
+    setEditingId(null);
+  };
+  const doInvite=()=>{
+    if(!invite.name.trim()||!invite.email.trim()||!invite.badge.trim()){setInviteErr("All fields required.");return;}
+    if(!/\S+@\S+\.\S+/.test(invite.email)){setInviteErr("Invalid email.");return;}
+    if(users.find(u=>u.email.toLowerCase()===invite.email.toLowerCase())){setInviteErr("Email already exists.");return;}
+    const newU={id:`U-${Date.now()}`,email:invite.email,password:"Welcome1!",name:invite.name,role:invite.role,badge:invite.badge,av:invite.name.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2),active:true,createdAt:new Date().toISOString().slice(0,10),mfaEnabled:false};
+    const updated=[...users,newU];setUsers(updated);saveUsers(updated);
+    setInviteErr("");setInviteDone(true);
+    showToast(`${invite.name} invited — temp pw: Welcome1!`,"success");
+    logAction(user,"USER_INVITE",`Invited ${invite.name} (${invite.role})`);
+  };
+
+  const stats={total:users.length,active:users.filter(u=>u.active!==false).length,admins:users.filter(u=>u.role==="Company Admin").length,mfa:users.filter(u=>u.mfaEnabled).length};
+
+  return(
+    <div style={{padding:20,maxWidth:1040,margin:"0 auto"}}>
+      <SH icon="👥" title="User Management" sub="Manage access, roles, and permissions across your organization"/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:24}}>
+        {[["Total Users",stats.total,"👥",T.accent],["Active",stats.active,"✅",T.green],["Admins",stats.admins,"👑",T.purple],["MFA Enabled",stats.mfa,"🔐",T.amber]].map(([lb,v,ic,c])=>(
+          <Card key={lb}><CB style={{padding:"14px 16px",display:"flex",alignItems:"center",gap:12}}>
+            <div style={{fontSize:22}}>{ic}</div><div><div style={{fontSize:22,fontWeight:900,color:c}}>{v}</div><div style={{fontSize:11,color:T.textSub,marginTop:1}}>{lb}</div></div>
+          </CB></Card>
+        ))}
+      </div>
+      <div style={{display:"flex",gap:2,background:T.surface,border:`1px solid ${T.border}`,borderRadius:12,padding:3,marginBottom:20,width:"fit-content"}}>
+        {[["users","Users"],["roles","Roles & Permissions"]].map(([k,lb])=>(
+          <button key={k} onClick={()=>setTab(k)} style={{padding:"8px 18px",borderRadius:9,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,background:tab===k?T.accent:"transparent",color:tab===k?"#000":T.textSub,transition:"all .15s"}}>{lb}</button>
+        ))}
+      </div>
+
+      {tab==="users"&&(
+        <div>
+          <div style={{display:"flex",gap:12,marginBottom:16,flexWrap:"wrap",alignItems:"center"}}>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search name, email, badge…"
+              style={{flex:1,minWidth:200,background:T.surface,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 14px",color:T.text,fontSize:13,outline:"none"}}/>
+            <select value={roleFilter} onChange={e=>setRoleFilter(e.target.value)}
+              style={{background:T.surface,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 14px",color:T.text,fontSize:13,outline:"none",cursor:"pointer"}}>
+              {["All","Company Admin","Supervisor","Officer","Client"].map(r=><option key={r}>{r}</option>)}
+            </select>
+            <button onClick={()=>{setShowInvite(true);setInviteDone(false);setInviteErr("");setInvite({name:"",email:"",role:"Officer",badge:""});}}
+              style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:10,padding:"10px 18px",color:"#000",fontWeight:700,fontSize:13,cursor:"pointer",whiteSpace:"nowrap"}}>
+              + Invite User
+            </button>
+          </div>
+          <Card>
+            <div style={{overflowX:"auto"}}>
+              <table style={{width:"100%",borderCollapse:"collapse",minWidth:640}}>
+                <thead><tr style={{borderBottom:`1px solid ${T.border}`}}>
+                  {["User","Email","Badge","Role","Status","MFA","Actions"].map(h=>(
+                    <th key={h} style={{padding:"10px 14px",textAlign:"left",fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",whiteSpace:"nowrap"}}>{h}</th>
+                  ))}
+                </tr></thead>
+                <tbody>
+                  {filtered.map((u,i)=>(
+                    <tr key={u.id} style={{borderBottom:i<filtered.length-1?`1px solid ${T.border}`:"none"}}>
+                      <td style={{padding:"12px 14px"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:10}}>
+                          <Av name={u.av||u.name} size={32} color={roleColors[u.role]||T.accent}/>
+                          <div><div style={{fontSize:13,fontWeight:700,color:T.text}}>{u.name}</div><div style={{fontSize:11,color:T.textDim,marginTop:1}}>Joined {u.createdAt||"2024-01-01"}</div></div>
+                        </div>
+                      </td>
+                      <td style={{padding:"12px 14px",fontSize:12,color:T.textSub,fontFamily:"monospace"}}>{u.email}</td>
+                      <td style={{padding:"12px 14px",fontSize:12,color:T.accent,fontFamily:"monospace"}}>{u.badge}</td>
+                      <td style={{padding:"12px 14px"}}>
+                        {editingId===u.id
+                          ?<select defaultValue={u.role} onChange={e=>updateRole(u.id,e.target.value)} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,padding:"6px 10px",color:T.text,fontSize:12,cursor:"pointer",outline:"none"}}>
+                            {ROLES.map(r=><option key={r}>{r}</option>)}
+                          </select>
+                          :<Pill label={u.role} color={roleColors[u.role]||T.textSub}/>
+                        }
+                      </td>
+                      <td style={{padding:"12px 14px"}}><Pill label={u.active!==false?"Active":"Inactive"} color={u.active!==false?T.green:T.textDim}/></td>
+                      <td style={{padding:"12px 14px",fontSize:16}}>{u.mfaEnabled?"🔐":"—"}</td>
+                      <td style={{padding:"12px 14px"}}>
+                        <div style={{display:"flex",gap:6}}>
+                          <button onClick={()=>setEditingId(editingId===u.id?null:u.id)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:600}}>{editingId===u.id?"✕":"Edit"}</button>
+                          {u.id!==user.id&&<button onClick={()=>toggleActive(u.id)} style={{background:u.active!==false?T.redGlow:T.greenB,border:`1px solid ${u.active!==false?T.redB:T.greenB}`,color:u.active!==false?T.red:T.green,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:600}}>{u.active!==false?"Deactivate":"Activate"}</button>}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {!filtered.length&&<tr><td colSpan={7} style={{padding:"32px",textAlign:"center",color:T.textDim,fontSize:13}}>No users match your search.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {tab==="roles"&&(
+        <Card>
+          <CB>
+            <SH icon="🔑" title="Permission Matrix" sub="Module access by role — read-only in demo"/>
+            <div style={{overflowX:"auto"}}>
+              <table style={{width:"100%",borderCollapse:"collapse",minWidth:500}}>
+                <thead><tr style={{borderBottom:`1px solid ${T.border}`}}>
+                  <th style={{padding:"10px 14px",textAlign:"left",fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",minWidth:160}}>Module</th>
+                  {ROLES.map(r=><th key={r} style={{padding:"10px 14px",textAlign:"center",fontSize:10,fontWeight:700,letterSpacing:"0.06em",textTransform:"uppercase",color:roleColors[r]||T.textSub,whiteSpace:"nowrap"}}>{r}</th>)}
+                </tr></thead>
+                <tbody>
+                  {Object.entries(PERM_LABELS).map(([id,label],i)=>(
+                    <tr key={id} style={{borderBottom:i<Object.keys(PERM_LABELS).length-1?`1px solid ${T.border}`:"none"}}>
+                      <td style={{padding:"9px 14px",fontSize:13,color:T.text}}>{label}</td>
+                      {ROLES.map(r=>(
+                        <td key={r} style={{padding:"9px 14px",textAlign:"center"}}>
+                          {ROLE_PERMS[r]?.includes(id)?<span style={{fontSize:16,color:T.green}}>✓</span>:<span style={{fontSize:14,color:T.textDim}}>—</span>}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CB>
+        </Card>
+      )}
+
+      {showInvite&&(
+        <ModalWrap>
+          <Card style={{width:"min(460px,94vw)"}}>
+            <CB>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+                <div><div style={{fontSize:10,color:T.textSub,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>User Management</div><div style={{fontSize:18,fontWeight:800,color:T.text}}>Invite User</div></div>
+                <button onClick={()=>setShowInvite(false)} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18}}>✕</button>
+              </div>
+              {inviteDone?(
+                <div style={{textAlign:"center",padding:"16px 0"}}>
+                  <div style={{fontSize:40,marginBottom:12}}>✉️</div>
+                  <div style={{fontSize:17,fontWeight:800,color:T.green,marginBottom:8}}>Invitation Sent!</div>
+                  <div style={{fontSize:13,color:T.textSub,lineHeight:1.7,marginBottom:18}}><strong style={{color:T.text}}>{invite.name}</strong> can sign in with temp password: <span style={{fontFamily:"monospace",color:T.accent}}>Welcome1!</span></div>
+                  <button onClick={()=>setShowInvite(false)} style={{background:T.accent,border:"none",color:"#000",padding:"12px 28px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14}}>Done</button>
+                </div>
+              ):(
+                <div style={{display:"flex",flexDirection:"column",gap:14}}>
+                  {inviteErr&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:9,padding:"10px 14px",fontSize:13,color:T.red}}>{inviteErr}</div>}
+                  {[{label:"Full Name",k:"name",ph:"Jane Smith",type:"text"},{label:"Email Address",k:"email",ph:"jane@yourcompany.com",type:"email"},{label:"Badge Number",k:"badge",ph:"S-0200",type:"text"}].map(({label,k,ph,type})=>(
+                    <div key={k}>
+                      <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>{label}</label>
+                      <input type={type} value={invite[k]} onChange={e=>setInvite(f=>({...f,[k]:e.target.value}))} placeholder={ph} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px",color:T.text,fontSize:14,outline:"none",boxSizing:"border-box"}}/>
+                    </div>
+                  ))}
+                  <div>
+                    <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Role</label>
+                    <select value={invite.role} onChange={e=>setInvite(f=>({...f,role:e.target.value}))} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px",color:T.text,fontSize:14,outline:"none",cursor:"pointer",boxSizing:"border-box"}}>
+                      {ROLES.map(r=><option key={r}>{r}</option>)}
+                    </select>
+                  </div>
+                  <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px",fontSize:12,color:T.textSub}}>Temporary password: <span style={{fontFamily:"monospace",color:T.accent}}>Welcome1!</span> — user must change on first login.</div>
+                  <button onClick={doInvite} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:14,color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Send Invitation →</button>
+                </div>
+              )}
+            </CB>
+          </Card>
+        </ModalWrap>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// COMPANY SETTINGS MODULE
+// ─────────────────────────────────────────────────────────────────
+function CompanySettings({user,showToast}){
+  const[tab,setTab]=useState("company");
+  const[s,setS]=useState(()=>LS.get("ss_co_settings_v1",{name:"ShieldSync Demo Co.",industry:"Security Services",size:"11-50",website:"",address:"",city:"",state:"",zip:"",phone:"",timezone:"America/New_York",mfaRequired:false,sessionTTL:"8",passwordMinLength:"8",logRetention:"90",n_sos:true,n_cp:true,n_inc:true,n_clock:false,n_fuel:true,n_cert:true,n_daily:false}));
+  const upd=(k,v)=>setS(p=>({...p,[k]:v}));
+  const save=()=>{LS.set("ss_co_settings_v1",s);showToast("Settings saved","success");logAction(user,"SETTINGS_SAVE","Company settings updated");};
+  const inp=(ex={})=>({width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"11px 14px",color:T.text,fontSize:13,outline:"none",boxSizing:"border-box",...ex});
+  const Toggle=({k,label,sub})=>(
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:16,padding:"13px 16px",background:T.raised,border:`1px solid ${T.border}`,borderRadius:12}}>
+      <div><div style={{fontSize:13,fontWeight:700,color:T.text}}>{label}</div>{sub&&<div style={{fontSize:12,color:T.textSub,marginTop:3,lineHeight:1.5}}>{sub}</div>}</div>
+      <button onClick={()=>upd(k,!s[k])} style={{flexShrink:0,width:44,height:24,borderRadius:12,border:"none",cursor:"pointer",background:s[k]?T.accent:T.border,transition:"all .2s",position:"relative"}}>
+        <div style={{width:18,height:18,borderRadius:"50%",background:"#fff",position:"absolute",top:3,left:s[k]?23:3,transition:"left .2s"}}/>
+      </button>
+    </div>
+  );
+
+  return(
+    <div style={{padding:20,maxWidth:900,margin:"0 auto"}}>
+      <SH icon="⚙️" title="Company Settings" sub="Organization profile, security policies, and notification preferences"/>
+      <div style={{display:"flex",gap:2,background:T.surface,border:`1px solid ${T.border}`,borderRadius:12,padding:3,marginBottom:20,width:"fit-content"}}>
+        {[["company","Company"],["security","Security"],["notifications","Notifications"]].map(([k,lb])=>(
+          <button key={k} onClick={()=>setTab(k)} style={{padding:"8px 18px",borderRadius:9,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,background:tab===k?T.accent:"transparent",color:tab===k?"#000":T.textSub,transition:"all .15s"}}>{lb}</button>
+        ))}
+      </div>
+
+      {tab==="company"&&(
+        <Card><CB>
+          <SH icon="🏢" title="Company Profile" sub="Basic organization information"/>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
+            {[{label:"Company Name",k:"name"},{label:"Website",k:"website"},{label:"Phone",k:"phone"},{label:"Address",k:"address",full:true},{label:"City",k:"city"},{label:"State",k:"state"},{label:"ZIP Code",k:"zip"}].map(({label,k,full})=>(
+              <div key={k} style={{gridColumn:full?"1 / -1":undefined}}>
+                <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:6}}>{label}</label>
+                <input value={s[k]} onChange={e=>upd(k,e.target.value)} style={inp()}/>
+              </div>
+            ))}
+            <div>
+              <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:6}}>Industry</label>
+              <select value={s.industry} onChange={e=>upd("industry",e.target.value)} style={inp({appearance:"none",cursor:"pointer"})}>
+                {["Security Services","Property Management","Logistics","Retail","Healthcare","Government","Other"].map(o=><option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:6}}>Timezone</label>
+              <select value={s.timezone} onChange={e=>upd("timezone",e.target.value)} style={inp({appearance:"none",cursor:"pointer"})}>
+                {["America/New_York","America/Chicago","America/Denver","America/Los_Angeles","Europe/London","Europe/Paris","Asia/Tokyo"].map(o=><option key={o}>{o}</option>)}
+              </select>
+            </div>
+          </div>
+          <button onClick={save} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:"12px 28px",color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Save Changes</button>
+        </CB></Card>
+      )}
+
+      {tab==="security"&&(
+        <Card><CB>
+          <SH icon="🔐" title="Authentication Policy" sub="Control how users sign in and manage sessions"/>
+          <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:18}}>
+            <Toggle k="mfaRequired" label="Require MFA for All Users" sub="Users must configure two-factor authentication before accessing the platform."/>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:18}}>
+            {[{label:"Session Timeout (hours)",k:"sessionTTL",ph:"8"},{label:"Min Password Length",k:"passwordMinLength",ph:"8"},{label:"Audit Log Retention (days)",k:"logRetention",ph:"90"}].map(({label,k,ph})=>(
+              <div key={k}>
+                <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:6}}>{label}</label>
+                <input type="number" value={s[k]} onChange={e=>upd(k,e.target.value)} placeholder={ph} style={inp()}/>
+              </div>
+            ))}
+          </div>
+          <button onClick={save} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:"12px 28px",color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Save Security Policy</button>
+        </CB></Card>
+      )}
+
+      {tab==="notifications"&&(
+        <Card><CB>
+          <SH icon="🔔" title="Notification Preferences" sub="Configure when and how alerts are delivered"/>
+          <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:18}}>
+            <Toggle k="n_sos" label="SOS / Emergency Alerts" sub="Immediately notify all supervisors on SOS activation"/>
+            <Toggle k="n_cp" label="Missed Checkpoint Alert" sub="Alert when patrol checkpoint is not scanned on schedule"/>
+            <Toggle k="n_inc" label="Incident Filed" sub="Notify supervisors when a new incident report is submitted"/>
+            <Toggle k="n_clock" label="Officer Clock-In / Out" sub="Log and notify on each clock event"/>
+            <Toggle k="n_fuel" label="Low Fuel Alert" sub="Alert when a vehicle drops below 25% fuel"/>
+            <Toggle k="n_cert" label="Certification Expiry" sub="30-day advance warning on expiring SIA and training certs"/>
+            <Toggle k="n_daily" label="Daily Operations Summary" sub="Auto-generate and email daily ops summary at shift end"/>
+          </div>
+          <button onClick={save} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:"12px 28px",color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Save Preferences</button>
+        </CB></Card>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
 // ROOT
 // ─────────────────────────────────────────────────────────────────
 export default function App(){
@@ -3277,7 +3878,18 @@ export default function App(){
 
   const logout=useCallback(()=>{logAction(user,"LOGOUT","Session ended");clearSession();setUser(null);setMod("dashboard");setModal(null);},[user]);
 
-  if(!user)return <AuthScreen onLogin={u=>setUser(u)}/>;
+  const[mfaPending,setMfaPending]=useState(null);
+  const[onboarding,setOnboarding]=useState(false);
+
+  const handleLogin=useCallback(u=>{
+    if(u.mfaEnabled){setMfaPending(u);}
+    else{setUser(u);if(u.isNewCompany){setOnboarding(true);}};
+  },[]);
+  const handleMfaVerify=useCallback(()=>{if(mfaPending){setUser(mfaPending);if(mfaPending.isNewCompany)setOnboarding(true);setMfaPending(null);};},[mfaPending]);
+  const handleRegister=useCallback(()=>{},[]);
+
+  if(mfaPending)return <MFAScreen user={mfaPending} onVerify={handleMfaVerify} onCancel={()=>{clearSession();setMfaPending(null);}}/>;
+  if(!user)return <AuthScreen onLogin={handleLogin} onRegister={handleRegister}/>;
 
   const renderMod=()=>{
     switch(mod){
@@ -3292,12 +3904,14 @@ export default function App(){
       case "equipment": return <EquipmentModule user={user} showToast={showToast}/>;
       case "leave":     return <LeaveModule user={user} showToast={showToast}/>;
       case "training":  return <TrainingModule/>;
-      case "auditlog":     return <AuditLogModule showToast={showToast}/>;
-      case "executive":    return <ExecutiveCommand showToast={showToast}/>;
-      case "timekeeping":  return <TimekeepingModule user={user} showToast={showToast}/>;
-      case "aicommand":    return <AICommandCenter/>;
-      case "procurement":  return <ProcurementModule user={user} showToast={showToast}/>;
-      default:             return <Dashboard openModal={openModal} showToast={showToast}/>;
+      case "auditlog":  return <AuditLogModule showToast={showToast}/>;
+      case "executive": return <ExecutiveCommand showToast={showToast}/>;
+      case "timekeeping":return <TimekeepingModule user={user} showToast={showToast}/>;
+      case "aicommand": return <AICommandCenter/>;
+      case "procurement":return <ProcurementModule user={user} showToast={showToast}/>;
+      case "users":     return <UserManagement user={user} showToast={showToast}/>;
+      case "settings":  return <CompanySettings user={user} showToast={showToast}/>;
+      default:          return <Dashboard openModal={openModal} showToast={showToast}/>;
     }
   };
 
@@ -3327,6 +3941,9 @@ export default function App(){
           <span>⚡</span> Offline mode — actions are queued and will sync when connection is restored
         </div>
       )}
+
+      {/* Onboarding wizard — shown once for new company registrations */}
+      {onboarding&&<OnboardingWizard user={user} onComplete={()=>{setOnboarding(false);const updated=getUsers().map(u=>u.id===user.id?{...u,isNewCompany:false}:u);saveUsers(updated);}}/>}
 
       {/* Toast notifications */}
       {toasts.length>0&&(
