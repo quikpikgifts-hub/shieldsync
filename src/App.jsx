@@ -81,7 +81,7 @@ const ROLE_PERMS={
   "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings","clientportal","itcommand"],
   "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","itcommand"],
   "Officer":["dashboard","myshift","patrol","visitors","equipment","leave"],
-  "Client":["dashboard","reports","clientportal"],
+  "Client":["clientportal","reports"],
 };
 function getUsers(){const s=LS.get("ss_users_v1",null);if(s)return s;const init=AUTH_USERS.map(u=>({...u,active:true,createdAt:"2024-01-01",mfaEnabled:false,company:"ShieldSync Demo"}));LS.set("ss_users_v1",init);return init;}
 function saveUsers(list){LS.set("ss_users_v1",list);}
@@ -183,7 +183,7 @@ const AI_INSIGHTS=[
 ];
 const REPORT_TYPES=["Daily Operations Summary","Incident Report","Patrol Analysis","Workforce Performance","Risk Assessment"];
 const NAV=[
-  {id:"dashboard",label:"Command",icon:"⚡",roles:["Company Admin","Supervisor","Client","Officer"]},
+  {id:"dashboard",label:"Command",icon:"⚡",roles:["Company Admin","Supervisor","Officer"]},
   {id:"executive",label:"Executive",icon:"📊",roles:["Company Admin"]},
   {id:"myshift",label:"My Shift",icon:"⏱️",roles:["Officer"]},
   {id:"workforce",label:"Workforce",icon:"👮",roles:["Company Admin","Supervisor"]},
@@ -1510,7 +1510,7 @@ function Workforce(){
   );
 }
 
-function Patrol({user,showToast}){
+function Patrol({user,showToast,openModal}){
   const[scanLog,setScanLog]=useLS("ss_scans",SCAN_LOG_INIT);
   const[scanning,setScanning]=useState(false);
   const[scanTarget,setScanTarget]=useState(null);
@@ -1617,6 +1617,41 @@ function Patrol({user,showToast}){
                 <Pill label={s.method} color={T.green}/>
               </div>
             ))}
+          </div>
+        </CB>
+      </Card>
+
+      <Card>
+        <CB>
+          <SH title="Pre-Patrol Vehicle Inspection" icon="🚗" sub="Tap Inspect to photograph and log vehicle condition before departure"/>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:12}}>
+            {VEHICLES.map(v=>{
+              const c=SM(v.status).c;
+              return(
+                <div key={v.id} style={{background:T.raised,borderRadius:12,padding:"14px 16px",border:`1px solid ${T.border}`}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+                    <div>
+                      <div style={{fontSize:14,fontWeight:800,color:T.text}}>{v.make}</div>
+                      <div style={{fontSize:11,color:T.accent,fontFamily:"monospace",marginTop:2}}>{v.plate}</div>
+                    </div>
+                    <Pill label={v.status}/>
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:12}}>
+                    {[["Officer",v.officer],["Last Insp.",v.lastInsp]].map(([l,val])=>(
+                      <div key={l} style={{background:T.bg,borderRadius:7,padding:"7px 9px"}}>
+                        <div style={{fontSize:10,color:T.textSub}}>{l}</div>
+                        <div style={{fontSize:11,color:T.text,fontWeight:700,marginTop:1}}>{val}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <FuelBar pct={v.fuel}/>
+                  <button
+                    onClick={()=>openModal&&openModal({type:"inspection",vehicle:v})}
+                    style={{width:"100%",marginTop:12,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}
+                  >📷 Inspect &amp; Capture Photos</button>
+                </div>
+              );
+            })}
           </div>
         </CB>
       </Card>
@@ -4558,7 +4593,7 @@ export default function App(){
       case "dashboard": return <Dashboard openModal={openModal} showToast={showToast}/>;
       case "myshift":   return <MyShift user={user} showToast={showToast}/>;
       case "workforce": return <Workforce/>;
-      case "patrol":    return <Patrol user={user} showToast={showToast}/>;
+      case "patrol":    return <Patrol user={user} showToast={showToast} openModal={openModal}/>;
       case "fleet":     return <Fleet openModal={openModal}/>;
       case "visitors":  return <Visitors openModal={openModal} user={user} showToast={showToast}/>;
       case "reports":   return <Reports/>;
