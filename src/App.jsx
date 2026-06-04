@@ -3826,7 +3826,20 @@ function OnboardingWizard({user,onComplete}){
             {step>0?<button onClick={()=>setStep(s=>s-1)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px 20px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:600}}>← Back</button>:<div/>}
             {step<STEPS.length-1
               ?<button onClick={()=>setStep(s=>s+1)} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",color:"#000",padding:"12px 28px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800}}>{step===0?"Let's Go →":"Continue →"}</button>
-              :<button onClick={onComplete} style={{background:`linear-gradient(135deg,${T.green},${T.accent})`,border:"none",color:"#000",padding:"13px 32px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800}}>Enter Dashboard →</button>
+              :<button onClick={()=>{
+                if(form.officer&&form.email){
+                  const existing=getUsers();
+                  if(!existing.find(u=>u.email.toLowerCase()===form.email.toLowerCase())){
+                    const newOfficer={id:`U-OB-${Date.now()}`,email:form.email,password:"Welcome2026!",name:form.officer,role:"Officer",badge:form.badge||`S-${String(Math.floor(Math.random()*9000)+1000)}`,av:form.officer.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2),active:true,createdAt:new Date().toISOString().slice(0,10),mfaEnabled:false,company:user.company};
+                    saveUsers([...existing,newOfficer]);
+                  }
+                }
+                if(form.alertEmail!==undefined){
+                  const cs=LS.get("ss_co_settings_v1",{});
+                  LS.set("ss_co_settings_v1",{...cs,n_sos:form.alertPush,n_inc:form.alertEmail,n_cp:form.alertPush});
+                }
+                onComplete();
+              }} style={{background:`linear-gradient(135deg,${T.green},${T.accent})`,border:"none",color:"#000",padding:"13px 32px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800}}>Enter Dashboard →</button>
             }
           </div>
         </div>
@@ -4049,7 +4062,7 @@ function CompanySettings({user,showToast}){
     <div style={{padding:20,maxWidth:900,margin:"0 auto"}}>
       <SH icon="⚙️" title="Company Settings" sub="Organization profile, security policies, and notification preferences"/>
       <div style={{display:"flex",gap:2,background:T.surface,border:`1px solid ${T.border}`,borderRadius:12,padding:3,marginBottom:20,width:"fit-content"}}>
-        {[["company","Company"],["security","Security"],["notifications","Notifications"]].map(([k,lb])=>(
+        {[["company","Company"],["security","Security"],["notifications","Notifications"],["integrations","Integrations"]].map(([k,lb])=>(
           <button key={k} onClick={()=>setTab(k)} style={{padding:"8px 18px",borderRadius:9,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,background:tab===k?T.accent:"transparent",color:tab===k?"#000":T.textSub,transition:"all .15s"}}>{lb}</button>
         ))}
       </div>
@@ -4113,6 +4126,56 @@ function CompanySettings({user,showToast}){
           </div>
           <button onClick={save} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:"12px 28px",color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Save Preferences</button>
         </CB></Card>
+      )}
+
+      {tab==="integrations"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <Card>
+            <CB>
+              <SH icon="🔗" title="UKG Pro (Kronos)" sub="REST API integration for workforce management and payroll sync"/>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
+                {[
+                  {label:"API Base URL",k:"ukg_url",ph:"https://api.ultipro.com"},
+                  {label:"API Key",k:"ukg_key",ph:"••••••••••••••••"},
+                  {label:"Company ID",k:"ukg_company",ph:"ShieldSync-001"},
+                  {label:"User Service Account",k:"ukg_user",ph:"svc-shieldsync@org.com"},
+                ].map(({label,k,ph})=>(
+                  <div key={k}>
+                    <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:6}}>{label}</label>
+                    <input value={s[k]||""} onChange={e=>upd(k,e.target.value)} placeholder={ph} style={inp()} type={k.includes("key")?"password":"text"}/>
+                  </div>
+                ))}
+              </div>
+              <div style={{background:s.ukg_key?`${T.green}15`:`${T.amber}15`,border:`1px solid ${s.ukg_key?T.green:T.amber}40`,borderRadius:10,padding:"11px 14px",marginBottom:14,fontSize:12,color:s.ukg_key?T.green:T.amber}}>
+                {s.ukg_key?"✓ Credentials configured — sync will activate on next payroll run":"⚠ Credentials not set — UKG sync disabled. Enter credentials above to enable."}
+              </div>
+              <button onClick={save} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:"12px 28px",color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Save UKG Credentials</button>
+            </CB>
+          </Card>
+
+          <Card>
+            <CB>
+              <SH icon="🔧" title="Other Integrations" sub="Platform connection status"/>
+              {[
+                {name:"Anthropic AI (Claude)",desc:"Powers AI copilot, reports, and executive briefing",status:"Connected",color:T.green,icon:"🤖"},
+                {name:"Vercel Edge Network",desc:"Global deployment and edge function hosting",status:"Connected",color:T.green,icon:"▲"},
+                {name:"ADP Workforce Now",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:"📊"},
+                {name:"Paylocity",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:"📊"},
+                {name:"QuickBooks Payroll",desc:"Accounting sync — available in v2.0",status:"Planned",color:T.textDim,icon:"📒"},
+                {name:"Supabase",desc:"Set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY to activate",status:"Not Configured",color:T.textSub,icon:"🛢"},
+              ].map(int=>(
+                <div key={int.name} style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:9,padding:"11px 14px",marginBottom:6}}>
+                  <div style={{fontSize:20,width:28,textAlign:"center",flexShrink:0}}>{int.icon}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{int.name}</div>
+                    <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{int.desc}</div>
+                  </div>
+                  <Pill label={int.status} color={int.color}/>
+                </div>
+              ))}
+            </CB>
+          </Card>
+        </div>
       )}
     </div>
   );
