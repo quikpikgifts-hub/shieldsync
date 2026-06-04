@@ -7,25 +7,37 @@
  */
 export const config = { runtime: "edge" };
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+const ALLOWED_ORIGINS = [
+  "https://shieldsync-jbsx.vercel.app",
+  "https://shieldsync-app.vercel.app",
+];
+
+function corsHeaders(req) {
+  const origin = req.headers.get("origin") || "";
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    "Access-Control-Allow-Origin": allowed,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Vary": "Origin",
+  };
+}
 
 export default async function handler(req) {
+  const cors = corsHeaders(req);
+
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS });
+    return new Response(null, { status: 204, headers: cors });
   }
   if (req.method !== "POST") {
-    return new Response("Method Not Allowed", { status: 405, headers: CORS });
+    return new Response("Method Not Allowed", { status: 405, headers: cors });
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return new Response(
       JSON.stringify({ error: "ANTHROPIC_API_KEY not configured in environment" }),
-      { status: 503, headers: { "Content-Type": "application/json", ...CORS } }
+      { status: 503, headers: { "Content-Type": "application/json", ...cors } }
     );
   }
 
@@ -36,7 +48,7 @@ export default async function handler(req) {
   } catch {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
-      headers: { "Content-Type": "application/json", ...CORS },
+      headers: { "Content-Type": "application/json", ...cors },
     });
   }
 
@@ -53,6 +65,6 @@ export default async function handler(req) {
   const data = await upstream.text();
   return new Response(data, {
     status: upstream.status,
-    headers: { "Content-Type": "application/json", ...CORS },
+    headers: { "Content-Type": "application/json", ...cors },
   });
 }
