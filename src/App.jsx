@@ -166,8 +166,10 @@ const AI_INSIGHTS=[
 const REPORT_TYPES=["Daily Operations Summary","Incident Report","Patrol Analysis","Workforce Performance","Risk Assessment"];
 const NAV=[
   {id:"dashboard",label:"Command",icon:"⚡",roles:["Company Admin","Supervisor","Client"]},
+  {id:"executive",label:"Executive",icon:"📊",roles:["Company Admin"]},
   {id:"myshift",label:"My Shift",icon:"⏱️",roles:["Officer"]},
   {id:"workforce",label:"Workforce",icon:"👮",roles:["Company Admin","Supervisor"]},
+  {id:"timekeeping",label:"Timekeeping",icon:"🕐",roles:["Company Admin","Supervisor"]},
   {id:"patrol",label:"Patrol",icon:"🛡️",roles:["Company Admin","Supervisor","Officer"]},
   {id:"fleet",label:"Fleet",icon:"🚗",roles:["Company Admin","Supervisor"]},
   {id:"visitors",label:"Visitors",icon:"🪪",roles:["Company Admin","Supervisor","Officer"]},
@@ -176,6 +178,8 @@ const NAV=[
   {id:"equipment",label:"Equipment",icon:"🔧",roles:["Company Admin","Supervisor","Officer"]},
   {id:"leave",label:"Leave",icon:"📅",roles:["Company Admin","Supervisor","Officer"]},
   {id:"training",label:"Training",icon:"🎓",roles:["Company Admin","Supervisor"]},
+  {id:"aicommand",label:"AI Command",icon:"🤖",roles:["Company Admin","Supervisor"]},
+  {id:"procurement",label:"Procurement",icon:"📦",roles:["Company Admin"]},
   {id:"auditlog",label:"Audit Log",icon:"📋",roles:["Company Admin"]},
 ];
 const KPI_DATA=[
@@ -192,6 +196,55 @@ const PHOTO_SLOTS=[
   {key:"interior",label:"Interior"},{key:"damage",label:"Damage"},
 ];
 const INSP_STEPS=["Vehicle","Photos","Readings","Notes","Sign & Submit"];
+
+// ─────────────────────────────────────────────────────────────────
+// PHASE 1-5 DATA — Contracts · Timesheets · Vendors · Procurement · Compliance
+// ─────────────────────────────────────────────────────────────────
+const CONTRACTS=[
+  {id:"CTR-001",client:"Northgate Properties",sites:2,officers:8,monthly:42000,cost:31500,profit:10500,margin:25,status:"Active",health:92,start:"2024-01-01",end:"2026-12-31"},
+  {id:"CTR-002",client:"Harbor Logistics Group",sites:1,officers:4,monthly:21000,cost:17850,profit:3150,margin:15,status:"Active",health:74,start:"2025-03-01",end:"2027-02-28"},
+  {id:"CTR-003",client:"Plaza West REIT",sites:1,officers:3,monthly:15750,cost:11025,profit:4725,margin:30,status:"Active",health:61,start:"2024-06-01",end:"2026-05-31"},
+  {id:"CTR-004",client:"Eastside Mall Corp",sites:1,officers:3,monthly:18000,cost:13500,profit:4500,margin:25,status:"Active",health:88,start:"2025-01-01",end:"2027-12-31"},
+];
+const mkDays=(rows)=>rows.map(([d,inn,out,hrs,ot,site])=>({d,in:inn,out,hrs,ot,site,status:ot>0?"Pending":"Approved"}));
+const TIMESHEETS=[
+  {id:"TS-001",officer:"Marcus Webb",badge:"S-0041",week:"2026-06-01",days:mkDays([["Mon","05:58","18:03",12.1,0.1,"Northgate Tower"],["Tue","06:01","18:00",11.98,0,"Northgate Tower"],["Wed","06:00","18:15",12.25,0.25,"Northgate Tower"],["Thu","05:55","18:00",12.08,0.08,"Northgate Tower"],["Fri","06:02","18:00",11.97,0,"Northgate Tower"]]),totalHrs:60.38,otHrs:0.43,status:"Pending"},
+  {id:"TS-002",officer:"Diana Reyes",badge:"S-0067",week:"2026-06-01",days:mkDays([["Mon","06:00","18:00",12,0,"Harbor Logistics"],["Tue","06:00","18:30",12.5,0.5,"Harbor Logistics"],["Wed","06:00","18:00",12,0,"Harbor Logistics"],["Thu","06:00","18:00",12,0,"Harbor Logistics"],["Fri","06:00","18:00",12,0,"Harbor Logistics"]]),totalHrs:60.5,otHrs:0.5,status:"Partial"},
+  {id:"TS-003",officer:"Theo Okafor",badge:"S-0083",week:"2026-06-01",days:mkDays([["Mon","06:00","18:00",12,0,"Plaza West"],["Tue","06:00","18:00",12,0,"Plaza West"],["Wed","06:00","18:00",12,0,"Plaza West"],["Thu","06:00","18:00",12,0,"Plaza West"],["Fri","06:00","18:00",12,0,"Plaza West"]]),totalHrs:60,otHrs:0,status:"Partial"},
+  {id:"TS-004",officer:"Ava Simmons",badge:"S-0092",week:"2026-06-01",days:mkDays([["Mon","06:00","18:00",12,0,"Eastside Mall"],["Tue","06:00","18:00",12,0,"Eastside Mall"],["Wed","06:00","18:00",12,0,"Eastside Mall"],["Thu","06:00","18:00",12,0,"Eastside Mall"],["Fri","06:00","18:00",12,0,"Eastside Mall"]]),totalHrs:60,otHrs:0,status:"Partial"},
+  {id:"TS-005",officer:"Jordan Park",badge:"S-0105",week:"2026-06-01",days:mkDays([["Mon","06:00","18:00",12,0,"Northgate Tower"],["Tue","06:00","20:15",14.25,2.25,"Northgate Tower"],["Wed","06:00","18:00",12,0,"Northgate Tower"],["Thu","06:00","18:00",12,0,"Northgate Tower"],["Fri","06:00","18:00",12,0,"Northgate Tower"]]),totalHrs:62.25,otHrs:2.25,status:"Partial"},
+  {id:"TS-006",officer:"Elena Voss",badge:"S-0118",week:"2026-06-01",days:mkDays([["Mon","18:00","06:00",12,0,"Northgate Tower"],["Tue","18:00","06:00",12,0,"Northgate Tower"],["Wed","18:00","06:00",12,0,"Northgate Tower"],["Thu","18:00","06:00",12,0,"Northgate Tower"],["Fri","18:00","06:00",12,0,"Northgate Tower"]]),totalHrs:60,otHrs:0,status:"Partial"},
+];
+const VENDORS=[
+  {id:"VEN-001",name:"Motorola Solutions",category:"Communications",contact:"sales@motorola.com",phone:"800-555-0102",contracts:3,spend:28400,status:"Active",rating:4.8,since:"2023-01-15"},
+  {id:"VEN-002",name:"Axon Enterprise",category:"Body Cameras",contact:"account@axon.com",phone:"800-555-0194",contracts:1,spend:14200,status:"Active",rating:4.6,since:"2023-06-01"},
+  {id:"VEN-003",name:"Fleet Patrol Services",category:"Fleet Maintenance",contact:"ops@fleetpatrol.com",phone:"800-555-0231",contracts:2,spend:9800,status:"Active",rating:4.2,since:"2024-02-10"},
+  {id:"VEN-004",name:"SecureUniform Co.",category:"Uniforms & PPE",contact:"orders@secureuniform.com",phone:"800-555-0418",contracts:1,spend:6300,status:"Active",rating:3.9,since:"2024-05-22"},
+  {id:"VEN-005",name:"Taser International",category:"Use of Force",contact:"enterprise@taser.com",phone:"800-555-0509",contracts:1,spend:11200,status:"Active",rating:4.7,since:"2023-03-01"},
+];
+const PURCHASE_REQUESTS=[
+  {id:"PR-2024",item:"Motorola APX 6000 Radios x4",vendor:"Motorola Solutions",amount:8800,requestor:"Alex Morgan",dept:"Operations",date:"2026-06-01",priority:"High",status:"Approved",notes:"Replacing failed units EQ-009 through EQ-012"},
+  {id:"PR-2023",item:"Axon Body 4 Camera x2",vendor:"Axon Enterprise",amount:2800,requestor:"Sarah Chen",dept:"Operations",date:"2026-05-28",priority:"Medium",status:"Ordered",notes:"Replacement for EQ-006 in maintenance"},
+  {id:"PR-2022",item:"Ford Explorer Fleet Vehicle",vendor:"Fleet Patrol Services",amount:44900,requestor:"Alex Morgan",dept:"Fleet",date:"2026-05-20",priority:"High",status:"Pending",notes:"V-03 Tahoe requires replacement — approved by board"},
+  {id:"PR-2021",item:"SIA Training Renewals x8",vendor:"SecureUniform Co.",amount:6400,requestor:"Sarah Chen",dept:"HR/Training",date:"2026-05-15",priority:"Medium",status:"Approved",notes:"Renewing 8 expired/expiring SIA certifications"},
+  {id:"PR-2020",item:"First Aid Supplies Q3",vendor:"SecureUniform Co.",amount:1240,requestor:"Marcus Webb",dept:"Operations",date:"2026-05-10",priority:"Low",status:"Received",notes:"Quarterly restocking — all sites"},
+];
+const ASSET_REGISTER=[
+  ...EQUIPMENT,
+  {id:"VH-001",name:"Ford Explorer V-01",type:"Vehicle",status:"In Service",officer:"Marcus Webb",badge:"S-0041",checkedOut:"05:48",condition:"Good",serial:"1FM5K8D-KGA12345"},
+  {id:"VH-002",name:"Toyota Highlander V-02",type:"Vehicle",status:"Available",officer:"—",badge:"—",checkedOut:"—",condition:"Fair",serial:"5TDZARFH-KS01234"},
+  {id:"VH-003",name:"Chevy Tahoe V-03",type:"Vehicle",status:"Maintenance",officer:"—",badge:"—",checkedOut:"—",condition:"Needs Service",serial:"1GNSKCKC-KR12345"},
+];
+const COMPLIANCE_ITEMS=[
+  {id:"CI-001",category:"Certification",title:"SIA Door Supervisor — Theo Okafor",dueDate:"2025-11-05",status:"Overdue",priority:"Critical",assignee:"HR Dept",notes:"Officer deployed non-compliant since Nov 2025. Immediate action required."},
+  {id:"CI-002",category:"Certification",title:"First Aid CPR — Jordan Park",dueDate:"2025-09-14",status:"Overdue",priority:"Critical",assignee:"HR Dept",notes:"Expired September 2025. Requires immediate renewal before next deployment."},
+  {id:"CI-003",category:"Certification",title:"SIA Door Supervisor — Marcus Webb",dueDate:"2026-08-20",status:"Due Soon",priority:"High",assignee:"HR Dept",notes:"Expires in 77 days. Book renewal course immediately."},
+  {id:"CI-004",category:"Vehicle",title:"Fleet V-02 Annual Service",dueDate:"2026-06-15",status:"Due Soon",priority:"Medium",assignee:"Fleet Manager",notes:"Service interval due in 11 days. Schedule at Fleet Patrol Services."},
+  {id:"CI-005",category:"Contract",title:"CTR-003 Plaza West REIT — Renewal Overdue",dueDate:"2026-05-31",status:"Overdue",priority:"High",assignee:"Account Manager",notes:"Contract expired June 1. Client needs new terms within 30 days."},
+  {id:"CI-006",category:"Policy",title:"Annual Policy Acknowledgment — All Staff",dueDate:"2026-06-30",status:"Pending",priority:"Medium",assignee:"All Officers",notes:"4 of 6 officers acknowledged. Pending: Marcus Webb, Elena Voss."},
+  {id:"CI-007",category:"Audit",title:"Q2 Internal Security Audit",dueDate:"2026-06-30",status:"Pending",priority:"High",assignee:"Alex Morgan",notes:"Quarterly audit due end of month. Evidence gathering not yet started."},
+  {id:"CI-008",category:"Insurance",title:"General Liability Insurance Renewal",dueDate:"2026-07-01",status:"Upcoming",priority:"Medium",assignee:"Admin",notes:"Policy renewal in 27 days. Confirm coverage levels with broker."},
+];
 
 // ─────────────────────────────────────────────────────────────────
 // AI DEMO MODE  — shown when API key is not configured
@@ -2280,6 +2333,827 @@ function AuditLogModule({showToast}){
 }
 
 // ─────────────────────────────────────────────────────────────────
+// EXECUTIVE COMMAND CENTER
+// ─────────────────────────────────────────────────────────────────
+function ExecutiveCommand({showToast}){
+  const[tab,setTab]=useState("overview");
+  const[briefing,setBriefing]=useState("");
+  const[loadBrief,setLoadBrief]=useState(false);
+  const active=CONTRACTS.filter(c=>c.status==="Active");
+  const totalRev=active.reduce((a,c)=>a+c.monthly,0);
+  const totalCost=active.reduce((a,c)=>a+c.cost,0);
+  const totalProfit=totalRev-totalCost;
+  const totalMargin=Math.round(totalProfit/totalRev*100);
+  const avgHealth=Math.round(active.reduce((a,c)=>a+c.health,0)/active.length);
+  const hc=(h)=>h>=80?T.green:h>=60?T.amber:T.red;
+
+  const genBrief=async()=>{
+    setLoadBrief(true);
+    try{
+      const text=await callAI(
+        [{role:"user",content:`Generate a 4-sentence executive briefing for a security operations company. Revenue: $${totalRev}/mo. Margin: ${totalMargin}%. Active contracts: ${active.length}. Officers deployed: ${OFFICERS.filter(o=>o.status!=="Off Duty").length}. Compliance violations: ${COMPLIANCE_ITEMS.filter(c=>c.status==="Overdue").length}. Open incidents: ${INCIDENTS.filter(i=>i.status==="Active"||i.status==="Under Review").length}.`}],
+        "You are an AI executive advisor for a private security company. Generate a concise, professional executive briefing in one flowing paragraph. Use specific numbers. Be strategic and direct.",
+        500
+      );
+      setBriefing(text||"");
+    }catch{
+      setBriefing(`Today's summary: ShieldSync is generating $${totalRev.toLocaleString()} in monthly recurring revenue across ${active.length} active contracts, achieving a ${totalMargin}% gross margin. ${OFFICERS.filter(o=>o.status!=="Off Duty").length} of ${OFFICERS.length} officers are deployed with a 94% patrol completion rate. There are ${COMPLIANCE_ITEMS.filter(c=>c.status==="Overdue").length} overdue compliance items requiring immediate HR and legal attention. Contract health averages ${avgHealth}% with one contract flagged for immediate renewal discussion.`);
+    }
+    setLoadBrief(false);
+  };
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10}}>
+        {[
+          ["Monthly Revenue",`$${(totalRev/1000).toFixed(0)}k`,T.green,"↑ +8% QoQ"],
+          ["Labor Cost",`$${(totalCost/1000).toFixed(0)}k`,T.amber,`${Math.round(totalCost/totalRev*100)}% of rev`],
+          ["Gross Margin",`${totalMargin}%`,totalMargin>=25?T.green:T.amber,"↑ +2pts"],
+          ["Active Contracts",active.length,T.accent,"4 sites"],
+          ["Avg Health",`${avgHealth}%`,hc(avgHealth),"1 at risk"],
+        ].map(([l,v,c,s])=>(
+          <Card key={l} glow={c}>
+            <CB style={{textAlign:"center",padding:"16px 8px"}}>
+              <div style={{fontSize:26,fontWeight:900,color:c,lineHeight:1}}>{v}</div>
+              <div style={{fontSize:10,color:T.textSub,margin:"4px 0 3px",lineHeight:1.3}}>{l}</div>
+              <div style={{fontSize:10,color:c,fontWeight:700}}>{s}</div>
+            </CB>
+          </Card>
+        ))}
+      </div>
+
+      <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+        {[["overview","📊 Overview"],["contracts","📋 Contracts"],["labor","💰 Labor"],["compliance","✅ Compliance"]].map(([t,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+        ))}
+      </div>
+
+      {tab==="overview"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <Card glow={T.purple}>
+            <CB>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                <div>
+                  <div style={{fontSize:10,color:T.purple,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase"}}>AI Executive Briefing</div>
+                  <div style={{fontSize:14,fontWeight:800,color:T.text,marginTop:3}}>Today's Intelligence Summary</div>
+                </div>
+                <button onClick={genBrief} disabled={loadBrief} style={{background:T.purpleGlow,border:`1px solid ${T.purple}40`,color:T.purple,padding:"9px 14px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,opacity:loadBrief?.6:1}}>
+                  {loadBrief?"Generating…":"⚡ Generate"}
+                </button>
+              </div>
+              {briefing
+                ?<div style={{fontSize:13,color:T.text,lineHeight:1.75,background:T.raised,borderRadius:10,padding:"14px 16px"}}>{briefing}</div>
+                :<div style={{fontSize:13,color:T.textSub,background:T.raised,borderRadius:10,padding:"14px 16px",lineHeight:1.6}}>Click Generate for an AI executive briefing with live financial performance, operational status, compliance risk, and strategic recommendations.</div>
+              }
+            </CB>
+          </Card>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+            <Card>
+              <CB>
+                <SH title="Revenue by Contract"/>
+                {active.map(c=>(
+                  <div key={c.id} style={{marginBottom:11}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                      <span style={{fontSize:12,color:T.text,fontWeight:600}}>{c.client.split(" ")[0]}</span>
+                      <span style={{fontSize:11,color:T.green,fontWeight:700}}>${(c.monthly/1000).toFixed(0)}k/mo</span>
+                    </div>
+                    <PBar value={c.monthly} max={Math.max(...CONTRACTS.map(x=>x.monthly))} color={T.green}/>
+                  </div>
+                ))}
+              </CB>
+            </Card>
+            <Card>
+              <CB>
+                <SH title="Gross Margin by Contract"/>
+                {active.map(c=>(
+                  <div key={c.id} style={{marginBottom:11}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                      <span style={{fontSize:12,color:T.text,fontWeight:600}}>{c.client.split(" ")[0]}</span>
+                      <span style={{fontSize:11,color:hc(c.margin*2+50),fontWeight:700}}>{c.margin}%</span>
+                    </div>
+                    <PBar value={c.margin} max={40} color={hc(c.margin*2+50)}/>
+                  </div>
+                ))}
+              </CB>
+            </Card>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+            {[
+              ["Officers Active",`${OFFICERS.filter(o=>o.status!=="Off Duty").length}/6`,T.accent],
+              ["Open Incidents",INCIDENTS.filter(i=>i.status==="Active"||i.status==="Under Review").length,T.red],
+              ["Patrol Completion","94%",T.green],
+              ["Compliance Overdue",COMPLIANCE_ITEMS.filter(c=>c.status==="Overdue").length,T.amber],
+            ].map(([l,v,c])=>(
+              <Card key={l} glow={c}>
+                <CB style={{textAlign:"center",padding:"14px 8px"}}>
+                  <div style={{fontSize:22,fontWeight:900,color:c}}>{v}</div>
+                  <div style={{fontSize:9,color:T.textSub,marginTop:3,lineHeight:1.3}}>{l}</div>
+                </CB>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab==="contracts"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {CONTRACTS.map(c=>(
+            <Card key={c.id}>
+              <CB>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:c.status==="Active"?10:0}}>
+                  <div>
+                    <div style={{fontSize:14,fontWeight:800,color:T.text}}>{c.client}</div>
+                    <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{c.id} · {c.sites} site{c.sites!==1?"s":""} · {c.officers} officers · {c.start} – {c.end}</div>
+                  </div>
+                  <Pill label={c.status} color={c.status==="Active"?T.green:c.status==="Prospecting"?T.accent:T.amber}/>
+                </div>
+                {c.status==="Active"&&(
+                  <>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6,marginBottom:10}}>
+                      {[["Revenue",`$${c.monthly.toLocaleString()}`,T.text],["Cost",`$${c.cost.toLocaleString()}`,T.amber],["Profit",`$${c.profit.toLocaleString()}`,T.green],["Margin",`${c.margin}%`,hc(c.margin*2+50)]].map(([l,v,col])=>(
+                        <div key={l} style={{background:T.raised,borderRadius:7,padding:"8px 10px",textAlign:"center"}}>
+                          <div style={{fontSize:13,fontWeight:800,color:col}}>{v}</div>
+                          <div style={{fontSize:9,color:T.textDim,marginTop:2}}>{l}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                        <span style={{fontSize:10,color:T.textSub}}>Contract Health Score</span>
+                        <span style={{fontSize:10,color:hc(c.health),fontWeight:700}}>{c.health}%</span>
+                      </div>
+                      <PBar value={c.health} max={100} color={hc(c.health)}/>
+                    </div>
+                  </>
+                )}
+              </CB>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {tab==="labor"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+            {[["Weekly Labor Est.",`$${Math.round(totalCost/4.3).toLocaleString()}`,T.amber],["OT Hours (Week)",`${TIMESHEETS.reduce((a,t)=>a+t.otHrs,0).toFixed(1)}h`,T.red],["Avg Hourly Rate","$24.50",T.accent]].map(([l,v,c])=>(
+              <Card key={l} glow={c}>
+                <CB style={{textAlign:"center",padding:"14px 10px"}}>
+                  <div style={{fontSize:22,fontWeight:900,color:c}}>{v}</div>
+                  <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{l}</div>
+                </CB>
+              </Card>
+            ))}
+          </div>
+          <Card>
+            <CB>
+              <SH title="Labor Cost by Site"/>
+              {active.map(c=>(
+                <div key={c.id} style={{marginBottom:14}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
+                    <span style={{fontSize:12,color:T.text,fontWeight:600}}>{c.client}</span>
+                    <div style={{display:"flex",gap:14}}>
+                      <span style={{fontSize:11,color:T.amber}}>Cost ${c.cost.toLocaleString()}</span>
+                      <span style={{fontSize:11,color:T.green}}>Rev ${c.monthly.toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <div style={{height:8,background:T.border,borderRadius:4,overflow:"hidden",position:"relative"}}>
+                    <div style={{position:"absolute",height:"100%",width:`${Math.round(c.monthly/totalRev*100)}%`,background:T.green,borderRadius:4}}/>
+                    <div style={{position:"absolute",height:"100%",width:`${Math.round(c.cost/totalRev*100)}%`,background:T.amber,borderRadius:4}}/>
+                  </div>
+                  <div style={{display:"flex",justifyContent:"flex-end",marginTop:2}}>
+                    <span style={{fontSize:10,color:hc(c.margin*2+50),fontWeight:700}}>{c.margin}% margin</span>
+                  </div>
+                </div>
+              ))}
+            </CB>
+          </Card>
+          <Card>
+            <CB>
+              <SH title="Officer Hours — Current Week"/>
+              <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                {TIMESHEETS.map(ts=>(
+                  <div key={ts.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
+                    <Av initials={ts.badge.slice(-4)} color={ts.otHrs>0?T.amber:T.accent} size={32}/>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                        <span style={{fontSize:12,fontWeight:700,color:T.text}}>{ts.officer}</span>
+                        <span style={{fontSize:11,color:ts.otHrs>0?T.red:T.text,fontWeight:700}}>{ts.totalHrs.toFixed(1)}h{ts.otHrs>0?` +${ts.otHrs}OT`:""}</span>
+                      </div>
+                      <PBar value={ts.totalHrs} max={65} color={ts.otHrs>0?T.amber:T.accent}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CB>
+          </Card>
+        </div>
+      )}
+
+      {tab==="compliance"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+            {[
+              ["Overdue",COMPLIANCE_ITEMS.filter(c=>c.status==="Overdue").length,T.red],
+              ["Due Soon",COMPLIANCE_ITEMS.filter(c=>c.status==="Due Soon").length,T.amber],
+              ["Pending",COMPLIANCE_ITEMS.filter(c=>c.status==="Pending").length,T.gold],
+              ["Upcoming",COMPLIANCE_ITEMS.filter(c=>c.status==="Upcoming").length,T.textSub],
+            ].map(([l,v,c])=>(
+              <Card key={l} glow={c}>
+                <CB style={{textAlign:"center",padding:"14px 10px"}}>
+                  <div style={{fontSize:24,fontWeight:900,color:c}}>{v}</div>
+                  <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{l}</div>
+                </CB>
+              </Card>
+            ))}
+          </div>
+          <Card>
+            <CB>
+              <SH title="Compliance Action Items"/>
+              <div style={{display:"flex",flexDirection:"column",gap:7}}>
+                {COMPLIANCE_ITEMS.map(ci=>{
+                  const sc=ci.status==="Overdue"?T.red:ci.status==="Due Soon"?T.amber:ci.status==="Pending"?T.gold:T.accent;
+                  return(
+                    <div key={ci.id} style={{background:T.raised,borderRadius:9,padding:"11px 14px",borderLeft:`3px solid ${sc}`}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:3}}>
+                        <div style={{flex:1,minWidth:0,marginRight:10}}>
+                          <div style={{fontSize:12,fontWeight:700,color:T.text}}>{ci.title}</div>
+                          <div style={{fontSize:10,color:T.textSub,marginTop:1}}>{ci.category} · {ci.assignee} · Due: {ci.dueDate}</div>
+                        </div>
+                        <Pill label={ci.status} color={sc}/>
+                      </div>
+                      <div style={{fontSize:11,color:T.textDim,marginTop:4,lineHeight:1.4}}>{ci.notes}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CB>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TIMEKEEPING MODULE
+// ─────────────────────────────────────────────────────────────────
+function TimekeepingModule({user,showToast}){
+  const[tab,setTab]=useState("timesheets");
+  const[sheets,setSheets]=useState(TIMESHEETS);
+  const[expanded,setExpanded]=useState(null);
+  const[clockedIn,setClockedIn]=useState(false);
+  const[clockTime,setClockTime]=useState(null);
+  const[gps,setGps]=useState(null);
+  const[gpsErr,setGpsErr]=useState(null);
+  const[site,setSite]=useState("Northgate Tower");
+  const[elapsed,setElapsed]=useState(0);
+  const timerRef=useRef(null);
+
+  useEffect(()=>{
+    if(clockedIn){timerRef.current=setInterval(()=>setElapsed(e=>e+1),1000);}
+    else{clearInterval(timerRef.current);}
+    return()=>clearInterval(timerRef.current);
+  },[clockedIn]);
+
+  const fmtHM=(s)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h>0?`${h}h ${String(m).padStart(2,"0")}m`:`${String(m).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;};
+
+  const exportCSV=()=>{
+    const rows=[["Officer","Badge","Week","Mon","Tue","Wed","Thu","Fri","Total Hrs","OT Hrs","Status"]];
+    sheets.forEach(ts=>{rows.push([ts.officer,ts.badge,ts.week,...ts.days.map(d=>d.hrs.toFixed(2)),ts.totalHrs.toFixed(2),ts.otHrs.toFixed(2),ts.status]);});
+    const csv=rows.map(r=>r.join(",")).join("\n");
+    const blob=new Blob([csv],{type:"text/csv"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;a.download=`shieldsync_payroll_${new Date().toISOString().slice(0,10)}.csv`;a.click();
+    URL.revokeObjectURL(url);
+    showToast("Payroll CSV exported","success");
+    logAction(user,"PAYROLL_EXPORT",`${sheets.length} timesheets`);
+  };
+
+  const clockIn=()=>{
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        pos=>setGps({lat:pos.coords.latitude.toFixed(4),lng:pos.coords.longitude.toFixed(4)}),
+        ()=>setGpsErr("GPS unavailable — location unverified")
+      );
+    }
+    setClockedIn(true);setClockTime(new Date());setElapsed(0);
+    showToast(`Clocked in at ${site}`,"success");
+    logAction(user,"CLOCK_IN",`GPS clock-in at ${site}`);
+  };
+
+  const clockOut=()=>{
+    const hrs=(elapsed/3600).toFixed(2);
+    setClockedIn(false);setClockTime(null);setGps(null);setGpsErr(null);setElapsed(0);
+    showToast(`Clocked out · ${hrs} hours recorded`,"success");
+    logAction(user,"CLOCK_OUT",`${hrs}h at ${site}`);
+  };
+
+  const approveSheet=(id)=>{
+    setSheets(s=>s.map(ts=>ts.id===id?{...ts,days:ts.days.map(d=>({...d,status:"Approved"})),status:"Approved"}:ts));
+    showToast("Timesheet approved","success");
+    logAction(user,"TIMESHEET_APPROVE",id);
+  };
+
+  const totalHrs=sheets.reduce((a,t)=>a+t.totalHrs,0);
+  const totalOT=sheets.reduce((a,t)=>a+t.otHrs,0);
+  const pendingCnt=sheets.filter(t=>t.status!=="Approved").length;
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+        {[
+          ["Total Hours (Week)",totalHrs.toFixed(1),T.accent],
+          ["Overtime Hours",totalOT.toFixed(2),T.red],
+          ["Pending Approval",pendingCnt,T.amber],
+          ["Payroll Estimate",`$${(totalHrs*24.5).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,",")}`,T.green],
+        ].map(([l,v,c])=>(
+          <Card key={l} glow={c}>
+            <CB style={{textAlign:"center",padding:"14px 10px"}}>
+              <div style={{fontSize:22,fontWeight:900,color:c,lineHeight:1}}>{v}</div>
+              <div style={{fontSize:10,color:T.textSub,marginTop:4}}>{l}</div>
+            </CB>
+          </Card>
+        ))}
+      </div>
+
+      <div style={{display:"flex",gap:6,justifyContent:"space-between",flexWrap:"wrap",alignItems:"center"}}>
+        <div style={{display:"flex",gap:5}}>
+          {[["timesheets","📋 Timesheets"],["clockin","⏱ GPS Clock In"],["overtime","⚠ Overtime"]].map(([t,l])=>(
+            <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+          ))}
+        </div>
+        <button onClick={exportCSV} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>↓ Export Payroll CSV</button>
+      </div>
+
+      {tab==="timesheets"&&(
+        <Card>
+          <CB>
+            <SH title="Timesheets — Week of Jun 1, 2026"/>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {sheets.map(ts=>(
+                <div key={ts.id}>
+                  <div onClick={()=>setExpanded(expanded===ts.id?null:ts.id)} style={{background:T.raised,borderRadius:10,padding:"12px 14px",cursor:"pointer",display:"flex",alignItems:"center",gap:12}}>
+                    <Av initials={ts.badge.slice(-4)} color={ts.otHrs>0?T.amber:T.accent} size={34}/>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                        <span style={{fontSize:13,fontWeight:700,color:T.text}}>{ts.officer}</span>
+                        <span style={{fontSize:12,color:ts.otHrs>0?T.red:T.text,fontWeight:700}}>{ts.totalHrs.toFixed(1)}h{ts.otHrs>0?` · +${ts.otHrs}OT`:""}</span>
+                      </div>
+                      <PBar value={ts.totalHrs} max={65} color={ts.otHrs>0?T.amber:T.accent}/>
+                    </div>
+                    <Pill label={ts.status} color={ts.status==="Approved"?T.green:ts.status==="Pending"?T.amber:T.accent}/>
+                    <span style={{color:T.textDim,fontSize:12,flexShrink:0}}>{expanded===ts.id?"▲":"▼"}</span>
+                  </div>
+                  {expanded===ts.id&&(
+                    <div style={{background:T.card,border:`1px solid ${T.border}`,borderTop:"none",borderRadius:"0 0 10px 10px",padding:"12px 14px"}}>
+                      <div style={{overflowX:"auto"}}>
+                        <table style={{width:"100%",borderCollapse:"collapse",fontSize:11,minWidth:460}}>
+                          <thead>
+                            <tr style={{borderBottom:`1px solid ${T.border}`}}>
+                              {["Day","In","Out","Hours","OT","Site","Status"].map(h=>(
+                                <th key={h} style={{padding:"6px 8px",color:T.textSub,fontWeight:700,textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {ts.days.map(d=>(
+                              <tr key={d.d} style={{borderBottom:`1px solid ${T.border}20`}}>
+                                <td style={{padding:"7px 8px",color:T.text,fontWeight:600}}>{d.d}</td>
+                                <td style={{padding:"7px 8px",color:T.textSub,fontFamily:"monospace"}}>{d.in}</td>
+                                <td style={{padding:"7px 8px",color:T.textSub,fontFamily:"monospace"}}>{d.out}</td>
+                                <td style={{padding:"7px 8px",color:T.text,fontWeight:700}}>{d.hrs.toFixed(2)}</td>
+                                <td style={{padding:"7px 8px",color:d.ot>0?T.red:T.textDim,fontWeight:d.ot>0?700:400}}>{d.ot>0?"+"+d.ot.toFixed(2):"—"}</td>
+                                <td style={{padding:"7px 8px",color:T.textSub,whiteSpace:"nowrap"}}>{d.site.split(" ")[0]}</td>
+                                <td style={{padding:"7px 8px"}}><Pill label={d.status} color={d.status==="Approved"?T.green:T.amber}/></td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      {ts.status!=="Approved"&&(
+                        <button onClick={()=>approveSheet(ts.id)} style={{marginTop:10,background:T.green,border:"none",color:"#000",padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:800,fontSize:12,width:"100%"}}>✓ Approve All Shifts</button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CB>
+        </Card>
+      )}
+
+      {tab==="clockin"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <Card glow={clockedIn?T.green:T.accent}>
+            <CB style={{textAlign:"center",padding:"28px 24px"}}>
+              <div style={{fontSize:44,marginBottom:12}}>{clockedIn?"🟢":"⏱️"}</div>
+              <div style={{fontSize:20,fontWeight:900,color:clockedIn?T.green:T.text,marginBottom:6}}>
+                {clockedIn?`On Duty — ${site}`:"Ready to Clock In"}
+              </div>
+              {clockedIn&&<div style={{fontSize:36,fontWeight:900,color:T.green,fontFamily:"monospace",marginBottom:6,letterSpacing:"-0.02em"}}>{fmtHM(elapsed)}</div>}
+              {clockedIn&&clockTime&&<div style={{fontSize:12,color:T.textSub,marginBottom:10}}>Since {clockTime.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</div>}
+              {gps&&<div style={{fontSize:11,color:T.accent,marginBottom:8}}>📍 GPS: {gps.lat}, {gps.lng}</div>}
+              {gpsErr&&<div style={{fontSize:11,color:T.amber,marginBottom:8}}>⚠️ {gpsErr}</div>}
+              {!clockedIn&&(
+                <div style={{marginBottom:16,textAlign:"left"}}>
+                  <label style={{fontSize:11,color:T.textSub,fontWeight:700,display:"block",marginBottom:6}}>Deployment Site</label>
+                  <select value={site} onChange={e=>setSite(e.target.value)} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"11px 14px",color:T.text,fontSize:13,outline:"none",WebkitAppearance:"none"}}>
+                    {["Northgate Tower","Harbor Logistics","Plaza West","Eastside Mall"].map(s=><option key={s}>{s}</option>)}
+                  </select>
+                </div>
+              )}
+              <button onClick={clockedIn?clockOut:clockIn} style={{background:clockedIn?T.red:`linear-gradient(135deg,${T.green},${T.accentH})`,border:"none",color:clockedIn?"#fff":"#000",padding:"15px 32px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:15,width:"100%"}}>
+                {clockedIn?"⏹ Clock Out":"⏱ GPS Clock In →"}
+              </button>
+            </CB>
+          </Card>
+          <Card>
+            <CB>
+              <SH title="Payroll Integration Frameworks"/>
+              {[
+                ["Paylocity","CSV export ready — compatible with Paylocity Import","↑ Ready",T.green],
+                ["ADP Workforce Now","ADP-format CSV — compatible with ADP import wizard","↑ Ready",T.green],
+                ["UKG Pro","REST API integration — configure credentials in Settings","⚙ Configure",T.amber],
+                ["QuickBooks Payroll","Accounting integration available in v2.0","⌛ Planned",T.textDim],
+              ].map(([p,d,s,c])=>(
+                <div key={p} style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:9,padding:"11px 14px",marginBottom:6}}>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{p}</div>
+                    <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{d}</div>
+                  </div>
+                  <span style={{fontSize:11,color:c,fontWeight:700,whiteSpace:"nowrap"}}>{s}</span>
+                </div>
+              ))}
+            </CB>
+          </Card>
+        </div>
+      )}
+
+      {tab==="overtime"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          {totalOT===0?(
+            <Card><CB style={{textAlign:"center",padding:"32px",color:T.textSub,fontSize:13}}><div style={{fontSize:36,marginBottom:12}}>✅</div>No overtime this week. All officers within standard hours.</CB></Card>
+          ):(
+            <>
+              <div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",gap:10,alignItems:"center"}}>
+                <span style={{fontSize:18}}>⚠️</span>
+                <div style={{fontSize:12,color:T.red,fontWeight:700}}>
+                  {sheets.filter(t=>t.otHrs>0).length} officer{sheets.filter(t=>t.otHrs>0).length!==1?"s":""} with overtime this week · Total: {totalOT.toFixed(2)}h OT · Premium est. ${(totalOT*12.25).toFixed(2)}
+                </div>
+              </div>
+              <Card>
+                <CB>
+                  <SH title="Overtime Review Queue"/>
+                  {sheets.filter(t=>t.otHrs>0).map(ts=>(
+                    <div key={ts.id} style={{background:T.raised,borderRadius:10,padding:"14px",marginBottom:8}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                        <div>
+                          <div style={{fontSize:13,fontWeight:700,color:T.text}}>{ts.officer}</div>
+                          <div style={{fontSize:10,color:T.textSub}}>{ts.badge}</div>
+                        </div>
+                        <div style={{textAlign:"right"}}>
+                          <div style={{fontSize:14,fontWeight:800,color:T.red}}>{ts.otHrs}h OT</div>
+                          <div style={{fontSize:10,color:T.textSub}}>Premium: ${(ts.otHrs*12.25).toFixed(2)}</div>
+                        </div>
+                      </div>
+                      {ts.days.filter(d=>d.ot>0).map(d=>(
+                        <div key={d.d} style={{display:"flex",justifyContent:"space-between",padding:"6px 10px",background:T.card,borderRadius:6,marginBottom:3}}>
+                          <span style={{fontSize:11,color:T.textSub}}>{d.d} · {d.in}–{d.out}</span>
+                          <span style={{fontSize:11,color:T.red,fontWeight:700}}>+{d.ot.toFixed(2)}h OT</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </CB>
+              </Card>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// AI COMMAND CENTER
+// ─────────────────────────────────────────────────────────────────
+const ADVISORS={
+  operations:{label:"Operations",icon:"⚡",color:T.accent,
+    system:"You are ShieldSync AI Operations Advisor. Analyze patrol completion, incident response, checkpoint compliance, and dispatch efficiency. Context: 5 officers, 4 sites, 94% patrol rate, 2 open incidents, 4.2min avg response. Be tactical and data-driven. Max 4 sentences.",
+    quick:["What needs immediate attention?","Analyze patrol gaps","Dispatch priority","Site risk ranking"],
+    alerts:AI_INSIGHTS.filter(a=>a.priority==="critical"||a.priority==="high"),
+  },
+  workforce:{label:"Workforce",icon:"👮",color:T.gold,
+    system:"You are ShieldSync AI Workforce Advisor. Analyze officer performance, scheduling, fatigue risk, and training compliance. Context: 6 officers, 1 expired cert, 2.68 OT hours, 2 pending leave requests. Be direct.",
+    quick:["Flag fatigue risks","Scheduling gaps","Top performer analysis","Cert compliance status"],
+    alerts:TRAINING_DATA.filter(t=>t.status==="Expired").map(t=>({text:`Expired certification: ${t.cert} — ${t.officer}. Requires immediate renewal.`,priority:"critical"})),
+  },
+  compliance:{label:"Compliance",icon:"✅",color:T.green,
+    system:"You are ShieldSync AI Compliance Advisor. Track cert expiry, contract renewals, policy acknowledgments, and audit schedules. Focus on risk mitigation and legal compliance. 2 overdue certs, 1 expired contract, Q2 audit pending.",
+    quick:["What's overdue?","Audit readiness check","Renewal priorities","Policy acknowledgment status"],
+    alerts:COMPLIANCE_ITEMS.filter(c=>c.status==="Overdue").map(c=>({text:c.title+": "+c.notes,priority:"critical"})),
+  },
+  risk:{label:"Risk",icon:"🔴",color:T.red,
+    system:"You are ShieldSync AI Risk Advisor. Identify operational, personnel, financial, and compliance risks. Provide risk scores and mitigation strategies. Current risk score: 6.2/10 (elevated). Be concise and prioritized.",
+    quick:["Current risk score?","Top 3 risk factors","Mitigation priorities","Financial exposure"],
+    alerts:AI_INSIGHTS.filter(a=>a.priority==="critical").slice(0,2),
+  },
+  executive:{label:"Executive",icon:"📊",color:T.purple,
+    system:"You are ShieldSync AI Executive Advisor. Provide strategic insights on financial performance, business development, and contract health. Monthly revenue $96,750, margin 27%, 4 active contracts. Be executive-level strategic.",
+    quick:["Executive summary","Revenue growth opportunities","Contract renewal risks","Strategic priorities"],
+    alerts:[{text:"Q2 revenue tracking 8% above prior quarter driven by Northgate contract optimization.",priority:"info"},{text:"CTR-003 Plaza West REIT expired June 1 — client relationship requires immediate executive outreach.",priority:"critical"}],
+  },
+};
+
+function AICommandCenter(){
+  const[adv,setAdv]=useState("operations");
+  const cfg=ADVISORS[adv];
+  const[allMsgs,setAllMsgs]=useState({operations:[],workforce:[],compliance:[],risk:[],executive:[]});
+  const[inp,setInp]=useState("");
+  const[loading,setLoading]=useState(false);
+  const endRef=useRef(null);
+  useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"});},[allMsgs,loading]);
+  const curMsgs=allMsgs[adv]||[];
+
+  const send=useCallback(async(txt)=>{
+    const msg=(txt||inp).trim();
+    if(!msg||loading)return;
+    setInp("");
+    const next=[...curMsgs,{role:"user",text:msg}];
+    setAllMsgs(m=>({...m,[adv]:next}));
+    setLoading(true);
+    try{
+      const reply=await callAI(next.map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text})),cfg.system,700);
+      setAllMsgs(m=>({...m,[adv]:[...next,{role:"ai",text:reply||"No response."}]}));
+    }catch{
+      const fallbacks={operations:"Plaza West remains highest priority — INC-2847 pattern and 2 missed checkpoints indicate elevated risk. Recommend immediate patrol sweep and backup deployment to support Theo Okafor.",workforce:"2 expired certifications require immediate HR action before next deployment cycle. Jordan Park's 2.25h overtime from Tuesday needs supervisor review and approval.",compliance:"3 overdue compliance items on record: 2 expired officer certifications and 1 expired client contract. Escalate to management for same-day action.",risk:"Current risk score 6.2/10 elevated by Plaza West activity, compliance gaps, and fleet maintenance backlog. Priority mitigation: backup dispatch, cert renewals, contract renewal.",executive:"Q2 performance strong at 27% margin. Immediate priority: recover Plaza West contract before 30-day lapse creates client churn. Harbor Logistics margin at 15% needs renegotiation in next renewal cycle."};
+      setAllMsgs(m=>({...m,[adv]:[...next,{role:"ai",text:`[Demo Mode] ${cfg.label} Advisor: ${fallbacks[adv]||"Based on current data, operations are performing at expected levels with targeted improvement opportunities identified."}`}]}));
+    }
+    setLoading(false);
+  },[inp,curMsgs,loading,adv,cfg]);
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
+        {Object.entries(ADVISORS).map(([key,c])=>(
+          <button key={key} onClick={()=>{setAdv(key);setInp("");}} style={{background:adv===key?`${c.color}15`:T.raised,border:`1px solid ${adv===key?c.color+"45":T.border}`,borderRadius:10,padding:"12px 6px",cursor:"pointer",textAlign:"center",transition:"all 0.15s"}}>
+            <div style={{fontSize:22,marginBottom:4}}>{c.icon}</div>
+            <div style={{fontSize:9,color:adv===key?c.color:T.textSub,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.04em",lineHeight:1.3}}>{c.label}</div>
+          </button>
+        ))}
+      </div>
+
+      <div style={{background:`linear-gradient(135deg,${cfg.color}12,${cfg.color}05)`,border:`1px solid ${cfg.color}28`,borderRadius:12,padding:"14px 18px",display:"flex",alignItems:"center",gap:12}}>
+        <div style={{width:44,height:44,borderRadius:12,background:`linear-gradient(135deg,${cfg.color}30,${cfg.color}10)`,border:`1px solid ${cfg.color}45`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{cfg.icon}</div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:15,fontWeight:800,color:T.text}}>{cfg.label} Advisor</div>
+          <div style={{fontSize:11,color:T.textSub,marginTop:2}}>AI-powered · Real-time intelligence · Security operations specialist</div>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:5}}>
+          <div style={{width:6,height:6,borderRadius:"50%",background:cfg.color,animation:"ssB 1.2s infinite"}}/>
+          <span style={{fontSize:10,color:cfg.color,fontWeight:700}}>ONLINE</span>
+        </div>
+      </div>
+
+      {cfg.alerts.length>0&&(
+        <div style={{display:"flex",flexDirection:"column",gap:5}}>
+          {cfg.alerts.slice(0,3).map((a,i)=>{
+            const ac=a.priority==="critical"?T.red:a.priority==="high"?T.amber:a.priority==="info"?T.accent:T.gold;
+            return(
+              <div key={i} style={{background:`${ac}08`,border:`1px solid ${ac}25`,borderRadius:9,padding:"10px 14px",display:"flex",gap:10,alignItems:"flex-start"}}>
+                <div style={{width:6,height:6,borderRadius:"50%",background:ac,marginTop:4,flexShrink:0,animation:a.priority==="critical"?"ssB 1s infinite":"none"}}/>
+                <span style={{fontSize:12,color:T.text,lineHeight:1.5,flex:1}}>{a.text}</span>
+                <Pill label={a.priority} color={ac}/>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <Card>
+        <CB>
+          <div style={{display:"flex",flexDirection:"column",gap:10,minHeight:240,maxHeight:340,overflowY:"auto",marginBottom:10,paddingRight:2}}>
+            {curMsgs.length===0&&(
+              <div style={{padding:"24px 0",textAlign:"center"}}>
+                <div style={{fontSize:36,marginBottom:8}}>{cfg.icon}</div>
+                <div style={{fontSize:13,color:T.textSub,lineHeight:1.6}}>The {cfg.label} Advisor is ready.<br/>Select a quick action or type your question below.</div>
+              </div>
+            )}
+            {curMsgs.map((m,i)=>(
+              <div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
+                {m.role==="ai"&&<div style={{width:28,height:28,borderRadius:8,flexShrink:0,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{cfg.icon}</div>}
+                <div style={{maxWidth:"85%",padding:"9px 13px",borderRadius:m.role==="user"?"12px 12px 3px 12px":"12px 12px 12px 3px",background:m.role==="user"?`${cfg.color}15`:T.raised,border:`1px solid ${m.role==="user"?cfg.color+"35":T.border}`,fontSize:13,lineHeight:1.6,color:T.text,whiteSpace:"pre-wrap"}}>{m.text}</div>
+              </div>
+            ))}
+            {loading&&(
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                <div style={{width:28,height:28,borderRadius:8,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{cfg.icon}</div>
+                <div style={{background:T.raised,borderRadius:12,border:`1px solid ${T.border}`}}><Dots/></div>
+              </div>
+            )}
+            <div ref={endRef}/>
+          </div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:5,marginBottom:8}}>
+            {cfg.quick.map(p=>(
+              <button key={p} onClick={()=>send(p)} disabled={loading} style={{background:`${cfg.color}10`,border:`1px solid ${cfg.color}28`,color:cfg.color,fontSize:10,fontWeight:700,padding:"5px 10px",borderRadius:6,cursor:"pointer",opacity:loading?.5:1}}>{p}</button>
+            ))}
+          </div>
+          <div style={{display:"flex",gap:8}}>
+            <input value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}}
+              placeholder={`Ask the ${cfg.label} Advisor…`} disabled={loading}
+              style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 14px",color:T.text,fontSize:13,outline:"none"}}/>
+            <button onClick={()=>send()} disabled={loading||!inp.trim()} style={{background:`linear-gradient(135deg,${cfg.color},${cfg.color}95)`,border:"none",borderRadius:10,padding:"10px 16px",color:"#000",fontWeight:800,cursor:"pointer",fontSize:14,opacity:loading||!inp.trim()?.5:1}}>→</button>
+          </div>
+        </CB>
+      </Card>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PROCUREMENT MODULE
+// ─────────────────────────────────────────────────────────────────
+function ProcurementModule({user,showToast}){
+  const[tab,setTab]=useState("requests");
+  const[reqs,setReqs]=useState(PURCHASE_REQUESTS);
+  const[showForm,setShowForm]=useState(false);
+  const[form,setForm]=useState({item:"",vendor:"",amount:"",priority:"Medium",notes:""});
+  const upd=(k,v)=>setForm(f=>({...f,[k]:v}));
+  const sc=(s)=>s==="Approved"||s==="Received"?T.green:s==="Pending"?T.amber:s==="Ordered"?T.accent:T.textSub;
+  const totalSpend=VENDORS.reduce((a,v)=>a+v.spend,0);
+
+  const submitReq=()=>{
+    if(!form.item||!form.vendor||!form.amount)return;
+    const r={id:`PR-${2025+reqs.length}`,item:form.item,vendor:form.vendor,amount:parseFloat(form.amount),requestor:user?.name||"User",dept:"Operations",date:new Date().toISOString().slice(0,10),priority:form.priority,status:"Pending",notes:form.notes};
+    setReqs(p=>[r,...p]);
+    setShowForm(false);
+    setForm({item:"",vendor:"",amount:"",priority:"Medium",notes:""});
+    showToast(`Purchase request ${r.id} submitted`,"success");
+    logAction(user,"PURCHASE_REQUEST",`${r.item} — $${r.amount}`);
+  };
+
+  const approve=(id)=>{
+    setReqs(r=>r.map(x=>x.id===id?{...x,status:"Approved"}:x));
+    showToast(`${id} approved`,"success");
+    logAction(user,"PR_APPROVE",id);
+  };
+
+  const valid=form.item&&form.vendor&&form.amount;
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+        {[
+          ["Active Vendors",VENDORS.filter(v=>v.status==="Active").length,T.accent],
+          ["Pending Requests",reqs.filter(r=>r.status==="Pending").length,T.amber],
+          ["YTD Vendor Spend",`$${(totalSpend/1000).toFixed(0)}k`,T.gold],
+          ["Total Assets",ASSET_REGISTER.length,T.green],
+        ].map(([l,v,c])=>(
+          <Card key={l} glow={c}>
+            <CB style={{textAlign:"center",padding:"14px 10px"}}>
+              <div style={{fontSize:22,fontWeight:900,color:c,lineHeight:1}}>{v}</div>
+              <div style={{fontSize:10,color:T.textSub,marginTop:4}}>{l}</div>
+            </CB>
+          </Card>
+        ))}
+      </div>
+
+      <div style={{display:"flex",gap:6,justifyContent:"space-between",flexWrap:"wrap",alignItems:"center"}}>
+        <div style={{display:"flex",gap:5}}>
+          {[["requests","📋 Requests"],["vendors","🏢 Vendors"],["assets","📦 Assets"]].map(([t,l])=>(
+            <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+          ))}
+        </div>
+        {tab==="requests"&&<button onClick={()=>setShowForm(p=>!p)} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{showForm?"✕ Cancel":"+ New Request"}</button>}
+      </div>
+
+      {tab==="requests"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {showForm&&(
+            <Card glow={T.accent}>
+              <CB>
+                <div style={{fontSize:13,fontWeight:800,color:T.text,marginBottom:14}}>New Purchase Request</div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
+                  <div>
+                    <label style={{fontSize:11,color:T.textSub,fontWeight:700,display:"block",marginBottom:5}}>Item / Description *</label>
+                    <input value={form.item} onChange={e=>upd("item",e.target.value)} placeholder="e.g. Motorola APX 6000 x4"
+                      style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:9,padding:"10px 12px",color:T.text,fontSize:13,outline:"none",boxSizing:"border-box"}}/>
+                  </div>
+                  <div>
+                    <label style={{fontSize:11,color:T.textSub,fontWeight:700,display:"block",marginBottom:5}}>Vendor *</label>
+                    <select value={form.vendor} onChange={e=>upd("vendor",e.target.value)}
+                      style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:9,padding:"10px 12px",color:T.text,fontSize:13,outline:"none",WebkitAppearance:"none"}}>
+                      <option value="">Select vendor…</option>
+                      {VENDORS.map(v=><option key={v.id} value={v.name}>{v.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{fontSize:11,color:T.textSub,fontWeight:700,display:"block",marginBottom:5}}>Amount ($) *</label>
+                    <input type="number" value={form.amount} onChange={e=>upd("amount",e.target.value)} placeholder="0.00"
+                      style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:9,padding:"10px 12px",color:T.text,fontSize:13,outline:"none",boxSizing:"border-box"}}/>
+                  </div>
+                  <div>
+                    <label style={{fontSize:11,color:T.textSub,fontWeight:700,display:"block",marginBottom:5}}>Priority</label>
+                    <select value={form.priority} onChange={e=>upd("priority",e.target.value)}
+                      style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:9,padding:"10px 12px",color:T.text,fontSize:13,outline:"none",WebkitAppearance:"none"}}>
+                      {["Low","Medium","High","Critical"].map(p=><option key={p}>{p}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <textarea value={form.notes} onChange={e=>upd("notes",e.target.value)} placeholder="Business justification and notes…" rows={2}
+                  style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:9,padding:"10px 12px",color:T.text,fontSize:13,resize:"none",outline:"none",boxSizing:"border-box",marginBottom:10}}/>
+                <div style={{display:"flex",gap:8}}>
+                  <button onClick={()=>setShowForm(false)} style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px",borderRadius:9,cursor:"pointer",fontWeight:600}}>Cancel</button>
+                  <button onClick={submitReq} disabled={!valid} style={{flex:2,background:valid?T.accent:T.raised,border:`1px solid ${valid?T.accent:T.border}`,color:valid?"#000":T.textDim,padding:"11px",borderRadius:9,cursor:valid?"pointer":"not-allowed",fontWeight:800}}>Submit Request ✓</button>
+                </div>
+              </CB>
+            </Card>
+          )}
+          {reqs.map(r=>(
+            <div key={r.id} style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"14px 16px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+                <div style={{flex:1,minWidth:0,marginRight:10}}>
+                  <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:3,flexWrap:"wrap"}}>
+                    <span style={{fontSize:10,color:T.textSub,fontFamily:"monospace"}}>{r.id}</span>
+                    <Pill label={r.priority} color={r.priority==="High"||r.priority==="Critical"?T.red:r.priority==="Medium"?T.amber:T.textSub}/>
+                  </div>
+                  <div style={{fontSize:13,fontWeight:700,color:T.text}}>{r.item}</div>
+                  <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{r.vendor} · {r.requestor} · {r.dept} · {r.date}</div>
+                  {r.notes&&<div style={{fontSize:11,color:T.textDim,marginTop:4,lineHeight:1.4}}>{r.notes}</div>}
+                </div>
+                <div style={{textAlign:"right",flexShrink:0}}>
+                  <div style={{fontSize:15,fontWeight:800,color:T.text,marginBottom:4}}>${r.amount.toLocaleString()}</div>
+                  <Pill label={r.status} color={sc(r.status)}/>
+                </div>
+              </div>
+              {r.status==="Pending"&&(
+                <button onClick={()=>approve(r.id)} style={{marginTop:8,background:T.green,border:"none",color:"#000",padding:"8px",borderRadius:7,cursor:"pointer",fontWeight:800,fontSize:11,width:"100%"}}>✓ Approve Request</button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tab==="vendors"&&(
+        <Card>
+          <CB>
+            <SH title="Vendor Directory"/>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {VENDORS.map(v=>(
+                <div key={v.id} style={{background:T.raised,borderRadius:10,padding:"14px 16px"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+                    <div>
+                      <div style={{fontSize:13,fontWeight:800,color:T.text}}>{v.name}</div>
+                      <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{v.id} · {v.category} · Since {v.since.slice(0,4)}</div>
+                    </div>
+                    <div style={{textAlign:"right"}}>
+                      <div style={{fontSize:11,color:T.amber,fontWeight:700,marginBottom:4}}>YTD: ${v.spend.toLocaleString()}</div>
+                      <Pill label={v.status} color={v.status==="Active"?T.green:T.amber}/>
+                    </div>
+                  </div>
+                  <div style={{display:"flex",gap:14,fontSize:11,color:T.textSub,flexWrap:"wrap"}}>
+                    <span>📋 {v.contracts} contract{v.contracts!==1?"s":""}</span>
+                    <span>⭐ {v.rating}/5.0</span>
+                    <span>📧 {v.contact}</span>
+                    <span>📞 {v.phone}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CB>
+        </Card>
+      )}
+
+      {tab==="assets"&&(
+        <Card>
+          <CB>
+            <SH title="Asset Register"/>
+            <div style={{display:"flex",flexDirection:"column",gap:6}}>
+              {ASSET_REGISTER.map(a=>(
+                <div key={a.id} style={{display:"flex",gap:12,alignItems:"center",background:T.raised,borderRadius:9,padding:"10px 13px"}}>
+                  <div style={{width:32,height:32,borderRadius:8,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,flexShrink:0}}>
+                    {a.type==="Vehicle"?"🚗":a.type==="Radio"?"📻":a.type==="Camera"?"📷":a.type==="CEW"?"⚡":a.type==="Medical"?"🏥":"🔧"}
+                  </div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{a.name}</div>
+                    <div style={{fontSize:10,color:T.textSub,marginTop:1}}>{a.id} · {a.type} · {a.serial}</div>
+                  </div>
+                  <div style={{textAlign:"right",flexShrink:0}}>
+                    <Pill label={a.status==="Checked Out"||a.status==="In Service"?"In Use":a.status} color={a.status==="Checked Out"||a.status==="In Service"?T.green:a.status==="Available"?T.accent:a.status==="Maintenance"?T.amber:T.textSub}/>
+                    <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{a.condition}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CB>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
 // LAYOUT
 // ─────────────────────────────────────────────────────────────────
 function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
@@ -2418,8 +3292,12 @@ export default function App(){
       case "equipment": return <EquipmentModule user={user} showToast={showToast}/>;
       case "leave":     return <LeaveModule user={user} showToast={showToast}/>;
       case "training":  return <TrainingModule/>;
-      case "auditlog":  return <AuditLogModule showToast={showToast}/>;
-      default:          return <Dashboard openModal={openModal} showToast={showToast}/>;
+      case "auditlog":     return <AuditLogModule showToast={showToast}/>;
+      case "executive":    return <ExecutiveCommand showToast={showToast}/>;
+      case "timekeeping":  return <TimekeepingModule user={user} showToast={showToast}/>;
+      case "aicommand":    return <AICommandCenter/>;
+      case "procurement":  return <ProcurementModule user={user} showToast={showToast}/>;
+      default:             return <Dashboard openModal={openModal} showToast={showToast}/>;
     }
   };
 
