@@ -183,7 +183,7 @@ const AI_INSIGHTS=[
 ];
 const REPORT_TYPES=["Daily Operations Summary","Incident Report","Patrol Analysis","Workforce Performance","Risk Assessment"];
 const NAV=[
-  {id:"dashboard",label:"Command",icon:"⚡",roles:["Company Admin","Supervisor","Client"]},
+  {id:"dashboard",label:"Command",icon:"⚡",roles:["Company Admin","Supervisor","Client","Officer"]},
   {id:"executive",label:"Executive",icon:"📊",roles:["Company Admin"]},
   {id:"myshift",label:"My Shift",icon:"⏱️",roles:["Officer"]},
   {id:"workforce",label:"Workforce",icon:"👮",roles:["Company Admin","Supervisor"]},
@@ -317,6 +317,19 @@ const FORECAST_RISK=[
   {site:"Northgate Tower",risk:52,color:"#F0A800",factors:["Peak event Fri–Sat","High foot traffic","Construction zone nearby"]},
   {site:"Eastside Mall",risk:38,color:"#F0A800",factors:["Standard retail pattern","Full staffing"]},
   {site:"Harbor Logistics",risk:24,color:"#00D464",factors:["Low incident history","Night shift only","100% patrol rate"]},
+];
+
+const FLEET_COST_MAX=Math.max(...FLEET_COSTS.map(x=>x.total));
+const CYBER_CRIT=CYBER_ALERTS.filter(a=>a.severity==="Critical").length;
+const CYBER_HIGH=CYBER_ALERTS.filter(a=>a.severity==="High").length;
+const CYBER_ACCESS_LOG=[
+  {time:"08:47",user:"admin@shieldsync.com",action:"Login",ip:"203.0.113.42",result:"Success",device:"Chrome / macOS"},
+  {time:"08:31",user:"supervisor@shieldsync.com",action:"Login",ip:"192.168.1.15",result:"Success",device:"Safari / iOS"},
+  {time:"08:14",user:"unknown@external.io",action:"Login",ip:"45.33.32.156",result:"Failed",device:"curl/7.88"},
+  {time:"07:59",user:"admin@shieldsync.com",action:"Export",ip:"203.0.113.42",result:"Success",device:"Chrome / macOS"},
+  {time:"07:42",user:"officer@shieldsync.com",action:"Login",ip:"10.0.0.4",result:"Success",device:"Android / Chrome"},
+  {time:"07:21",user:"unknown@external.io",action:"Login",ip:"45.33.32.156",result:"Failed",device:"curl/7.88"},
+  {time:"06:55",user:"client@shieldsync.com",action:"Report View",ip:"172.16.0.8",result:"Success",device:"Firefox / Windows"},
 ];
 
 // ─────────────────────────────────────────────────────────────────
@@ -460,6 +473,14 @@ class ErrorBoundary extends Component{
 // ─────────────────────────────────────────────────────────────────
 // PRIMITIVES
 // ─────────────────────────────────────────────────────────────────
+function dlCSV(rows,filename){
+  const sanitize=v=>{const s=String(v).replace(/"/g,'""');return /^[=+\-@\t\r]/.test(s)?`'${s}`:s;};
+  const csv=rows.map(r=>r.map(v=>`"${sanitize(v)}"`).join(",")).join("\n");
+  const url=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  const a=document.createElement("a");
+  a.href=url;a.download=filename;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),150);
+}
 function Pill({label,color}){
   const{c}=SM(label);const col=color||c;
   return(
@@ -477,11 +498,17 @@ function Card({children,glow,style={},onClick}){
   );
 }
 function CB({children,style={}}){return<div style={{padding:"18px 20px",...style}}>{children}</div>;}
-function SH({title,action}){
+function SH({title,action,icon,sub}){
   return(
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-      <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:T.textSub}}>{title}</span>
-      {action&&<button onClick={action.fn} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,fontSize:11,fontWeight:700,padding:"9px 14px",borderRadius:8,cursor:"pointer",WebkitTapHighlightColor:"transparent",minHeight:38,display:"flex",alignItems:"center"}}>{action.label}</button>}
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}}>
+      <div>
+        <div style={{display:"flex",alignItems:"center",gap:6}}>
+          {icon&&<span style={{fontSize:14}}>{icon}</span>}
+          <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:T.textSub}}>{title}</span>
+        </div>
+        {sub&&<div style={{fontSize:11,color:T.textDim,marginTop:3,lineHeight:1.4}}>{sub}</div>}
+      </div>
+      {action&&<button onClick={action.fn} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,fontSize:11,fontWeight:700,padding:"9px 14px",borderRadius:8,cursor:"pointer",WebkitTapHighlightColor:"transparent",minHeight:38,display:"flex",alignItems:"center",flexShrink:0}}>{action.label}</button>}
     </div>
   );
 }
@@ -580,7 +607,7 @@ function AuthScreen({onLogin,onRegister}){
     setForgotErr("");setForgotStep(2);setCodeSent(true);
   };
   const forgotVerify=()=>{
-    if(forgotCode!==DEMO_CODE){setForgotErr(`Invalid code. Demo: ${DEMO_CODE}`);return;}
+    if(forgotCode!==DEMO_CODE){setForgotErr("Invalid code — check the demo hint below");return;}
     setForgotErr("");setForgotStep(3);
   };
   const forgotReset=()=>{
@@ -1678,7 +1705,7 @@ function Fleet({openModal}){
                       ))}
                     </div>
                     <div style={{marginTop:9}}>
-                      <PBar value={v.total} max={Math.max(...FLEET_COSTS.map(x=>x.total))} color={T.accent}/>
+                      <PBar value={v.total} max={FLEET_COST_MAX} color={T.accent}/>
                     </div>
                   </div>
                 ))}
@@ -1805,14 +1832,16 @@ function Reports(){
             <div>
               <div style={{display:"flex",gap:8,marginBottom:12}}>
                 <button onClick={()=>{
-                  const w=window.open("","_blank");
-                  w.document.write(`<!DOCTYPE html><html><head><title>ShieldSync — ${rtype}</title><style>body{font-family:monospace;padding:40px;white-space:pre-wrap;font-size:13px;line-height:1.75;color:#111;}@media print{body{padding:20px;}}</style></head><body>${report.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</body></html>`);
-                  w.document.close();w.print();
+                  const safe=report.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+                  const html=`<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';"><title>ShieldSync — ${rtype.replace(/</g,"&lt;")}</title><style>body{font-family:monospace;padding:40px;white-space:pre-wrap;font-size:13px;line-height:1.75;color:#111;}@media print{body{padding:20px;}}</style></head><body><pre>${safe}</pre></body></html>`;
+                  const url=URL.createObjectURL(new Blob([html],{type:"text/html"}));
+                  const w=window.open(url,"_blank");
+                  w?.addEventListener("load",()=>{w.print();URL.revokeObjectURL(url);},{once:true});
                 }} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>🖨 Print / PDF</button>
                 <button onClick={()=>{
-                  const blob=new Blob([report],{type:"text/plain"});
-                  const url=URL.createObjectURL(blob);
-                  const a=document.createElement("a");a.href=url;a.download=`${rtype.replace(/ /g,"_")}.txt`;a.click();URL.revokeObjectURL(url);
+                  const url=URL.createObjectURL(new Blob([report],{type:"text/plain"}));
+                  const a=document.createElement("a");a.href=url;a.download=`${rtype.replace(/ /g,"_")}.txt`;a.click();
+                  setTimeout(()=>URL.revokeObjectURL(url),150);
                 }} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>⬇ Export</button>
               </div>
               <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:12,padding:"20px 22px"}}>
@@ -3001,38 +3030,30 @@ function TimekeepingModule({user,showToast}){
 
   const fmtHM=(s)=>{const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);return h>0?`${h}h ${String(m).padStart(2,"0")}m`:`${String(m).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;};
 
-  const dlCSV=(rows,filename)=>{
-    const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
-    const blob=new Blob([csv],{type:"text/csv"});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement("a");
-    a.href=url;a.download=filename;a.click();
-    URL.revokeObjectURL(url);
+  const today=()=>new Date().toISOString().slice(0,10);
+  const mkExport=(header,rowFn,file,toast,action)=>()=>{
+    dlCSV([header,...sheets.map(rowFn)],file());
+    showToast(toast,"success");
+    logAction(user,action,`${sheets.length} records`);
   };
-
-  const exportCSV=()=>{
-    const rows=[["Officer","Badge","Week","Mon","Tue","Wed","Thu","Fri","Total Hrs","OT Hrs","Status"]];
-    sheets.forEach(ts=>{rows.push([ts.officer,ts.badge,ts.week,...ts.days.map(d=>d.hrs.toFixed(2)),ts.totalHrs.toFixed(2),ts.otHrs.toFixed(2),ts.status]);});
-    dlCSV(rows,`shieldsync_payroll_${new Date().toISOString().slice(0,10)}.csv`);
-    showToast("Payroll CSV exported","success");
-    logAction(user,"PAYROLL_EXPORT",`${sheets.length} timesheets`);
-  };
-
-  const exportADP=()=>{
-    const rows=[["Co Code","Batch ID","File #","Employee Name","Reg Hours","OT Hours","Other Hours","Earnings 3 Code","Earnings 3 Amt","Deduction 1 Code","Deduction 1 Amt"]];
-    sheets.forEach((ts,i)=>{rows.push(["SS01",`W${new Date().toISOString().slice(0,10).replace(/-/g,"")}`,String(1000+i).padStart(5,"0"),ts.officer,Math.max(0,ts.totalHrs-ts.otHrs).toFixed(2),ts.otHrs.toFixed(2),"0","","","",""]);});
-    dlCSV(rows,`adp_import_${new Date().toISOString().slice(0,10)}.csv`);
-    showToast("ADP Workforce Now export ready","success");
-    logAction(user,"PAYROLL_EXPORT_ADP",`${sheets.length} records`);
-  };
-
-  const exportPaylocity=()=>{
-    const rows=[["EmployeeID","EmployeeName","PayPeriodEnd","RegularHours","OvertimeHours","Department","CostCenter","Notes"]];
-    sheets.forEach((ts,i)=>{rows.push([`SS${String(i+1).padStart(4,"0")}`,ts.officer,ts.week,Math.max(0,ts.totalHrs-ts.otHrs).toFixed(2),ts.otHrs.toFixed(2),"Security Operations","OPS-001",ts.status]);});
-    dlCSV(rows,`paylocity_import_${new Date().toISOString().slice(0,10)}.csv`);
-    showToast("Paylocity import file ready","success");
-    logAction(user,"PAYROLL_EXPORT_PAYLOCITY",`${sheets.length} records`);
-  };
+  const exportCSV=mkExport(
+    ["Officer","Badge","Week","Mon","Tue","Wed","Thu","Fri","Total Hrs","OT Hrs","Status"],
+    ts=>[ts.officer,ts.badge,ts.week,...ts.days.map(d=>d.hrs.toFixed(2)),ts.totalHrs.toFixed(2),ts.otHrs.toFixed(2),ts.status],
+    ()=>`shieldsync_payroll_${today()}.csv`,
+    "Payroll CSV exported","PAYROLL_EXPORT"
+  );
+  const exportADP=mkExport(
+    ["Co Code","Batch ID","File #","Employee Name","Reg Hours","OT Hours","Other Hours","Earnings 3 Code","Earnings 3 Amt","Deduction 1 Code","Deduction 1 Amt"],
+    (ts,i)=>["SS01",`W${today().replace(/-/g,"")}`,String(1000+i).padStart(5,"0"),ts.officer,Math.max(0,ts.totalHrs-ts.otHrs).toFixed(2),ts.otHrs.toFixed(2),"0","","","",""],
+    ()=>`adp_import_${today()}.csv`,
+    "ADP Workforce Now export ready","PAYROLL_EXPORT_ADP"
+  );
+  const exportPaylocity=mkExport(
+    ["EmployeeID","EmployeeName","PayPeriodEnd","RegularHours","OvertimeHours","Department","CostCenter","Notes"],
+    (ts,i)=>[`SS${String(i+1).padStart(4,"0")}`,ts.officer,ts.week,Math.max(0,ts.totalHrs-ts.otHrs).toFixed(2),ts.otHrs.toFixed(2),"Security Operations","OPS-001",ts.status],
+    ()=>`paylocity_import_${today()}.csv`,
+    "Paylocity import file ready","PAYROLL_EXPORT_PAYLOCITY"
+  );
 
   const[geofenceStatus,setGeofenceStatus]=useState(null);
   const haversineM=(lat1,lng1,lat2,lng2)=>{
@@ -3690,7 +3711,7 @@ function MFAScreen({user,onVerify,onCancel}){
   const[resent,setResent]=useState(false);
   const DEMO="123456";
   const verify=()=>{
-    if(code!==DEMO){setErr(`Incorrect code. Demo: ${DEMO}`);return;}
+    if(code!==DEMO){setErr("Incorrect code — use the demo code shown on the login screen");return;}
     setErr("");onVerify();
   };
   return(
@@ -3732,6 +3753,19 @@ function OnboardingWizard({user,onComplete}){
   const[form,setForm]=useState({site:"",address:"",officer:"",email:"",badge:"",alertEmail:true,alertSMS:false,alertPush:true});
   const upd=(k,v)=>setForm(f=>({...f,[k]:v}));
   const iinp=(ex={})=>({width:"100%",background:T.bg,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px",color:T.text,fontSize:13,outline:"none",boxSizing:"border-box",...ex});
+  const handleComplete=()=>{
+    if(form.officer&&form.email){
+      const existing=getUsers();
+      if(!existing.find(u=>u.email.toLowerCase()===form.email.toLowerCase())){
+        const newOfficer={id:`U-OB-${Date.now()}`,email:form.email,password:"Welcome2026!",name:form.officer,role:"Officer",badge:form.badge||`S-${String(Math.floor(Math.random()*9000)+1000)}`,av:form.officer.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2),active:true,createdAt:new Date().toISOString().slice(0,10),mfaEnabled:false,company:user.company};
+        saveUsers([...existing,newOfficer]);
+      }
+    }
+    const cs=LS.get("ss_co_settings_v1",{});
+    LS.set("ss_co_settings_v1",{...cs,n_sos:form.alertPush,n_inc:form.alertEmail,n_cp:form.alertPush});
+    logAction(user,"ONBOARDING_COMPLETE",`Company: ${user.company}${form.site?` · Site: ${form.site}`:""}${form.officer?` · Officer: ${form.officer}`:""}`);
+    onComplete();
+  };
 
   return(
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.92)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:9999,padding:20,backdropFilter:"blur(8px)"}}>
@@ -3826,20 +3860,7 @@ function OnboardingWizard({user,onComplete}){
             {step>0?<button onClick={()=>setStep(s=>s-1)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px 20px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:600}}>← Back</button>:<div/>}
             {step<STEPS.length-1
               ?<button onClick={()=>setStep(s=>s+1)} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",color:"#000",padding:"12px 28px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800}}>{step===0?"Let's Go →":"Continue →"}</button>
-              :<button onClick={()=>{
-                if(form.officer&&form.email){
-                  const existing=getUsers();
-                  if(!existing.find(u=>u.email.toLowerCase()===form.email.toLowerCase())){
-                    const newOfficer={id:`U-OB-${Date.now()}`,email:form.email,password:"Welcome2026!",name:form.officer,role:"Officer",badge:form.badge||`S-${String(Math.floor(Math.random()*9000)+1000)}`,av:form.officer.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2),active:true,createdAt:new Date().toISOString().slice(0,10),mfaEnabled:false,company:user.company};
-                    saveUsers([...existing,newOfficer]);
-                  }
-                }
-                if(form.alertEmail!==undefined){
-                  const cs=LS.get("ss_co_settings_v1",{});
-                  LS.set("ss_co_settings_v1",{...cs,n_sos:form.alertPush,n_inc:form.alertEmail,n_cp:form.alertPush});
-                }
-                onComplete();
-              }} style={{background:`linear-gradient(135deg,${T.green},${T.accent})`,border:"none",color:"#000",padding:"13px 32px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800}}>Enter Dashboard →</button>
+              :<button onClick={handleComplete} style={{background:`linear-gradient(135deg,${T.green},${T.accent})`,border:"none",color:"#000",padding:"13px 32px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800}}>Enter Dashboard →</button>
             }
           </div>
         </div>
@@ -4186,8 +4207,7 @@ function CompanySettings({user,showToast}){
 // ─────────────────────────────────────────────────────────────────
 function ClientPortal({user,showToast}){
   const[tab,setTab]=useState("overview");
-  const clientSite=user?.role==="Client"?CLIENT_SLA.find(s=>s.site.includes("Northgate")||true):null;
-  const sla=CLIENT_SLA;
+  const sla=user?.role==="Client"?CLIENT_SLA.filter(s=>s.client.toLowerCase().includes("northgate")):CLIENT_SLA;
 
   const exportReport=()=>{
     showToast("Client report exported","success");
@@ -4387,8 +4407,8 @@ function ITCyberCommand({user,showToast}){
         </div>
         <div style={{display:"flex",gap:6}}>
           {[
-            {label:"Critical",value:CYBER_ALERTS.filter(a=>a.severity==="Critical").length,color:T.red},
-            {label:"High",value:CYBER_ALERTS.filter(a=>a.severity==="High").length,color:T.amber},
+            {label:"Critical",value:CYBER_CRIT,color:T.red},
+            {label:"High",value:CYBER_HIGH,color:T.amber},
             {label:"Devices",value:CYBER_DEVICES.length,color:T.accent},
           ].map(s=>(
             <div key={s.label} style={{background:T.raised,border:`1px solid ${s.color}40`,borderRadius:9,padding:"8px 14px",textAlign:"center"}}>
@@ -4466,15 +4486,7 @@ function ITCyberCommand({user,showToast}){
           <CB>
             <SH title="Recent Access Events"/>
             <div style={{display:"flex",flexDirection:"column",gap:7}}>
-              {[
-                {time:"08:47",user:"admin@shieldsync.com",action:"Login",ip:"203.0.113.42",result:"Success",device:"Chrome / macOS"},
-                {time:"08:31",user:"supervisor@shieldsync.com",action:"Login",ip:"192.168.1.15",result:"Success",device:"Safari / iOS"},
-                {time:"08:14",user:"unknown@external.io",action:"Login",ip:"45.33.32.156",result:"Failed",device:"curl/7.88"},
-                {time:"07:59",user:"admin@shieldsync.com",action:"Export",ip:"203.0.113.42",result:"Success",device:"Chrome / macOS"},
-                {time:"07:42",user:"officer@shieldsync.com",action:"Login",ip:"10.0.0.4",result:"Success",device:"Android / Chrome"},
-                {time:"07:21",user:"unknown@external.io",action:"Login",ip:"45.33.32.156",result:"Failed",device:"curl/7.88"},
-                {time:"06:55",user:"client@shieldsync.com",action:"Report View",ip:"172.16.0.8",result:"Success",device:"Firefox / Windows"},
-              ].map((ev,i)=>{
+              {CYBER_ACCESS_LOG.map((ev,i)=>{
                 const ok=ev.result==="Success";
                 return(
                   <div key={i} style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:8,padding:"9px 12px",borderLeft:`3px solid ${ok?T.green:T.red}`}}>
