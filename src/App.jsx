@@ -383,6 +383,20 @@ const FATIGUE_DATA=[
   {officer:"Jordan Park",badge:"S-0105",av:"JP",hoursLast7:62.25,consecutiveNight:0,missedCPs:0,incidentRate:0,score:55,risk:"Moderate"},
   {officer:"Elena Voss",badge:"S-0118",av:"EV",hoursLast7:60,consecutiveNight:5,missedCPs:4,incidentRate:0,score:78,risk:"High"},
 ];
+const PERF_SCORES=[
+  {officer:"Marcus Webb",av:"MW",badge:"S-0041",patrol:94,cps:8,incidents:2,fatigue:28,onTime:100,grade:"B+",score:84},
+  {officer:"Diana Reyes",av:"DR",badge:"S-0067",patrol:100,cps:5,incidents:0,fatigue:41,onTime:100,grade:"A-",score:91},
+  {officer:"Theo Okafor",av:"TO",badge:"S-0083",patrol:72,cps:3,incidents:1,fatigue:62,onTime:95,grade:"C+",score:67},
+  {officer:"Ava Simmons",av:"AS",badge:"S-0092",patrol:78,cps:0,incidents:0,fatigue:48,onTime:98,grade:"B-",score:72},
+  {officer:"Jordan Park",av:"JP",badge:"S-0105",patrol:88,cps:6,incidents:0,fatigue:55,onTime:100,grade:"B",score:80},
+  {officer:"Elena Voss",av:"EV",badge:"S-0118",patrol:60,cps:0,incidents:0,fatigue:78,onTime:92,grade:"D",score:42},
+];
+const CONTRACT_RISK=[
+  {id:"CTR-001",client:"Northgate Properties",end:"2026-12-31",daysLeft:209,health:92,margin:25,risk:"Low",score:12,lastContact:"2 days ago"},
+  {id:"CTR-002",client:"Harbor Logistics Group",end:"2027-02-28",daysLeft:268,health:74,margin:15,risk:"Medium",score:45,lastContact:"8 days ago"},
+  {id:"CTR-003",client:"Plaza West REIT",end:"2026-05-31",daysLeft:-5,health:61,margin:30,risk:"Critical",score:92,lastContact:"14 days ago"},
+  {id:"CTR-004",client:"Eastside Mall Corp",end:"2027-12-31",daysLeft:574,health:88,margin:25,risk:"Low",score:18,lastContact:"1 day ago"},
+];
 
 // ─────────────────────────────────────────────────────────────────
 // AI DEMO MODE  — shown when API key is not configured
@@ -1300,11 +1314,15 @@ function IncModal({onClose,showToast}){
   if(done)return(
     <ModalWrap>
       <Card style={{width:"min(440px,92vw)",textAlign:"center"}}>
-        <CB style={{padding:"48px 32px"}}>
+        <CB style={{padding:"40px 28px"}}>
           <div style={{fontSize:52,marginBottom:16}}>📋</div>
           <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:8}}>Incident Logged</div>
-          <div style={{fontSize:13,color:T.textSub}}>INC-2848 created and submitted for supervisor review.</div>
-          <button onClick={onClose} style={{marginTop:24,background:T.green,border:"none",color:"#000",padding:"13px 36px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14,width:"100%"}}>Done →</button>
+          <div style={{fontSize:13,color:T.textSub,marginBottom:20}}>INC-2848 created and submitted for supervisor review.</div>
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            <button onClick={onClose} style={{background:T.green,border:"none",color:"#000",padding:"13px 36px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14,width:"100%"}}>Done →</button>
+            <button onClick={()=>{showToast("⚖️ Legal hold placed on INC-2848 — evidence preserved","success");}} style={{background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"11px",borderRadius:12,fontWeight:700,cursor:"pointer",fontSize:13,width:"100%"}}>⚖️ Place Legal Hold &amp; Preserve Evidence</button>
+          </div>
+          <div style={{marginTop:12,fontSize:10,color:T.textDim}}>Legal hold prevents deletion and flags for counsel review</div>
         </CB>
       </Card>
     </ModalWrap>
@@ -1579,6 +1597,33 @@ function Workforce(){
                     <div style={{fontSize:11,fontWeight:800,color:col,textAlign:"right",marginTop:3}}>{f.score}/100</div>
                   </div>
                   <Pill label={f.risk} color={col}/>
+                </div>
+              );
+            })}
+          </div>
+        </CB>
+      </Card>
+
+      <Card>
+        <CB>
+          <SH title="Officer Performance Scorecard" icon="🏆" sub="Weekly composite score: patrol %, checkpoint hits, incidents, fatigue, on-time arrival"/>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {PERF_SCORES.map(p=>{
+              const gc=p.score>=85?T.green:p.score>=70?T.accent:p.score>=55?T.amber:T.red;
+              return(
+                <div key={p.badge} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.raised,borderRadius:10}}>
+                  <Av initials={p.av} color={gc} size={36}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{p.officer}</div>
+                    <div style={{fontSize:10,color:T.textSub,marginTop:2}}>Patrol {p.patrol}% · {p.cps} CPs · {p.incidents} incidents · On-time {p.onTime}%</div>
+                  </div>
+                  <div style={{width:72}}>
+                    <div style={{height:5,background:T.bg,borderRadius:3,overflow:"hidden",marginBottom:4}}>
+                      <div style={{height:"100%",width:`${p.score}%`,background:`linear-gradient(90deg,${gc},${p.score>80?T.green:gc})`,borderRadius:3}}/>
+                    </div>
+                    <div style={{fontSize:10,color:T.textSub,textAlign:"center"}}>{p.score}/100</div>
+                  </div>
+                  <div style={{width:36,height:36,borderRadius:8,background:`${gc}20`,border:`1px solid ${gc}40`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:900,color:gc,flexShrink:0}}>{p.grade}</div>
                 </div>
               );
             })}
@@ -2734,6 +2779,37 @@ function TrainingModule(){
           </div>
         </CB>
       </Card>
+
+      <Card>
+        <CB>
+          <SH title="Upcoming Training Deadlines" icon="📅" sub="Required recertifications and training renewals — 90 day window"/>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {[
+              {officer:"Elena Voss",badge:"S-0118",cert:"Annual Firearms Qualification",due:"2026-06-15",days:10,priority:"Critical"},
+              {officer:"Theo Okafor",badge:"S-0083",cert:"Use of Force Refresher",due:"2026-06-20",days:15,priority:"Critical"},
+              {officer:"Marcus Webb",badge:"S-0041",cert:"De-escalation Training",due:"2026-07-01",days:26,priority:"High"},
+              {officer:"Jordan Park",badge:"S-0105",cert:"First Aid / CPR Recert",due:"2026-07-10",days:35,priority:"High"},
+              {officer:"Diana Reyes",badge:"S-0067",cert:"Active Threat Response",due:"2026-07-25",days:50,priority:"Medium"},
+              {officer:"Ava Simmons",badge:"S-0092",cert:"Customer Service & Report Writing",due:"2026-08-15",days:71,priority:"Low"},
+            ].map((d,i)=>{
+              const col=d.priority==="Critical"?T.red:d.priority==="High"?T.amber:d.priority==="Medium"?T.gold:T.green;
+              return(
+                <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10,border:`1px solid ${d.priority==="Critical"?T.redB:T.border}`}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{d.officer}</div>
+                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{d.cert}</div>
+                  </div>
+                  <div style={{textAlign:"right",marginRight:8,flexShrink:0}}>
+                    <div style={{fontSize:11,color:col,fontWeight:700}}>{d.days}d</div>
+                    <div style={{fontSize:10,color:T.textDim}}>{d.due}</div>
+                  </div>
+                  <Pill label={d.priority} color={col}/>
+                </div>
+              );
+            })}
+          </div>
+        </CB>
+      </Card>
     </div>
   );
 }
@@ -2851,7 +2927,7 @@ function ExecutiveCommand({showToast}){
       </div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {[["overview","📊 Overview"],["contracts","📋 Contracts"],["labor","💰 Labor"],["compliance","✅ Compliance"],["predictive","🧠 Predictive"]].map(([t,l])=>(
+        {[["overview","📊 Overview"],["contracts","📋 Contracts"],["labor","💰 Labor"],["compliance","✅ Compliance"],["predictive","🧠 Predictive"],["renewals","🔄 Renewals"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
         ))}
       </div>
@@ -3160,6 +3236,61 @@ function ExecutiveCommand({showToast}){
                     <div style={{fontSize:10,color:T.textDim,marginTop:2}}>{d.sub}</div>
                   </div>
                 ))}
+              </div>
+            </CB>
+          </Card>
+        </div>
+      )}
+
+      {tab==="renewals"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+            {[["🔴 Critical",CONTRACT_RISK.filter(c=>c.risk==="Critical").length,"Immediate action required",T.red],
+              ["🟡 At Risk",CONTRACT_RISK.filter(c=>c.risk==="Medium").length,"Review within 30 days",T.amber],
+              ["✅ Secure",CONTRACT_RISK.filter(c=>c.risk==="Low").length,"No immediate action needed",T.green],
+            ].map(([l,v,s,c])=>(
+              <Card key={l} glow={c}><CB style={{textAlign:"center",padding:"16px 8px"}}>
+                <div style={{fontSize:24,fontWeight:900,color:c}}>{v}</div>
+                <div style={{fontSize:11,fontWeight:700,color:T.text,marginTop:4}}>{l}</div>
+                <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{s}</div>
+              </CB></Card>
+            ))}
+          </div>
+          <Card>
+            <CB>
+              <SH title="Contract Renewal Risk Analysis" icon="🔄" sub="Risk score based on health, margin, days to renewal, and client engagement"/>
+              <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                {CONTRACT_RISK.sort((a,b)=>b.score-a.score).map(c=>{
+                  const rc=c.risk==="Critical"?T.red:c.risk==="Medium"?T.amber:T.green;
+                  return(
+                    <div key={c.id} style={{padding:"14px 16px",background:T.raised,borderRadius:12,border:`1px solid ${c.risk==="Critical"?T.redB:T.border}`}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+                        <div>
+                          <div style={{fontSize:14,fontWeight:800,color:T.text}}>{c.client}</div>
+                          <div style={{fontSize:11,color:T.textSub,marginTop:2}}>
+                            {c.daysLeft<0?`⚠️ Expired ${Math.abs(c.daysLeft)} days ago`:`Renews in ${c.daysLeft} days — ${c.end}`}
+                          </div>
+                        </div>
+                        <Pill label={c.risk} color={rc}/>
+                      </div>
+                      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:10}}>
+                        {[["Health",`${c.health}%`,c.health>=80?T.green:c.health>=60?T.amber:T.red],
+                          ["Margin",`${c.margin}%`,c.margin>=25?T.green:c.margin>=15?T.amber:T.red],
+                          ["Risk Score",`${c.score}/100`,rc],
+                          ["Last Contact",c.lastContact,T.textSub],
+                        ].map(([l,v,col])=>(
+                          <div key={l} style={{background:T.bg,borderRadius:8,padding:"8px 10px"}}>
+                            <div style={{fontSize:9,color:T.textSub,textTransform:"uppercase",letterSpacing:"0.08em"}}>{l}</div>
+                            <div style={{fontSize:12,fontWeight:800,color:col,marginTop:3}}>{v}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{height:5,background:T.bg,borderRadius:3,overflow:"hidden"}}>
+                        <div style={{height:"100%",width:`${c.score}%`,background:`linear-gradient(90deg,${T.green},${c.score>70?T.red:c.score>40?T.amber:T.green})`,borderRadius:3}}/>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </CB>
           </Card>
