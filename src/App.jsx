@@ -1,5 +1,11 @@
 import React, { Component, useState, useEffect, useRef, useCallback, memo, useMemo, useTransition } from "react";
 import { audit, callAI, watchPosition, onlineStatus, HAS_SUPABASE } from "./db.js";
+import {
+  GUARDIAN_COMPANY, GUARDIAN_USERS, GUARDIAN_SITES_FULL, GUARDIAN_OFFICERS_ROSTER,
+  GUARDIAN_VEHICLES, GUARDIAN_CHECKPOINTS, GUARDIAN_INCIDENTS, GUARDIAN_PATROL_ROUTES,
+  GUARDIAN_EQUIPMENT, GUARDIAN_AI_ALERTS, GUARDIAN_KPI, GUARDIAN_SCHEDULE,
+  GUARDIAN_DAR_REPORTS, buildGuardianLiveEvents,
+} from "./guardian.js";
 
 // ─────────────────────────────────────────────────────────────────
 // LOCAL STORAGE LAYER
@@ -109,8 +115,10 @@ const AUTH_USERS=[
   {id:"U-002",email:"supervisor@shieldsync.com", password:"Sentinel2025!",name:"Sarah Chen",    role:"Supervisor",   badge:"SUP-001", av:"SC"},
   {id:"U-003",email:"officer@shieldsync.com",   password:"Sentinel2025!",name:"Marcus Webb",   role:"Officer",      badge:"S-0041",  av:"MW"},
   {id:"U-004",email:"client@shieldsync.com",    password:"Sentinel2025!",name:"James Holloway",role:"Client",       badge:"CLT-001", av:"JH"},
+  // Guardian Strategic Security demo tenant
+  ...GUARDIAN_USERS,
 ];
-const ROLES=["Company Admin","Supervisor","Officer","Client"];
+const ROLES=["Company Admin","Executive","Operations Manager","Dispatcher","Supervisor","Officer","Client"];
 const PERM_LABELS={
   dashboard:"Command Center",executive:"Executive Dashboard",workforce:"Workforce",
   timekeeping:"Timekeeping",patrol:"Patrol",fleet:"Fleet",visitors:"Visitors",
@@ -122,11 +130,35 @@ const PERM_LABELS={
 };
 const ROLE_PERMS={
   "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings","clientportal","itcommand","postorders","compliance","opmap","shiftmarket"],
+  "Executive":["executive","reports","compliance","clientportal"],
+  "Operations Manager":["dashboard","executive","workforce","timekeeping","patrol","fleet","reports","dispatch","equipment","leave","training","compliance","opmap","aicommand"],
+  "Dispatcher":["dashboard","dispatch","opmap","patrol","reports"],
   "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","itcommand","postorders","compliance","opmap"],
-  "Officer":["dashboard","myshift","patrol","visitors","equipment","leave","postorders","shiftmarket"],
+  "Officer":["myshift","patrol","visitors","equipment","leave","postorders","shiftmarket"],
   "Client":["clientportal","reports"],
 };
-function getUsers(){const s=LS.get("ss_users_v1",null);if(s)return s;const init=AUTH_USERS.map(u=>({...u,active:true,createdAt:"2024-01-01",mfaEnabled:false,company:"ShieldSync Demo"}));LS.set("ss_users_v1",init);return init;}
+function getUsers(){
+  const s=LS.get("ss_users_v1",null);
+  if(s){
+    // Re-merge Guardian users if they're missing (e.g. after clearing storage)
+    const guardianIds=GUARDIAN_USERS.map(u=>u.id);
+    const hasGuardian=s.some(u=>guardianIds.includes(u.id));
+    if(!hasGuardian){
+      const merged=[...s,...GUARDIAN_USERS.map(u=>({...u,active:true,createdAt:u.createdAt||"2024-01-01"}))];
+      LS.set("ss_users_v1",merged);
+      return merged;
+    }
+    return s;
+  }
+  const init=AUTH_USERS.map(u=>({
+    ...u,active:true,
+    createdAt:u.createdAt||"2024-01-01",
+    mfaEnabled:u.mfaEnabled||false,
+    company:u.company||(GUARDIAN_USERS.find(g=>g.id===u.id)?GUARDIAN_COMPANY.name:"ShieldSync Demo"),
+  }));
+  LS.set("ss_users_v1",init);
+  return init;
+}
 function saveUsers(list){LS.set("ss_users_v1",list);}
 function authUser(email,pw){return getUsers().find(u=>u.email.toLowerCase()===email.toLowerCase().trim()&&u.password===pw&&u.active!==false)||null;}
 
@@ -226,30 +258,30 @@ const AI_INSIGHTS=[
 ];
 const REPORT_TYPES=["Daily Operations Summary","Incident Report","Patrol Analysis","Workforce Performance","Risk Assessment"];
 const NAV=[
-  {id:"dashboard",label:"Command",icon:"⚡",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"executive",label:"Executive",icon:"📊",roles:["Company Admin"]},
+  {id:"dashboard",label:"Command",icon:"⚡",roles:["Company Admin","Supervisor","Operations Manager","Dispatcher"]},
+  {id:"executive",label:"Executive",icon:"📊",roles:["Company Admin","Executive","Operations Manager"]},
   {id:"myshift",label:"My Shift",icon:"⏱️",roles:["Officer"]},
-  {id:"workforce",label:"Workforce",icon:"👮",roles:["Company Admin","Supervisor"]},
-  {id:"timekeeping",label:"Timekeeping",icon:"🕐",roles:["Company Admin","Supervisor"]},
-  {id:"patrol",label:"Patrol",icon:"🛡️",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"fleet",label:"Fleet",icon:"🚗",roles:["Company Admin","Supervisor"]},
+  {id:"workforce",label:"Workforce",icon:"👮",roles:["Company Admin","Supervisor","Operations Manager"]},
+  {id:"timekeeping",label:"Timekeeping",icon:"🕐",roles:["Company Admin","Supervisor","Operations Manager"]},
+  {id:"patrol",label:"Patrol",icon:"🛡️",roles:["Company Admin","Supervisor","Officer","Operations Manager","Dispatcher"]},
+  {id:"fleet",label:"Fleet",icon:"🚗",roles:["Company Admin","Supervisor","Operations Manager"]},
   {id:"visitors",label:"Visitors",icon:"🪪",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"reports",label:"Reports",icon:"📄",roles:["Company Admin","Supervisor","Client"]},
-  {id:"dispatch",label:"Dispatch",icon:"📡",roles:["Company Admin","Supervisor"]},
-  {id:"equipment",label:"Equipment",icon:"🔧",roles:["Company Admin","Supervisor","Officer"]},
+  {id:"reports",label:"Reports",icon:"📄",roles:["Company Admin","Supervisor","Client","Executive","Operations Manager","Dispatcher"]},
+  {id:"dispatch",label:"Dispatch",icon:"📡",roles:["Company Admin","Supervisor","Dispatcher"]},
+  {id:"equipment",label:"Equipment",icon:"🔧",roles:["Company Admin","Supervisor","Officer","Operations Manager"]},
   {id:"leave",label:"Leave",icon:"📅",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"training",label:"Training",icon:"🎓",roles:["Company Admin","Supervisor"]},
+  {id:"training",label:"Training",icon:"🎓",roles:["Company Admin","Supervisor","Operations Manager"]},
   {id:"postorders",label:"Post Orders",icon:"📋",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"compliance",label:"Compliance",icon:"🪪",roles:["Company Admin","Supervisor"]},
-  {id:"opmap",label:"Ops Map",icon:"🗺️",roles:["Company Admin","Supervisor"]},
+  {id:"compliance",label:"Compliance",icon:"🪪",roles:["Company Admin","Supervisor","Executive","Operations Manager"]},
+  {id:"opmap",label:"Ops Map",icon:"🗺️",roles:["Company Admin","Supervisor","Operations Manager","Dispatcher"]},
   {id:"shiftmarket",label:"Shift Market",icon:"🔄",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"aicommand",label:"AI Command",icon:"🤖",roles:["Company Admin","Supervisor"]},
+  {id:"aicommand",label:"AI Command",icon:"🤖",roles:["Company Admin","Supervisor","Operations Manager"]},
   {id:"procurement",label:"Procurement",icon:"📦",roles:["Company Admin"]},
   {id:"auditlog",label:"Audit Log",icon:"📋",roles:["Company Admin"]},
   {id:"users",label:"Users",icon:"👥",roles:["Company Admin"]},
   {id:"settings",label:"Settings",icon:"⚙️",roles:["Company Admin"]},
-  {id:"clientportal",label:"Client Portal",icon:"🏢",roles:["Company Admin","Client"]},
-  {id:"itcommand",label:"IT/Cyber",icon:"🔒",roles:["Company Admin","Supervisor"]},
+  {id:"clientportal",label:"Client Portal",icon:"🏢",roles:["Company Admin","Client","Executive"]},
+  {id:"itcommand",label:"IT/Cyber",icon:"🔒",roles:["Company Admin","Supervisor","Operations Manager"]},
 ];
 const KPI_DATA=[
   {label:"Active Officers",value:"5",sub:"1 off duty",icon:"👮",color:T.accent,trend:"+2"},
@@ -728,23 +760,65 @@ function buildDemoEvents(cfg){
     {t:128000,msg:`📅 Night shift handover briefing auto-generated`,type:"success"},
   ];
 }
+// GuardianCtx — available everywhere when a guardian.demo user is active
+const GuardianCtx=React.createContext(null);
+
 function useDemoEngine(cfg,showToast){
   const ref=React.useRef([]);
   React.useEffect(()=>{
     ref.current.forEach(clearTimeout);ref.current=[];
     if(!cfg?.active)return;
-    buildDemoEvents(cfg).forEach(ev=>{ref.current.push(setTimeout(()=>showToast(ev.msg,ev.type),ev.t));});
+    const evs=cfg.isGuardian?buildGuardianLiveEvents():buildDemoEvents(cfg);
+    evs.forEach(ev=>{ref.current.push(setTimeout(()=>showToast(ev.msg,ev.type),ev.t));});
     return()=>ref.current.forEach(clearTimeout);
-  },[cfg?.active,cfg?.companyName]);
+  },[cfg?.active,cfg?.companyName,cfg?.isGuardian]);
 }
 
-function DemoSetupWizard({onLaunch,onCancel}){
-  const[step,setStep]=useState(1);
-  const[cfg,setCfg]=useState({companyName:"",industry:"",size:"m",painPoint:"",role:""});
-  const set=(k,v)=>setCfg(p=>({...p,[k]:v}));
-  const canNext=step===1?(cfg.companyName.trim().length>1&&!!cfg.industry):step===2?!!cfg.painPoint:!!cfg.role;
+// Continuous live-refresh ticker for Guardian demo (new activity every ~12s)
+function useGuardianTicker(isGuardian,showToast){
+  const ref=React.useRef(null);
+  const idx=React.useRef(0);
+  React.useEffect(()=>{
+    if(!isGuardian)return;
+    const pool=[
+      ()=>showToast("🛡️ Checkpoint scan completed: Main Terminal Entry (Metro Transit)","info"),
+      ()=>showToast("📡 Officer G-0312 (Thomas) location updated — Lake Nona Corporate Campus","info"),
+      ()=>showToast("✅ Patrol route completed: Hospital Alpha — 100% checkpoints cleared","success"),
+      ()=>showToast("⚡ Incident update: GINC-1040 investigating — Davis awaiting supervisor sign-off","info"),
+      ()=>showToast("🛡️ Checkpoint scan: Dock Gate 1 verified — Winter Garden DC","info"),
+      ()=>showToast("📊 AI: Orlando Regional patrol compliance trending up — 94% this hour","success"),
+      ()=>showToast("📡 Client portal accessed: LYNX Central Florida — viewing live Metro Hub status","info"),
+      ()=>showToast("🚨 Escalation: Pool Deck B overdue — Dispatcher Brown notified","error"),
+      ()=>showToast("✅ Officer G-0278 (Johnson) check-in: Winter Garden DC all clear","success"),
+      ()=>showToast("🪪 Certification verified: G-0241 Williams — FL Class D/G current","info"),
+    ];
+    ref.current=setInterval(()=>{
+      pool[idx.current%pool.length]();
+      idx.current++;
+    },14000);
+    return()=>clearInterval(ref.current);
+  },[isGuardian]);
+}
 
-  const launch=()=>{
+const GUARDIAN_DEMO_ROLES=[
+  {id:"ceo",email:"ceo@guardian.demo",label:"Robert Martinez — CEO",icon:"👑",mod:"executive",tagline:"Revenue, client retention & contract performance"},
+  {id:"coo",email:"coo@guardian.demo",label:"Sarah Jenkins — COO",icon:"⚙️",mod:"dashboard",tagline:"Full operational command & KPI overview"},
+  {id:"ops",email:"operations@guardian.demo",label:"Michael Thompson — Dir. Operations",icon:"🎯",mod:"dashboard",tagline:"Multi-site ops, staffing metrics & incident trends"},
+  {id:"dispatch",email:"dispatch@guardian.demo",label:"Lisa Brown — Dispatch Supervisor",icon:"📡",mod:"dispatch",tagline:"Active incidents, officer locations & response queue"},
+  {id:"supervisor",email:"supervisor@guardian.demo",label:"David Wilson — Field Supervisor",icon:"🔍",mod:"patrol",tagline:"Officer accountability & patrol compliance"},
+  {id:"officer",email:"mw@guardian.demo",label:"Michael Williams — Officer",icon:"👮",mod:"myshift",tagline:"My shift, my checkpoints & my reports"},
+];
+
+function DemoSetupWizard({onLaunch,onCancel,onGuardianLogin}){
+  const[mode,setMode]=useState(null); // null=choose, "guardian"=guardian setup, "custom"=custom setup
+  const[step,setStep]=useState(1);
+  const[cfg,setCfg]=useState({companyName:"",industry:"",officers:"",sites:"",currentPlatform:"",patrolFreq:"",reportingReq:"",painPoint:"",role:""});
+  const[guardianRole,setGuardianRole]=useState(null);
+  const set=(k,v)=>setCfg(p=>({...p,[k]:v}));
+
+  const canNextCustom=step===1?(cfg.companyName.trim().length>1&&!!cfg.industry):step===2?(!!cfg.officers&&!!cfg.sites):step===3?!!cfg.painPoint:!!cfg.role;
+
+  const launchCustom=()=>{
     const ind=DEMO_IND[cfg.industry]||DEMO_IND.contract;
     const roleData=DEMO_ROLES.find(r=>r.id===cfg.role)||DEMO_ROLES[1];
     onLaunch({...cfg,active:true,launchedAt:Date.now(),
@@ -759,52 +833,123 @@ function DemoSetupWizard({onLaunch,onCancel}){
   const sel=(active)=>({background:active?T.accentGlow:T.raised,border:`1px solid ${active?T.accentB:T.border}`,borderRadius:12,cursor:"pointer",transition:"all 0.15s"});
   const btn=(dis)=>({border:"none",borderRadius:12,padding:"13px 28px",cursor:dis?"not-allowed":"pointer",fontWeight:800,fontSize:13,transition:"all 0.15s",
     background:dis?T.border:`linear-gradient(135deg,${T.accent},${T.accentH})`,color:dis?T.textDim:"#000"});
-  const launchBtn={border:"none",borderRadius:12,padding:"14px 36px",cursor:canNext?"pointer":"not-allowed",fontWeight:900,fontSize:14,letterSpacing:"0.01em",
-    background:canNext?`linear-gradient(135deg,${T.accent},${T.purple})`:T.border,color:canNext?"#fff":T.textDim,transition:"all 0.15s"};
 
+  // ── Mode selection ────────────────────────────────────────────
+  if(!mode){
+    return(
+      <div style={{background:T.bg,position:"fixed",inset:0,zIndex:500,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20,overflow:"auto"}}>
+        <style>{`@keyframes dUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}`}</style>
+        <div style={{width:"100%",maxWidth:680,animation:"dUp 0.3s ease"}}>
+          {/* Header */}
+          <div style={{textAlign:"center",marginBottom:28}}>
+            <div style={{width:52,height:52,borderRadius:16,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,margin:"0 auto 14px",boxShadow:`0 0 60px ${T.accent}40`}}>⚡</div>
+            <div style={{fontSize:26,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>ShieldSync Live Demo</div>
+            <div style={{fontSize:13,color:T.textSub,marginTop:6}}>Choose how you'd like to experience the platform</div>
+          </div>
+
+          {/* Guardian pre-loaded card */}
+          <div style={{background:T.surface,border:`2px solid ${T.accentB}`,borderRadius:20,padding:28,marginBottom:14,boxShadow:`0 0 60px ${T.accent}14`}}>
+            <div style={{display:"flex",gap:16,alignItems:"flex-start",marginBottom:18}}>
+              <div style={{width:48,height:48,borderRadius:14,background:"linear-gradient(135deg,#1A4F8A,#C4A227)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0,boxShadow:"0 4px 20px rgba(26,79,138,0.4)"}}>🛡️</div>
+              <div style={{flex:1}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                  <div style={{fontSize:16,fontWeight:900,color:T.text}}>Guardian Strategic Security, LLC</div>
+                  <span style={{background:`linear-gradient(135deg,${T.accent},${T.purple})`,color:"#000",fontSize:9,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",padding:"3px 9px",borderRadius:99}}>Pre-loaded</span>
+                </div>
+                <div style={{fontSize:12,color:T.textSub,lineHeight:1.65}}>Orlando, FL · 325 Officers · 47 Clients · 63 Sites · Contract Security</div>
+                <div style={{display:"flex",gap:12,marginTop:10,flexWrap:"wrap"}}>
+                  {["5 Active Sites","38 Vehicles","Live Incidents","Real Patrol Data","AI Alerts"].map(tag=>(
+                    <span key={tag} style={{fontSize:10,color:T.accent,background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:6,padding:"3px 8px",fontWeight:600}}>{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div style={{marginBottom:18}}>
+              <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:10,textTransform:"uppercase",letterSpacing:"0.08em"}}>Log in as:</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                {GUARDIAN_DEMO_ROLES.map(r=>{
+                  const a=guardianRole===r.id;
+                  return(
+                    <button key={r.id} onClick={()=>setGuardianRole(r.id)} style={{...sel(a),padding:"11px 12px",textAlign:"left",display:"flex",alignItems:"center",gap:8}}>
+                      <span style={{fontSize:16,flexShrink:0}}>{r.icon}</span>
+                      <div style={{minWidth:0}}>
+                        <div style={{fontSize:11,fontWeight:700,color:a?T.accent:T.text,lineHeight:1.2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{r.label}</div>
+                        <div style={{fontSize:10,color:T.textDim,lineHeight:1.3,marginTop:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{r.tagline}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <button
+              onClick={()=>{if(guardianRole&&onGuardianLogin){const r=GUARDIAN_DEMO_ROLES.find(x=>x.id===guardianRole);if(r)onGuardianLogin(r.email,"Guardian2026!",r.mod);}}}
+              disabled={!guardianRole}
+              style={{width:"100%",padding:"14px",borderRadius:12,border:"none",fontWeight:900,fontSize:14,cursor:guardianRole?"pointer":"not-allowed",
+                background:guardianRole?`linear-gradient(135deg,#1A4F8A,${T.accent})`:"rgba(255,255,255,0.05)",
+                color:guardianRole?"#fff":T.textDim,transition:"all .2s",letterSpacing:"0.01em"}}>
+              {guardianRole?"🚀 Enter Guardian Demo →":"Select a role to continue"}
+            </button>
+          </div>
+
+          {/* Custom tenant card */}
+          <div style={{background:T.surface,border:`1px solid ${T.border}`,borderRadius:20,padding:24}}>
+            <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:14}}>
+              <div style={{width:44,height:44,borderRadius:12,background:`linear-gradient(135deg,${T.purple},${T.accent})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>🎯</div>
+              <div>
+                <div style={{fontSize:14,fontWeight:800,color:T.text}}>Personalize to Your Company</div>
+                <div style={{fontSize:12,color:T.textSub,marginTop:2}}>Configure the demo for your specific operations in 4 steps</div>
+              </div>
+            </div>
+            <button onClick={()=>setMode("custom")}
+              style={{width:"100%",padding:"12px",borderRadius:10,border:`1px solid ${T.border}`,fontWeight:700,fontSize:13,cursor:"pointer",
+                background:"transparent",color:T.text,transition:"all .15s"}}>
+              Customize for My Company →
+            </button>
+          </div>
+
+          <button onClick={onCancel} style={{display:"block",margin:"20px auto 0",background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer"}}>← Back to Login</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Custom 4-step wizard ──────────────────────────────────────
   return(
     <div style={{background:T.bg,position:"fixed",inset:0,zIndex:500,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20,overflow:"auto"}}>
       <style>{`@keyframes dUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}`}</style>
-      <div style={{background:T.surface,border:`1px solid ${T.borderLight}`,borderRadius:22,padding:"36px 40px",width:"100%",maxWidth:640,animation:"dUp 0.3s ease",position:"relative"}}>
+      <div style={{background:T.surface,border:`1px solid ${T.borderLight}`,borderRadius:22,padding:"36px 40px",width:"100%",maxWidth:620,animation:"dUp 0.3s ease"}}>
 
-        {/* Header */}
-        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:30}}>
-          <div style={{width:38,height:38,borderRadius:11,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>⚡</div>
+        {/* Progress */}
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:28}}>
+          <div style={{width:32,height:32,borderRadius:9,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>⚡</div>
           <div style={{flex:1}}>
-            <div style={{fontWeight:900,fontSize:15,color:T.text}}>ShieldSync Live Demo</div>
-            <div style={{fontSize:10,color:T.textDim,textTransform:"uppercase",letterSpacing:"0.12em",marginTop:1}}>Personalized to your operations</div>
+            <div style={{fontWeight:800,fontSize:13,color:T.text}}>Custom Demo Setup</div>
+            <div style={{fontSize:10,color:T.textDim,textTransform:"uppercase",letterSpacing:"0.1em"}}>Step {step} of 4</div>
           </div>
-          <div style={{display:"flex",gap:7,alignItems:"center"}}>
-            {[1,2,3].map(n=>(
-              <div key={n} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
-                <div style={{width:n===step?28:8,height:8,borderRadius:4,background:n<step?T.green:n===step?T.accent:T.border,transition:"all 0.25s"}}/>
-              </div>
-            ))}
+          <div style={{display:"flex",gap:5}}>
+            {[1,2,3,4].map(n=><div key={n} style={{width:n===step?24:7,height:7,borderRadius:4,background:n<step?T.green:n===step?T.accent:T.border,transition:"all .25s"}}/>)}
           </div>
         </div>
 
-        {/* STEP 1 */}
+        {/* Step 1: Company + Industry */}
         {step===1&&(
           <div>
-            <div style={{fontSize:22,fontWeight:900,color:T.text,marginBottom:5,letterSpacing:"-0.02em"}}>Set up your demo environment</div>
-            <div style={{fontSize:13,color:T.textSub,marginBottom:28,lineHeight:1.55}}>We'll configure the platform to match your operations — takes 60 seconds.</div>
-
-            <div style={{marginBottom:24}}>
-              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:8}}>Your Company Name</label>
-              <input value={cfg.companyName} onChange={e=>set("companyName",e.target.value)}
-                placeholder="e.g. Apex Security Group" autoFocus
-                style={{width:"100%",background:T.raised,border:`1px solid ${cfg.companyName.trim().length>1?T.accentB:T.border}`,borderRadius:10,color:T.text,padding:"13px 16px",fontSize:14,fontWeight:600,outline:"none",transition:"border 0.15s",boxSizing:"border-box"}}/>
+            <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:4}}>Your company details</div>
+            <div style={{fontSize:12,color:T.textSub,marginBottom:22}}>Takes 60 seconds — we build the demo around your operations.</div>
+            <div style={{marginBottom:16}}>
+              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Company Name</label>
+              <input value={cfg.companyName} onChange={e=>set("companyName",e.target.value)} placeholder="e.g. Apex Security Group" autoFocus
+                style={{width:"100%",background:T.raised,border:`1px solid ${cfg.companyName.length>1?T.accentB:T.border}`,borderRadius:10,color:T.text,padding:"12px 14px",fontSize:14,fontWeight:600,outline:"none",boxSizing:"border-box"}}/>
             </div>
-
             <div>
-              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:12}}>Type of Security Operations</label>
+              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:10}}>Industry</label>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
                 {Object.entries(DEMO_IND).map(([k,v])=>{
                   const a=cfg.industry===k;
                   return(
-                    <button key={k} onClick={()=>set("industry",k)} style={{...sel(a),padding:"14px 16px",textAlign:"left",display:"flex",alignItems:"center",gap:10}}>
-                      <span style={{fontSize:22,flexShrink:0}}>{v.icon}</span>
-                      <span style={{fontSize:12,fontWeight:700,color:a?T.accent:T.text,lineHeight:1.25}}>{v.label}</span>
+                    <button key={k} onClick={()=>set("industry",k)} style={{...sel(a),padding:"13px 14px",textAlign:"left",display:"flex",alignItems:"center",gap:9}}>
+                      <span style={{fontSize:20}}>{v.icon}</span>
+                      <span style={{fontSize:12,fontWeight:700,color:a?T.accent:T.text}}>{v.label}</span>
                     </button>
                   );
                 })}
@@ -813,17 +958,55 @@ function DemoSetupWizard({onLaunch,onCancel}){
           </div>
         )}
 
-        {/* STEP 2 */}
+        {/* Step 2: Officers, Sites, Platform, Frequency */}
         {step===2&&(
           <div>
-            <div style={{fontSize:22,fontWeight:900,color:T.text,marginBottom:5,letterSpacing:"-0.02em"}}>What's your biggest challenge right now?</div>
-            <div style={{fontSize:13,color:T.textSub,marginBottom:28,lineHeight:1.55}}>We'll open the demo at the exact feature that solves it.</div>
+            <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:4}}>Operations profile</div>
+            <div style={{fontSize:12,color:T.textSub,marginBottom:22}}>Tell us about your scale so we populate realistic data.</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}}>
+              {[
+                {label:"Number of Officers",k:"officers",ph:"e.g. 45"},
+                {label:"Number of Sites",k:"sites",ph:"e.g. 8"},
+              ].map(({label,k,ph})=>(
+                <div key={k}>
+                  <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>{label}</label>
+                  <input type="number" min="1" value={cfg[k]} onChange={e=>set(k,e.target.value)} placeholder={ph}
+                    style={{width:"100%",background:T.raised,border:`1px solid ${cfg[k]?T.accentB:T.border}`,borderRadius:10,color:T.text,padding:"12px 14px",fontSize:14,fontWeight:600,outline:"none",boxSizing:"border-box"}}/>
+                </div>
+              ))}
+            </div>
+            <div style={{marginBottom:14}}>
+              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Current Platform (if any)</label>
+              <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+                {["Paper / Manual","TrackTik","Silvertrac","Trackforce","Ranger","ServiceMax","Other"].map(p=>{
+                  const a=cfg.currentPlatform===p;
+                  return<button key={p} onClick={()=>set("currentPlatform",p)} style={{...sel(a),padding:"8px 12px",fontSize:12,fontWeight:600,color:a?T.accent:T.textSub}}>{p}</button>;
+                })}
+              </div>
+            </div>
+            <div>
+              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Patrol Frequency</label>
+              <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+                {["15 min","30 min","45 min","60 min","Custom"].map(f=>{
+                  const a=cfg.patrolFreq===f;
+                  return<button key={f} onClick={()=>set("patrolFreq",f)} style={{...sel(a),padding:"8px 14px",fontSize:12,fontWeight:600,color:a?T.accent:T.textSub}}>{f}</button>;
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Pain Point */}
+        {step===3&&(
+          <div>
+            <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:4}}>Biggest challenge right now?</div>
+            <div style={{fontSize:12,color:T.textSub,marginBottom:22}}>We'll open the demo at the exact feature that solves it.</div>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
               {DEMO_PAIN_POINTS.map(pp=>{
                 const a=cfg.painPoint===pp.id;
                 return(
-                  <button key={pp.id} onClick={()=>set("painPoint",pp.id)} style={{...sel(a),padding:"18px 16px",textAlign:"left",display:"flex",flexDirection:"column",gap:10}}>
-                    <span style={{fontSize:26}}>{pp.icon}</span>
+                  <button key={pp.id} onClick={()=>set("painPoint",pp.id)} style={{...sel(a),padding:"16px",textAlign:"left",display:"flex",flexDirection:"column",gap:9}}>
+                    <span style={{fontSize:24}}>{pp.icon}</span>
                     <span style={{fontSize:12,fontWeight:700,color:a?T.accent:T.text,lineHeight:1.35}}>{pp.label}</span>
                   </button>
                 );
@@ -832,53 +1015,55 @@ function DemoSetupWizard({onLaunch,onCancel}){
           </div>
         )}
 
-        {/* STEP 3 */}
-        {step===3&&(
+        {/* Step 4: Role + Reporting */}
+        {step===4&&(
           <div>
-            <div style={{fontSize:22,fontWeight:900,color:T.text,marginBottom:5,letterSpacing:"-0.02em"}}>Which role best describes you?</div>
-            <div style={{fontSize:13,color:T.textSub,marginBottom:28,lineHeight:1.55}}>The demo opens to the view most relevant to your decisions.</div>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:4}}>Your role & reporting needs</div>
+            <div style={{fontSize:12,color:T.textSub,marginBottom:16}}>The demo opens to the view most relevant to your work.</div>
+            <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:18}}>
               {DEMO_ROLES.map(r=>{
                 const a=cfg.role===r.id;
                 return(
-                  <button key={r.id} onClick={()=>set("role",r.id)} style={{...sel(a),padding:"15px 18px",textAlign:"left",display:"flex",alignItems:"center",gap:14}}>
-                    <span style={{fontSize:22,flexShrink:0}}>{r.icon}</span>
-                    <div style={{flex:1,minWidth:0}}>
+                  <button key={r.id} onClick={()=>set("role",r.id)} style={{...sel(a),padding:"13px 16px",textAlign:"left",display:"flex",alignItems:"center",gap:12}}>
+                    <span style={{fontSize:20,flexShrink:0}}>{r.icon}</span>
+                    <div style={{flex:1}}>
                       <div style={{fontSize:13,fontWeight:700,color:a?T.accent:T.text}}>{r.label}</div>
-                      <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{r.tagline}</div>
+                      <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{r.tagline}</div>
                     </div>
-                    {a&&<span style={{color:T.accent,fontSize:18,flexShrink:0}}>✓</span>}
+                    {a&&<span style={{color:T.accent,fontSize:16}}>✓</span>}
                   </button>
                 );
               })}
+            </div>
+            <div>
+              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:8}}>Reporting requirements</label>
+              <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+                {["Daily Activity Reports","Incident Summaries","Client Billing Reports","Compliance Audits","Executive KPIs","Custom Reports"].map(r=>{
+                  const a=(cfg.reportingReq||"").split(",").includes(r);
+                  return<button key={r} onClick={()=>{const cur=(cfg.reportingReq||"").split(",").filter(Boolean);set("reportingReq",a?cur.filter(x=>x!==r).join(","):[...cur,r].join(","));}} style={{...sel(a),padding:"7px 11px",fontSize:11,fontWeight:600,color:a?T.accent:T.textSub}}>{r}</button>;
+                })}
+              </div>
             </div>
           </div>
         )}
 
         {/* Navigation */}
-        <div style={{display:"flex",alignItems:"center",gap:10,marginTop:30}}>
-          <button onClick={step===1?onCancel:()=>setStep(s=>s-1)}
-            style={{background:"none",border:`1px solid ${T.border}`,borderRadius:10,color:T.textSub,padding:"12px 20px",cursor:"pointer",fontWeight:700,fontSize:12}}>
-            {step===1?"← Back to Login":"← Back"}
+        <div style={{display:"flex",alignItems:"center",gap:10,marginTop:28}}>
+          <button onClick={step===1?()=>setMode(null):()=>setStep(s=>s-1)}
+            style={{background:"none",border:`1px solid ${T.border}`,borderRadius:10,color:T.textSub,padding:"11px 18px",cursor:"pointer",fontWeight:700,fontSize:12}}>
+            ← Back
           </button>
           <div style={{flex:1}}/>
-          {step<3
-            ?<button onClick={()=>canNext&&setStep(s=>s+1)} disabled={!canNext} style={btn(!canNext)}>Continue →</button>
-            :<button onClick={()=>canNext&&launch()} disabled={!canNext} style={launchBtn}>🚀 Launch {cfg.companyName||"Your"} Demo</button>
+          {step<4
+            ?<button onClick={()=>canNextCustom&&setStep(s=>s+1)} disabled={!canNextCustom} style={btn(!canNextCustom)}>Continue →</button>
+            :<button onClick={()=>canNextCustom&&launchCustom()} disabled={!canNextCustom}
+              style={{border:"none",borderRadius:12,padding:"13px 28px",cursor:canNextCustom?"pointer":"not-allowed",fontWeight:900,fontSize:14,
+                background:canNextCustom?`linear-gradient(135deg,${T.accent},${T.purple})`:T.border,color:canNextCustom?"#fff":T.textDim}}>
+              🚀 Launch {cfg.companyName||"Your"} Demo
+            </button>
           }
         </div>
-
       </div>
-
-      {/* Preview strip */}
-      {step===1&&cfg.industry&&(
-        <div style={{marginTop:16,background:T.raised,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 18px",width:"100%",maxWidth:640,display:"flex",gap:8,flexWrap:"wrap",animation:"dUp 0.2s ease"}}>
-          <span style={{fontSize:10,color:T.textDim,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.08em",marginRight:4}}>Your sites will include:</span>
-          {(DEMO_IND[cfg.industry]?.sites||[]).map(s=>(
-            <span key={s} style={{fontSize:10,color:T.textSub,background:T.surface,border:`1px solid ${T.border}`,borderRadius:5,padding:"3px 8px"}}>{s}</span>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -5791,6 +5976,325 @@ function ITCyberCommand({user,showToast}){
 }
 
 // ─────────────────────────────────────────────────────────────────
+// GUARDIAN COMMAND CENTER — full operational view for Guardian tenant
+// ─────────────────────────────────────────────────────────────────
+function GuardianCommandCenter({user,showToast,openModal}){
+  const[liveAlerts,setLiveAlerts]=useState(GUARDIAN_AI_ALERTS);
+  const[incidents,setIncidents]=useState(GUARDIAN_INCIDENTS);
+  const[dismissedAlert,setDismissedAlert]=useState(null);
+  const kpiMap={accent:T.accent,red:T.red,amber:T.amber,gold:T.gold,green:T.green,purple:T.purple};
+
+  const dismissAlert=(id)=>{
+    setDismissedAlert(id);
+    setTimeout(()=>{setLiveAlerts(a=>a.filter(x=>x.id!==id));setDismissedAlert(null);},400);
+  };
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:18}}>
+      {/* Company header */}
+      <div style={{background:`linear-gradient(135deg,${T.raised},${T.card})`,border:`1px solid ${T.border}`,borderRadius:16,padding:"16px 20px",display:"flex",alignItems:"center",gap:14}}>
+        <div style={{width:44,height:44,borderRadius:12,background:"linear-gradient(135deg,#1A4F8A,#C4A227)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🛡️</div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:17,fontWeight:900,color:T.text,letterSpacing:"-0.01em"}}>{GUARDIAN_COMPANY.name}</div>
+          <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{GUARDIAN_COMPANY.hq} · {GUARDIAN_COMPANY.license}</div>
+        </div>
+        <div style={{display:"flex",gap:16,flexShrink:0}}>
+          {[
+            {v:GUARDIAN_COMPANY.employees.officers,l:"Officers",c:T.accent},
+            {v:GUARDIAN_COMPANY.activeSites,l:"Sites",c:T.green},
+            {v:GUARDIAN_COMPANY.clients,l:"Clients",c:T.purple},
+            {v:GUARDIAN_COMPANY.vehicles,l:"Vehicles",c:T.gold},
+          ].map(({v,l,c})=>(
+            <div key={l} style={{textAlign:"center"}}>
+              <div style={{fontSize:20,fontWeight:900,color:c}}>{v}</div>
+              <div style={{fontSize:10,color:T.textDim,fontWeight:600}}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* KPI tiles */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(150px,1fr))",gap:10}}>
+        {Object.entries(GUARDIAN_KPI).map(([key,d])=>(
+          <Card key={key} glow={kpiMap[d.color]||T.accent}>
+            <CB style={{padding:"14px 14px"}}>
+              <div style={{fontSize:26,fontWeight:900,color:kpiMap[d.color]||T.accent,marginBottom:3}}>{d.value}</div>
+              <div style={{fontSize:11,color:T.text,fontWeight:700,textTransform:"capitalize"}}>{key.replace(/([A-Z])/g," $1").trim()}</div>
+              <div style={{fontSize:10,color:T.textDim,marginTop:2}}>{d.sub}</div>
+            </CB>
+          </Card>
+        ))}
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+        {/* Site status */}
+        <Card>
+          <CB>
+            <SH icon="📍" title="Site Status" sub="5 active sites — real-time health"/>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {GUARDIAN_SITES_FULL.map(s=>{
+                const c=s.health>=90?T.green:s.health>=75?T.amber:T.red;
+                return(
+                  <div key={s.id} style={{padding:"10px 12px",background:T.raised,borderRadius:10,display:"flex",alignItems:"center",gap:10}}>
+                    <div style={{width:8,height:8,borderRadius:"50%",background:c,flexShrink:0,boxShadow:s.status==="Alert"?`0 0 8px ${c}`:"none"}}/>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:12,fontWeight:700,color:T.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.name}</div>
+                      <div style={{fontSize:10,color:T.textDim,marginTop:1}}>{s.type} · {s.officers} officers · Last patrol: {s.lastPatrol}</div>
+                    </div>
+                    <div style={{textAlign:"right",flexShrink:0}}>
+                      <div style={{fontSize:13,fontWeight:900,color:c}}>{s.health}%</div>
+                      <div style={{fontSize:9,color:T.textDim}}>{s.incidents} inc.</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </CB>
+        </Card>
+
+        {/* Active incidents */}
+        <Card>
+          <CB>
+            <SH icon="⚡" title="Live Incidents" sub="Active & investigating"/>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {incidents.filter(i=>["Active","Investigating"].includes(i.status)).map(inc=>{
+                const sc={Critical:T.red,High:T.amber,Medium:T.gold,Low:T.textSub}[inc.sev]||T.textSub;
+                return(
+                  <div key={inc.id} style={{padding:"10px 12px",background:T.raised,borderRadius:10,borderLeft:`3px solid ${sc}`}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:4}}>
+                      <div style={{fontSize:12,fontWeight:700,color:T.text}}>{inc.type}</div>
+                      <Pill label={inc.sev} color={sc}/>
+                    </div>
+                    <div style={{fontSize:11,color:T.textDim}}>{inc.site} · {inc.time} · {inc.assigned}</div>
+                    <div style={{fontSize:10,color:T.textSub,marginTop:4,lineHeight:1.5}}>{inc.narrative.slice(0,90)}…</div>
+                  </div>
+                );
+              })}
+              {incidents.filter(i=>["Active","Investigating"].includes(i.status)).length===0&&(
+                <div style={{textAlign:"center",padding:"24px 0",color:T.textDim,fontSize:13}}>✓ No active incidents</div>
+              )}
+            </div>
+          </CB>
+        </Card>
+      </div>
+
+      {/* AI Alerts */}
+      <Card>
+        <CB>
+          <SH icon="🤖" title="AI Operational Alerts" sub="Guardian Intelligence Engine · auto-generated insights"/>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {liveAlerts.map(a=>{
+              const c={Critical:T.red,Warning:T.amber,Info:T.accent}[a.severity]||T.textSub;
+              const isDismissing=dismissedAlert===a.id;
+              return(
+                <div key={a.id} style={{padding:"12px 14px",background:T.raised,borderRadius:10,borderLeft:`3px solid ${c}`,
+                  opacity:isDismissing?0:1,transform:isDismissing?"translateX(20px)":"none",transition:"opacity .35s ease,transform .35s ease",
+                  display:"flex",gap:12,alignItems:"flex-start"}}>
+                  <span style={{fontSize:18,flexShrink:0}}>{a.icon}</span>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:12,color:T.text,fontWeight:600,lineHeight:1.55}}>{a.msg}</div>
+                    <div style={{fontSize:10,color:T.textDim,marginTop:4}}>{a.site} · {a.time}</div>
+                  </div>
+                  <div style={{display:"flex",gap:6,flexShrink:0}}>
+                    <button onClick={()=>showToast(`Action triggered: ${a.action}`,"success")}
+                      style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:10,fontWeight:700,whiteSpace:"nowrap"}}>{a.action}</button>
+                    <button onClick={()=>dismissAlert(a.id)}
+                      style={{background:"none",border:"none",color:T.textDim,fontSize:14,cursor:"pointer",padding:"0 4px"}}>✕</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </CB>
+      </Card>
+
+      {/* Patrol compliance */}
+      <Card>
+        <CB>
+          <SH icon="🛡️" title="Patrol Compliance — Today" sub="By route across all active sites"/>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {GUARDIAN_PATROL_ROUTES.map(r=>{
+              const c=r.compliance>=90?T.green:r.compliance>=75?T.amber:T.red;
+              return(
+                <div key={r.id} style={{display:"flex",alignItems:"center",gap:12,padding:"9px 12px",background:T.raised,borderRadius:10}}>
+                  <div style={{minWidth:0,flex:1}}>
+                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{r.name}</div>
+                    <div style={{fontSize:10,color:T.textDim,marginTop:1}}>{r.site} · {r.officer} · Next due: {r.nextDue}</div>
+                  </div>
+                  <div style={{width:80,flexShrink:0}}>
+                    <div style={{height:5,background:T.border,borderRadius:3,overflow:"hidden"}}>
+                      <div style={{height:"100%",width:`${r.compliance}%`,background:c,borderRadius:3,transition:"width .6s ease"}}/>
+                    </div>
+                    <div style={{fontSize:10,fontWeight:700,color:c,marginTop:3,textAlign:"right"}}>{r.compliance}%</div>
+                  </div>
+                  <Pill label={r.status} color={r.status==="Active"?T.green:T.amber}/>
+                </div>
+              );
+            })}
+          </div>
+        </CB>
+      </Card>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// GUARDIAN DISPATCH VIEW — for Dispatcher role
+// ─────────────────────────────────────────────────────────────────
+function GuardianDispatchView({user,showToast}){
+  const[queue,setQueue]=useState(GUARDIAN_INCIDENTS.filter(i=>["Active","Investigating"].includes(i.status)));
+  const[dispatched,setDispatched]=useState({});
+
+  const dispatch=(incId,officerName)=>{
+    setDispatched(d=>({...d,[incId]:officerName}));
+    showToast(`${officerName} dispatched → ${queue.find(i=>i.id===incId)?.site}`,"success");
+  };
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <SH icon="📡" title="Dispatch Command Center" sub="Guardian Strategic Security — Active incidents & officer assignment"/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+        {[
+          {label:"Active Incidents",v:queue.length,c:T.red},
+          {label:"Officers On Duty",v:"41",c:T.green},
+          {label:"Available Units",v:"7",c:T.accent},
+          {label:"Avg Response",v:"3.8m",c:T.amber},
+        ].map(({label,v,c})=>(
+          <Card key={label}><CB style={{padding:"12px 14px",textAlign:"center"}}>
+            <div style={{fontSize:24,fontWeight:900,color:c}}>{v}</div>
+            <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{label}</div>
+          </CB></Card>
+        ))}
+      </div>
+      <Card>
+        <CB>
+          <SH title="Dispatch Queue" icon="⚡"/>
+          {queue.map(inc=>{
+            const sc={Critical:T.red,High:T.amber,Medium:T.gold}[inc.sev]||T.textSub;
+            const isDisp=!!dispatched[inc.id];
+            return(
+              <div key={inc.id} style={{padding:"14px",background:T.raised,borderRadius:10,marginBottom:8,borderLeft:`3px solid ${sc}`}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+                  <div>
+                    <span style={{fontSize:13,fontWeight:800,color:T.text}}>{inc.id}</span>
+                    <span style={{fontSize:12,color:T.textSub,marginLeft:10}}>{inc.type}</span>
+                  </div>
+                  <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                    <Pill label={inc.sev} color={sc}/>
+                    <Pill label={isDisp?"Dispatched":inc.status} color={isDisp?T.green:T.amber}/>
+                  </div>
+                </div>
+                <div style={{fontSize:11,color:T.textDim,marginBottom:8}}>{inc.site} · {inc.time} · {inc.narrative.slice(0,80)}…</div>
+                {!isDisp?(
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                    {GUARDIAN_OFFICERS_ROSTER.filter(o=>o.status==="On Site"||o.status==="On Patrol").slice(0,4).map(o=>(
+                      <button key={o.id} onClick={()=>dispatch(inc.id,o.name)}
+                        style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"5px 12px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:700}}>
+                        Dispatch {o.name.split(" ")[1]}
+                      </button>
+                    ))}
+                  </div>
+                ):(
+                  <div style={{fontSize:11,color:T.green,fontWeight:700}}>✓ {dispatched[inc.id]} en route</div>
+                )}
+              </div>
+            );
+          })}
+        </CB>
+      </Card>
+      <Card>
+        <CB>
+          <SH title="Officer Status Map" icon="👮" sub="Active units — all sites"/>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:8}}>
+            {GUARDIAN_OFFICERS_ROSTER.slice(0,10).map(o=>{
+              const {c,p}=SM(o.status);
+              return(
+                <div key={o.id} style={{display:"flex",gap:10,alignItems:"center",padding:"9px 11px",background:T.raised,borderRadius:9}}>
+                  <Av name={o.av} size={30} color={c} pulse={p}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:11,fontWeight:700,color:T.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{o.name}</div>
+                    <div style={{fontSize:10,color:T.textDim,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{o.site}</div>
+                  </div>
+                  <Pill label={o.status} color={c} style={{fontSize:9}}/>
+                </div>
+              );
+            })}
+          </div>
+        </CB>
+      </Card>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// GUARDIAN PATROL VIEW — checkpoint compliance for Supervisor role
+// ─────────────────────────────────────────────────────────────────
+function GuardianPatrolView({user,showToast}){
+  const[filter,setFilter]=useState("All");
+  const statuses=["All","Current","Overdue","Missed","Critical"];
+  const filtered=filter==="All"?GUARDIAN_CHECKPOINTS:GUARDIAN_CHECKPOINTS.filter(c=>c.status===filter);
+  const statColor={Current:T.green,Overdue:T.amber,Missed:T.red,Critical:T.red};
+  const counts=statuses.slice(1).reduce((a,s)=>({...a,[s]:GUARDIAN_CHECKPOINTS.filter(c=>c.status===s).length}),{});
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <SH icon="🛡️" title="Patrol Compliance" sub="Guardian Strategic Security — 5 sites · 26 checkpoints"/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
+        {[
+          {label:"Total CPs",v:GUARDIAN_CHECKPOINTS.length,c:T.accent},
+          {label:"Current",v:counts.Current||0,c:T.green},
+          {label:"Overdue",v:counts.Overdue||0,c:T.amber},
+          {label:"Missed",v:counts.Missed||0,c:T.red},
+          {label:"Critical",v:counts.Critical||0,c:T.red},
+        ].map(({label,v,c})=>(
+          <Card key={label}><CB style={{textAlign:"center",padding:"12px 8px"}}>
+            <div style={{fontSize:24,fontWeight:900,color:c}}>{v}</div>
+            <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{label}</div>
+          </CB></Card>
+        ))}
+      </div>
+      <div style={{display:"flex",gap:6}}>
+        {statuses.map(s=><button key={s} onClick={()=>setFilter(s)}
+          style={{background:filter===s?T.accentGlow:T.raised,border:`1px solid ${filter===s?T.accentB:T.border}`,color:filter===s?T.accent:T.textSub,padding:"7px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{s}</button>)}
+      </div>
+      <Card>
+        <CB>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {filtered.map(cp=>{
+              const c=statColor[cp.status]||T.textSub;
+              const total=cp.scans+cp.missed;
+              return(
+                <div key={cp.id} style={{padding:"12px 14px",background:T.raised,borderRadius:10,borderLeft:`3px solid ${c}`}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+                    <div>
+                      <div style={{fontSize:13,fontWeight:700,color:T.text}}>{cp.name}</div>
+                      <div style={{fontSize:11,color:T.textDim,marginTop:2}}>{cp.site} · Every {cp.freq}m · Last: {cp.last}</div>
+                    </div>
+                    <div style={{textAlign:"right"}}>
+                      <div style={{fontSize:15,fontWeight:900,color:c}}>{cp.scans}/{total}</div>
+                      <Pill label={cp.status} color={c}/>
+                    </div>
+                  </div>
+                  <div style={{height:4,background:T.border,borderRadius:2,overflow:"hidden"}}>
+                    <div style={{height:"100%",width:`${total?Math.round(cp.scans/total*100):0}%`,background:c,borderRadius:2}}/>
+                  </div>
+                  {cp.status!=="Current"&&(
+                    <button onClick={()=>showToast(`Dispatch triggered: ${cp.name} — ${cp.site}`,"success")}
+                      style={{marginTop:8,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"5px 12px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:700}}>
+                      Dispatch Officer →
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </CB>
+      </Card>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
 // ROOT
 // ─────────────────────────────────────────────────────────────────
 export default function App(){
@@ -5806,19 +6310,10 @@ export default function App(){
   const[demoConfig,setDemoConfig]=useLS("ss_demo_v1",null);
   const[showDemoWizard,setShowDemoWizard]=useState(false);
   const[demoScenario,setDemoScenario]=useState(()=>demoConfig?.startScenario??0);
-  useDemoEngine(demoConfig,showToast);
   const[online,setOnline]=useState(navigator.onLine);
   useEffect(()=>{const c=()=>setIsMobile(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c);},[]);
   useEffect(()=>{const t=setInterval(()=>setNow(new Date()),30000);return()=>clearInterval(t);},[]);
   useEffect(()=>onlineStatus(setOnline),[]);
-
-  const role=user?.role||"Company Admin";
-  const visNav=useMemo(()=>NAV.filter(n=>n.roles.includes(role)),[role]);
-
-  useEffect(()=>{if(user&&!visNav.find(n=>n.id===mod))setMod(visNav[0]?.id||"dashboard");},[visNav]);
-
-  const openModal=useCallback(m=>setModal(m),[]);
-  const closeModal=useCallback(()=>setModal(null),[]);
 
   const showToast=useCallback((msg,type="info")=>{
     const id=Date.now();
@@ -5826,6 +6321,24 @@ export default function App(){
     setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),4500);
   },[]);
 
+  // Guardian tenant detection
+  const isGuardian=useMemo(()=>GUARDIAN_USERS.some(g=>g.id===user?.id),[user?.id]);
+  useDemoEngine(demoConfig,showToast);
+  useGuardianTicker(isGuardian,showToast);
+
+  const guardianCtxValue=useMemo(()=>isGuardian?{
+    company:GUARDIAN_COMPANY,sites:GUARDIAN_SITES_FULL,officers:GUARDIAN_OFFICERS_ROSTER,
+    vehicles:GUARDIAN_VEHICLES,checkpoints:GUARDIAN_CHECKPOINTS,incidents:GUARDIAN_INCIDENTS,
+    patrols:GUARDIAN_PATROL_ROUTES,equipment:GUARDIAN_EQUIPMENT,aiAlerts:GUARDIAN_AI_ALERTS,
+    kpi:GUARDIAN_KPI,schedule:GUARDIAN_SCHEDULE,dar:GUARDIAN_DAR_REPORTS,
+  }:null,[isGuardian]);
+
+  const role=user?.role||"Company Admin";
+  const visNav=useMemo(()=>NAV.filter(n=>n.roles.includes(role)),[role]);
+  useEffect(()=>{if(user&&!visNav.find(n=>n.id===mod))setMod(visNav[0]?.id||"dashboard");},[visNav]);
+
+  const openModal=useCallback(m=>setModal(m),[]);
+  const closeModal=useCallback(()=>setModal(null),[]);
   const logout=useCallback(()=>{logAction(user,"LOGOUT","Session ended");clearSession();setUser(null);setMod("dashboard");setModal(null);},[user]);
 
   const handleDemoLaunch=useCallback(cfg=>{
@@ -5837,11 +6350,7 @@ export default function App(){
     saveSession(demoUser);
     setShowDemoWizard(false);
   },[]);
-  const handleExitDemo=useCallback(()=>{
-    setDemoConfig(null);
-    setDemoScenario(0);
-    LS.del("ss_demo_v1");
-  },[]);
+  const handleExitDemo=useCallback(()=>{setDemoConfig(null);setDemoScenario(0);LS.del("ss_demo_v1");},[]);
 
   const[mfaPending,setMfaPending]=useState(null);
   const[onboarding,setOnboarding]=useState(false);
@@ -5853,11 +6362,30 @@ export default function App(){
   const handleMfaVerify=useCallback(()=>{if(mfaPending){setUser(mfaPending);if(mfaPending.isNewCompany)setOnboarding(true);setMfaPending(null);};},[mfaPending]);
   const handleRegister=useCallback(()=>{},[]);
 
+  // Guardian demo direct login (from wizard role picker)
+  const handleGuardianLogin=useCallback((email,password,startMod)=>{
+    const u=authUser(email,password);
+    if(u){
+      saveSession(u);
+      setUser(u);
+      setMod(startMod||"dashboard");
+      setShowDemoWizard(false);
+      // Arm guardian live demo config
+      setDemoConfig({active:true,isGuardian:true,companyName:GUARDIAN_COMPANY.name,launchedAt:Date.now(),startMod});
+    }
+  },[]);
+
   if(mfaPending)return <MFAScreen user={mfaPending} onVerify={handleMfaVerify} onCancel={()=>{clearSession();setMfaPending(null);}}/>;
-  if(showDemoWizard)return <DemoSetupWizard onLaunch={handleDemoLaunch} onCancel={()=>setShowDemoWizard(false)}/>;
+  if(showDemoWizard)return <DemoSetupWizard onLaunch={handleDemoLaunch} onCancel={()=>setShowDemoWizard(false)} onGuardianLogin={handleGuardianLogin}/>;
   if(!user)return <AuthScreen onLogin={handleLogin} onRegister={handleRegister} onTryDemo={()=>setShowDemoWizard(true)}/>;
 
   const renderMod=()=>{
+    // Guardian-specific module overrides
+    if(isGuardian){
+      if(mod==="dashboard")return <GuardianCommandCenter user={user} showToast={showToast} openModal={openModal}/>;
+      if(mod==="patrol")return <GuardianPatrolView user={user} showToast={showToast}/>;
+      if(mod==="dispatch")return <GuardianDispatchView user={user} showToast={showToast}/>;
+    }
     switch(mod){
       case "dashboard": return <Dashboard openModal={openModal} showToast={showToast}/>;
       case "myshift":   return <MyShift user={user} showToast={showToast}/>;
@@ -5888,6 +6416,7 @@ export default function App(){
   };
 
   return(
+    <GuardianCtx.Provider value={guardianCtxValue}>
     <DemoCtx.Provider value={demoConfig}>
     <LangCtx.Provider value={lang}>
     <div style={{height:"100%",background:T.bg,color:T.text,display:"flex",flexDirection:"column"}}>
@@ -5909,6 +6438,14 @@ export default function App(){
         @keyframes ssQR{0%{top:0;opacity:1}50%{top:calc(100% - 3px);opacity:.7}100%{top:0;opacity:1}}
       `}</style>
 
+      {/* Guardian tenant banner */}
+      {isGuardian&&(
+        <div style={{background:"linear-gradient(90deg,#1A4F8A,#0D3260)",color:"#fff",padding:"7px 16px",fontSize:11,fontWeight:700,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+          <span>🛡️ <strong>Guardian Strategic Security, LLC</strong> — Demo Tenant · Orlando, FL · {GUARDIAN_COMPANY.employees.officers} Officers · {GUARDIAN_COMPANY.activeSites} Sites</span>
+          <button onClick={logout} style={{background:"rgba(255,255,255,0.15)",border:"none",color:"#fff",padding:"3px 10px",borderRadius:5,cursor:"pointer",fontSize:10,fontWeight:700}}>Exit Demo</button>
+        </div>
+      )}
+
       {/* Offline banner */}
       {!online&&(
         <div style={{background:T.amber,color:"#000",padding:"8px 16px",fontSize:12,fontWeight:700,textAlign:"center",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
@@ -5916,12 +6453,12 @@ export default function App(){
         </div>
       )}
 
-      {/* Onboarding wizard — shown once for new company registrations */}
+      {/* Onboarding wizard */}
       {onboarding&&<OnboardingWizard user={user} onComplete={()=>{setOnboarding(false);const updated=getUsers().map(u=>u.id===user.id?{...u,isNewCompany:false}:u);saveUsers(updated);}}/>}
 
       {/* Toast notifications */}
       {toasts.length>0&&(
-        <div style={{position:"fixed",top:16,right:16,zIndex:300,display:"flex",flexDirection:"column",gap:8,pointerEvents:"none",maxWidth:340}}>
+        <div style={{position:"fixed",top:16,right:16,zIndex:300,display:"flex",flexDirection:"column",gap:8,pointerEvents:"none",maxWidth:360}}>
           {toasts.map(t=>(
             <div key={t.id} style={{background:t.type==="success"?T.green:t.type==="error"?T.red:T.surface,border:`1px solid ${t.type==="success"?T.green:t.type==="error"?T.redB:T.borderLight}`,borderRadius:12,padding:"13px 16px",color:t.type==="success"||t.type==="error"?"#000":T.text,fontSize:13,fontWeight:600,boxShadow:"0 8px 32px rgba(0,0,0,0.55)",animation:"ssToast 0.2s ease"}}>
               {t.type==="success"?"✓ ":t.type==="error"?"⚠ ":""}{t.msg}
@@ -5936,7 +6473,7 @@ export default function App(){
         )}
         <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,minHeight:0}}>
           <TopBar modId={mod} now={now} user={user} onLogout={logout} isMobile={isMobile}/>
-          {demoConfig?.active&&<DemoBanner cfg={demoConfig} scenario={demoScenario} setScenario={setDemoScenario} onExit={handleExitDemo} onChangeMod={setMod}/>}
+          {demoConfig?.active&&!isGuardian&&<DemoBanner cfg={demoConfig} scenario={demoScenario} setScenario={setDemoScenario} onExit={handleExitDemo} onChangeMod={setMod}/>}
           <main style={{flex:1,overflowY:"auto",padding:isMobile?"14px 14px 84px":"20px 24px",animation:isMobile?"none":"ssUp 0.22s ease",WebkitOverflowScrolling:"touch"}}>
             <ErrorBoundary key={mod}>
               {renderMod()}
@@ -5953,5 +6490,6 @@ export default function App(){
     </div>
     </LangCtx.Provider>
     </DemoCtx.Provider>
+    </GuardianCtx.Provider>
   );
 }
