@@ -2033,6 +2033,167 @@ function Visitors({openModal,user,showToast}){
   );
 }
 
+function buildPDFHTML(reportText,reportType){
+  const now=new Date();
+  const dateStr=now.toLocaleDateString([],{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  const timeStr=now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+
+  // Parse report lines into typed blocks
+  const lines=reportText.split("\n");
+  let bodyHTML="";
+  let i=0;
+  while(i<lines.length){
+    const ln=lines[i];
+    const trimmed=ln.trim();
+    if(!trimmed){bodyHTML+="<div class='gap'></div>";i++;continue;}
+    // ALL-CAPS line = section header (at least 3 chars, mostly uppercase, no trailing punct that would indicate a sentence)
+    const upper=trimmed.replace(/[^A-Za-z]/g,"");
+    const isHeader=upper.length>2&&upper===upper.toUpperCase()&&!/[a-z]/.test(trimmed)&&!trimmed.startsWith("•")&&!trimmed.startsWith("-");
+    if(isHeader){
+      bodyHTML+=`<div class='sec-hdr'>${trimmed}</div>`;
+      i++;continue;
+    }
+    // Bullet lines
+    if(trimmed.startsWith("•")||trimmed.startsWith("-")){
+      let bullets="<ul class='blist'>";
+      while(i<lines.length&&(lines[i].trim().startsWith("•")||lines[i].trim().startsWith("-"))){
+        const bt=lines[i].trim().replace(/^[•\-]\s*/,"");
+        bullets+=`<li>${bt}</li>`;i++;
+      }
+      bullets+="</ul>";
+      bodyHTML+=bullets;
+      continue;
+    }
+    // Numbered list
+    if(/^\d+\./.test(trimmed)){
+      let items="<ol class='nlist'>";
+      while(i<lines.length&&/^\d+\./.test(lines[i].trim())){
+        const nt=lines[i].trim().replace(/^\d+\.\s*/,"");
+        items+=`<li>${nt}</li>`;i++;
+      }
+      items+="</ol>";
+      bodyHTML+=items;
+      continue;
+    }
+    // Inline data rows (contain multiple | separators — format as a data line)
+    if((trimmed.match(/\|/g)||[]).length>=2){
+      const cells=trimmed.split("|").map(c=>c.trim()).filter(Boolean);
+      bodyHTML+=`<div class='data-row'>${cells.map(c=>`<span>${c}</span>`).join("")}</div>`;
+      i++;continue;
+    }
+    bodyHTML+=`<p>${trimmed}</p>`;i++;
+  }
+
+  const kpis=[
+    {icon:"👮",label:"Officers Active",value:"5/6"},
+    {icon:"⚡",label:"Open Incidents",value:"2"},
+    {icon:"🛡️",label:"Patrol Rate",value:"94%"},
+    {icon:"⏱️",label:"Avg Response",value:"4.2 min"},
+    {icon:"📍",label:"Sites",value:"4/4"},
+  ];
+  const kpiHTML=kpis.map(k=>`<div class='kpi'><div class='kpi-icon'>${k.icon}</div><div class='kpi-val'>${k.value}</div><div class='kpi-lbl'>${k.label}</div></div>`).join("");
+
+  return`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';">
+<title>ShieldSync — ${reportType}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#fff;color:#0e1f35;font-size:12px;line-height:1.65;}
+  @page{margin:18mm 16mm 18mm 16mm;size:A4;}
+  @media print{
+    body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .no-print{display:none;}
+    .page-wrap{padding:0;}
+  }
+  .page-wrap{max-width:780px;margin:0 auto;padding:28px 32px;}
+
+  /* HEADER */
+  .hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:2.5px solid #00C8F0;margin-bottom:18px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{width:36px;height:36px;background:linear-gradient(135deg,#00C8F0,#9B59F0);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;font-weight:900;flex-shrink:0;}
+  .brand-name{font-size:17px;font-weight:900;color:#00C8F0;letter-spacing:-0.02em;line-height:1.1;}
+  .brand-sub{font-size:8px;color:#6a8aaa;letter-spacing:0.22em;text-transform:uppercase;margin-top:2px;}
+  .hdr-right{text-align:right;}
+  .conf-badge{display:inline-block;background:#fff0f0;border:1px solid #f04444;color:#c0202020;color:#c02020;font-size:8px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-bottom:6px;}
+  .hdr-date{font-size:10px;color:#6a8aaa;}
+
+  /* TITLE BLOCK */
+  .title-block{margin-bottom:18px;}
+  .report-type{font-size:21px;font-weight:900;color:#0e1f35;letter-spacing:-0.025em;line-height:1.1;}
+  .report-meta{font-size:10px;color:#6a8aaa;margin-top:5px;letter-spacing:0.04em;}
+
+  /* KPI STRIP */
+  .kpi-strip{display:flex;gap:10px;margin-bottom:22px;}
+  .kpi{flex:1;background:#f5f9ff;border:1px solid #d0e4f5;border-radius:9px;padding:10px 10px 9px;text-align:center;}
+  .kpi-icon{font-size:16px;line-height:1;margin-bottom:4px;}
+  .kpi-val{font-size:15px;font-weight:900;color:#0e1f35;line-height:1.1;}
+  .kpi-lbl{font-size:8px;color:#6a8aaa;text-transform:uppercase;letter-spacing:0.1em;margin-top:3px;}
+
+  /* BODY */
+  .body{background:#fff;border:1px solid #deeaf5;border-radius:11px;padding:20px 22px;}
+  .sec-hdr{font-size:10px;font-weight:800;letter-spacing:0.13em;text-transform:uppercase;color:#00C8F0;border-left:3px solid #00C8F0;padding-left:10px;margin:16px 0 8px;line-height:1;}
+  .sec-hdr:first-child{margin-top:0;}
+  p{margin:4px 0;color:#0e1f35;font-size:12px;}
+  .gap{height:7px;}
+  .blist,.nlist{padding-left:18px;margin:4px 0 6px;}
+  .blist li,.nlist li{margin-bottom:3px;color:#0e1f35;font-size:12px;}
+  .data-row{display:flex;flex-wrap:wrap;gap:6px;margin:5px 0;background:#f5f9ff;border-radius:6px;padding:7px 10px;}
+  .data-row span{font-size:11px;color:#2a4a6a;font-weight:600;white-space:nowrap;}
+  .data-row span::after{content:' ·';color:#9ab;margin-left:6px;}
+  .data-row span:last-child::after{content:'';}
+
+  /* FOOTER */
+  .ftr{margin-top:20px;padding-top:12px;border-top:1px solid #d0e4f5;display:flex;justify-content:space-between;align-items:center;}
+  .ftr-left{font-size:9px;color:#6a8aaa;line-height:1.5;}
+  .ftr-right{font-size:9px;color:#aac;text-align:right;line-height:1.5;}
+  .ftr-conf{font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c02020;margin-top:3px;}
+
+  /* Print button (screen only) */
+  .print-btn{display:block;margin:0 auto 22px;background:#00C8F0;border:none;color:#000;font-weight:800;font-size:13px;padding:12px 32px;border-radius:9px;cursor:pointer;letter-spacing:0.02em;}
+  @media print{.print-btn{display:none;}}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+  <button class="print-btn no-print" onclick="window.print()">⬇ Download / Print PDF</button>
+  <div class="hdr">
+    <div class="brand">
+      <div class="brand-mark">⚡</div>
+      <div><div class="brand-name">ShieldSync</div><div class="brand-sub">Sentinel Platform</div></div>
+    </div>
+    <div class="hdr-right">
+      <div class="conf-badge">Confidential</div>
+      <div class="hdr-date">Generated ${dateStr} at ${timeStr}</div>
+    </div>
+  </div>
+
+  <div class="title-block">
+    <div class="report-type">${reportType}</div>
+    <div class="report-meta">Shift 06:00–18:00 &nbsp;·&nbsp; ShieldSync Security Services &nbsp;·&nbsp; 4 Active Sites</div>
+  </div>
+
+  <div class="kpi-strip">${kpiHTML}</div>
+
+  <div class="body">${bodyHTML}</div>
+
+  <div class="ftr">
+    <div class="ftr-left">
+      <div>Generated by ShieldSync AI &nbsp;·&nbsp; ${dateStr}</div>
+      <div class="ftr-conf">Confidential — Authorized Personnel Only</div>
+    </div>
+    <div class="ftr-right">
+      <div>ShieldSync Sentinel v2.0</div>
+      <div>shieldsync-app.vercel.app</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
 function Reports(){
   const[rtype,setRtype]=useState(REPORT_TYPES[0]);
   const[loading,setLoading]=useState(false);
@@ -2066,19 +2227,22 @@ function Reports(){
           </button>
           {report&&(
             <div>
-              <div style={{display:"flex",gap:8,marginBottom:12}}>
+              <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap"}}>
                 <button onClick={()=>{
-                  const safe=report.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-                  const html=`<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';"><title>ShieldSync — ${rtype.replace(/</g,"&lt;")}</title><style>body{font-family:monospace;padding:40px;white-space:pre-wrap;font-size:13px;line-height:1.75;color:#111;}@media print{body{padding:20px;}}</style></head><body><pre>${safe}</pre></body></html>`;
+                  const html=buildPDFHTML(report,rtype);
                   const url=URL.createObjectURL(new Blob([html],{type:"text/html"}));
                   const w=window.open(url,"_blank");
-                  w?.addEventListener("load",()=>{w.print();URL.revokeObjectURL(url);},{once:true});
-                }} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>🖨 Print / PDF</button>
+                  if(w)setTimeout(()=>URL.revokeObjectURL(url),30000);
+                }} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 16px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:6}}>
+                  <span>⬇</span><span>Export PDF</span>
+                </button>
                 <button onClick={()=>{
                   const url=URL.createObjectURL(new Blob([report],{type:"text/plain"}));
-                  const a=document.createElement("a");a.href=url;a.download=`${rtype.replace(/ /g,"_")}.txt`;a.click();
+                  const a=document.createElement("a");a.href=url;a.download=`${rtype.replace(/ /g,"_")}_${new Date().toISOString().slice(0,10)}.txt`;a.click();
                   setTimeout(()=>URL.revokeObjectURL(url),150);
-                }} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>⬇ Export</button>
+                }} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:6}}>
+                  <span>📄</span><span>Export TXT</span>
+                </button>
               </div>
               <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:12,padding:"20px 22px"}}>
                 <pre style={{margin:0,fontSize:13,color:T.text,whiteSpace:"pre-wrap",lineHeight:1.75,fontFamily:"inherit"}}>{report}</pre>
