@@ -76,11 +76,12 @@ const PERM_LABELS={
   training:"Training",aicommand:"AI Command",procurement:"Procurement",
   auditlog:"Audit Log",users:"User Management",settings:"Company Settings",myshift:"My Shift",
   clientportal:"Client Portal",itcommand:"IT/Cyber",
+  postorders:"Post Orders",compliance:"Compliance",opmap:"Operations Map",shiftmarket:"Shift Market",
 };
 const ROLE_PERMS={
-  "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings","clientportal","itcommand"],
-  "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","itcommand"],
-  "Officer":["dashboard","myshift","patrol","visitors","equipment","leave"],
+  "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings","clientportal","itcommand","postorders","compliance","opmap","shiftmarket"],
+  "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","itcommand","postorders","compliance","opmap"],
+  "Officer":["dashboard","myshift","patrol","visitors","equipment","leave","postorders","shiftmarket"],
   "Client":["clientportal","reports"],
 };
 function getUsers(){const s=LS.get("ss_users_v1",null);if(s)return s;const init=AUTH_USERS.map(u=>({...u,active:true,createdAt:"2024-01-01",mfaEnabled:false,company:"ShieldSync Demo"}));LS.set("ss_users_v1",init);return init;}
@@ -196,6 +197,10 @@ const NAV=[
   {id:"equipment",label:"Equipment",icon:"🔧",roles:["Company Admin","Supervisor","Officer"]},
   {id:"leave",label:"Leave",icon:"📅",roles:["Company Admin","Supervisor","Officer"]},
   {id:"training",label:"Training",icon:"🎓",roles:["Company Admin","Supervisor"]},
+  {id:"postorders",label:"Post Orders",icon:"📋",roles:["Company Admin","Supervisor","Officer"]},
+  {id:"compliance",label:"Compliance",icon:"🪪",roles:["Company Admin","Supervisor"]},
+  {id:"opmap",label:"Ops Map",icon:"🗺️",roles:["Company Admin","Supervisor"]},
+  {id:"shiftmarket",label:"Shift Market",icon:"🔄",roles:["Company Admin","Supervisor","Officer"]},
   {id:"aicommand",label:"AI Command",icon:"🤖",roles:["Company Admin","Supervisor"]},
   {id:"procurement",label:"Procurement",icon:"📦",roles:["Company Admin"]},
   {id:"auditlog",label:"Audit Log",icon:"📋",roles:["Company Admin"]},
@@ -330,6 +335,53 @@ const CYBER_ACCESS_LOG=[
   {time:"07:42",user:"officer@shieldsync.com",action:"Login",ip:"10.0.0.4",result:"Success",device:"Android / Chrome"},
   {time:"07:21",user:"unknown@external.io",action:"Login",ip:"45.33.32.156",result:"Failed",device:"curl/7.88"},
   {time:"06:55",user:"client@shieldsync.com",action:"Report View",ip:"172.16.0.8",result:"Success",device:"Firefox / Windows"},
+];
+const POST_ORDERS=[
+  {id:"PO-001",site:"Northgate Tower",version:3,updated:"2026-06-01",author:"Sarah Chen",status:"Active",
+   content:`NORTHGATE TOWER — POST ORDERS v3\nEffective: June 1, 2026\n\n1. GENERAL RESPONSIBILITIES\n- Report for duty 15 minutes before shift start\n- Uniform must be clean, pressed, and complete at all times\n- Maintain visitor log at all times\n\n2. ACCESS CONTROL\n- All visitors must sign in and receive a temp badge\n- Contractor access limited to 06:00–18:00 Mon–Fri\n- No tailgating — challenge any unknown person at entry\n\n3. PATROL REQUIREMENTS\n- Complete patrol rounds every 90 minutes minimum\n- Scan all 8 checkpoints during each round\n- Document any anomalies immediately\n\n4. EMERGENCY PROCEDURES\n- Fire: Initiate evacuation per floor warden plan\n- Medical: Call 911, then notify supervisor\n- Active threat: Lockdown, call 911, shelter-in-place\n\n5. REPORTING\n- Complete DAR before shift end\n- All incidents require immediate report submission\n- Escalate to supervisor within 5 minutes of any critical event`,
+   acks:["Marcus Webb","Jordan Park"],pending:["Ava Simmons"]},
+  {id:"PO-002",site:"Harbor Logistics",version:2,updated:"2026-05-15",author:"Admin",status:"Active",
+   content:`HARBOR LOGISTICS — POST ORDERS v2\nEffective: May 15, 2026\n\n1. ACCESS CONTROL\n- Truck drivers must present BOL and valid ID\n- All vehicles logged in yard management system\n- Gate code changes every Monday — obtain from supervisor\n\n2. PATROL\n- Perimeter patrol every 60 minutes\n- Check all loading docks and lock seals\n- Verify container seals match manifest\n\n3. INCIDENTS\n- Any cargo discrepancy — notify shift supervisor immediately\n- Damage to property — photograph and report\n- Unauthorized individuals — detain and notify law enforcement if necessary`,
+   acks:["Diana Reyes"],pending:[]},
+  {id:"PO-003",site:"Plaza West",version:1,updated:"2026-04-10",author:"Admin",status:"Active",
+   content:`PLAZA WEST — POST ORDERS v1\nEffective: April 10, 2026\n\n1. RETAIL ENVIRONMENT\n- Visible deterrence is primary role — maintain visible presence\n- Assist retail associates with loss prevention observations only\n- Never physically detain shoppers — observe and report\n\n2. PATROL\n- Internal mall patrol every 45 minutes\n- Parking lot patrol every 90 minutes\n- Focus on high-theft areas (electronics, cosmetics)\n\n3. CUSTOMER SERVICE\n- Assist lost shoppers, medical situations\n- Coordinate with tenant security teams\n- Escort closing staff to vehicles on request`,
+   acks:[],pending:["Theo Okafor"]},
+  {id:"PO-004",site:"Eastside Mall",version:2,updated:"2026-05-28",author:"Sarah Chen",status:"Active",
+   content:`EASTSIDE MALL — POST ORDERS v2\nEffective: May 28, 2026\n\n1. GENERAL\n- Two-officer coverage during peak hours (12:00–20:00)\n- Maintain radio contact with partner at all times\n- Off-duty personnel not permitted on site in uniform\n\n2. PATROL & COVERAGE\n- Entry points monitored during all operating hours\n- Food court patrol every 30 minutes during peak\n- Parking structure sweep at 22:00 before close\n\n3. CLOSING PROCEDURE\n- Verify all tenant spaces secured by 22:30\n- Final patrol log signed and submitted by 23:00\n- Handover to overnight officer by 23:00`,
+   acks:["Ava Simmons"],pending:[]},
+];
+const GUARD_CERTS=[
+  {id:"GC-001",officer:"Marcus Webb",badge:"S-0041",state:"CA",cardNo:"BSIS-44201",type:"Guard Card",expires:"2026-08-15",training:"Unarmed",status:"Active",daysLeft:71},
+  {id:"GC-002",officer:"Marcus Webb",badge:"S-0041",state:"CA",cardNo:"CPRO-2891",type:"CPR/First Aid",expires:"2026-07-01",training:"Medical",status:"Expiring",daysLeft:26},
+  {id:"GC-003",officer:"Diana Reyes",badge:"S-0067",state:"CA",cardNo:"BSIS-38847",type:"Guard Card",expires:"2027-01-20",training:"Unarmed",status:"Active",daysLeft:229},
+  {id:"GC-004",officer:"Diana Reyes",badge:"S-0067",state:"CA",cardNo:"ARMS-1204",type:"Armed Permit",expires:"2026-06-20",training:"Armed",status:"Critical",daysLeft:15},
+  {id:"GC-005",officer:"Theo Okafor",badge:"S-0083",state:"CA",cardNo:"BSIS-51023",type:"Guard Card",expires:"2026-06-12",training:"Unarmed",status:"Critical",daysLeft:7},
+  {id:"GC-006",officer:"Ava Simmons",badge:"S-0092",state:"CA",cardNo:"BSIS-62914",type:"Guard Card",expires:"2027-03-10",training:"Unarmed",status:"Active",daysLeft:278},
+  {id:"GC-007",officer:"Jordan Park",badge:"S-0105",state:"CA",cardNo:"BSIS-47382",type:"Guard Card",expires:"2026-09-30",training:"Unarmed",status:"Active",daysLeft:117},
+  {id:"GC-008",officer:"Jordan Park",badge:"S-0105",state:"CA",cardNo:"CPRO-3312",type:"CPR/First Aid",expires:"2026-06-25",training:"Medical",status:"Expiring",daysLeft:20},
+  {id:"GC-009",officer:"Elena Voss",badge:"S-0118",state:"CA",cardNo:"BSIS-55901",type:"Guard Card",expires:"2026-06-08",training:"Unarmed",status:"Critical",daysLeft:3},
+  {id:"GC-010",officer:"Elena Voss",badge:"S-0118",state:"CA",cardNo:"ARMS-2201",type:"Armed Permit",expires:"2026-07-15",training:"Armed",status:"Expiring",daysLeft:40},
+];
+const OPEN_SHIFTS=[
+  {id:"OS-001",site:"Northgate Tower",date:"2026-06-06",start:"06:00",end:"18:00",type:"Day",urgency:"Normal",rate:22,posted:"2h ago",requirements:"Guard Card CA",claimed:null},
+  {id:"OS-002",site:"Harbor Logistics",date:"2026-06-06",start:"18:00",end:"06:00",type:"Night",urgency:"Urgent",rate:25,posted:"30min ago",requirements:"Guard Card CA",claimed:null},
+  {id:"OS-003",site:"Plaza West",date:"2026-06-07",start:"12:00",end:"00:00",type:"Evening",urgency:"Normal",rate:22,posted:"4h ago",requirements:"Guard Card CA",claimed:null},
+  {id:"OS-004",site:"Eastside Mall",date:"2026-06-07",start:"06:00",end:"14:00",type:"Day",urgency:"Normal",rate:22,posted:"1h ago",requirements:"Guard Card CA",claimed:null},
+  {id:"OS-005",site:"Harbor Logistics",date:"2026-06-08",start:"06:00",end:"18:00",type:"Day",urgency:"Normal",rate:22,posted:"6h ago",requirements:"Guard Card CA",claimed:null},
+];
+const VISITOR_WATCHLIST=[
+  {id:"WL-001",name:"Robert Henley",dob:"1978-04-22",reason:"Trespassing — Eastside Mall (2025-11-14)",addedBy:"Sarah Chen",photo:"RH",severity:"High"},
+  {id:"WL-002",name:"Tamara Osei",dob:"1991-07-03",reason:"Theft — Northgate Tower (2026-01-08)",addedBy:"Admin",photo:"TO",severity:"Medium"},
+  {id:"WL-003",name:"Unknown Male",dob:"—",reason:"Attempted tailgating — Harbor Logistics (2026-03-21)",addedBy:"Diana Reyes",photo:"??",severity:"High"},
+  {id:"WL-004",name:"Gary Mitch",dob:"1965-09-18",reason:"Harassment — Plaza West (2026-02-14)",addedBy:"Theo Okafor",photo:"GM",severity:"Low"},
+];
+const FATIGUE_DATA=[
+  {officer:"Marcus Webb",badge:"S-0041",av:"MW",hoursLast7:60.38,consecutiveNight:0,missedCPs:0,incidentRate:2,score:28,risk:"Low"},
+  {officer:"Diana Reyes",badge:"S-0067",av:"DR",hoursLast7:60.5,consecutiveNight:0,missedCPs:1,incidentRate:0,score:41,risk:"Low"},
+  {officer:"Theo Okafor",badge:"S-0083",av:"TO",hoursLast7:60,consecutiveNight:0,missedCPs:3,incidentRate:1,score:62,risk:"Moderate"},
+  {officer:"Ava Simmons",badge:"S-0092",av:"AS",hoursLast7:60,consecutiveNight:0,missedCPs:2,incidentRate:0,score:48,risk:"Low"},
+  {officer:"Jordan Park",badge:"S-0105",av:"JP",hoursLast7:62.25,consecutiveNight:0,missedCPs:0,incidentRate:0,score:55,risk:"Moderate"},
+  {officer:"Elena Voss",badge:"S-0118",av:"EV",hoursLast7:60,consecutiveNight:5,missedCPs:4,incidentRate:0,score:78,risk:"High"},
 ];
 
 // ─────────────────────────────────────────────────────────────────
@@ -1506,6 +1558,33 @@ function Workforce(){
           </div>
         </CB>
       </Card>
+      <Card>
+        <CB>
+          <SH title="Officer Fatigue Monitor" icon="⚠️" sub="Based on hours worked, consecutive nights, missed checkpoints, and incident rate"/>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {FATIGUE_DATA.map(f=>{
+              const col=f.risk==="High"?T.red:f.risk==="Moderate"?T.amber:T.green;
+              return(
+                <div key={f.badge} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.raised,borderRadius:10,border:`1px solid ${f.risk==="High"?T.redB:T.border}`}}>
+                  <Av initials={f.av} color={col} size={36}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{f.officer}</div>
+                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{f.badge} · {f.hoursLast7}h / 7 days · {f.consecutiveNight} night shifts</div>
+                  </div>
+                  <div style={{width:80}}>
+                    <div style={{fontSize:10,color:T.textSub,marginBottom:4,textAlign:"right"}}>Fatigue Score</div>
+                    <div style={{height:6,background:T.bg,borderRadius:3,overflow:"hidden"}}>
+                      <div style={{height:"100%",width:`${f.score}%`,background:`linear-gradient(90deg,${T.green},${f.score>70?T.red:f.score>50?T.amber:T.green})`,borderRadius:3}}/>
+                    </div>
+                    <div style={{fontSize:11,fontWeight:800,color:col,textAlign:"right",marginTop:3}}>{f.score}/100</div>
+                  </div>
+                  <Pill label={f.risk} color={col}/>
+                </div>
+              );
+            })}
+          </div>
+        </CB>
+      </Card>
     </div>
   );
 }
@@ -1755,6 +1834,7 @@ function Fleet({openModal}){
 
 function Visitors({openModal,user,showToast}){
   const[visitors,setVisitors]=useLS("ss_visitors",VISITORS_DATA);
+  const[tab,setTab]=useState("log");
   const active=visitors.filter(v=>v.status==="Active").length;
   const out=visitors.filter(v=>v.status==="Checked Out").length;
 
@@ -1776,7 +1856,7 @@ function Visitors({openModal,user,showToast}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-        {[["Active",active,T.green],["Out Today",out,T.textSub],["Watchlist","0",T.red]].map(([l,v,c])=>(
+        {[["Active",active,T.green],["Out Today",out,T.textSub],["Watchlist",VISITOR_WATCHLIST.length,T.red]].map(([l,v,c])=>(
           <Card key={l} glow={c}>
             <CB style={{textAlign:"center"}}>
               <div style={{fontSize:30,fontWeight:900,color:c}}>{v}</div>
@@ -1786,48 +1866,82 @@ function Visitors({openModal,user,showToast}){
         ))}
       </div>
 
-      {PRE_REGISTERED.length>0&&(
-        <Card glow={T.purple}>
-          <CB>
-            <SH title="Expected Arrivals"/>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {PRE_REGISTERED.map(pr=>(
-                <div key={pr.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{pr.name}</div>
-                    <div style={{fontSize:11,color:T.textSub}}>{pr.host} · {pr.site} · {pr.purpose}</div>
-                  </div>
-                  <div style={{fontSize:11,color:T.purple,fontWeight:700,flexShrink:0}}>{pr.expected}</div>
-                  <button onClick={()=>checkInPreReg(pr)} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"7px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11,flexShrink:0}}>Check In</button>
+      <div style={{display:"flex",gap:6}}>
+        {[["log","📋 Visitor Log"],["watchlist","🚫 Watchlist"]].map(([t,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+        ))}
+      </div>
+
+      {tab==="log"&&(
+        <>
+          {PRE_REGISTERED.length>0&&(
+            <Card glow={T.purple}>
+              <CB>
+                <SH title="Expected Arrivals"/>
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  {PRE_REGISTERED.map(pr=>(
+                    <div key={pr.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:13,fontWeight:700,color:T.text}}>{pr.name}</div>
+                        <div style={{fontSize:11,color:T.textSub}}>{pr.host} · {pr.site} · {pr.purpose}</div>
+                      </div>
+                      <div style={{fontSize:11,color:T.purple,fontWeight:700,flexShrink:0}}>{pr.expected}</div>
+                      <button onClick={()=>checkInPreReg(pr)} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"7px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11,flexShrink:0}}>Check In</button>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </CB>
+            </Card>
+          )}
+
+          <Card>
+            <CB>
+              <SH title="Visitor Log" action={{label:"+ Check In",fn:()=>openModal({type:"checkin"})}}/>
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {visitors.map(v=>(
+                  <div key={v.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
+                    <div style={{width:36,height:36,borderRadius:10,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>👤</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:13,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{v.name}</div>
+                      <div style={{fontSize:11,color:T.textSub}}>Host: {v.host} · {v.site}</div>
+                    </div>
+                    <div style={{textAlign:"right",fontSize:11,color:T.textSub,flexShrink:0}}><div>In: {v.in}</div><div>Out: {v.out}</div></div>
+                    <div style={{textAlign:"right",flexShrink:0,display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
+                      <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace"}}>{v.badge}</div>
+                      <Pill label={v.status} color={v.status==="Active"?T.green:T.textSub}/>
+                      {v.status==="Active"&&<button onClick={()=>checkOut(v.id)} style={{fontSize:10,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"3px 8px",borderRadius:5,cursor:"pointer",fontWeight:700}}>Check Out</button>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CB>
+          </Card>
+        </>
+      )}
+
+      {tab==="watchlist"&&(
+        <Card>
+          <CB>
+            <SH title="Security Watchlist" icon="🚫" sub="Individuals flagged for access denial or enhanced scrutiny"/>
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {VISITOR_WATCHLIST.map(w=>{
+                const col=w.severity==="High"?T.red:w.severity==="Medium"?T.amber:T.textSub;
+                return(
+                  <div key={w.id} style={{display:"flex",gap:14,alignItems:"center",padding:"14px 16px",background:T.raised,borderRadius:12,border:`1px solid ${w.severity==="High"?T.redB:T.border}`}}>
+                    <div style={{width:44,height:44,borderRadius:"50%",background:`${col}20`,border:`2px solid ${col}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,color:col,flexShrink:0}}>{w.photo}</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:14,fontWeight:800,color:T.text}}>{w.name}</div>
+                      <div style={{fontSize:11,color:T.textSub,marginTop:2}}>DOB: {w.dob} · Added by {w.addedBy}</div>
+                      <div style={{fontSize:11,color:T.textSub,marginTop:3,fontStyle:"italic"}}>{w.reason}</div>
+                    </div>
+                    <Pill label={w.severity} color={col}/>
+                  </div>
+                );
+              })}
             </div>
           </CB>
         </Card>
       )}
-
-      <Card>
-        <CB>
-          <SH title="Visitor Log" action={{label:"+ Check In",fn:()=>openModal({type:"checkin"})}}/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {visitors.map(v=>(
-              <div key={v.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
-                <div style={{width:36,height:36,borderRadius:10,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>👤</div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:13,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{v.name}</div>
-                  <div style={{fontSize:11,color:T.textSub}}>Host: {v.host} · {v.site}</div>
-                </div>
-                <div style={{textAlign:"right",fontSize:11,color:T.textSub,flexShrink:0}}><div>In: {v.in}</div><div>Out: {v.out}</div></div>
-                <div style={{textAlign:"right",flexShrink:0,display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
-                  <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace"}}>{v.badge}</div>
-                  <Pill label={v.status} color={v.status==="Active"?T.green:T.textSub}/>
-                  {v.status==="Active"&&<button onClick={()=>checkOut(v.id)} style={{fontSize:10,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"3px 8px",borderRadius:5,cursor:"pointer",fontWeight:700}}>Check Out</button>}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CB>
-      </Card>
     </div>
   );
 }
@@ -2248,7 +2362,20 @@ function MyShift({user,showToast}){
 
       {/* SOS */}
       {clocked&&(
-        <button onClick={sos} style={{width:"100%",background:"rgba(240,68,68,0.12)",border:`2px solid ${T.red}`,color:T.red,padding:"16px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:16,letterSpacing:"0.08em"}}>🚨 SOS — Emergency Alert</button>
+        <Card glow={T.red}>
+          <CB>
+            <SH title="Emergency SOS" icon="🆘" sub="Tap only in a genuine emergency — alerts all supervisors and dispatch with your GPS location"/>
+            <button
+              onClick={()=>{
+                const ts=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+                logAction(user,"SOS_ALERT",`Emergency SOS triggered by ${user?.name} at ${ts}`);
+                showToast("🆘 SOS SENT — Supervisors and dispatch alerted with your location","success");
+              }}
+              style={{width:"100%",background:"rgba(240,68,68,0.15)",border:`2px solid ${T.red}`,color:T.red,padding:"18px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:18,letterSpacing:"0.08em"}}
+            >🆘 SEND EMERGENCY ALERT</button>
+            <div style={{marginTop:10,fontSize:11,color:T.textDim,textAlign:"center"}}>Your GPS location will be shared with supervisors and dispatch</div>
+          </CB>
+        </Card>
       )}
 
       {/* Shift Handover */}
@@ -4238,6 +4365,458 @@ function CompanySettings({user,showToast}){
 }
 
 // ─────────────────────────────────────────────────────────────────
+// POST ORDERS MODULE
+// ─────────────────────────────────────────────────────────────────
+function PostOrdersModule({user,showToast}){
+  const[orders,setOrders]=useLS("ss_postorders",POST_ORDERS);
+  const[selected,setSelected]=useState(orders[0]||null);
+  const[editing,setEditing]=useState(false);
+  const[editContent,setEditContent]=useState("");
+  const isAdmin=user?.role==="Company Admin"||user?.role==="Supervisor";
+
+  const acknowledge=(orderId)=>{
+    setOrders(os=>os.map(o=>{
+      if(o.id!==orderId)return o;
+      if(o.acks.includes(user?.name))return o;
+      return{...o,acks:[...o.acks,user?.name],pending:o.pending.filter(n=>n!==user?.name)};
+    }));
+    logAction(user,"POST_ORDER_ACK",`Acknowledged: ${selected?.site} v${selected?.version}`);
+    showToast("Post orders acknowledged","success");
+  };
+
+  const saveEdit=()=>{
+    setOrders(os=>os.map(o=>o.id===selected?.id?{...o,content:editContent,version:o.version+1,updated:new Date().toISOString().slice(0,10),author:user?.name}:o));
+    setEditing(false);
+    showToast("Post orders updated — officers notified","success");
+    logAction(user,"POST_ORDER_UPDATE",`Updated: ${selected?.site}`);
+  };
+
+  const selOrder=orders.find(o=>o.id===selected?.id)||orders[0];
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
+        <div>
+          <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Post Orders</div>
+          <div style={{fontSize:20,fontWeight:900,color:T.text}}>Site Instructions & Procedures</div>
+        </div>
+        {isAdmin&&<div style={{display:"flex",gap:8}}>
+          <button onClick={()=>{setEditContent(selOrder?.content||"");setEditing(true);}} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}>✏️ Edit Orders</button>
+        </div>}
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"240px 1fr",gap:14,alignItems:"start"}}>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {orders.map(o=>{
+            const pendingMe=o.pending.includes(user?.name);
+            const ackMe=o.acks.includes(user?.name);
+            return(
+              <div key={o.id} onClick={()=>setSelected(o)} style={{background:selected?.id===o.id?T.accentGlow:T.raised,border:`1px solid ${selected?.id===o.id?T.accentB:T.border}`,borderRadius:10,padding:"12px 14px",cursor:"pointer"}}>
+                <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:4}}>{o.site}</div>
+                <div style={{fontSize:11,color:T.textSub}}>v{o.version} · {o.updated}</div>
+                <div style={{marginTop:6,display:"flex",gap:6,flexWrap:"wrap"}}>
+                  {pendingMe&&<Pill label="⚠ Pending Ack" color={T.amber}/>}
+                  {ackMe&&<Pill label="✓ Acknowledged" color={T.green}/>}
+                  {o.pending.length>0&&isAdmin&&<Pill label={`${o.pending.length} pending`} color={T.amber}/>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <Card>
+          <CB>
+            {selOrder&&(
+              <>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
+                  <div>
+                    <div style={{fontSize:16,fontWeight:900,color:T.text}}>{selOrder.site}</div>
+                    <div style={{fontSize:11,color:T.textSub,marginTop:3}}>Version {selOrder.version} · Updated {selOrder.updated} by {selOrder.author}</div>
+                  </div>
+                  <Pill label={selOrder.status} color={T.green}/>
+                </div>
+
+                {editing?(
+                  <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                    <textarea value={editContent} onChange={e=>setEditContent(e.target.value)} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,color:T.text,fontSize:12,padding:"12px",fontFamily:"monospace",lineHeight:1.7,minHeight:320,width:"100%",resize:"vertical"}}/>
+                    <div style={{display:"flex",gap:8}}>
+                      <button onClick={saveEdit} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>Save & Notify Officers</button>
+                      <button onClick={()=>setEditing(false)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"9px 16px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>Cancel</button>
+                    </div>
+                  </div>
+                ):(
+                  <>
+                    <pre style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"16px",fontSize:12,color:T.text,lineHeight:1.8,fontFamily:"'DM Sans',sans-serif",whiteSpace:"pre-wrap",wordBreak:"break-word",marginBottom:16}}>{selOrder.content}</pre>
+                    {isAdmin&&(
+                      <div style={{marginBottom:16}}>
+                        <div style={{fontSize:11,fontWeight:700,color:T.textSub,marginBottom:8}}>ACKNOWLEDGMENTS</div>
+                        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                          {selOrder.acks.map(n=><span key={n} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,borderRadius:6,padding:"4px 9px",fontSize:11,fontWeight:700}}>✓ {n}</span>)}
+                          {selOrder.pending.map(n=><span key={n} style={{background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,borderRadius:6,padding:"4px 9px",fontSize:11,fontWeight:700}}>⏳ {n}</span>)}
+                        </div>
+                      </div>
+                    )}
+                    {!isAdmin&&!selOrder.acks.includes(user?.name)&&(
+                      <button onClick={()=>acknowledge(selOrder.id)} style={{width:"100%",background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"13px",borderRadius:10,cursor:"pointer",fontWeight:800,fontSize:14}}>✓ Acknowledge Post Orders</button>
+                    )}
+                    {!isAdmin&&selOrder.acks.includes(user?.name)&&(
+                      <div style={{textAlign:"center",padding:"12px",background:T.greenGlow,border:`1px solid ${T.greenB}`,borderRadius:10,color:T.green,fontWeight:700,fontSize:13}}>✓ You have acknowledged these post orders</div>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </CB>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// COMPLIANCE MODULE — Guard Card & Certification Expiry Tracker
+// ─────────────────────────────────────────────────────────────────
+function ComplianceModule({user,showToast}){
+  const[certs]=useLS("ss_guard_certs",GUARD_CERTS);
+  const[filter,setFilter]=useState("All");
+  const critical=certs.filter(c=>c.status==="Critical");
+  const expiring=certs.filter(c=>c.status==="Expiring");
+
+  const statusColor=(s)=>s==="Critical"?T.red:s==="Expiring"?T.amber:T.green;
+  const filtered=filter==="All"?certs:certs.filter(c=>c.status===filter);
+
+  const exportCompliance=()=>{
+    dlCSV(
+      [["Officer","Badge","State","Card #","Type","Expires","Days Left","Status"],
+       ...certs.map(c=>[c.officer,c.badge,c.state,c.cardNo,c.type,c.expires,c.daysLeft,c.status])],
+      `compliance_${new Date().toISOString().slice(0,10)}.csv`
+    );
+    showToast("Compliance report exported","success");
+    logAction(user,"COMPLIANCE_EXPORT",`${certs.length} certifications`);
+  };
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
+        <div>
+          <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Compliance Tracker</div>
+          <div style={{fontSize:20,fontWeight:900,color:T.text}}>Guard Cards & Certifications</div>
+        </div>
+        <button onClick={exportCompliance} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}>⬇ Export CSV</button>
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+        {[["🔴 Critical",critical.length,"Expire within 14 days",T.red],
+          ["🟡 Expiring Soon",expiring.length,"Expire within 30 days",T.amber],
+          ["✅ Active",certs.filter(c=>c.status==="Active").length,"No action needed",T.green]
+        ].map(([l,v,s,c])=>(
+          <Card key={l} glow={c}>
+            <CB style={{textAlign:"center",padding:"16px 12px"}}>
+              <div style={{fontSize:24,fontWeight:900,color:c,marginBottom:4}}>{v}</div>
+              <div style={{fontSize:12,fontWeight:700,color:T.text}}>{l}</div>
+              <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{s}</div>
+            </CB>
+          </Card>
+        ))}
+      </div>
+
+      {critical.length>0&&(
+        <Card>
+          <CB>
+            <SH title="🚨 Immediate Action Required" icon="🔴"/>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {critical.map(c=>(
+                <div key={c.id} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10}}>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{c.officer} — {c.type}</div>
+                    <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{c.cardNo} · {c.state} · Expires {c.expires}</div>
+                  </div>
+                  <div style={{textAlign:"right"}}>
+                    <div style={{fontSize:20,fontWeight:900,color:T.red}}>{c.daysLeft}d</div>
+                    <div style={{fontSize:9,color:T.red}}>remaining</div>
+                  </div>
+                  <Pill label="CRITICAL" color={T.red}/>
+                </div>
+              ))}
+            </div>
+          </CB>
+        </Card>
+      )}
+
+      <Card>
+        <CB>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+            <SH title="All Certifications"/>
+            <div style={{display:"flex",gap:6}}>
+              {["All","Critical","Expiring","Active"].map(f=>(
+                <button key={f} onClick={()=>setFilter(f)} style={{background:filter===f?T.accentGlow:T.raised,border:`1px solid ${filter===f?T.accentB:T.border}`,color:filter===f?T.accent:T.textSub,padding:"6px 10px",borderRadius:7,cursor:"pointer",fontWeight:700,fontSize:11}}>{f}</button>
+              ))}
+            </div>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {filtered.map(c=>{
+              const col=statusColor(c.status);
+              return(
+                <div key={c.id} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10,border:`1px solid ${c.status==="Critical"?T.redB:c.status==="Expiring"?T.border:T.border}`}}>
+                  <div style={{width:10,height:10,borderRadius:"50%",background:col,flexShrink:0}}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{c.officer}</div>
+                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{c.type} · {c.cardNo} · {c.state}</div>
+                  </div>
+                  <div style={{textAlign:"right",marginRight:8}}>
+                    <div style={{fontSize:12,color:T.textSub}}>Expires {c.expires}</div>
+                    <div style={{fontSize:11,fontWeight:700,color:col}}>{c.daysLeft} days left</div>
+                  </div>
+                  <Pill label={c.status} color={col}/>
+                </div>
+              );
+            })}
+          </div>
+        </CB>
+      </Card>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// OPERATIONS MAP MODULE — Live Dispatch View
+// ─────────────────────────────────────────────────────────────────
+const OPS_MAP_OFFICERS=[
+  {name:"Marcus Webb",badge:"S-0041",av:"MW",status:"On Patrol",site:"Northgate Tower",x:38,y:28,color:"#00C8F0"},
+  {name:"Diana Reyes",badge:"S-0067",av:"DR",status:"On Site",site:"Harbor Logistics",x:72,y:62,color:"#00D464"},
+  {name:"Theo Okafor",badge:"S-0083",av:"TO",status:"Incident Active",site:"Plaza West",x:24,y:71,color:"#F04444"},
+  {name:"Ava Simmons",badge:"S-0092",av:"AS",status:"Clocked In",site:"Eastside Mall",x:61,y:34,color:"#F0A800"},
+  {name:"Jordan Park",badge:"S-0105",av:"JP",status:"On Patrol",site:"Northgate Tower",x:42,y:31,color:"#00C8F0"},
+  {name:"Elena Voss",badge:"S-0118",av:"EV",status:"Off Duty",site:"—",x:55,y:80,color:"#384D6A"},
+];
+const OPS_MAP_INCIDENTS=[
+  {id:"INC-001",site:"Plaza West",type:"Disturbance",severity:"High",x:24,y:71,status:"Active"},
+  {id:"INC-002",site:"Northgate Tower",type:"Suspicious Activity",severity:"Medium",x:40,y:28,status:"Active"},
+];
+const OPS_MAP_SITES=[
+  {name:"Northgate Tower",x:40,y:28,officers:2},{name:"Harbor Logistics",x:72,y:62,officers:1},
+  {name:"Plaza West",x:24,y:71,officers:1},{name:"Eastside Mall",x:61,y:34,officers:1},
+];
+function OperationsMapModule({user,showToast}){
+  const[selected,setSelected]=useState(null);
+  const[filter,setFilter]=useState("All");
+  const visible=filter==="All"?OPS_MAP_OFFICERS:OPS_MAP_OFFICERS.filter(o=>SM(o.status).c!==T.textDim);
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
+        <div>
+          <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Operations Map</div>
+          <div style={{fontSize:20,fontWeight:900,color:T.text}}>Live Officer & Incident Positions</div>
+        </div>
+        <div style={{display:"flex",gap:6,alignItems:"center"}}>
+          <div style={{width:8,height:8,borderRadius:"50%",background:T.green,boxShadow:`0 0 6px ${T.green}`}}/>
+          <span style={{fontSize:11,color:T.green,fontWeight:700}}>LIVE</span>
+        </div>
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+        {[["Active Officers",OPS_MAP_OFFICERS.filter(o=>o.status!=="Off Duty").length,T.accent,"👮"],
+          ["On Patrol",OPS_MAP_OFFICERS.filter(o=>o.status==="On Patrol").length,T.green,"🛡️"],
+          ["Active Incidents",OPS_MAP_INCIDENTS.length,T.red,"⚡"],
+          ["Sites Covered",OPS_MAP_SITES.length,T.gold,"📍"]
+        ].map(([l,v,c,ic])=>(
+          <Card key={l} glow={c}><CB style={{textAlign:"center",padding:"14px 10px"}}>
+            <div style={{fontSize:20}}>{ic}</div>
+            <div style={{fontSize:24,fontWeight:900,color:c,margin:"6px 0"}}>{v}</div>
+            <div style={{fontSize:10,color:T.textSub}}>{l}</div>
+          </CB></Card>
+        ))}
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 300px",gap:14,alignItems:"start"}}>
+        <Card>
+          <CB style={{padding:"20px"}}>
+            <div style={{position:"relative",width:"100%",paddingBottom:"60%",background:"#0a1520",borderRadius:12,overflow:"hidden",border:`1px solid ${T.border}`}}>
+              <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(circle at 50% 50%, rgba(0,200,240,0.03) 0%, transparent 70%),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(26,40,64,0.4) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(26,40,64,0.4) 40px)"}}>
+                {OPS_MAP_SITES.map(s=>(
+                  <div key={s.name} style={{position:"absolute",left:`${s.x}%`,top:`${s.y}%`,transform:"translate(-50%,-50%)"}}>
+                    <div style={{background:"rgba(0,200,240,0.08)",border:`1px solid rgba(0,200,240,0.2)`,borderRadius:8,padding:"6px 10px",fontSize:9,color:T.accent,fontWeight:700,whiteSpace:"nowrap"}}>{s.name}</div>
+                  </div>
+                ))}
+                {OPS_MAP_INCIDENTS.map(inc=>(
+                  <div key={inc.id} style={{position:"absolute",left:`${inc.x}%`,top:`${inc.y}%`,transform:"translate(-50%,-50%)"}}>
+                    <div style={{width:22,height:22,borderRadius:"50%",background:T.red,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,boxShadow:`0 0 12px ${T.red}`,animation:"ssB 1s ease-in-out infinite",cursor:"pointer",zIndex:2}}>⚡</div>
+                  </div>
+                ))}
+                {visible.map(o=>{
+                  const c=SM(o.status).c;
+                  return(
+                    <div key={o.badge} onClick={()=>setSelected(selected?.badge===o.badge?null:o)} style={{position:"absolute",left:`${o.x}%`,top:`${o.y}%`,transform:"translate(-50%,-50%)",cursor:"pointer",zIndex:3}}>
+                      <div style={{width:28,height:28,borderRadius:"50%",background:c,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:T.bg,border:`2px solid ${selected?.badge===o.badge?"white":T.bg}`,boxShadow:selected?.badge===o.badge?`0 0 12px ${c}`:"none",transition:"all 0.15s"}}>
+                        {o.av}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div style={{display:"flex",gap:12,marginTop:12,flexWrap:"wrap"}}>
+              {[["🔵 On Patrol",T.accent],["🟢 On Site",T.green],["🔴 Incident",T.red],["🟡 Clocked In",T.amber],["⚫ Off Duty",T.textDim]].map(([l,c])=>(
+                <div key={l} style={{display:"flex",alignItems:"center",gap:5}}>
+                  <div style={{width:8,height:8,borderRadius:"50%",background:c}}/>
+                  <span style={{fontSize:10,color:T.textSub}}>{l}</span>
+                </div>
+              ))}
+            </div>
+          </CB>
+        </Card>
+
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {selected&&(
+            <Card glow={SM(selected.status).c}>
+              <CB>
+                <div style={{display:"flex",gap:12,alignItems:"center",marginBottom:12}}>
+                  <Av initials={selected.av} color={SM(selected.status).c} size={40}/>
+                  <div>
+                    <div style={{fontSize:14,fontWeight:800,color:T.text}}>{selected.name}</div>
+                    <div style={{fontSize:11,color:T.textSub}}>{selected.badge}</div>
+                  </div>
+                </div>
+                <Pill label={selected.status}/>
+                <div style={{marginTop:10,fontSize:12,color:T.textSub}}>{selected.site}</div>
+                <div style={{display:"flex",gap:8,marginTop:12}}>
+                  <button onClick={()=>{showToast(`Dispatching ${selected.name}...`,"success");logAction(user,"DISPATCH_OFFICER",selected.name);}} style={{flex:1,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11}}>📡 Dispatch</button>
+                  <button onClick={()=>showToast(`Contacting ${selected.name}...`)} style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"9px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11}}>📞 Contact</button>
+                </div>
+              </CB>
+            </Card>
+          )}
+
+          <Card>
+            <CB>
+              <SH title="Active Incidents" icon="⚡"/>
+              {OPS_MAP_INCIDENTS.map(inc=>(
+                <div key={inc.id} style={{padding:"10px 12px",background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:9,marginBottom:8}}>
+                  <div style={{fontSize:12,fontWeight:700,color:T.red}}>{inc.type}</div>
+                  <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{inc.site}</div>
+                  <div style={{marginTop:6}}><Pill label={inc.severity} color={inc.severity==="High"?T.red:T.amber}/></div>
+                </div>
+              ))}
+            </CB>
+          </Card>
+
+          <Card>
+            <CB>
+              <SH title="Officer Roster" icon="👮"/>
+              {OPS_MAP_OFFICERS.map(o=>(
+                <div key={o.badge} onClick={()=>setSelected(selected?.badge===o.badge?null:o)} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0",borderBottom:`1px solid ${T.border}`,cursor:"pointer"}}>
+                  <div style={{width:8,height:8,borderRadius:"50%",background:SM(o.status).c,flexShrink:0}}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:12,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{o.name}</div>
+                    <div style={{fontSize:10,color:T.textSub}}>{o.site}</div>
+                  </div>
+                  <Pill label={o.status}/>
+                </div>
+              ))}
+            </CB>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SHIFT MARKETPLACE MODULE
+// ─────────────────────────────────────────────────────────────────
+function ShiftMarketplaceModule({user,showToast}){
+  const[shifts,setShifts]=useLS("ss_open_shifts",OPEN_SHIFTS);
+  const[claimed,setClaimed]=useLS("ss_my_claims",[]);
+  const isAdmin=user?.role==="Company Admin"||user?.role==="Supervisor";
+
+  const claimShift=(id)=>{
+    setShifts(ss=>ss.map(s=>s.id===id?{...s,claimed:user?.name}:s));
+    setClaimed(c=>[...c,id]);
+    showToast("Shift claimed! Supervisor will confirm shortly","success");
+    logAction(user,"SHIFT_CLAIMED",`Shift ${id} claimed by ${user?.name}`);
+  };
+  const releaseShift=(id)=>{
+    setShifts(ss=>ss.map(s=>s.id===id?{...s,claimed:null}:s));
+    setClaimed(c=>c.filter(x=>x!==id));
+    showToast("Shift released","success");
+  };
+
+  const open=shifts.filter(s=>!s.claimed);
+  const filled=shifts.filter(s=>s.claimed);
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
+        <div>
+          <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Shift Marketplace</div>
+          <div style={{fontSize:20,fontWeight:900,color:T.text}}>Open Shifts Available</div>
+        </div>
+        <div style={{display:"flex",gap:10}}>
+          <div style={{background:T.raised,borderRadius:8,padding:"8px 14px",fontSize:12,color:T.text,fontWeight:700}}>{open.length} open · {filled.length} filled</div>
+        </div>
+      </div>
+
+      {open.length===0&&<Card><CB><div style={{textAlign:"center",padding:"32px 0",color:T.textSub,fontSize:13}}>✅ All shifts are currently filled</div></CB></Card>}
+
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:12}}>
+        {open.map(s=>{
+          const isClaimed=claimed.includes(s.id);
+          return(
+            <Card key={s.id} glow={s.urgency==="Urgent"?T.red:T.accent}>
+              <CB>
+                {s.urgency==="Urgent"&&<div style={{marginBottom:10,padding:"6px 10px",background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:7,fontSize:11,fontWeight:700,color:T.red}}>🚨 URGENT — Immediate fill needed</div>}
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
+                  <div>
+                    <div style={{fontSize:14,fontWeight:800,color:T.text}}>{s.site}</div>
+                    <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{s.date}</div>
+                  </div>
+                  <Pill label={s.type} color={s.type==="Night"?T.purple:s.type==="Evening"?T.amber:T.gold}/>
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
+                  {[["Time",`${s.start}–${s.end}`],["Rate",`$${s.rate}/hr`],["Posted",s.posted]].map(([l,v])=>(
+                    <div key={l} style={{background:T.raised,borderRadius:8,padding:"8px 10px"}}>
+                      <div style={{fontSize:10,color:T.textSub}}>{l}</div>
+                      <div style={{fontSize:12,fontWeight:700,color:T.text,marginTop:1}}>{v}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{fontSize:11,color:T.textSub,marginBottom:12}}>Requirement: {s.requirements}</div>
+                {!isAdmin&&(
+                  isClaimed
+                    ?<button onClick={()=>releaseShift(s.id)} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:13}}>✕ Release Shift</button>
+                    :<button onClick={()=>claimShift(s.id)} style={{width:"100%",background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:13}}>✋ Claim This Shift</button>
+                )}
+                {isAdmin&&<div style={{textAlign:"center",fontSize:11,color:T.textSub}}>Posted {s.posted}</div>}
+              </CB>
+            </Card>
+          );
+        })}
+      </div>
+
+      {filled.length>0&&(
+        <Card>
+          <CB>
+            <SH title="Filled Shifts" icon="✅"/>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {filled.map(s=>(
+                <div key={s.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",background:T.raised,borderRadius:10}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{s.site} — {s.date}</div>
+                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{s.start}–{s.end} · {s.type}</div>
+                  </div>
+                  <div style={{fontSize:12,color:T.green,fontWeight:700}}>{s.claimed}</div>
+                  <Pill label="Filled" color={T.green}/>
+                </div>
+              ))}
+            </div>
+          </CB>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
 // CLIENT PORTAL
 // ─────────────────────────────────────────────────────────────────
 function ClientPortal({user,showToast}){
@@ -4260,7 +4839,7 @@ function ClientPortal({user,showToast}){
       </div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {[["overview","📊 Overview"],["sla","✅ SLA"],["incidents","⚡ Incidents"],["billing","💳 Billing"]].map(([t,l])=>(
+        {[["overview","📊 Overview"],["sla","✅ SLA"],["incidents","⚡ Incidents"],["billing","💳 Billing"],["report","📊 Report"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
         ))}
       </div>
@@ -4417,6 +4996,49 @@ function ClientPortal({user,showToast}){
             </CB>
           </Card>
         </div>
+      )}
+
+      {tab==="report"&&(
+        <Card>
+          <CB>
+            <SH title="Auto-Generate Monthly Report" icon="📊" sub="Download a complete operations summary for all sites as a CSV file"/>
+            <div style={{display:"flex",flexDirection:"column",gap:16}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10}}>
+                {sla.map(s=>(
+                  <div key={s.client} style={{background:T.raised,borderRadius:10,padding:"14px 16px"}}>
+                    <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:6}}>{s.site}</div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+                      {[["Patrol Rate",s.patrols+"%",s.patrols>=90?T.green:T.amber],
+                        ["Response",s.responseTime+"m",s.responseTime<=4?T.green:T.amber],
+                        ["Satisfaction",s.satisfaction+"%",s.satisfaction>=85?T.green:T.red],
+                        ["Status",s.status,s.status==="Healthy"?T.green:T.red]
+                      ].map(([l,v,c])=>(
+                        <div key={l} style={{background:T.bg,borderRadius:7,padding:"8px 10px"}}>
+                          <div style={{fontSize:9,color:T.textSub}}>{l}</div>
+                          <div style={{fontSize:12,fontWeight:700,color:c,marginTop:1}}>{v}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={()=>{
+                  dlCSV([
+                    ["ShieldSync — Monthly Operations Report"],
+                    ["Generated",new Date().toISOString().slice(0,10)],
+                    [""],
+                    ["SITE","PATROL RATE","RESPONSE TIME","SATISFACTION","INCIDENTS"],
+                    ...CLIENT_SLA.map(s=>[s.client,s.patrol+"%",s.response+"min",s.satisfaction+"%","—"]),
+                  ],`shieldsync_report_${new Date().toISOString().slice(0,10)}.csv`);
+                  showToast("Monthly report generated and downloaded","success");
+                  logAction(user,"AUTO_REPORT_GENERATED","Monthly operations report");
+                }}
+                style={{width:"100%",background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",color:"#000",padding:"14px",borderRadius:12,cursor:"pointer",fontWeight:800,fontSize:14}}
+              >⬇ Generate & Download Monthly Report</button>
+            </div>
+          </CB>
+        </Card>
       )}
     </div>
   );
@@ -4610,6 +5232,10 @@ export default function App(){
       case "settings":    return <CompanySettings user={user} showToast={showToast}/>;
       case "clientportal":return <ClientPortal user={user} showToast={showToast}/>;
       case "itcommand":   return <ITCyberCommand user={user} showToast={showToast}/>;
+      case "postorders":  return <PostOrdersModule user={user} showToast={showToast}/>;
+      case "compliance":  return <ComplianceModule user={user} showToast={showToast}/>;
+      case "opmap":       return <OperationsMapModule user={user} showToast={showToast}/>;
+      case "shiftmarket": return <ShiftMarketplaceModule user={user} showToast={showToast}/>;
       default:            return <Dashboard openModal={openModal} showToast={showToast}/>;
     }
   };
