@@ -665,7 +665,278 @@ function ModalWrap({children}){
 // ─────────────────────────────────────────────────────────────────
 // AUTH SCREEN
 // ─────────────────────────────────────────────────────────────────
-function AuthScreen({onLogin,onRegister}){
+// ─────────────────────────────────────────────────────────────────
+// DEMO ENGINE — Personalized prospect environment
+// ─────────────────────────────────────────────────────────────────
+const DemoCtx=React.createContext(null);
+
+const DEMO_PAIN_POINTS=[
+  {id:"visibility",label:"Clients demanding real-time visibility",icon:"📡"},
+  {id:"checkpoints",label:"Officers missing checkpoints",icon:"🛡️"},
+  {id:"incidents",label:"Incident reports taking too long",icon:"⚡"},
+  {id:"scheduling",label:"Scheduling and shift coverage gaps",icon:"📅"},
+  {id:"compliance",label:"Compliance and certification tracking",icon:"🪪"},
+  {id:"paper",label:"Replacing paper-based processes",icon:"📄"},
+];
+const DEMO_ROLES=[
+  {id:"ceo",label:"CEO / Owner",icon:"👑",mod:"executive",tagline:"Revenue, client health & contract ROI"},
+  {id:"ops",label:"Operations Director",icon:"🎯",mod:"dashboard",tagline:"Incidents, dispatch & situational awareness"},
+  {id:"supervisor",label:"Site Supervisor",icon:"🔍",mod:"patrol",tagline:"Patrol compliance & officer performance"},
+  {id:"compliance",label:"Compliance / HR Director",icon:"🪪",mod:"compliance",tagline:"Certifications, audits & regulatory readiness"},
+  {id:"client",label:"Security Client",icon:"🏢",mod:"clientportal",tagline:"Real-time visibility into your sites"},
+];
+const DEMO_IND={
+  contract:{label:"Contract Security",icon:"🛡️",
+    sites:["Corporate Campus","Industrial Complex","Downtown Tower","Retail Complex","Logistics Depot"],
+    incidents:["Trespassing","Unauthorized Access","Suspicious Vehicle","Property Damage","Medical Assist"]},
+  corporate:{label:"Corporate Security",icon:"🏢",
+    sites:["HQ Main Campus","Data Center","Executive Suite","Parking Structure","Campus North"],
+    incidents:["Tailgating — Secured Zone","After-Hours Access","Visitor Policy Violation","Attempted Breach","Medical Emergency"]},
+  retail:{label:"Retail / Loss Prevention",icon:"🛍️",
+    sites:["Flagship Store","Distribution Center","Mall Location A","Mall Location B","Outlet Center"],
+    incidents:["Shoplifting","Aggressive Customer","Employee Incident","LP Assist","Medical Assist"]},
+  healthcare:{label:"Healthcare Security",icon:"🏥",
+    sites:["Main Hospital","Emergency Department","Medical Office Bldg","Parking Garage","Research Wing"],
+    incidents:["Combative Patient","Unauthorized Entry — ICU","Visitor Overstay","Parking Dispute","Code Gray — Behavioral"]},
+  government:{label:"Government / Municipal",icon:"🏛️",
+    sites:["Administration Building","Public Records Office","Municipal Courts","Maintenance Depot","Transit Hub"],
+    incidents:["Unauthorized Access","Public Disturbance","Suspicious Package","Threatening Behavior","Vandalism"]},
+};
+const DEMO_STEPS=[
+  {id:"command",icon:"⚡",title:"Command Center",desc:"Live KPIs — officers, incidents, and site health in one view.",mod:"dashboard"},
+  {id:"patrol",icon:"🛡️",title:"Patrol Compliance",desc:"GPS-verified checkpoints with auto-alerts on missed rounds.",mod:"patrol"},
+  {id:"incident",icon:"🚨",title:"Incident Response",desc:"Field report to documented case in under 60 seconds.",mod:"dashboard"},
+  {id:"client",icon:"🏢",title:"Client Portal",desc:"Live patrol visibility for clients — no more status calls.",mod:"clientportal"},
+  {id:"reports",icon:"📄",title:"AI Reports",desc:"Branded, client-ready PDFs generated in one click.",mod:"reports"},
+  {id:"workforce",icon:"👮",title:"Workforce Intelligence",desc:"Fatigue scores, certifications, and performance grades.",mod:"workforce"},
+  {id:"map",icon:"🗺️",title:"Live Operations Map",desc:"Every officer, every site, every incident — live.",mod:"opmap"},
+];
+const PAIN_STEP_MAP={visibility:3,checkpoints:1,incidents:2,scheduling:5,compliance:5,paper:0};
+
+function buildDemoEvents(cfg){
+  const s=cfg.sites||["Site A","Site B","Site C"];
+  const o=cfg.officerNames||["Officer Webb","Officer Reyes","Officer Okafor"];
+  const inc=(cfg.incidents||["Unauthorized Access"])[0];
+  return[
+    {t:9000, msg:`📡 ${o[0]} clocked in at ${s[0]} — on time`,type:"success"},
+    {t:23000,msg:`🛡️ Checkpoint scan: ${s[0]} Main Entrance — verified`,type:"info"},
+    {t:39000,msg:`⚡ NEW INCIDENT: ${inc} @ ${s[1]} — ${o[1]} assigned`,type:"error"},
+    {t:56000,msg:`📊 AI Alert: ${s[2]} patrol at 68% — below 95% threshold. Supervisor notified.`,type:"info"},
+    {t:74000,msg:`📡 ${cfg.companyName||"Client"} portal accessed — viewing live dashboard`,type:"info"},
+    {t:92000,msg:`✅ Incident closed — AI report drafted and ready for sign-off`,type:"success"},
+    {t:110000,msg:`🪪 Compliance: ${o[2]||o[0]}'s certification expires in 14 days — renewal triggered`,type:"info"},
+    {t:128000,msg:`📅 Night shift handover briefing auto-generated`,type:"success"},
+  ];
+}
+function useDemoEngine(cfg,showToast){
+  const ref=React.useRef([]);
+  React.useEffect(()=>{
+    ref.current.forEach(clearTimeout);ref.current=[];
+    if(!cfg?.active)return;
+    buildDemoEvents(cfg).forEach(ev=>{ref.current.push(setTimeout(()=>showToast(ev.msg,ev.type),ev.t));});
+    return()=>ref.current.forEach(clearTimeout);
+  },[cfg?.active,cfg?.companyName]);
+}
+
+function DemoSetupWizard({onLaunch,onCancel}){
+  const[step,setStep]=useState(1);
+  const[cfg,setCfg]=useState({companyName:"",industry:"",size:"m",painPoint:"",role:""});
+  const set=(k,v)=>setCfg(p=>({...p,[k]:v}));
+  const canNext=step===1?(cfg.companyName.trim().length>1&&!!cfg.industry):step===2?!!cfg.painPoint:!!cfg.role;
+
+  const launch=()=>{
+    const ind=DEMO_IND[cfg.industry]||DEMO_IND.contract;
+    const roleData=DEMO_ROLES.find(r=>r.id===cfg.role)||DEMO_ROLES[1];
+    onLaunch({...cfg,active:true,launchedAt:Date.now(),
+      sites:ind.sites,incidents:ind.incidents,
+      officerNames:["Marcus Webb","Diana Reyes","Theo Okafor","Elena Voss","Jordan Park","Ava Simmons"],
+      clientName:cfg.companyName,
+      startMod:roleData.mod,startScenario:PAIN_STEP_MAP[cfg.painPoint]??0,
+      roleLabel:roleData.label,indLabel:ind.label,
+    });
+  };
+
+  const sel=(active)=>({background:active?T.accentGlow:T.raised,border:`1px solid ${active?T.accentB:T.border}`,borderRadius:12,cursor:"pointer",transition:"all 0.15s"});
+  const btn=(dis)=>({border:"none",borderRadius:12,padding:"13px 28px",cursor:dis?"not-allowed":"pointer",fontWeight:800,fontSize:13,transition:"all 0.15s",
+    background:dis?T.border:`linear-gradient(135deg,${T.accent},${T.accentH})`,color:dis?T.textDim:"#000"});
+  const launchBtn={border:"none",borderRadius:12,padding:"14px 36px",cursor:canNext?"pointer":"not-allowed",fontWeight:900,fontSize:14,letterSpacing:"0.01em",
+    background:canNext?`linear-gradient(135deg,${T.accent},${T.purple})`:T.border,color:canNext?"#fff":T.textDim,transition:"all 0.15s"};
+
+  return(
+    <div style={{background:T.bg,position:"fixed",inset:0,zIndex:500,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20,overflow:"auto"}}>
+      <style>{`@keyframes dUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}`}</style>
+      <div style={{background:T.surface,border:`1px solid ${T.borderLight}`,borderRadius:22,padding:"36px 40px",width:"100%",maxWidth:640,animation:"dUp 0.3s ease",position:"relative"}}>
+
+        {/* Header */}
+        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:30}}>
+          <div style={{width:38,height:38,borderRadius:11,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>⚡</div>
+          <div style={{flex:1}}>
+            <div style={{fontWeight:900,fontSize:15,color:T.text}}>ShieldSync Live Demo</div>
+            <div style={{fontSize:10,color:T.textDim,textTransform:"uppercase",letterSpacing:"0.12em",marginTop:1}}>Personalized to your operations</div>
+          </div>
+          <div style={{display:"flex",gap:7,alignItems:"center"}}>
+            {[1,2,3].map(n=>(
+              <div key={n} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+                <div style={{width:n===step?28:8,height:8,borderRadius:4,background:n<step?T.green:n===step?T.accent:T.border,transition:"all 0.25s"}}/>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* STEP 1 */}
+        {step===1&&(
+          <div>
+            <div style={{fontSize:22,fontWeight:900,color:T.text,marginBottom:5,letterSpacing:"-0.02em"}}>Set up your demo environment</div>
+            <div style={{fontSize:13,color:T.textSub,marginBottom:28,lineHeight:1.55}}>We'll configure the platform to match your operations — takes 60 seconds.</div>
+
+            <div style={{marginBottom:24}}>
+              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:8}}>Your Company Name</label>
+              <input value={cfg.companyName} onChange={e=>set("companyName",e.target.value)}
+                placeholder="e.g. Apex Security Group" autoFocus
+                style={{width:"100%",background:T.raised,border:`1px solid ${cfg.companyName.trim().length>1?T.accentB:T.border}`,borderRadius:10,color:T.text,padding:"13px 16px",fontSize:14,fontWeight:600,outline:"none",transition:"border 0.15s",boxSizing:"border-box"}}/>
+            </div>
+
+            <div>
+              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:12}}>Type of Security Operations</label>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                {Object.entries(DEMO_IND).map(([k,v])=>{
+                  const a=cfg.industry===k;
+                  return(
+                    <button key={k} onClick={()=>set("industry",k)} style={{...sel(a),padding:"14px 16px",textAlign:"left",display:"flex",alignItems:"center",gap:10}}>
+                      <span style={{fontSize:22,flexShrink:0}}>{v.icon}</span>
+                      <span style={{fontSize:12,fontWeight:700,color:a?T.accent:T.text,lineHeight:1.25}}>{v.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 2 */}
+        {step===2&&(
+          <div>
+            <div style={{fontSize:22,fontWeight:900,color:T.text,marginBottom:5,letterSpacing:"-0.02em"}}>What's your biggest challenge right now?</div>
+            <div style={{fontSize:13,color:T.textSub,marginBottom:28,lineHeight:1.55}}>We'll open the demo at the exact feature that solves it.</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+              {DEMO_PAIN_POINTS.map(pp=>{
+                const a=cfg.painPoint===pp.id;
+                return(
+                  <button key={pp.id} onClick={()=>set("painPoint",pp.id)} style={{...sel(a),padding:"18px 16px",textAlign:"left",display:"flex",flexDirection:"column",gap:10}}>
+                    <span style={{fontSize:26}}>{pp.icon}</span>
+                    <span style={{fontSize:12,fontWeight:700,color:a?T.accent:T.text,lineHeight:1.35}}>{pp.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3 */}
+        {step===3&&(
+          <div>
+            <div style={{fontSize:22,fontWeight:900,color:T.text,marginBottom:5,letterSpacing:"-0.02em"}}>Which role best describes you?</div>
+            <div style={{fontSize:13,color:T.textSub,marginBottom:28,lineHeight:1.55}}>The demo opens to the view most relevant to your decisions.</div>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {DEMO_ROLES.map(r=>{
+                const a=cfg.role===r.id;
+                return(
+                  <button key={r.id} onClick={()=>set("role",r.id)} style={{...sel(a),padding:"15px 18px",textAlign:"left",display:"flex",alignItems:"center",gap:14}}>
+                    <span style={{fontSize:22,flexShrink:0}}>{r.icon}</span>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:13,fontWeight:700,color:a?T.accent:T.text}}>{r.label}</div>
+                      <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{r.tagline}</div>
+                    </div>
+                    {a&&<span style={{color:T.accent,fontSize:18,flexShrink:0}}>✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Navigation */}
+        <div style={{display:"flex",alignItems:"center",gap:10,marginTop:30}}>
+          <button onClick={step===1?onCancel:()=>setStep(s=>s-1)}
+            style={{background:"none",border:`1px solid ${T.border}`,borderRadius:10,color:T.textSub,padding:"12px 20px",cursor:"pointer",fontWeight:700,fontSize:12}}>
+            {step===1?"← Back to Login":"← Back"}
+          </button>
+          <div style={{flex:1}}/>
+          {step<3
+            ?<button onClick={()=>canNext&&setStep(s=>s+1)} disabled={!canNext} style={btn(!canNext)}>Continue →</button>
+            :<button onClick={()=>canNext&&launch()} disabled={!canNext} style={launchBtn}>🚀 Launch {cfg.companyName||"Your"} Demo</button>
+          }
+        </div>
+
+      </div>
+
+      {/* Preview strip */}
+      {step===1&&cfg.industry&&(
+        <div style={{marginTop:16,background:T.raised,border:`1px solid ${T.border}`,borderRadius:12,padding:"12px 18px",width:"100%",maxWidth:640,display:"flex",gap:8,flexWrap:"wrap",animation:"dUp 0.2s ease"}}>
+          <span style={{fontSize:10,color:T.textDim,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.08em",marginRight:4}}>Your sites will include:</span>
+          {(DEMO_IND[cfg.industry]?.sites||[]).map(s=>(
+            <span key={s} style={{fontSize:10,color:T.textSub,background:T.surface,border:`1px solid ${T.border}`,borderRadius:5,padding:"3px 8px"}}>{s}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DemoBanner({cfg,scenario,setScenario,onExit,onChangeMod}){
+  const sc=DEMO_STEPS[scenario]||DEMO_STEPS[0];
+  const total=DEMO_STEPS.length;
+  const go=(n)=>{setScenario(n);onChangeMod(DEMO_STEPS[n].mod);};
+  const prev=()=>go(Math.max(0,scenario-1));
+  const next=()=>go(Math.min(total-1,scenario+1));
+  return(
+    <div style={{background:`linear-gradient(90deg,${T.accentGlow},${T.surface})`,borderBottom:`1px solid ${T.accentB}`,padding:"0 16px",display:"flex",alignItems:"center",gap:12,height:44,flexShrink:0,zIndex:35,overflowX:"auto"}}>
+      {/* Brand */}
+      <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
+        <span style={{fontSize:11}}>🎯</span>
+        <span style={{fontSize:10,fontWeight:900,color:T.accent,letterSpacing:"0.08em",textTransform:"uppercase"}}>DEMO</span>
+        <span style={{width:1,height:14,background:T.border,margin:"0 2px",display:"inline-block"}}/>
+        <span style={{fontSize:12,fontWeight:700,color:T.text,maxWidth:140,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{cfg.companyName||"Your Company"}</span>
+        {cfg.indLabel&&<span style={{fontSize:9,color:T.textDim,background:T.raised,border:`1px solid ${T.border}`,borderRadius:4,padding:"2px 6px",whiteSpace:"nowrap"}}>{cfg.indLabel}</span>}
+      </div>
+
+      <div style={{width:1,height:20,background:T.border,flexShrink:0}}/>
+
+      {/* Step dots */}
+      <div style={{display:"flex",gap:4,flexShrink:0}}>
+        {DEMO_STEPS.map((s,i)=>(
+          <button key={s.id} title={s.title} onClick={()=>go(i)}
+            style={{width:i===scenario?22:7,height:7,borderRadius:4,border:"none",cursor:"pointer",padding:0,
+              background:i===scenario?T.accent:i<scenario?`${T.accent}55`:T.border,transition:"all 0.2s"}}/>
+        ))}
+      </div>
+
+      {/* Current scenario */}
+      <div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:120,overflow:"hidden"}}>
+        <span style={{fontSize:16,flexShrink:0}}>{sc.icon}</span>
+        <div style={{minWidth:0}}>
+          <div style={{fontSize:11,fontWeight:800,color:T.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{sc.title}</div>
+          <div style={{fontSize:9,color:T.textSub,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{sc.desc}</div>
+        </div>
+      </div>
+
+      {/* Nav controls */}
+      <div style={{display:"flex",gap:5,alignItems:"center",flexShrink:0}}>
+        <button onClick={prev} disabled={scenario===0}
+          style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,color:scenario===0?T.textDim:T.textSub,padding:"3px 10px",cursor:scenario===0?"not-allowed":"pointer",fontSize:14,fontWeight:700,lineHeight:1}}>‹</button>
+        <span style={{fontSize:9,color:T.textDim,fontWeight:600,minWidth:32,textAlign:"center"}}>{scenario+1}/{total}</span>
+        <button onClick={next} disabled={scenario===total-1}
+          style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,color:scenario===total-1?T.textDim:T.textSub,padding:"3px 10px",cursor:scenario===total-1?"not-allowed":"pointer",fontSize:14,fontWeight:700,lineHeight:1}}>›</button>
+      </div>
+      <button onClick={onExit}
+        style={{background:"none",border:`1px solid ${T.border}`,borderRadius:6,color:T.textDim,padding:"4px 10px",cursor:"pointer",fontSize:9,fontWeight:700,letterSpacing:"0.06em",textTransform:"uppercase",flexShrink:0}}>
+        Exit Demo
+      </button>
+    </div>
+  );
+}
+
+function AuthScreen({onLogin,onRegister,onTryDemo}){
   const[tab,setTab]=useState("login");
   const[email,setEmail]=useState("");
   const[pw,setPw]=useState("");
@@ -835,6 +1106,13 @@ function AuthScreen({onLogin,onRegister}){
                 {pending?"Verifying credentials…":"Sign In →"}
               </button>
             </div>
+            {onTryDemo&&(
+              <button onClick={onTryDemo} style={{width:"100%",marginTop:10,background:`linear-gradient(135deg,${T.purple}22,${T.accentGlow})`,border:`1px solid ${T.accentB}`,borderRadius:12,padding:"12px",color:T.accent,fontWeight:800,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:9,WebkitTapHighlightColor:"transparent"}}>
+                <span style={{fontSize:16}}>🎯</span>
+                <span>Try Live Demo — Personalized to Your Company</span>
+                <span style={{fontSize:11,opacity:0.7}}>→</span>
+              </button>
+            )}
             <div style={{display:"flex",justifyContent:"center",gap:22,marginTop:20,paddingTop:16,borderTop:`1px solid ${T.border}`}}>
               {[["🔒","TLS 1.3"],["🛡","SOC 2 Ready"],["✓","ISO 27001"]].map(([ic,lb])=>(
                 <div key={lb} style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:T.textDim}}><span style={{color:T.textSub}}>{ic}</span><span>{lb}</span></div>
@@ -2033,7 +2311,7 @@ function Visitors({openModal,user,showToast}){
   );
 }
 
-function buildPDFHTML(reportText,reportType){
+function buildPDFHTML(reportText,reportType,companyName){
   const now=new Date();
   const dateStr=now.toLocaleDateString([],{weekday:"long",year:"numeric",month:"long",day:"numeric"});
   const timeStr=now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
@@ -2172,7 +2450,7 @@ function buildPDFHTML(reportText,reportType){
 
   <div class="title-block">
     <div class="report-type">${reportType}</div>
-    <div class="report-meta">Shift 06:00–18:00 &nbsp;·&nbsp; ShieldSync Security Services &nbsp;·&nbsp; 4 Active Sites</div>
+    <div class="report-meta">Shift 06:00–18:00 &nbsp;·&nbsp; ${companyName||"ShieldSync Security Services"} &nbsp;·&nbsp; 4 Active Sites</div>
   </div>
 
   <div class="kpi-strip">${kpiHTML}</div>
@@ -2195,6 +2473,7 @@ function buildPDFHTML(reportText,reportType){
 }
 
 function Reports(){
+  const demo=React.useContext(DemoCtx);
   const[rtype,setRtype]=useState(REPORT_TYPES[0]);
   const[loading,setLoading]=useState(false);
   const[report,setReport]=useState("");
@@ -2229,7 +2508,7 @@ function Reports(){
             <div>
               <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap"}}>
                 <button onClick={()=>{
-                  const html=buildPDFHTML(report,rtype);
+                  const html=buildPDFHTML(report,rtype,demo?.companyName);
                   const url=URL.createObjectURL(new Blob([html],{type:"text/html"}));
                   const w=window.open(url,"_blank");
                   if(w)setTimeout(()=>URL.revokeObjectURL(url),30000);
@@ -4115,11 +4394,14 @@ function ProcurementModule({user,showToast}){
 // ─────────────────────────────────────────────────────────────────
 function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed,lang,setLang}){
   const t=useT();
+  const demo=React.useContext(DemoCtx);
+  const brandName=demo?.active&&demo.companyName?demo.companyName:"ShieldSync";
+  const brandSub=demo?.active&&demo.companyName?"Powered by ShieldSync":"SENTINEL";
   return(
     <aside style={{width:collapsed?58:210,background:T.surface,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",transition:"width 0.2s ease",flexShrink:0,position:"sticky",top:0,height:"100vh",overflowX:"hidden"}}>
       <div style={{padding:collapsed?"14px 11px":"16px 18px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",gap:12}}>
         <div style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>⚡</div>
-        {!collapsed&&<div><div style={{fontWeight:900,fontSize:14,color:T.text,letterSpacing:"-0.02em"}}>ShieldSync</div><div style={{fontSize:9,color:T.textDim,letterSpacing:"0.18em",textTransform:"uppercase"}}>SENTINEL</div></div>}
+        {!collapsed&&<div><div style={{fontWeight:900,fontSize:14,color:T.text,letterSpacing:"-0.02em",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:140}}>{brandName}</div><div style={{fontSize:9,color:T.textDim,letterSpacing:"0.12em",textTransform:"uppercase"}}>{brandSub}</div></div>}
       </div>
       <nav style={{flex:1,padding:"10px 7px",display:"flex",flexDirection:"column",gap:2,overflowY:"auto"}}>
         {items.map(n=>{
@@ -5521,6 +5803,10 @@ export default function App(){
   const[toasts,setToasts]=useState([]);
 
   const[lang,setLang]=useLS("ss_lang","en");
+  const[demoConfig,setDemoConfig]=useLS("ss_demo_v1",null);
+  const[showDemoWizard,setShowDemoWizard]=useState(false);
+  const[demoScenario,setDemoScenario]=useState(()=>demoConfig?.startScenario??0);
+  useDemoEngine(demoConfig,showToast);
   const[online,setOnline]=useState(navigator.onLine);
   useEffect(()=>{const c=()=>setIsMobile(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c);},[]);
   useEffect(()=>{const t=setInterval(()=>setNow(new Date()),30000);return()=>clearInterval(t);},[]);
@@ -5542,6 +5828,21 @@ export default function App(){
 
   const logout=useCallback(()=>{logAction(user,"LOGOUT","Session ended");clearSession();setUser(null);setMod("dashboard");setModal(null);},[user]);
 
+  const handleDemoLaunch=useCallback(cfg=>{
+    const demoUser=AUTH_USERS[0];
+    setDemoConfig(cfg);
+    setDemoScenario(cfg.startScenario||0);
+    setUser(demoUser);
+    setMod(cfg.startMod||"dashboard");
+    saveSession(demoUser);
+    setShowDemoWizard(false);
+  },[]);
+  const handleExitDemo=useCallback(()=>{
+    setDemoConfig(null);
+    setDemoScenario(0);
+    LS.del("ss_demo_v1");
+  },[]);
+
   const[mfaPending,setMfaPending]=useState(null);
   const[onboarding,setOnboarding]=useState(false);
 
@@ -5553,7 +5854,8 @@ export default function App(){
   const handleRegister=useCallback(()=>{},[]);
 
   if(mfaPending)return <MFAScreen user={mfaPending} onVerify={handleMfaVerify} onCancel={()=>{clearSession();setMfaPending(null);}}/>;
-  if(!user)return <AuthScreen onLogin={handleLogin} onRegister={handleRegister}/>;
+  if(showDemoWizard)return <DemoSetupWizard onLaunch={handleDemoLaunch} onCancel={()=>setShowDemoWizard(false)}/>;
+  if(!user)return <AuthScreen onLogin={handleLogin} onRegister={handleRegister} onTryDemo={()=>setShowDemoWizard(true)}/>;
 
   const renderMod=()=>{
     switch(mod){
@@ -5586,6 +5888,7 @@ export default function App(){
   };
 
   return(
+    <DemoCtx.Provider value={demoConfig}>
     <LangCtx.Provider value={lang}>
     <div style={{height:"100%",background:T.bg,color:T.text,display:"flex",flexDirection:"column"}}>
       <style>{`
@@ -5633,6 +5936,7 @@ export default function App(){
         )}
         <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,minHeight:0}}>
           <TopBar modId={mod} now={now} user={user} onLogout={logout} isMobile={isMobile}/>
+          {demoConfig?.active&&<DemoBanner cfg={demoConfig} scenario={demoScenario} setScenario={setDemoScenario} onExit={handleExitDemo} onChangeMod={setMod}/>}
           <main style={{flex:1,overflowY:"auto",padding:isMobile?"14px 14px 84px":"20px 24px",animation:isMobile?"none":"ssUp 0.22s ease",WebkitOverflowScrolling:"touch"}}>
             <ErrorBoundary key={mod}>
               {renderMod()}
@@ -5648,5 +5952,6 @@ export default function App(){
       {modal?.type==="checkin"&&<CheckInModal onClose={closeModal} showToast={showToast}/>}
     </div>
     </LangCtx.Provider>
+    </DemoCtx.Provider>
   );
 }
