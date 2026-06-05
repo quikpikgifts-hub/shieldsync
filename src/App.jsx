@@ -48,6 +48,48 @@ const T={
   overlay:"rgba(6,9,16,0.93)",
 };
 
+// ─────────────────────────────────────────────────────────────────
+// I18N — English / Spanish toggle (ss_lang in localStorage)
+// ─────────────────────────────────────────────────────────────────
+const LangCtx=React.createContext("en");
+const LANG={
+  en:{
+    Command:"Command",Executive:"Executive","My Shift":"My Shift",Workforce:"Workforce",
+    Timekeeping:"Timekeeping",Patrol:"Patrol",Fleet:"Fleet",Visitors:"Visitors",
+    Reports:"Reports",Dispatch:"Dispatch",Equipment:"Equipment",Leave:"Leave",
+    Training:"Training","Post Orders":"Post Orders",Compliance:"Compliance",
+    "Ops Map":"Ops Map","Shift Market":"Shift Market","AI Command":"AI Command",
+    Procurement:"Procurement","Audit Log":"Audit Log",Users:"Users",Settings:"Settings",
+    "Client Portal":"Client Portal","IT/Cyber":"IT/Cyber",
+    "Sign Out":"Sign Out","Collapse":"Collapse",
+    "Clock In":"Clock In","Clock Out":"Clock Out",
+    "Report Incident":"Report Incident","Emergency SOS":"Emergency SOS",
+    "Start Patrol":"Start Patrol","Scan Checkpoint":"Scan Checkpoint",
+    "Acknowledge Post Orders":"Acknowledge Post Orders",
+    "Claim This Shift":"Claim This Shift","Inspect & Capture Photos":"Inspect & Capture Photos",
+    Submit:"Submit",Cancel:"Cancel",Done:"Done",Save:"Save",Close:"Close",
+    "View Details":"View Details","Export CSV":"Export CSV",
+  },
+  es:{
+    Command:"Comando",Executive:"Ejecutivo","My Shift":"Mi Turno",Workforce:"Personal",
+    Timekeeping:"Control Horario",Patrol:"Patrulla",Fleet:"Flota",Visitors:"Visitantes",
+    Reports:"Informes",Dispatch:"Despacho",Equipment:"Equipamiento",Leave:"Permisos",
+    Training:"Capacitación","Post Orders":"Órdenes de Puesto",Compliance:"Cumplimiento",
+    "Ops Map":"Mapa Ops","Shift Market":"Mercado Turnos","AI Command":"IA Comando",
+    Procurement:"Adquisiciones","Audit Log":"Registro Auditoría",Users:"Usuarios",Settings:"Configuración",
+    "Client Portal":"Portal Cliente","IT/Cyber":"TI/Ciberseguridad",
+    "Sign Out":"Cerrar Sesión","Collapse":"Contraer",
+    "Clock In":"Entrada","Clock Out":"Salida",
+    "Report Incident":"Reportar Incidente","Emergency SOS":"SOS Emergencia",
+    "Start Patrol":"Iniciar Patrulla","Scan Checkpoint":"Escanear Punto",
+    "Acknowledge Post Orders":"Confirmar Órdenes de Puesto",
+    "Claim This Shift":"Tomar Este Turno","Inspect & Capture Photos":"Inspeccionar y Capturar Fotos",
+    Submit:"Enviar",Cancel:"Cancelar",Done:"Hecho",Save:"Guardar",Close:"Cerrar",
+    "View Details":"Ver Detalles","Export CSV":"Exportar CSV",
+  },
+};
+function useT(){const lang=React.useContext(LangCtx);return(key)=>(LANG[lang]?.[key]??LANG.en[key]??key);}
+
 const SM=(s)=>({
   "On Patrol":{c:T.accent,p:true},"On Site":{c:T.green,p:true},
   "Incident Active":{c:T.red,p:true},"Clocked In":{c:T.amber,p:false},
@@ -3907,7 +3949,8 @@ function ProcurementModule({user,showToast}){
 // ─────────────────────────────────────────────────────────────────
 // LAYOUT
 // ─────────────────────────────────────────────────────────────────
-function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
+function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed,lang,setLang}){
+  const t=useT();
   return(
     <aside style={{width:collapsed?58:210,background:T.surface,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",transition:"width 0.2s ease",flexShrink:0,position:"sticky",top:0,height:"100vh",overflowX:"hidden"}}>
       <div style={{padding:collapsed?"14px 11px":"16px 18px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",gap:12}}>
@@ -3920,7 +3963,7 @@ function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
           return(
             <button key={n.id} onClick={()=>onChange(n.id)} title={collapsed?n.label:""} style={{display:"flex",alignItems:"center",gap:10,padding:collapsed?"11px 11px":"10px 12px",background:a?T.accentGlow:"none",border:`1px solid ${a?T.accentB:"transparent"}`,borderRadius:10,cursor:"pointer",color:a?T.accent:T.textSub,fontWeight:a?700:500,fontSize:13,textAlign:"left",width:"100%",transition:"all 0.15s",WebkitTapHighlightColor:"transparent"}}>
               <span style={{fontSize:16,flexShrink:0}}>{n.icon}</span>
-              {!collapsed&&<span style={{whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{n.label}</span>}
+              {!collapsed&&<span style={{whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{t(n.label)}</span>}
             </button>
           );
         })}
@@ -3935,11 +3978,16 @@ function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
             </div>
           </div>
         )}
+        {!collapsed&&(
+          <button onClick={()=>setLang(l=>l==="en"?"es":"en")} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,color:T.textSub,padding:"8px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:6,WebkitTapHighlightColor:"transparent"}}>
+            <span>{lang==="en"?"🇲🇽":"🇺🇸"}</span><span>{lang==="en"?"Español":"English"}</span>
+          </button>
+        )}
         <button onClick={onLogout} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,color:T.textSub,padding:"9px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:6,WebkitTapHighlightColor:"transparent"}}>
-          {collapsed?"×":<><span style={{fontSize:13}}>↩</span><span>Sign Out</span></>}
+          {collapsed?"×":<><span style={{fontSize:13}}>↩</span><span>{t("Sign Out")}</span></>}
         </button>
         <button onClick={()=>setCollapsed(c=>!c)} style={{background:"none",border:`1px solid ${T.border}`,borderRadius:8,color:T.textDim,padding:"7px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:600}}>
-          {collapsed?"→":"← Collapse"}
+          {collapsed?"→":`← ${t("Collapse")}`}
         </button>
       </div>
     </aside>
@@ -3982,12 +4030,13 @@ function TopBar({modId,now,user,onLogout,isMobile}){
 
 function MobileNav({items,active,onChange}){
   const scroll=items.length>5;
+  const t=useT();
   return(
     <nav style={{position:"fixed",bottom:0,left:0,right:0,zIndex:50,background:T.surface,borderTop:`1px solid ${T.border}`,display:"flex",alignItems:"stretch",overflowX:scroll?"auto":"visible",WebkitOverflowScrolling:"touch",paddingBottom:"env(safe-area-inset-bottom,0px)"}}>
       {items.map(n=>(
         <button key={n.id} onClick={()=>onChange(n.id)} style={{flex:scroll?0:items.length<=3?0:1,flexShrink:0,minWidth:scroll?72:items.length<=3?100:0,background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"12px 6px 10px",cursor:"pointer",gap:4,WebkitTapHighlightColor:"transparent",position:"relative"}}>
           <span style={{fontSize:20,lineHeight:1}}>{n.icon}</span>
-          <span style={{fontSize:9,fontWeight:700,letterSpacing:"0.04em",color:active===n.id?T.accent:T.textDim,transition:"color 0.15s",whiteSpace:"nowrap"}}>{n.label}</span>
+          <span style={{fontSize:9,fontWeight:700,letterSpacing:"0.04em",color:active===n.id?T.accent:T.textDim,transition:"color 0.15s",whiteSpace:"nowrap"}}>{t(n.label)}</span>
           {active===n.id&&<div style={{position:"absolute",top:0,left:"20%",right:"20%",height:2,background:T.accent,borderRadius:"0 0 2px 2px"}}/>}
         </button>
       ))}
@@ -5307,6 +5356,7 @@ export default function App(){
   const[isMobile,setIsMobile]=useState(false);
   const[toasts,setToasts]=useState([]);
 
+  const[lang,setLang]=useLS("ss_lang","en");
   const[online,setOnline]=useState(navigator.onLine);
   useEffect(()=>{const c=()=>setIsMobile(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c);},[]);
   useEffect(()=>{const t=setInterval(()=>setNow(new Date()),30000);return()=>clearInterval(t);},[]);
@@ -5372,6 +5422,7 @@ export default function App(){
   };
 
   return(
+    <LangCtx.Provider value={lang}>
     <div style={{height:"100%",background:T.bg,color:T.text,display:"flex",flexDirection:"column"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
@@ -5414,7 +5465,7 @@ export default function App(){
 
       <div style={{display:"flex",flex:1,position:"relative"}}>
         {!isMobile&&(
-          <Sidebar items={visNav} active={mod} onChange={setMod} user={user} onLogout={logout} collapsed={collapsed} setCollapsed={setCollapsed}/>
+          <Sidebar items={visNav} active={mod} onChange={setMod} user={user} onLogout={logout} collapsed={collapsed} setCollapsed={setCollapsed} lang={lang} setLang={setLang}/>
         )}
         <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,minHeight:0}}>
           <TopBar modId={mod} now={now} user={user} onLogout={logout} isMobile={isMobile}/>
@@ -5432,5 +5483,6 @@ export default function App(){
       {modal?.type==="incident"&&<IncModal onClose={closeModal} showToast={showToast}/>}
       {modal?.type==="checkin"&&<CheckInModal onClose={closeModal} showToast={showToast}/>}
     </div>
+    </LangCtx.Provider>
   );
 }
