@@ -76,11 +76,12 @@ const PERM_LABELS={
   training:"Training",aicommand:"AI Command",procurement:"Procurement",
   auditlog:"Audit Log",users:"User Management",settings:"Company Settings",myshift:"My Shift",
   clientportal:"Client Portal",itcommand:"IT/Cyber",
+  postorders:"Post Orders",compliance:"Compliance",opmap:"Operations Map",shiftmarket:"Shift Market",
 };
 const ROLE_PERMS={
-  "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings","clientportal","itcommand"],
-  "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","itcommand"],
-  "Officer":["dashboard","myshift","patrol","visitors","equipment","leave"],
+  "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings","clientportal","itcommand","postorders","compliance","opmap","shiftmarket"],
+  "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","itcommand","postorders","compliance","opmap"],
+  "Officer":["dashboard","myshift","patrol","visitors","equipment","leave","postorders","shiftmarket"],
   "Client":["clientportal","reports"],
 };
 function getUsers(){const s=LS.get("ss_users_v1",null);if(s)return s;const init=AUTH_USERS.map(u=>({...u,active:true,createdAt:"2024-01-01",mfaEnabled:false,company:"ShieldSync Demo"}));LS.set("ss_users_v1",init);return init;}
@@ -196,6 +197,10 @@ const NAV=[
   {id:"equipment",label:"Equipment",icon:"🔧",roles:["Company Admin","Supervisor","Officer"]},
   {id:"leave",label:"Leave",icon:"📅",roles:["Company Admin","Supervisor","Officer"]},
   {id:"training",label:"Training",icon:"🎓",roles:["Company Admin","Supervisor"]},
+  {id:"postorders",label:"Post Orders",icon:"📋",roles:["Company Admin","Supervisor","Officer"]},
+  {id:"compliance",label:"Compliance",icon:"🪪",roles:["Company Admin","Supervisor"]},
+  {id:"opmap",label:"Ops Map",icon:"🗺️",roles:["Company Admin","Supervisor"]},
+  {id:"shiftmarket",label:"Shift Market",icon:"🔄",roles:["Company Admin","Supervisor","Officer"]},
   {id:"aicommand",label:"AI Command",icon:"🤖",roles:["Company Admin","Supervisor"]},
   {id:"procurement",label:"Procurement",icon:"📦",roles:["Company Admin"]},
   {id:"auditlog",label:"Audit Log",icon:"📋",roles:["Company Admin"]},
@@ -330,6 +335,53 @@ const CYBER_ACCESS_LOG=[
   {time:"07:42",user:"officer@shieldsync.com",action:"Login",ip:"10.0.0.4",result:"Success",device:"Android / Chrome"},
   {time:"07:21",user:"unknown@external.io",action:"Login",ip:"45.33.32.156",result:"Failed",device:"curl/7.88"},
   {time:"06:55",user:"client@shieldsync.com",action:"Report View",ip:"172.16.0.8",result:"Success",device:"Firefox / Windows"},
+];
+const POST_ORDERS=[
+  {id:"PO-001",site:"Northgate Tower",version:3,updated:"2026-06-01",author:"Sarah Chen",status:"Active",
+   content:`NORTHGATE TOWER — POST ORDERS v3\nEffective: June 1, 2026\n\n1. GENERAL RESPONSIBILITIES\n- Report for duty 15 minutes before shift start\n- Uniform must be clean, pressed, and complete at all times\n- Maintain visitor log at all times\n\n2. ACCESS CONTROL\n- All visitors must sign in and receive a temp badge\n- Contractor access limited to 06:00–18:00 Mon–Fri\n- No tailgating — challenge any unknown person at entry\n\n3. PATROL REQUIREMENTS\n- Complete patrol rounds every 90 minutes minimum\n- Scan all 8 checkpoints during each round\n- Document any anomalies immediately\n\n4. EMERGENCY PROCEDURES\n- Fire: Initiate evacuation per floor warden plan\n- Medical: Call 911, then notify supervisor\n- Active threat: Lockdown, call 911, shelter-in-place\n\n5. REPORTING\n- Complete DAR before shift end\n- All incidents require immediate report submission\n- Escalate to supervisor within 5 minutes of any critical event`,
+   acks:["Marcus Webb","Jordan Park"],pending:["Ava Simmons"]},
+  {id:"PO-002",site:"Harbor Logistics",version:2,updated:"2026-05-15",author:"Admin",status:"Active",
+   content:`HARBOR LOGISTICS — POST ORDERS v2\nEffective: May 15, 2026\n\n1. ACCESS CONTROL\n- Truck drivers must present BOL and valid ID\n- All vehicles logged in yard management system\n- Gate code changes every Monday — obtain from supervisor\n\n2. PATROL\n- Perimeter patrol every 60 minutes\n- Check all loading docks and lock seals\n- Verify container seals match manifest\n\n3. INCIDENTS\n- Any cargo discrepancy — notify shift supervisor immediately\n- Damage to property — photograph and report\n- Unauthorized individuals — detain and notify law enforcement if necessary`,
+   acks:["Diana Reyes"],pending:[]},
+  {id:"PO-003",site:"Plaza West",version:1,updated:"2026-04-10",author:"Admin",status:"Active",
+   content:`PLAZA WEST — POST ORDERS v1\nEffective: April 10, 2026\n\n1. RETAIL ENVIRONMENT\n- Visible deterrence is primary role — maintain visible presence\n- Assist retail associates with loss prevention observations only\n- Never physically detain shoppers — observe and report\n\n2. PATROL\n- Internal mall patrol every 45 minutes\n- Parking lot patrol every 90 minutes\n- Focus on high-theft areas (electronics, cosmetics)\n\n3. CUSTOMER SERVICE\n- Assist lost shoppers, medical situations\n- Coordinate with tenant security teams\n- Escort closing staff to vehicles on request`,
+   acks:[],pending:["Theo Okafor"]},
+  {id:"PO-004",site:"Eastside Mall",version:2,updated:"2026-05-28",author:"Sarah Chen",status:"Active",
+   content:`EASTSIDE MALL — POST ORDERS v2\nEffective: May 28, 2026\n\n1. GENERAL\n- Two-officer coverage during peak hours (12:00–20:00)\n- Maintain radio contact with partner at all times\n- Off-duty personnel not permitted on site in uniform\n\n2. PATROL & COVERAGE\n- Entry points monitored during all operating hours\n- Food court patrol every 30 minutes during peak\n- Parking structure sweep at 22:00 before close\n\n3. CLOSING PROCEDURE\n- Verify all tenant spaces secured by 22:30\n- Final patrol log signed and submitted by 23:00\n- Handover to overnight officer by 23:00`,
+   acks:["Ava Simmons"],pending:[]},
+];
+const GUARD_CERTS=[
+  {id:"GC-001",officer:"Marcus Webb",badge:"S-0041",state:"CA",cardNo:"BSIS-44201",type:"Guard Card",expires:"2026-08-15",training:"Unarmed",status:"Active",daysLeft:71},
+  {id:"GC-002",officer:"Marcus Webb",badge:"S-0041",state:"CA",cardNo:"CPRO-2891",type:"CPR/First Aid",expires:"2026-07-01",training:"Medical",status:"Expiring",daysLeft:26},
+  {id:"GC-003",officer:"Diana Reyes",badge:"S-0067",state:"CA",cardNo:"BSIS-38847",type:"Guard Card",expires:"2027-01-20",training:"Unarmed",status:"Active",daysLeft:229},
+  {id:"GC-004",officer:"Diana Reyes",badge:"S-0067",state:"CA",cardNo:"ARMS-1204",type:"Armed Permit",expires:"2026-06-20",training:"Armed",status:"Critical",daysLeft:15},
+  {id:"GC-005",officer:"Theo Okafor",badge:"S-0083",state:"CA",cardNo:"BSIS-51023",type:"Guard Card",expires:"2026-06-12",training:"Unarmed",status:"Critical",daysLeft:7},
+  {id:"GC-006",officer:"Ava Simmons",badge:"S-0092",state:"CA",cardNo:"BSIS-62914",type:"Guard Card",expires:"2027-03-10",training:"Unarmed",status:"Active",daysLeft:278},
+  {id:"GC-007",officer:"Jordan Park",badge:"S-0105",state:"CA",cardNo:"BSIS-47382",type:"Guard Card",expires:"2026-09-30",training:"Unarmed",status:"Active",daysLeft:117},
+  {id:"GC-008",officer:"Jordan Park",badge:"S-0105",state:"CA",cardNo:"CPRO-3312",type:"CPR/First Aid",expires:"2026-06-25",training:"Medical",status:"Expiring",daysLeft:20},
+  {id:"GC-009",officer:"Elena Voss",badge:"S-0118",state:"CA",cardNo:"BSIS-55901",type:"Guard Card",expires:"2026-06-08",training:"Unarmed",status:"Critical",daysLeft:3},
+  {id:"GC-010",officer:"Elena Voss",badge:"S-0118",state:"CA",cardNo:"ARMS-2201",type:"Armed Permit",expires:"2026-07-15",training:"Armed",status:"Expiring",daysLeft:40},
+];
+const OPEN_SHIFTS=[
+  {id:"OS-001",site:"Northgate Tower",date:"2026-06-06",start:"06:00",end:"18:00",type:"Day",urgency:"Normal",rate:22,posted:"2h ago",requirements:"Guard Card CA",claimed:null},
+  {id:"OS-002",site:"Harbor Logistics",date:"2026-06-06",start:"18:00",end:"06:00",type:"Night",urgency:"Urgent",rate:25,posted:"30min ago",requirements:"Guard Card CA",claimed:null},
+  {id:"OS-003",site:"Plaza West",date:"2026-06-07",start:"12:00",end:"00:00",type:"Evening",urgency:"Normal",rate:22,posted:"4h ago",requirements:"Guard Card CA",claimed:null},
+  {id:"OS-004",site:"Eastside Mall",date:"2026-06-07",start:"06:00",end:"14:00",type:"Day",urgency:"Normal",rate:22,posted:"1h ago",requirements:"Guard Card CA",claimed:null},
+  {id:"OS-005",site:"Harbor Logistics",date:"2026-06-08",start:"06:00",end:"18:00",type:"Day",urgency:"Normal",rate:22,posted:"6h ago",requirements:"Guard Card CA",claimed:null},
+];
+const VISITOR_WATCHLIST=[
+  {id:"WL-001",name:"Robert Henley",dob:"1978-04-22",reason:"Trespassing — Eastside Mall (2025-11-14)",addedBy:"Sarah Chen",photo:"RH",severity:"High"},
+  {id:"WL-002",name:"Tamara Osei",dob:"1991-07-03",reason:"Theft — Northgate Tower (2026-01-08)",addedBy:"Admin",photo:"TO",severity:"Medium"},
+  {id:"WL-003",name:"Unknown Male",dob:"—",reason:"Attempted tailgating — Harbor Logistics (2026-03-21)",addedBy:"Diana Reyes",photo:"??",severity:"High"},
+  {id:"WL-004",name:"Gary Mitch",dob:"1965-09-18",reason:"Harassment — Plaza West (2026-02-14)",addedBy:"Theo Okafor",photo:"GM",severity:"Low"},
+];
+const FATIGUE_DATA=[
+  {officer:"Marcus Webb",badge:"S-0041",av:"MW",hoursLast7:60.38,consecutiveNight:0,missedCPs:0,incidentRate:2,score:28,risk:"Low"},
+  {officer:"Diana Reyes",badge:"S-0067",av:"DR",hoursLast7:60.5,consecutiveNight:0,missedCPs:1,incidentRate:0,score:41,risk:"Low"},
+  {officer:"Theo Okafor",badge:"S-0083",av:"TO",hoursLast7:60,consecutiveNight:0,missedCPs:3,incidentRate:1,score:62,risk:"Moderate"},
+  {officer:"Ava Simmons",badge:"S-0092",av:"AS",hoursLast7:60,consecutiveNight:0,missedCPs:2,incidentRate:0,score:48,risk:"Low"},
+  {officer:"Jordan Park",badge:"S-0105",av:"JP",hoursLast7:62.25,consecutiveNight:0,missedCPs:0,incidentRate:0,score:55,risk:"Moderate"},
+  {officer:"Elena Voss",badge:"S-0118",av:"EV",hoursLast7:60,consecutiveNight:5,missedCPs:4,incidentRate:0,score:78,risk:"High"},
 ];
 
 // ─────────────────────────────────────────────────────────────────
