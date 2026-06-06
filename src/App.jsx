@@ -195,27 +195,28 @@ const AI_INSIGHTS=[
 ];
 const REPORT_TYPES=["Daily Operations Summary","Incident Report","Patrol Analysis","Workforce Performance","Risk Assessment"];
 const NAV=[
-  {id:"dashboard",label:"Command",icon:LayoutDashboard,roles:["Company Admin","Supervisor","Officer"]},
-  {id:"executive",label:"Executive",icon:BarChart3,roles:["Company Admin"]},
-  {id:"myshift",label:"My Shift",icon:Clock,roles:["Officer"]},
-  {id:"workforce",label:"Workforce",icon:Users,roles:["Company Admin","Supervisor"]},
-  {id:"timekeeping",label:"Timekeeping",icon:Clock4,roles:["Company Admin","Supervisor"]},
-  {id:"patrol",label:"Patrol",icon:Shield,roles:["Company Admin","Supervisor","Officer"]},
-  {id:"fleet",label:"Fleet",icon:Car,roles:["Company Admin","Supervisor"]},
-  {id:"visitors",label:"Visitors",icon:IdCard,roles:["Company Admin","Supervisor","Officer"]},
-  {id:"reports",label:"Reports",icon:FileText,roles:["Company Admin","Supervisor","Client"]},
-  {id:"dispatch",label:"Dispatch",icon:Radio,roles:["Company Admin","Supervisor"]},
-  {id:"equipment",label:"Equipment",icon:Wrench,roles:["Company Admin","Supervisor","Officer"]},
-  {id:"leave",label:"Leave",icon:CalendarDays,roles:["Company Admin","Supervisor","Officer"]},
-  {id:"training",label:"Training",icon:GraduationCap,roles:["Company Admin","Supervisor"]},
-  {id:"aicommand",label:"AI Command",icon:Bot,roles:["Company Admin","Supervisor"]},
-  {id:"procurement",label:"Procurement",icon:Package,roles:["Company Admin"]},
-  {id:"auditlog",label:"Audit Log",icon:ClipboardList,roles:["Company Admin"]},
-  {id:"users",label:"Users",icon:UserCog,roles:["Company Admin"]},
-  {id:"settings",label:"Settings",icon:Settings,roles:["Company Admin"]},
-  {id:"clientportal",label:"Client Portal",icon:Building2,roles:["Company Admin","Client"]},
-  {id:"itcommand",label:"IT/Cyber",icon:ShieldAlert,roles:["Company Admin","Supervisor"]},
+  {id:"dashboard",label:"Command",icon:LayoutDashboard,roles:["Company Admin","Supervisor","Officer"],group:"ops"},
+  {id:"executive",label:"Executive",icon:BarChart3,roles:["Company Admin"],group:"ops"},
+  {id:"myshift",label:"My Shift",icon:Clock,roles:["Officer"],group:"ops"},
+  {id:"patrol",label:"Patrol",icon:Shield,roles:["Company Admin","Supervisor","Officer"],group:"field"},
+  {id:"dispatch",label:"Dispatch",icon:Radio,roles:["Company Admin","Supervisor"],group:"field"},
+  {id:"fleet",label:"Fleet",icon:Car,roles:["Company Admin","Supervisor"],group:"field"},
+  {id:"visitors",label:"Visitors",icon:IdCard,roles:["Company Admin","Supervisor","Officer"],group:"field"},
+  {id:"equipment",label:"Equipment",icon:Wrench,roles:["Company Admin","Supervisor","Officer"],group:"field"},
+  {id:"workforce",label:"Workforce",icon:Users,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"timekeeping",label:"Timekeeping",icon:Clock4,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"leave",label:"Leave",icon:CalendarDays,roles:["Company Admin","Supervisor","Officer"],group:"people"},
+  {id:"training",label:"Training",icon:GraduationCap,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"aicommand",label:"AI Command",icon:Bot,roles:["Company Admin","Supervisor"],group:"intel"},
+  {id:"reports",label:"Reports",icon:FileText,roles:["Company Admin","Supervisor","Client"],group:"intel"},
+  {id:"procurement",label:"Procurement",icon:Package,roles:["Company Admin"],group:"admin"},
+  {id:"auditlog",label:"Audit Log",icon:ClipboardList,roles:["Company Admin"],group:"admin"},
+  {id:"users",label:"Users",icon:UserCog,roles:["Company Admin"],group:"admin"},
+  {id:"settings",label:"Settings",icon:Settings,roles:["Company Admin"],group:"admin"},
+  {id:"clientportal",label:"Client Portal",icon:Building2,roles:["Company Admin","Client"],group:"admin"},
+  {id:"itcommand",label:"IT/Cyber",icon:ShieldAlert,roles:["Company Admin","Supervisor"],group:"admin"},
 ];
+const NAV_GROUP_LABELS={ops:"OPERATIONS",field:"FIELD OPS",people:"WORKFORCE",intel:"INTELLIGENCE",admin:"ADMIN"};
 const KPI_DATA=[
   {label:"Active Officers",value:"5",sub:"1 off duty",icon:Users,color:T.accent,trend:"+2"},
   {label:"Open Incidents",value:"2",sub:"1 critical",icon:AlertTriangle,color:T.red,trend:"-1"},
@@ -1009,8 +1010,8 @@ function AICopilot(){
   },[inp,msgs,loading]);
 
   return(
-    <div style={{display:"flex",flexDirection:"column",height:"100%",minHeight:280}}>
-      <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:10,paddingBottom:4}}>
+    <div style={{display:"flex",flexDirection:"column",minHeight:0}}>
+      <div style={{maxHeight:220,overflowY:"auto",display:"flex",flexDirection:"column",gap:10,paddingBottom:4}}>
         {msgs.map((m,i)=>(
           <div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
             {m.role==="ai"&&<div style={{width:26,height:26,borderRadius:8,flexShrink:0,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Sparkles size={13} color="#08111f" strokeWidth={2.2}/></div>}
@@ -1387,14 +1388,37 @@ function Dashboard({openModal,showToast}){
           </Card>
         );})}
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.5fr) minmax(0,1fr)",gap:16}}>
-        <Card><CB><SH title="Live Operations Map"/><LiveMap officers={OFFICERS} positions={positions}/></CB></Card>
-        <Card style={{display:"flex",flexDirection:"column"}}>
-          <CB style={{flex:1,display:"flex",flexDirection:"column"}}>
-            <SH title="ShieldSync AI Copilot"/>
-            <div style={{flex:1}}><AICopilot/></div>
-          </CB>
-        </Card>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))",gap:16}}>
+        <div style={{minWidth:0}}>
+          <Card>
+            <CB>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+                <div style={{width:7,height:7,borderRadius:"50%",background:T.green,boxShadow:`0 0 5px ${T.green}`,animation:"ssB 1s infinite",flexShrink:0}}/>
+                <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:T.textSub}}>Live Operations Map</span>
+              </div>
+              <LiveMap officers={OFFICERS} positions={positions}/>
+            </CB>
+          </Card>
+        </div>
+        <div style={{minWidth:0}}>
+          <Card>
+            <CB>
+              <SH title="AI Risk Intelligence" icon={ShieldAlert}/>
+              <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                {AI_INSIGHTS.map((ins,i)=>{
+                  const c={critical:T.red,high:T.amber,medium:T.gold,info:T.accent}[ins.priority]||T.textSub;
+                  return(
+                    <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",padding:"9px 12px",background:`${c}08`,border:`1px solid ${c}20`,borderRadius:9}}>
+                      <div style={{width:6,height:6,borderRadius:"50%",background:c,marginTop:5,flexShrink:0}}/>
+                      <p style={{margin:0,fontSize:12,color:T.text,lineHeight:1.5,flex:1}}>{ins.text}</p>
+                      <Pill label={ins.priority} color={c}/>
+                    </div>
+                  );
+                })}
+              </div>
+            </CB>
+          </Card>
+        </div>
       </div>
       {/* Live ops feed */}
       {feed.length>0&&(
@@ -1420,21 +1444,10 @@ function Dashboard({openModal,showToast}){
           </CB>
         </Card>
       )}
-      <Card>
-        <CB>
-          <SH title="AI Risk Intelligence"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {AI_INSIGHTS.map((ins,i)=>{
-              const c={critical:T.red,high:T.amber,medium:T.gold,info:T.accent}[ins.priority]||T.textSub;
-              return(
-                <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start",padding:"11px 14px",background:`${c}08`,border:`1px solid ${c}22`,borderRadius:10}}>
-                  <div style={{width:7,height:7,borderRadius:"50%",background:c,marginTop:5,flexShrink:0}}/>
-                  <p style={{margin:0,fontSize:13,color:T.text,lineHeight:1.55,flex:1}}>{ins.text}</p>
-                  <Pill label={ins.priority} color={c}/>
-                </div>
-              );
-            })}
-          </div>
+      <Card style={{display:"flex",flexDirection:"column"}}>
+        <CB style={{display:"flex",flexDirection:"column"}}>
+          <SH title="ShieldSync AI Copilot" icon={Bot}/>
+          <AICopilot/>
         </CB>
       </Card>
       <Card>
@@ -3676,15 +3689,21 @@ function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
         <div style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><ShieldCheck size={17} color="#08111f" strokeWidth={2.4}/></div>
         {!collapsed&&<div><div style={{fontWeight:900,fontSize:14,color:T.text,letterSpacing:"-0.02em"}}>ShieldSync</div><div style={{fontSize:9,color:T.textDim,letterSpacing:"0.18em",textTransform:"uppercase"}}>SENTINEL</div></div>}
       </div>
-      <nav style={{flex:1,padding:"10px 7px",display:"flex",flexDirection:"column",gap:2,overflowY:"auto"}}>
-        {items.map(n=>{
+      <nav style={{flex:1,padding:"10px 7px",display:"flex",flexDirection:"column",gap:1,overflowY:"auto"}}>
+        {items.map((n,idx)=>{
           const a=active===n.id;
           const Icon=n.icon;
+          const newGroup=n.group&&(idx===0||items[idx-1].group!==n.group);
           return(
-            <button key={n.id} onClick={()=>onChange(n.id)} title={collapsed?n.label:""} style={{display:"flex",alignItems:"center",gap:10,padding:collapsed?"11px 11px":"10px 12px",background:a?T.accentGlow:"none",border:`1px solid ${a?T.accentB:"transparent"}`,borderRadius:10,cursor:"pointer",color:a?T.accent:T.textSub,fontWeight:a?700:500,fontSize:13,textAlign:"left",width:"100%",transition:"all 0.15s",WebkitTapHighlightColor:"transparent"}}>
-              <Icon size={17} strokeWidth={2} style={{flexShrink:0}}/>
-              {!collapsed&&<span style={{whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{n.label}</span>}
-            </button>
+            <React.Fragment key={n.id}>
+              {newGroup&&!collapsed&&idx>0&&<div style={{height:1,background:T.border,margin:"8px 5px 4px"}}/>}
+              {newGroup&&!collapsed&&<div style={{padding:"0 5px 3px",fontSize:9,fontWeight:700,letterSpacing:"0.13em",textTransform:"uppercase",color:T.textDim}}>{NAV_GROUP_LABELS[n.group]||n.group}</div>}
+              {newGroup&&collapsed&&idx>0&&<div style={{height:1,background:T.border,margin:"6px 11px"}}/>}
+              <button key={n.id} onClick={()=>onChange(n.id)} title={collapsed?n.label:""} style={{display:"flex",alignItems:"center",gap:10,padding:collapsed?"10px 11px":"9px 11px",background:a?T.accentGlow:"none",border:`1px solid ${a?T.accentB:"transparent"}`,borderRadius:8,cursor:"pointer",color:a?T.accent:T.textSub,fontWeight:a?700:500,fontSize:13,textAlign:"left",width:"100%",transition:"all 0.15s",WebkitTapHighlightColor:"transparent"}}>
+                <Icon size={16} strokeWidth={a?2.2:1.9} style={{flexShrink:0}}/>
+                {!collapsed&&<span style={{whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",fontSize:12}}>{n.label}</span>}
+              </button>
+            </React.Fragment>
           );
         })}
       </nav>
@@ -3714,7 +3733,8 @@ function TopBar({modId,now,user,onLogout,isMobile}){
   return(
     <header style={{background:T.surface,borderBottom:`1px solid ${T.border}`,padding:"12px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:40,flexShrink:0,gap:10}}>
       <div style={{minWidth:0}}>
-        <div style={{fontSize:17,fontWeight:900,color:T.text,whiteSpace:"nowrap"}}>{m?.label}</div>
+        {m?.group&&<div style={{fontSize:9,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",color:T.textDim,marginBottom:1}}>{NAV_GROUP_LABELS[m.group]}</div>}
+        <div style={{fontSize:16,fontWeight:800,color:T.text,whiteSpace:"nowrap",letterSpacing:"-0.01em"}}>{m?.label}</div>
         <div style={{fontSize:10,color:T.textSub,marginTop:1}}>
           {now.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"})} · {now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
         </div>
@@ -4645,11 +4665,11 @@ export default function App(){
   };
 
   return(
-    <div style={{height:"100%",background:T.bg,color:T.text,display:"flex",flexDirection:"column"}}>
+    <div style={{height:"100dvh",background:T.bg,color:T.text,display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
         *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
-        html,body,#root{font-family:'DM Sans',system-ui,sans-serif;background:${T.bg};overflow-x:hidden;-webkit-text-size-adjust:100%;height:100%;}
+        html,body,#root{font-family:'DM Sans',system-ui,sans-serif;background:${T.bg};overflow-x:hidden;-webkit-text-size-adjust:100%;height:100%;min-height:100dvh;}
         input,textarea,select,button{font-family:inherit;}
         ::-webkit-scrollbar{width:4px;height:4px;}
         ::-webkit-scrollbar-track{background:transparent;}
@@ -4687,13 +4707,13 @@ export default function App(){
         </div>
       )}
 
-      <div style={{display:"flex",flex:1,position:"relative"}}>
+      <div style={{display:"flex",flex:1,position:"relative",overflow:"hidden",minHeight:0}}>
         {!isMobile&&(
           <Sidebar items={visNav} active={mod} onChange={setMod} user={user} onLogout={logout} collapsed={collapsed} setCollapsed={setCollapsed}/>
         )}
-        <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,minHeight:0}}>
+        <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,minHeight:0,overflow:"hidden"}}>
           <TopBar modId={mod} now={now} user={user} onLogout={logout} isMobile={isMobile}/>
-          <main style={{flex:1,overflowY:"auto",padding:isMobile?"14px 14px 84px":"20px 24px",animation:isMobile?"none":"ssUp 0.22s ease",WebkitOverflowScrolling:"touch"}}>
+          <main style={{flex:1,overflowY:"auto",padding:isMobile?"14px 14px 84px":"20px 24px",animation:isMobile?"none":"ssUp 0.22s ease",WebkitOverflowScrolling:"touch",minHeight:0}}>
             <ErrorBoundary key={mod}>
               {renderMod()}
             </ErrorBoundary>
