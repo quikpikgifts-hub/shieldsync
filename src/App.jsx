@@ -1,5 +1,17 @@
 import React, { Component, useState, useEffect, useRef, useCallback, memo, useMemo, useTransition } from "react";
 import { audit, callAI, watchPosition, onlineStatus, HAS_SUPABASE } from "./db.js";
+import {
+  LayoutDashboard, BarChart3, Clock, Clock4, User, Users, Shield, ShieldCheck, ShieldAlert,
+  Car, IdCard, FileText, Radio, Wrench, CalendarDays, GraduationCap, Bot, Package,
+  ClipboardList, UserCog, Settings, Building2, MapPin, CheckCircle2, Timer,
+  AlertTriangle, TrendingUp, Activity, Check, X, ChevronLeft, ChevronRight, ArrowRight,
+  ArrowLeft, ArrowDownToLine, RotateCcw, RotateCw, Lock, KeyRound, Fingerprint, Bell,
+  Mail, Phone, Star, Crown, Camera, Fuel, Wrench as WrenchIcon, TrendingDown, Siren,
+  Gauge, Zap, Printer, ChevronDown, ChevronUp, Sparkles, Cpu, Database, Link2,
+  BookOpen, Wind, Bandage, Eye, EyeOff, LogOut, Plus, Minus, Wifi, WifiOff,
+  CircleCheck, CircleAlert, ScanLine, MapPinned, Briefcase, HandCoins, ShieldQuestion,
+  Video, Network, Usb, ServerCog, Rocket, Hand, HelpCircle,
+} from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────
 // LOCAL STORAGE LAYER
@@ -183,34 +195,34 @@ const AI_INSIGHTS=[
 ];
 const REPORT_TYPES=["Daily Operations Summary","Incident Report","Patrol Analysis","Workforce Performance","Risk Assessment"];
 const NAV=[
-  {id:"dashboard",label:"Command",icon:"⚡",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"executive",label:"Executive",icon:"📊",roles:["Company Admin"]},
-  {id:"myshift",label:"My Shift",icon:"⏱️",roles:["Officer"]},
-  {id:"workforce",label:"Workforce",icon:"👮",roles:["Company Admin","Supervisor"]},
-  {id:"timekeeping",label:"Timekeeping",icon:"🕐",roles:["Company Admin","Supervisor"]},
-  {id:"patrol",label:"Patrol",icon:"🛡️",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"fleet",label:"Fleet",icon:"🚗",roles:["Company Admin","Supervisor"]},
-  {id:"visitors",label:"Visitors",icon:"🪪",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"reports",label:"Reports",icon:"📄",roles:["Company Admin","Supervisor","Client"]},
-  {id:"dispatch",label:"Dispatch",icon:"📡",roles:["Company Admin","Supervisor"]},
-  {id:"equipment",label:"Equipment",icon:"🔧",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"leave",label:"Leave",icon:"📅",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"training",label:"Training",icon:"🎓",roles:["Company Admin","Supervisor"]},
-  {id:"aicommand",label:"AI Command",icon:"🤖",roles:["Company Admin","Supervisor"]},
-  {id:"procurement",label:"Procurement",icon:"📦",roles:["Company Admin"]},
-  {id:"auditlog",label:"Audit Log",icon:"📋",roles:["Company Admin"]},
-  {id:"users",label:"Users",icon:"👥",roles:["Company Admin"]},
-  {id:"settings",label:"Settings",icon:"⚙️",roles:["Company Admin"]},
-  {id:"clientportal",label:"Client Portal",icon:"🏢",roles:["Company Admin","Client"]},
-  {id:"itcommand",label:"IT/Cyber",icon:"🔒",roles:["Company Admin","Supervisor"]},
+  {id:"dashboard",label:"Command",icon:LayoutDashboard,roles:["Company Admin","Supervisor","Officer"]},
+  {id:"executive",label:"Executive",icon:BarChart3,roles:["Company Admin"]},
+  {id:"myshift",label:"My Shift",icon:Clock,roles:["Officer"]},
+  {id:"workforce",label:"Workforce",icon:Users,roles:["Company Admin","Supervisor"]},
+  {id:"timekeeping",label:"Timekeeping",icon:Clock4,roles:["Company Admin","Supervisor"]},
+  {id:"patrol",label:"Patrol",icon:Shield,roles:["Company Admin","Supervisor","Officer"]},
+  {id:"fleet",label:"Fleet",icon:Car,roles:["Company Admin","Supervisor"]},
+  {id:"visitors",label:"Visitors",icon:IdCard,roles:["Company Admin","Supervisor","Officer"]},
+  {id:"reports",label:"Reports",icon:FileText,roles:["Company Admin","Supervisor","Client"]},
+  {id:"dispatch",label:"Dispatch",icon:Radio,roles:["Company Admin","Supervisor"]},
+  {id:"equipment",label:"Equipment",icon:Wrench,roles:["Company Admin","Supervisor","Officer"]},
+  {id:"leave",label:"Leave",icon:CalendarDays,roles:["Company Admin","Supervisor","Officer"]},
+  {id:"training",label:"Training",icon:GraduationCap,roles:["Company Admin","Supervisor"]},
+  {id:"aicommand",label:"AI Command",icon:Bot,roles:["Company Admin","Supervisor"]},
+  {id:"procurement",label:"Procurement",icon:Package,roles:["Company Admin"]},
+  {id:"auditlog",label:"Audit Log",icon:ClipboardList,roles:["Company Admin"]},
+  {id:"users",label:"Users",icon:UserCog,roles:["Company Admin"]},
+  {id:"settings",label:"Settings",icon:Settings,roles:["Company Admin"]},
+  {id:"clientportal",label:"Client Portal",icon:Building2,roles:["Company Admin","Client"]},
+  {id:"itcommand",label:"IT/Cyber",icon:ShieldAlert,roles:["Company Admin","Supervisor"]},
 ];
 const KPI_DATA=[
-  {label:"Active Officers",value:"5",sub:"1 off duty",icon:"👮",color:T.accent,trend:"+2"},
-  {label:"Open Incidents",value:"2",sub:"1 critical",icon:"⚡",color:T.red,trend:"-1"},
-  {label:"Patrols Today",value:"38",sub:"94% complete",icon:"🛡️",color:T.green,trend:"+4"},
-  {label:"Sites Active",value:"4",sub:"All nominal",icon:"📍",color:T.gold,trend:"0"},
-  {label:"Checkpoints",value:"38/42",sub:"4 missed",icon:"✅",color:T.purple,trend:"-2"},
-  {label:"Avg Response",value:"4.2m",sub:"↓12% today",icon:"⏱️",color:T.amber,trend:"↓"},
+  {label:"Active Officers",value:"5",sub:"1 off duty",icon:Users,color:T.accent,trend:"+2"},
+  {label:"Open Incidents",value:"2",sub:"1 critical",icon:AlertTriangle,color:T.red,trend:"-1"},
+  {label:"Patrols Today",value:"38",sub:"94% complete",icon:Shield,color:T.green,trend:"+4"},
+  {label:"Sites Active",value:"4",sub:"All nominal",icon:MapPin,color:T.gold,trend:"0"},
+  {label:"Checkpoints",value:"38/42",sub:"4 missed",icon:CheckCircle2,color:T.purple,trend:"-2"},
+  {label:"Avg Response",value:"4.2m",sub:"12% faster today",icon:Timer,color:T.amber,trend:"down"},
 ];
 const PHOTO_SLOTS=[
   {key:"front",label:"Front"},{key:"rear",label:"Rear"},
@@ -460,10 +472,10 @@ class ErrorBoundary extends Component{
   render(){
     if(this.state.err)return(
       <div style={{padding:48,textAlign:"center"}}>
-        <div style={{fontSize:40,marginBottom:14}}>⚠️</div>
+        <div style={{display:"flex",justifyContent:"center",marginBottom:14}}><AlertTriangle size={36} color={T.red} strokeWidth={1.8}/></div>
         <div style={{fontSize:16,fontWeight:800,color:T.red,marginBottom:8}}>Module Error</div>
         <div style={{fontSize:13,color:T.textSub,marginBottom:24,maxWidth:340,margin:"0 auto 24px",lineHeight:1.6}}>{this.state.err.message}</div>
-        <button onClick={()=>this.setState({err:null})} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px 24px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:13}}>↺ Retry Module</button>
+        <button onClick={()=>this.setState({err:null})} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px 24px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:13,display:"inline-flex",alignItems:"center",gap:7}}><RotateCcw size={14} strokeWidth={2.2}/>Retry Module</button>
       </div>
     );
     return this.props.children;
@@ -499,11 +511,12 @@ function Card({children,glow,style={},onClick}){
 }
 function CB({children,style={}}){return<div style={{padding:"18px 20px",...style}}>{children}</div>;}
 function SH({title,action,icon,sub}){
+  const Icon=icon&&typeof icon!=="string"?icon:null;
   return(
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}}>
       <div>
-        <div style={{display:"flex",alignItems:"center",gap:6}}>
-          {icon&&<span style={{fontSize:14}}>{icon}</span>}
+        <div style={{display:"flex",alignItems:"center",gap:7}}>
+          {Icon?<Icon size={14} color={T.textSub} strokeWidth={2}/>:icon?<span style={{fontSize:14}}>{icon}</span>:null}
           <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:T.textSub}}>{title}</span>
         </div>
         {sub&&<div style={{fontSize:11,color:T.textDim,marginTop:3,lineHeight:1.4}}>{sub}</div>}
@@ -634,7 +647,7 @@ function AuthScreen({onLogin,onRegister}){
       <div style={{position:"absolute",top:"5%",left:"50%",transform:"translateX(-50%)",width:"90vw",maxWidth:800,height:"55vh",background:`radial-gradient(ellipse at center,${T.accentGlow} 0%,transparent 65%)`,pointerEvents:"none",animation:"glow 4s ease-in-out infinite"}}/>
 
       <div style={{textAlign:"center",marginBottom:24,animation:"ssUp .35s ease",position:"relative",zIndex:1}}>
-        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,margin:"0 auto 14px",boxShadow:`0 0 60px ${T.accent}38,0 0 120px ${T.accent}12`}}>⚡</div>
+        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 14px",boxShadow:`0 0 60px ${T.accent}38,0 0 120px ${T.accent}12`}}><ShieldCheck size={32} color="#08111f" strokeWidth={2.2}/></div>
         <div style={{fontSize:32,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>ShieldSync</div>
         <div style={{fontSize:9,color:T.textDim,letterSpacing:"0.24em",textTransform:"uppercase",marginTop:5}}>SENTINEL · ENTERPRISE SECURITY PLATFORM</div>
       </div>
@@ -706,7 +719,7 @@ function AuthScreen({onLogin,onRegister}){
               <div style={{fontSize:19,fontWeight:800,color:T.text}}>Secure Access</div>
               <div style={{fontSize:12,color:T.textSub,marginTop:4,lineHeight:1.6}}>Authorized personnel only. All sessions are monitored and logged.</div>
             </div>
-            {err&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"11px 14px",marginBottom:16,fontSize:13,color:T.red,display:"flex",gap:9,alignItems:"center"}}><span>⚠</span><span>{err}</span></div>}
+            {err&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"11px 14px",marginBottom:16,fontSize:13,color:T.red,display:"flex",gap:9,alignItems:"center"}}><AlertTriangle size={15} strokeWidth={2.2}/><span>{err}</span></div>}
             <div style={{display:"flex",flexDirection:"column",gap:14}}>
               <div>
                 <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Email Address</label>
@@ -728,8 +741,8 @@ function AuthScreen({onLogin,onRegister}){
               </button>
             </div>
             <div style={{display:"flex",justifyContent:"center",gap:22,marginTop:20,paddingTop:16,borderTop:`1px solid ${T.border}`}}>
-              {[["🔒","TLS 1.3"],["🛡","SOC 2 Ready"],["✓","ISO 27001"]].map(([ic,lb])=>(
-                <div key={lb} style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:T.textDim}}><span style={{color:T.textSub}}>{ic}</span><span>{lb}</span></div>
+              {[[Lock,"TLS 1.3"],[ShieldCheck,"SOC 2 Ready"],[Check,"ISO 27001"]].map(([Ic,lb])=>(
+                <div key={lb} style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:T.textDim}}><Ic size={12} color={T.textSub} strokeWidth={2.2}/><span>{lb}</span></div>
               ))}
             </div>
             <div style={{marginTop:14}}>
@@ -759,7 +772,7 @@ function AuthScreen({onLogin,onRegister}){
         {forgotStep===0&&tab==="register"&&(
           regDone?(
             <div style={{textAlign:"center",padding:"24px 0"}}>
-              <div style={{fontSize:48,marginBottom:14}}>🏢</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:14}}><div style={{width:64,height:64,borderRadius:16,background:T.greenGlow,border:`1px solid ${T.greenB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><Building2 size={30} color={T.green} strokeWidth={1.8}/></div></div>
               <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:10}}>Company Registered!</div>
               <div style={{fontSize:13,color:T.textSub,lineHeight:1.7,marginBottom:22}}>
                 <strong style={{color:T.text}}>{reg.company}</strong> is set up. Sign in to start your onboarding.
@@ -839,7 +852,7 @@ function CheckInModal({onClose,showToast}){
     <ModalWrap>
       <Card style={{width:"min(400px,92vw)",textAlign:"center"}}>
         <CB style={{padding:"44px 32px"}}>
-          <div style={{fontSize:48,marginBottom:14}}>🪪</div>
+          <div style={{display:"flex",justifyContent:"center",marginBottom:14}}><div style={{width:64,height:64,borderRadius:16,background:T.greenGlow,border:`1px solid ${T.greenB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><IdCard size={30} color={T.green} strokeWidth={1.8}/></div></div>
           <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:10}}>Check-In Complete</div>
           <div style={{fontSize:13,color:T.textSub,lineHeight:1.65}}>
             <strong style={{color:T.text}}>{form.name}</strong> is now checked in at {form.site}.<br/>Badge <span style={{color:T.accent,fontFamily:"monospace"}}>{badge}</span> issued · Host notified.
@@ -859,7 +872,7 @@ function CheckInModal({onClose,showToast}){
               <div style={{fontSize:10,color:T.textSub,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Visitor Management</div>
               <div style={{fontSize:18,fontWeight:800,color:T.text}}>New Check-In</div>
             </div>
-            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={16} strokeWidth={2}/></button>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
             <div>
@@ -891,8 +904,8 @@ function CheckInModal({onClose,showToast}){
               <span style={{fontSize:13,color:T.accent,fontFamily:"monospace",fontWeight:800}}>{badge}</span>
             </div>
             <button onClick={submit} disabled={!valid}
-              style={{background:valid?T.green:T.raised,border:`1px solid ${valid?T.green:T.border}`,color:valid?"#000":T.textDim,padding:"13px",borderRadius:12,cursor:valid?"pointer":"not-allowed",fontWeight:800,fontSize:14}}>
-              Check In Visitor ✓
+              style={{background:valid?T.green:T.raised,border:`1px solid ${valid?T.green:T.border}`,color:valid?"#000":T.textDim,padding:"13px",borderRadius:12,cursor:valid?"pointer":"not-allowed",fontWeight:800,fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
+              <Check size={15} strokeWidth={2.6}/> Check In Visitor
             </button>
           </div>
         </CB>
@@ -1000,7 +1013,7 @@ function AICopilot(){
       <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:10,paddingBottom:4}}>
         {msgs.map((m,i)=>(
           <div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
-            {m.role==="ai"&&<div style={{width:26,height:26,borderRadius:8,flexShrink:0,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⚡</div>}
+            {m.role==="ai"&&<div style={{width:26,height:26,borderRadius:8,flexShrink:0,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Sparkles size={13} color="#08111f" strokeWidth={2.2}/></div>}
             <div style={{maxWidth:"82%",padding:"9px 13px",borderRadius:m.role==="user"?"12px 12px 3px 12px":"12px 12px 12px 3px",background:m.role==="user"?`linear-gradient(135deg,${T.accent}20,${T.purple}15)`:T.raised,border:`1px solid ${m.role==="user"?T.accentB:T.border}`,fontSize:13,lineHeight:1.6,color:T.text}}>
               {m.text}
             </div>
@@ -1008,7 +1021,7 @@ function AICopilot(){
         ))}
         {loading&&(
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
-            <div style={{width:26,height:26,borderRadius:8,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⚡</div>
+            <div style={{width:26,height:26,borderRadius:8,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Sparkles size={13} color="#08111f" strokeWidth={2.2}/></div>
             <div style={{background:T.raised,borderRadius:12,border:`1px solid ${T.border}`}}><Dots/></div>
           </div>
         )}
@@ -1067,7 +1080,7 @@ function InspModal({vehicle,onClose}){
     <ModalWrap>
       <Card style={{width:"min(440px,92vw)",textAlign:"center"}}>
         <CB style={{padding:"48px 32px"}}>
-          <div style={{fontSize:52,marginBottom:16}}>✅</div>
+          <div style={{display:"flex",justifyContent:"center",marginBottom:16}}><div style={{width:68,height:68,borderRadius:18,background:T.greenGlow,border:`1px solid ${T.greenB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><CircleCheck size={32} color={T.green} strokeWidth={1.7}/></div></div>
           <div style={{fontSize:20,fontWeight:800,color:T.green,marginBottom:8}}>Inspection Submitted</div>
           <div style={{fontSize:13,color:T.textSub,lineHeight:1.6}}>Vehicle {vehicle.plate} inspection logged.<br/>Sent to supervisor for review.</div>
           <div style={{marginTop:16,fontSize:11,color:T.textDim}}>{pc} photo{pc!==1?"s":""} captured · Mileage: {mileage} · Fuel: {fuel}%</div>
@@ -1109,7 +1122,7 @@ function InspModal({vehicle,onClose}){
               <div style={{fontSize:18,fontWeight:800,color:T.text}}>{vehicle.make}</div>
               <div style={{fontSize:12,color:T.accent,fontFamily:"monospace",marginTop:2}}>{vehicle.plate} · {vehicle.id}</div>
             </div>
-            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={16} strokeWidth={2}/></button>
           </div>
           <div style={{marginBottom:20}}>
             <div style={{display:"flex",gap:3,marginBottom:8}}>
@@ -1125,8 +1138,8 @@ function InspModal({vehicle,onClose}){
                   <span style={{fontSize:13,color:T.text,fontWeight:700,textAlign:"right"}}>{v}</span>
                 </div>
               ))}
-              <div style={{marginTop:4,padding:"10px 14px",background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:9,fontSize:12,color:T.accent}}>
-                📍 GPS tagged · {new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})} · Inspector logged
+              <div style={{marginTop:4,padding:"10px 14px",background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:9,fontSize:12,color:T.accent,display:"flex",alignItems:"center",gap:7}}>
+                <MapPin size={14} strokeWidth={2.2}/> GPS tagged · {new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})} · Inspector logged
               </div>
             </div>
           )}
@@ -1139,18 +1152,18 @@ function InspModal({vehicle,onClose}){
                     {photos[sl.key]?(
                       <>
                         <img src={photos[sl.key]} alt={sl.label} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                        <div style={{position:"absolute",top:4,right:4,background:T.green,width:18,height:18,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:"#000"}}>✓</div>
+                        <div style={{position:"absolute",top:4,right:4,background:T.green,width:18,height:18,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center"}}><Check size={11} strokeWidth={3} color="#000"/></div>
                       </>
                     ):(
                       <>
-                        <span style={{fontSize:22,marginBottom:4}}>📷</span>
+                        <Camera size={22} color={T.textDim} strokeWidth={1.7} style={{marginBottom:4}}/>
                         <span style={{fontSize:10,color:T.textSub,textAlign:"center",padding:"0 4px"}}>{sl.label}</span>
                       </>
                     )}
                   </div>
                 ))}
               </div>
-              <div style={{marginTop:12,fontSize:11,color:T.textSub,textAlign:"center"}}>{pc}/6 photos{pc===6&&" · ✅ All areas captured"}</div>
+              <div style={{marginTop:12,fontSize:11,color:T.textSub,textAlign:"center",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>{pc}/6 photos{pc===6&&<><CircleCheck size={12} color={T.green} strokeWidth={2.2}/> All areas captured</>}</div>
             </div>
           )}
           {step===2&&(
@@ -1178,10 +1191,10 @@ function InspModal({vehicle,onClose}){
               </div>
               <div style={{padding:"12px 14px",background:T.raised,borderRadius:9,display:"flex",flexDirection:"column",gap:5}}>
                 <div style={{fontSize:11,color:T.textSub,fontWeight:700,letterSpacing:"0.06em",textTransform:"uppercase",marginBottom:4}}>Summary</div>
-                <div style={{fontSize:12,color:T.text}}>📷 {pc}/6 photos</div>
-                <div style={{fontSize:12,color:T.text}}>📊 Mileage: {mileage} mi</div>
-                <div style={{fontSize:12,color:T.text}}>⛽ Fuel: {fuel}%</div>
-                {dmg&&<div style={{fontSize:12,color:T.amber}}>⚠️ Damage notes recorded</div>}
+                <div style={{fontSize:12,color:T.text,display:"flex",alignItems:"center",gap:7}}><Camera size={13} color={T.textSub} strokeWidth={2}/> {pc}/6 photos</div>
+                <div style={{fontSize:12,color:T.text,display:"flex",alignItems:"center",gap:7}}><Gauge size={13} color={T.textSub} strokeWidth={2}/> Mileage: {mileage} mi</div>
+                <div style={{fontSize:12,color:T.text,display:"flex",alignItems:"center",gap:7}}><Fuel size={13} color={T.textSub} strokeWidth={2}/> Fuel: {fuel}%</div>
+                {dmg&&<div style={{fontSize:12,color:T.amber,display:"flex",alignItems:"center",gap:7}}><AlertTriangle size={13} strokeWidth={2.2}/> Damage notes recorded</div>}
               </div>
             </div>
           )}
@@ -1191,7 +1204,7 @@ function InspModal({vehicle,onClose}){
                 By signing, you confirm this inspection is accurate and complete. This report will be archived and sent to your supervisor.
               </div>
               <div onClick={()=>!signed&&setSigOpen(true)} style={{padding:"20px",background:signed?T.greenGlow:T.raised,border:`2px ${signed?"solid":"dashed"} ${signed?T.green:T.border}`,borderRadius:12,textAlign:"center",cursor:signed?"default":"pointer",WebkitTapHighlightColor:"transparent"}}>
-                {signed?<div style={{color:T.green,fontWeight:800,fontSize:15}}>✓ Digitally Signed</div>:<div style={{color:T.textSub,fontSize:13}}>Tap to sign digitally →</div>}
+                {signed?<div style={{color:T.green,fontWeight:800,fontSize:15,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><Check size={16} strokeWidth={2.6}/> Digitally Signed</div>:<div style={{color:T.textSub,fontSize:13}}>Tap to sign digitally →</div>}
               </div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
                 {[["Photos",`${pc}/6`,pc===6?T.green:T.amber],["Mileage",`${mileage} mi`,T.text],["Fuel",`${fuel}%`,parseInt(fuel)>25?T.text:T.red],["Signature",signed?"Done":"Needed",signed?T.green:T.amber]].map(([l,v,c])=>(
@@ -1208,7 +1221,7 @@ function InspModal({vehicle,onClose}){
             {step<INSP_STEPS.length-1?(
               <button onClick={()=>setStep(s=>s+1)} style={{flex:2,background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",color:"#000",padding:"13px",borderRadius:12,cursor:"pointer",fontWeight:800,fontSize:14}}>Continue →</button>
             ):(
-              <button onClick={()=>signed&&setDone(true)} disabled={!signed} style={{flex:2,background:signed?T.green:T.raised,border:`1px solid ${signed?T.green:T.border}`,color:signed?"#000":T.textDim,padding:"13px",borderRadius:12,cursor:signed?"pointer":"not-allowed",fontWeight:800,fontSize:14}}>Submit Inspection ✓</button>
+              <button onClick={()=>signed&&setDone(true)} disabled={!signed} style={{flex:2,background:signed?T.green:T.raised,border:`1px solid ${signed?T.green:T.border}`,color:signed?"#000":T.textDim,padding:"13px",borderRadius:12,cursor:signed?"pointer":"not-allowed",fontWeight:800,fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><Check size={15} strokeWidth={2.6}/> Submit Inspection</button>
             )}
           </div>
         </CB>
@@ -1249,7 +1262,7 @@ function IncModal({onClose,showToast}){
     <ModalWrap>
       <Card style={{width:"min(440px,92vw)",textAlign:"center"}}>
         <CB style={{padding:"48px 32px"}}>
-          <div style={{fontSize:52,marginBottom:16}}>📋</div>
+          <div style={{display:"flex",justifyContent:"center",marginBottom:16}}><div style={{width:68,height:68,borderRadius:18,background:T.greenGlow,border:`1px solid ${T.greenB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><FileText size={30} color={T.green} strokeWidth={1.7}/></div></div>
           <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:8}}>Incident Logged</div>
           <div style={{fontSize:13,color:T.textSub}}>INC-2848 created and submitted for supervisor review.</div>
           <button onClick={onClose} style={{marginTop:24,background:T.green,border:"none",color:"#000",padding:"13px 36px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14,width:"100%"}}>Done →</button>
@@ -1267,7 +1280,7 @@ function IncModal({onClose,showToast}){
               <div style={{fontSize:10,color:T.textSub,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>New Incident</div>
               <div style={{fontSize:18,fontWeight:800,color:T.text}}>INC-2848</div>
             </div>
-            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={16} strokeWidth={2}/></button>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
@@ -1294,8 +1307,8 @@ function IncModal({onClose,showToast}){
               <label style={{fontSize:11,color:T.textSub,display:"block",marginBottom:6,fontWeight:700}}>Officer Notes</label>
               <textarea value={form.desc} onChange={e=>upd("desc",e.target.value)} placeholder="Describe what happened, persons involved, actions taken…" rows={5} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px",color:T.text,fontSize:13,resize:"none",outline:"none",boxSizing:"border-box",lineHeight:1.6}}/>
             </div>
-            <button onClick={genNarrative} disabled={gen||!form.desc} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:10,cursor:form.desc?"pointer":"not-allowed",fontWeight:700,fontSize:13,opacity:!form.desc?.5:1}}>
-              {gen?"⚡ Generating…":"⚡ Generate AI Narrative"}
+            <button onClick={genNarrative} disabled={gen||!form.desc} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:10,cursor:form.desc?"pointer":"not-allowed",fontWeight:700,fontSize:13,opacity:!form.desc?.5:1,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
+              <Sparkles size={14} strokeWidth={2.2}/> {gen?"Generating…":"Generate AI Narrative"}
             </button>
             {ai&&(
               <div style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:10,padding:"14px 16px"}}>
@@ -1321,7 +1334,7 @@ const LIVE_TICKER=[
   {t:40000,msg:"Jordan Park — Break ended, returning to patrol",type:"info"},
   {t:57000,msg:"V-02 Highlander dispatched — authorised by Supervisor Chen",type:"dispatch"},
   {t:73000,msg:"Diana Reyes — Checkpoint scanned: Loading Dock",type:"scan"},
-  {t:88000,msg:"⚠ Lone worker check-in pending — Jordan Park",type:"warning"},
+  {t:88000,msg:"Lone worker check-in pending — Jordan Park",type:"warning"},
   {t:104000,msg:"INC-2847 resolved — subject processed by Northgate PD",type:"success"},
   {t:119000,msg:"Ava Simmons — Started patrol route, Eastside Mall",type:"info"},
 ];
@@ -1357,19 +1370,22 @@ function Dashboard({openModal,showToast}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:18}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(148px,1fr))",gap:10}}>
-        {KPI_DATA.map(k=>(
+        {KPI_DATA.map(k=>{
+          const Icon=k.icon;
+          const TrendIcon=k.trend==="down"?TrendingDown:k.trend.startsWith("-")?TrendingDown:k.trend.startsWith("+")?TrendingUp:null;
+          return(
           <Card key={k.label} glow={k.color}>
             <CB style={{padding:"16px 18px"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
-                <span style={{fontSize:22}}>{k.icon}</span>
-                <span style={{fontSize:10,fontWeight:800,color:k.color,background:`${k.color}18`,padding:"2px 7px",borderRadius:4}}>{k.trend}</span>
+                <div style={{width:34,height:34,borderRadius:9,background:`${k.color}16`,border:`1px solid ${k.color}30`,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={17} color={k.color} strokeWidth={2}/></div>
+                {TrendIcon&&<span style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,fontWeight:800,color:k.color,background:`${k.color}18`,padding:"3px 7px",borderRadius:5}}><TrendIcon size={11} strokeWidth={2.5}/>{k.trend.replace(/^[+-]/,"")}</span>}
               </div>
               <div style={{fontSize:26,fontWeight:900,color:k.color,lineHeight:1}}>{k.value}</div>
               <div style={{fontSize:12,fontWeight:700,color:T.text,marginTop:5}}>{k.label}</div>
               <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{k.sub}</div>
             </CB>
           </Card>
-        ))}
+        );})}
       </div>
       <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.5fr) minmax(0,1fr)",gap:16}}>
         <Card><CB><SH title="Live Operations Map"/><LiveMap officers={OFFICERS} positions={positions}/></CB></Card>
@@ -1481,7 +1497,7 @@ function Workforce(){
                     <div style={{fontSize:12,color:T.accent,fontWeight:800}}>{o.cps} hit</div>
                   </div>
                 </div>
-                {o.incidents>0&&<div style={{marginTop:10,padding:"9px 12px",background:T.redGlow,borderRadius:8,border:`1px solid ${T.redB}`,fontSize:12,color:T.red,fontWeight:700}}>⚡ {o.incidents} active incident{o.incidents>1?"s":""}</div>}
+                {o.incidents>0&&<div style={{marginTop:10,padding:"9px 12px",background:T.redGlow,borderRadius:8,border:`1px solid ${T.redB}`,fontSize:12,color:T.red,fontWeight:700,display:"flex",alignItems:"center",gap:7}}><AlertTriangle size={13} strokeWidth={2.2}/> {o.incidents} active incident{o.incidents>1?"s":""}</div>}
               </CB>
             </Card>
           );
@@ -1530,7 +1546,7 @@ function Patrol({user,showToast,openModal}){
         const entry={id:`SC-${Date.now()}`,checkpoint:cp.name,site:cp.site,officer:user?.name||"Officer",badge:user?.badge||"—",ts,method:"QR"};
         setScanLog(l=>[entry,...l.slice(0,99)]);
         logAction(user,"CHECKPOINT_SCAN",`${cp.name} — ${cp.site}`);
-        showToast(`✓ ${cp.name} scanned successfully`,"success");
+        showToast(`${cp.name} scanned successfully`,"success");
         setScanning(false);setScanTarget(null);setScanProgress(0);
       }
     },55);
@@ -1540,10 +1556,10 @@ function Patrol({user,showToast,openModal}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(138px,1fr))",gap:10}}>
-        {[["38","Total Patrols",T.accent,"🛡️"],["36","Completed",T.green,"✅"],["4","Missed CPs",T.red,"⚠️"],["42m","Avg Duration",T.gold,"⏱️"]].map(([v,l,c,icon])=>(
+        {[["38","Total Patrols",T.accent,Shield],["36","Completed",T.green,CheckCircle2],["4","Missed CPs",T.red,AlertTriangle],["42m","Avg Duration",T.gold,Timer]].map(([v,l,c,Icon])=>(
           <Card key={l} glow={c}>
             <CB style={{textAlign:"center",padding:"16px 12px"}}>
-              <div style={{fontSize:22,marginBottom:8}}>{icon}</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:8}}><Icon size={20} color={c} strokeWidth={1.8}/></div>
               <div style={{fontSize:28,fontWeight:900,color:c}}>{v}</div>
               <div style={{fontSize:11,color:T.textSub,marginTop:4}}>{l}</div>
             </CB>
@@ -1561,14 +1577,14 @@ function Patrol({user,showToast,openModal}){
               {["tl","tr","bl","br"].map(c=>(
                 <div key={c} style={{position:"absolute",...(c==="tl"?{top:8,left:8}:c==="tr"?{top:8,right:8}:c==="bl"?{bottom:8,left:8}:{bottom:8,right:8}),width:20,height:20,borderTop:c.startsWith("t")?`3px solid ${T.accent}`:"none",borderBottom:c.startsWith("b")?`3px solid ${T.accent}`:"none",borderLeft:c.endsWith("l")?`3px solid ${T.accent}`:"none",borderRight:c.endsWith("r")?`3px solid ${T.accent}`:"none"}}/>
               ))}
-              <div style={{fontSize:28}}>📷</div>
+              <Camera size={28} color={T.accent} strokeWidth={1.6}/>
             </div>
             <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:4}}>{scanTarget.name}</div>
             <div style={{fontSize:11,color:T.textSub,marginBottom:16}}>{scanTarget.site}</div>
             <div style={{height:6,background:T.raised,borderRadius:3,marginBottom:16,overflow:"hidden"}}>
               <div style={{height:"100%",width:`${scanProgress}%`,background:`linear-gradient(90deg,${T.accent},${T.green})`,borderRadius:3,transition:"width 0.05s linear"}}/>
             </div>
-            <div style={{fontSize:12,color:T.accent}}>{scanProgress<100?"Reading code…":"Confirmed ✓"}</div>
+            <div style={{fontSize:12,color:T.accent,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>{scanProgress<100?"Reading code…":<><Check size={13} strokeWidth={2.6}/> Confirmed</>}</div>
           </div>
         </ModalWrap>
       )}
@@ -1623,7 +1639,7 @@ function Patrol({user,showToast,openModal}){
 
       <Card>
         <CB>
-          <SH title="Pre-Patrol Vehicle Inspection" icon="🚗" sub="Tap Inspect to photograph and log vehicle condition before departure"/>
+          <SH title="Pre-Patrol Vehicle Inspection" icon={Car} sub="Tap Inspect to photograph and log vehicle condition before departure"/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:12}}>
             {VEHICLES.map(v=>{
               const c=SM(v.status).c;
@@ -1647,8 +1663,8 @@ function Patrol({user,showToast,openModal}){
                   <FuelBar pct={v.fuel}/>
                   <button
                     onClick={()=>openModal&&openModal({type:"inspection",vehicle:v})}
-                    style={{width:"100%",marginTop:12,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}
-                  >📷 Inspect &amp; Capture Photos</button>
+                    style={{width:"100%",marginTop:12,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}
+                  ><Camera size={14} strokeWidth={2.2}/> Inspect &amp; Capture Photos</button>
                 </div>
               );
             })}
@@ -1666,8 +1682,8 @@ function Fleet({openModal}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
       <div style={{display:"flex",gap:6}}>
-        {[["vehicles","🚗 Vehicles"],["costs","💰 Cost Analytics"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+        {[["vehicles",Car,"Vehicles"],["costs",HandCoins,"Cost Analytics"]].map(([t,Ic,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Ic size={13} strokeWidth={2}/>{l}</button>
         ))}
       </div>
 
@@ -1694,7 +1710,7 @@ function Fleet({openModal}){
                     ))}
                   </div>
                   <FuelBar pct={v.fuel}/>
-                  <button onClick={()=>openModal({type:"inspection",vehicle:v})} style={{width:"100%",marginTop:14,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:13}}>📋 Start Inspection</button>
+                  <button onClick={()=>openModal({type:"inspection",vehicle:v})} style={{width:"100%",marginTop:14,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><ClipboardList size={14} strokeWidth={2.2}/> Start Inspection</button>
                 </CB>
               </Card>
             );
@@ -1732,8 +1748,9 @@ function Fleet({openModal}){
                       <div style={{fontSize:18,fontWeight:900,color:T.accent}}>${v.total.toLocaleString()}</div>
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6}}>
-                      {[["⛽ Fuel",v.fuel,T.amber],["🔧 Maint.",v.maintenance,T.gold],["🛡 Insurance",v.insurance,T.accent],["📉 Deprec.",v.depreciation,T.purple]].map(([l,val,c])=>(
+                      {[[Fuel,"Fuel",v.fuel,T.amber],[Wrench,"Maint.",v.maintenance,T.gold],[ShieldCheck,"Insurance",v.insurance,T.accent],[TrendingDown,"Deprec.",v.depreciation,T.purple]].map(([Ic,l,val,c])=>(
                         <div key={l} style={{textAlign:"center",background:T.bg,borderRadius:7,padding:"8px 6px"}}>
+                          <div style={{display:"flex",justifyContent:"center",marginBottom:3}}><Ic size={11} color={c} strokeWidth={2}/></div>
                           <div style={{fontSize:11,fontWeight:700,color:c}}>${val}</div>
                           <div style={{fontSize:9,color:T.textDim,marginTop:2}}>{l}</div>
                         </div>
@@ -1812,7 +1829,7 @@ function Visitors({openModal,user,showToast}){
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {visitors.map(v=>(
               <div key={v.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
-                <div style={{width:36,height:36,borderRadius:10,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>👤</div>
+                <div style={{width:36,height:36,borderRadius:10,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><User size={16} color={T.accent} strokeWidth={2}/></div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{v.name}</div>
                   <div style={{fontSize:11,color:T.textSub}}>Host: {v.host} · {v.site}</div>
@@ -1860,8 +1877,8 @@ function Reports(){
               <button key={t} onClick={()=>setRtype(t)} style={{background:rtype===t?T.accentGlow:T.raised,border:`1px solid ${rtype===t?T.accentB:T.border}`,color:rtype===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:9,cursor:"pointer",fontSize:12,fontWeight:700,transition:"all 0.15s"}}>{t}</button>
             ))}
           </div>
-          <button onClick={generate} disabled={loading} style={{width:"100%",background:loading?T.raised:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:loading?`1px solid ${T.border}`:"none",color:loading?T.textSub:"#000",padding:"14px",borderRadius:12,cursor:loading?"not-allowed":"pointer",fontWeight:800,fontSize:14,marginBottom:report?16:0}}>
-            {loading?"⚡ Generating Report…":`Generate ${rtype}`}
+          <button onClick={generate} disabled={loading} style={{width:"100%",background:loading?T.raised:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:loading?`1px solid ${T.border}`:"none",color:loading?T.textSub:"#000",padding:"14px",borderRadius:12,cursor:loading?"not-allowed":"pointer",fontWeight:800,fontSize:14,marginBottom:report?16:0,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+            <Sparkles size={15} strokeWidth={2.2}/> {loading?"Generating Report…":`Generate ${rtype}`}
           </button>
           {report&&(
             <div>
@@ -1872,12 +1889,12 @@ function Reports(){
                   const url=URL.createObjectURL(new Blob([html],{type:"text/html"}));
                   const w=window.open(url,"_blank");
                   w?.addEventListener("load",()=>{w.print();URL.revokeObjectURL(url);},{once:true});
-                }} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>🖨 Print / PDF</button>
+                }} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Printer size={13} strokeWidth={2.2}/> Print / PDF</button>
                 <button onClick={()=>{
                   const url=URL.createObjectURL(new Blob([report],{type:"text/plain"}));
                   const a=document.createElement("a");a.href=url;a.download=`${rtype.replace(/ /g,"_")}.txt`;a.click();
                   setTimeout(()=>URL.revokeObjectURL(url),150);
-                }} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>⬇ Export</button>
+                }} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><ArrowDownToLine size={13} strokeWidth={2.2}/> Export</button>
               </div>
               <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:12,padding:"20px 22px"}}>
                 <pre style={{margin:0,fontSize:13,color:T.text,whiteSpace:"pre-wrap",lineHeight:1.75,fontFamily:"inherit"}}>{report}</pre>
@@ -1937,12 +1954,12 @@ function Dispatch({showToast,user}){
           <div style={{fontSize:13,color:T.text,lineHeight:1.6,marginBottom:14}}>Theo Okafor has been handling an active trespass at Plaza West for 27 min. Backup dispatch recommended.</div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             <button onClick={()=>setDispatched(p=>({...p,5:"Plaza West"}))}
-              style={{background:dispatched[5]?T.greenGlow:T.red,border:`1px solid ${dispatched[5]?T.greenB:"transparent"}`,color:dispatched[5]?T.green:"#fff",padding:"11px 20px",borderRadius:10,cursor:"pointer",fontWeight:800,fontSize:13,transition:"all .2s"}}>
-              {dispatched[5]?"✓ Jordan Park Dispatched":"Dispatch Jordan Park →"}
+              style={{background:dispatched[5]?T.greenGlow:T.red,border:`1px solid ${dispatched[5]?T.greenB:"transparent"}`,color:dispatched[5]?T.green:"#fff",padding:"11px 20px",borderRadius:10,cursor:"pointer",fontWeight:800,fontSize:13,transition:"all .2s",display:"inline-flex",alignItems:"center",gap:7}}>
+              {dispatched[5]?<><Check size={14} strokeWidth={2.6}/> Jordan Park Dispatched</>:"Dispatch Jordan Park →"}
             </button>
             <button onClick={radioAll} disabled={radioState!=="idle"}
-              style={{background:radioState==="sent"?T.greenGlow:radioState==="broadcasting"?T.accentGlow:T.raised,border:`1px solid ${radioState==="sent"?T.greenB:radioState==="broadcasting"?T.accentB:T.border}`,color:radioState==="sent"?T.green:radioState==="broadcasting"?T.accent:T.textSub,padding:"11px 16px",borderRadius:10,cursor:radioState==="idle"?"pointer":"default",fontWeight:700,fontSize:13,transition:"all .2s"}}>
-              {radioState==="broadcasting"?"📡 Broadcasting…":radioState==="sent"?"✓ All Units Notified · CH-4":"📡 Radio All Units"}
+              style={{background:radioState==="sent"?T.greenGlow:radioState==="broadcasting"?T.accentGlow:T.raised,border:`1px solid ${radioState==="sent"?T.greenB:radioState==="broadcasting"?T.accentB:T.border}`,color:radioState==="sent"?T.green:radioState==="broadcasting"?T.accent:T.textSub,padding:"11px 16px",borderRadius:10,cursor:radioState==="idle"?"pointer":"default",fontWeight:700,fontSize:13,transition:"all .2s",display:"inline-flex",alignItems:"center",gap:7}}>
+              <Radio size={14} strokeWidth={2.2}/> {radioState==="broadcasting"?"Broadcasting…":radioState==="sent"?"All Units Notified · CH-4":"Radio All Units"}
             </button>
           </div>
         </CB>
@@ -1962,7 +1979,7 @@ function Dispatch({showToast,user}){
                   </div>
                   <Pill label={o.status}/>
                   {dispatched[o.id]?(
-                    <div style={{fontSize:11,color:T.green,fontWeight:700,whiteSpace:"nowrap",background:T.greenGlow,border:`1px solid ${T.greenB}`,padding:"5px 10px",borderRadius:7}}>→ {dispatched[o.id]}</div>
+                    <div style={{fontSize:11,color:T.green,fontWeight:700,whiteSpace:"nowrap",background:T.greenGlow,border:`1px solid ${T.greenB}`,padding:"5px 10px",borderRadius:7,display:"inline-flex",alignItems:"center",gap:5}}><ArrowRight size={11} strokeWidth={2.4}/> {dispatched[o.id]}</div>
                   ):(
                     <button onClick={()=>dispatchOfficer(o,"Plaza West")}
                       style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"6px 12px",borderRadius:8,cursor:"pointer",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>Dispatch</button>
@@ -2032,7 +2049,7 @@ function MyShift({user,showToast}){
         setLoneWorker(t=>{
           if(t<=1){
             clearInterval(lwRef.current);
-            showToast("⚠️ Lone worker check-in MISSED — supervisor alerted","error");
+            showToast("Lone worker check-in MISSED — supervisor alerted","error");
             logAction(user,"LONE_WORKER_MISSED","Automatic alert triggered");
             return 30*60;
           }
@@ -2047,7 +2064,7 @@ function MyShift({user,showToast}){
 
   const lwCheckIn=()=>{
     setLoneWorker(30*60);
-    addActivity("Lone worker check-in confirmed ✓");
+    addActivity("Lone worker check-in confirmed");
     showToast("Check-in confirmed — next in 30 min","success");
     logAction(user,"LONE_WORKER_CHECKIN","Manual check-in");
   };
@@ -2115,8 +2132,8 @@ function MyShift({user,showToast}){
     setEnRouteDest("");
   };
   const sos=()=>{
-    addActivity("🚨 SOS ACTIVATED — Supervisor notified");
-    showToast("🚨 SOS sent — supervisor and dispatch alerted","error");
+    addActivity("SOS ACTIVATED — Supervisor notified");
+    showToast("SOS sent — supervisor and dispatch alerted","error");
   };
 
   const SHIFT_DURATION=12*3600;
@@ -2147,7 +2164,7 @@ function MyShift({user,showToast}){
           )}
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             {!clocked
-              ?<button onClick={clockIn} style={{flex:1,background:`linear-gradient(135deg,${T.green},#00a84e)`,border:"none",color:"#000",padding:"14px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:15}}>⏱ Clock In</button>
+              ?<button onClick={clockIn} style={{flex:1,background:`linear-gradient(135deg,${T.green},#00a84e)`,border:"none",color:"#000",padding:"14px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:15,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><Clock size={16} strokeWidth={2.4}/> Clock In</button>
               :<>
                 {["On Patrol","On Site","Break"].map(s=>(
                   <button key={s} onClick={()=>{setShiftStatus(s);addActivity(`Status changed to ${s}`);}} style={{flex:1,background:shiftStatus===s?`${SM(s).c}20`:T.raised,border:`1px solid ${shiftStatus===s?SM(s).c:T.border}`,color:shiftStatus===s?SM(s).c:T.textSub,padding:"9px 8px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:11}}>{s}</button>
@@ -2179,7 +2196,7 @@ function MyShift({user,showToast}){
                     <div style={{fontSize:13,fontWeight:700,color:T.text}}>{enRouteDest}</div>
                     <div style={{fontSize:11,color:T.gold}}>ETA: {Math.ceil(etaRemaining/60)} min remaining</div>
                   </div>
-                  <button onClick={arrived} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:13}}>✓ Arrived</button>
+                  <button onClick={arrived} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:13,display:"inline-flex",alignItems:"center",gap:6}}><Check size={13} strokeWidth={2.6}/> Arrived</button>
                 </div>
                 <PBar value={enRouteElapsed} max={enRouteETA*60} color={T.gold}/>
               </div>
@@ -2193,7 +2210,7 @@ function MyShift({user,showToast}){
         <Card glow={gps?T.green:undefined}>
           <CB style={{padding:"12px 16px"}}>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
-              <span style={{fontSize:18}}>📍</span>
+              <MapPin size={18} color={gps?T.green:T.textDim} strokeWidth={2}/>
               <div style={{flex:1,minWidth:0}}>
                 {gps?(
                   <>
@@ -2215,10 +2232,10 @@ function MyShift({user,showToast}){
       {/* Today stats */}
       {clocked&&(
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-          {[["Checkpoints","8",T.accent,"✅"],["Incidents","0",T.green,"⚡"],["Hours",fmt(elapsed),T.gold,"⏱️"]].map(([l,v,c,icon])=>(
+          {[["Checkpoints","8",T.accent,CheckCircle2],["Incidents","0",T.green,Activity],["Hours",fmt(elapsed),T.gold,Timer]].map(([l,v,c,Icon])=>(
             <Card key={l} glow={c}>
               <CB style={{textAlign:"center",padding:"14px 10px"}}>
-                <div style={{fontSize:18,marginBottom:6}}>{icon}</div>
+                <div style={{display:"flex",justifyContent:"center",marginBottom:6}}><Icon size={17} color={c} strokeWidth={1.8}/></div>
                 <div style={{fontSize:20,fontWeight:900,color:c}}>{v}</div>
                 <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{l}</div>
               </CB>
@@ -2237,7 +2254,7 @@ function MyShift({user,showToast}){
                 {loneWorkerActive&&<div style={{fontSize:11,color:loneWorker<300?T.red:T.amber,marginTop:3}}>Next check-in in {Math.floor(loneWorker/60)}:{String(loneWorker%60).padStart(2,"0")}</div>}
               </div>
               <div style={{display:"flex",gap:7}}>
-                {loneWorkerActive&&<button onClick={lwCheckIn} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>✓ Check In</button>}
+                {loneWorkerActive&&<button onClick={lwCheckIn} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:6}}><Check size={12} strokeWidth={2.6}/> Check In</button>}
                 <button onClick={()=>setLoneWorkerActive(a=>!a)} style={{background:loneWorkerActive?T.redGlow:T.accentGlow,border:`1px solid ${loneWorkerActive?T.redB:T.accentB}`,color:loneWorkerActive?T.red:T.accent,padding:"8px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{loneWorkerActive?"Disable":"Enable"}</button>
               </div>
             </div>
@@ -2248,7 +2265,7 @@ function MyShift({user,showToast}){
 
       {/* SOS */}
       {clocked&&(
-        <button onClick={sos} style={{width:"100%",background:"rgba(240,68,68,0.12)",border:`2px solid ${T.red}`,color:T.red,padding:"16px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:16,letterSpacing:"0.08em"}}>🚨 SOS — Emergency Alert</button>
+        <button onClick={sos} style={{width:"100%",background:"rgba(240,68,68,0.12)",border:`2px solid ${T.red}`,color:T.red,padding:"16px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:16,letterSpacing:"0.08em",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}><Siren size={19} strokeWidth={2.2}/> SOS — Emergency Alert</button>
       )}
 
       {/* Shift Handover */}
@@ -2262,7 +2279,7 @@ function MyShift({user,showToast}){
                 <button onClick={()=>{if(!handoverNote.trim())return;logAction(user,"HANDOVER_NOTES",handoverNote.slice(0,120));setHandoverSent(true);showToast("Handover notes submitted","success");}} style={{background:handoverNote.trim()?T.accentGlow:T.raised,border:`1px solid ${handoverNote.trim()?T.accentB:T.border}`,color:handoverNote.trim()?T.accent:T.textDim,padding:"10px",borderRadius:9,cursor:handoverNote.trim()?"pointer":"not-allowed",fontWeight:700,fontSize:13}}>Submit Handover</button>
               </div>
             ):(
-              <div style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,borderRadius:9,padding:"13px 15px",color:T.green,fontWeight:700,fontSize:13}}>✓ Handover notes submitted to incoming shift</div>
+              <div style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,borderRadius:9,padding:"13px 15px",color:T.green,fontWeight:700,fontSize:13,display:"flex",alignItems:"center",gap:8}}><Check size={15} strokeWidth={2.6}/> Handover notes submitted to incoming shift</div>
             )}
           </CB>
         </Card>
@@ -2334,8 +2351,8 @@ function EquipmentModule({user,showToast}){
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {(isOfficer?myItems:items).map(e=>(
               <div key={e.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
-                <div style={{width:36,height:36,borderRadius:9,background:`${statusColor(e.status)}18`,border:`1px solid ${statusColor(e.status)}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>
-                  {e.type==="Radio"?"📻":e.type==="Camera"?"📷":e.type==="CEW"?"⚡":e.type==="OC Spray"?"💨":e.type==="Medical"?"🩹":"🔧"}
+                <div style={{width:36,height:36,borderRadius:9,background:`${statusColor(e.status)}18`,border:`1px solid ${statusColor(e.status)}30`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  {(()=>{const EqIcon=e.type==="Radio"?Radio:e.type==="Camera"?Camera:e.type==="CEW"?Zap:e.type==="OC Spray"?Wind:e.type==="Medical"?Bandage:Wrench;return <EqIcon size={17} color={statusColor(e.status)} strokeWidth={1.8}/>;})()}
                 </div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.name}</div>
@@ -2512,9 +2529,9 @@ function LeaveModule({user,showToast}){
                 </div>
                 {isManager&&r.status==="Pending"&&(
                   <div style={{display:"flex",gap:7,marginTop:10}}>
-                    {r.type==="Emergency"&&<div style={{fontSize:10,color:T.amber,background:T.goldGlow,border:`1px solid ${T.gold}30`,padding:"4px 8px",borderRadius:6,fontWeight:700,flex:1}}>⚠ Check coverage before approving</div>}
-                    <button onClick={()=>approve(r.id)} style={{flex:1,background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>✓ Approve</button>
-                    <button onClick={()=>deny(r.id)} style={{flex:1,background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"8px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>✕ Deny</button>
+                    {r.type==="Emergency"&&<div style={{fontSize:10,color:T.amber,background:T.goldGlow,border:`1px solid ${T.gold}30`,padding:"4px 8px",borderRadius:6,fontWeight:700,flex:1,display:"flex",alignItems:"center",gap:5}}><AlertTriangle size={11} strokeWidth={2.4}/> Check coverage before approving</div>}
+                    <button onClick={()=>approve(r.id)} style={{flex:1,background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6}}><Check size={12} strokeWidth={2.6}/> Approve</button>
+                    <button onClick={()=>deny(r.id)} style={{flex:1,background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"8px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6}}><X size={12} strokeWidth={2.6}/> Deny</button>
                   </div>
                 )}
               </div>
@@ -2559,7 +2576,7 @@ function TrainingModule(){
       </div>
       {expired>0&&(
         <div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",gap:10,alignItems:"center"}}>
-          <span style={{fontSize:18}}>⚠️</span>
+          <AlertTriangle size={18} color={T.red} strokeWidth={2}/>
           <div style={{fontSize:12,color:T.red,fontWeight:700}}>Action Required: {expired} expired certificate{expired!==1?"s":" "} — officers may not be legally compliant for deployment. Escalate to HR.</div>
         </div>
       )}
@@ -2645,7 +2662,7 @@ function AuditLogModule({showToast}){
         <CB>
           <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center"}}>
             <input value={filter} onChange={e=>setFilter(e.target.value)} placeholder="Filter by action or user…" style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"9px 12px",borderRadius:8,fontSize:12,outline:"none"}}/>
-            <button onClick={refresh} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>↻</button>
+            <button onClick={refresh} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 12px",borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center"}}><RotateCw size={14} strokeWidth={2.2}/></button>
             <button onClick={clear} style={{background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"9px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>Clear</button>
           </div>
           {filtered.length===0?(
@@ -2707,25 +2724,25 @@ function ExecutiveCommand({showToast}){
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10}}>
         {[
-          ["Monthly Revenue",`$${(totalRev/1000).toFixed(0)}k`,T.green,"↑ +8% QoQ"],
-          ["Labor Cost",`$${(totalCost/1000).toFixed(0)}k`,T.amber,`${Math.round(totalCost/totalRev*100)}% of rev`],
-          ["Gross Margin",`${totalMargin}%`,totalMargin>=25?T.green:T.amber,"↑ +2pts"],
-          ["Active Contracts",active.length,T.accent,"4 sites"],
-          ["Avg Health",`${avgHealth}%`,hc(avgHealth),"1 at risk"],
-        ].map(([l,v,c,s])=>(
+          ["Monthly Revenue",`$${(totalRev/1000).toFixed(0)}k`,T.green,"+8% QoQ",TrendingUp],
+          ["Labor Cost",`$${(totalCost/1000).toFixed(0)}k`,T.amber,`${Math.round(totalCost/totalRev*100)}% of rev`,null],
+          ["Gross Margin",`${totalMargin}%`,totalMargin>=25?T.green:T.amber,"+2pts",TrendingUp],
+          ["Active Contracts",active.length,T.accent,"4 sites",null],
+          ["Avg Health",`${avgHealth}%`,hc(avgHealth),"1 at risk",null],
+        ].map(([l,v,c,s,TIcon])=>(
           <Card key={l} glow={c}>
             <CB style={{textAlign:"center",padding:"16px 8px"}}>
               <div style={{fontSize:26,fontWeight:900,color:c,lineHeight:1}}>{v}</div>
               <div style={{fontSize:10,color:T.textSub,margin:"4px 0 3px",lineHeight:1.3}}>{l}</div>
-              <div style={{fontSize:10,color:c,fontWeight:700}}>{s}</div>
+              <div style={{fontSize:10,color:c,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:4}}>{TIcon&&<TIcon size={11} strokeWidth={2.6}/>}{s}</div>
             </CB>
           </Card>
         ))}
       </div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {[["overview","📊 Overview"],["contracts","📋 Contracts"],["labor","💰 Labor"],["compliance","✅ Compliance"],["predictive","🧠 Predictive"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+        {[["overview",BarChart3,"Overview"],["contracts",FileText,"Contracts"],["labor",HandCoins,"Labor"],["compliance",CheckCircle2,"Compliance"],["predictive",Cpu,"Predictive"]].map(([t,Ic,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Ic size={13} strokeWidth={2}/>{l}</button>
         ))}
       </div>
 
@@ -2738,8 +2755,8 @@ function ExecutiveCommand({showToast}){
                   <div style={{fontSize:10,color:T.purple,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase"}}>AI Executive Briefing</div>
                   <div style={{fontSize:14,fontWeight:800,color:T.text,marginTop:3}}>Today's Intelligence Summary</div>
                 </div>
-                <button onClick={genBrief} disabled={loadBrief} style={{background:T.purpleGlow,border:`1px solid ${T.purple}40`,color:T.purple,padding:"9px 14px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,opacity:loadBrief?.6:1}}>
-                  {loadBrief?"Generating…":"⚡ Generate"}
+                <button onClick={genBrief} disabled={loadBrief} style={{background:T.purpleGlow,border:`1px solid ${T.purple}40`,color:T.purple,padding:"9px 14px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,opacity:loadBrief?.6:1,display:"inline-flex",alignItems:"center",gap:7}}>
+                  <Sparkles size={13} strokeWidth={2.2}/> {loadBrief?"Generating…":"Generate"}
                 </button>
               </div>
               {briefing
@@ -3101,7 +3118,7 @@ function TimekeepingModule({user,showToast}){
     const doClockIn=(gpsData,gfStatus)=>{
       setClockedIn(true);setClockTime(new Date());setElapsed(0);setGeofenceStatus(gfStatus);
       if(gpsData)setGps(gpsData);
-      if(gfStatus==="outside")showToast(`⚠ Outside ${site} geofence — location noted`,"info");
+      if(gfStatus==="outside")showToast(`Outside ${site} geofence — location noted`,"info");
       else showToast(`Clocked in at ${site}`,"success");
       logAction(user,"CLOCK_IN",`GPS clock-in at ${site}${gfStatus?" (geofence:"+gfStatus+")":""}`);
     };
@@ -3164,11 +3181,11 @@ function TimekeepingModule({user,showToast}){
 
       <div style={{display:"flex",gap:6,justifyContent:"space-between",flexWrap:"wrap",alignItems:"center"}}>
         <div style={{display:"flex",gap:5}}>
-          {[["timesheets","📋 Timesheets"],["clockin","⏱ GPS Clock In"],["overtime","⚠ Overtime"]].map(([t,l])=>(
-            <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+          {[["timesheets",ClipboardList,"Timesheets"],["clockin",Timer,"GPS Clock In"],["overtime",AlertTriangle,"Overtime"]].map(([t,Ic,l])=>(
+            <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Ic size={13} strokeWidth={2}/>{l}</button>
           ))}
         </div>
-        <button onClick={exportCSV} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>↓ Export Payroll CSV</button>
+        <button onClick={exportCSV} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><ArrowDownToLine size={13} strokeWidth={2.2}/> Export Payroll CSV</button>
       </div>
 
       {tab==="timesheets"&&(
@@ -3217,7 +3234,7 @@ function TimekeepingModule({user,showToast}){
                         </table>
                       </div>
                       {ts.status!=="Approved"&&(
-                        <button onClick={()=>approveSheet(ts.id)} style={{marginTop:10,background:T.green,border:"none",color:"#000",padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:800,fontSize:12,width:"100%"}}>✓ Approve All Shifts</button>
+                        <button onClick={()=>approveSheet(ts.id)} style={{marginTop:10,background:T.green,border:"none",color:"#000",padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:800,fontSize:12,width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><Check size={13} strokeWidth={2.6}/> Approve All Shifts</button>
                       )}
                     </div>
                   )}
@@ -3232,19 +3249,19 @@ function TimekeepingModule({user,showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <Card glow={clockedIn?T.green:T.accent}>
             <CB style={{textAlign:"center",padding:"28px 24px"}}>
-              <div style={{fontSize:44,marginBottom:12}}>{clockedIn?"🟢":"⏱️"}</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:12}}>{clockedIn?<Activity size={38} color={T.green} strokeWidth={1.7}/>:<Timer size={38} color={T.textDim} strokeWidth={1.6}/>}</div>
               <div style={{fontSize:20,fontWeight:900,color:clockedIn?T.green:T.text,marginBottom:6}}>
                 {clockedIn?`On Duty — ${site}`:"Ready to Clock In"}
               </div>
               {clockedIn&&<div style={{fontSize:36,fontWeight:900,color:T.green,fontFamily:"monospace",marginBottom:6,letterSpacing:"-0.02em"}}>{fmtHM(elapsed)}</div>}
               {clockedIn&&clockTime&&<div style={{fontSize:12,color:T.textSub,marginBottom:10}}>Since {clockTime.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</div>}
-              {gps&&<div style={{fontSize:11,color:T.accent,marginBottom:4}}>📍 {gps.lat}, {gps.lng}{gps.dist!==undefined?` · ${gps.dist}m from site`:""}</div>}
+              {gps&&<div style={{fontSize:11,color:T.accent,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><MapPin size={12} strokeWidth={2.2}/> {gps.lat}, {gps.lng}{gps.dist!==undefined?` · ${gps.dist}m from site`:""}</div>}
               {gps&&gps.dist!==undefined&&(
-                <div style={{fontSize:11,fontWeight:700,color:gps.dist<=gps.radius?T.green:T.red,marginBottom:8,background:gps.dist<=gps.radius?T.greenB:T.redGlow,border:`1px solid ${gps.dist<=gps.radius?T.greenB:T.redB}`,borderRadius:8,padding:"4px 10px",display:"inline-block"}}>
-                  {gps.dist<=gps.radius?`✓ Inside ${site} geofence (${gps.radius}m radius)`:`⚠ Outside geofence — ${gps.dist}m (max ${gps.radius}m)`}
+                <div style={{fontSize:11,fontWeight:700,color:gps.dist<=gps.radius?T.green:T.red,marginBottom:8,background:gps.dist<=gps.radius?T.greenB:T.redGlow,border:`1px solid ${gps.dist<=gps.radius?T.greenB:T.redB}`,borderRadius:8,padding:"4px 10px",display:"inline-flex",alignItems:"center",gap:6}}>
+                  {gps.dist<=gps.radius?<><Check size={12} strokeWidth={2.6}/> Inside {site} geofence ({gps.radius}m radius)</>:<><AlertTriangle size={12} strokeWidth={2.2}/> Outside geofence — {gps.dist}m (max {gps.radius}m)</>}
                 </div>
               )}
-              {gpsErr&&<div style={{fontSize:11,color:T.amber,marginBottom:8}}>⚠ {gpsErr}</div>}
+              {gpsErr&&<div style={{fontSize:11,color:T.amber,marginBottom:8,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><AlertTriangle size={12} strokeWidth={2.2}/> {gpsErr}</div>}
               {!clockedIn&&(
                 <div style={{marginBottom:16,textAlign:"left"}}>
                   <label style={{fontSize:11,color:T.textSub,fontWeight:700,display:"block",marginBottom:6}}>Deployment Site</label>
@@ -3253,8 +3270,8 @@ function TimekeepingModule({user,showToast}){
                   </select>
                 </div>
               )}
-              <button onClick={clockedIn?clockOut:clockIn} style={{background:clockedIn?T.red:`linear-gradient(135deg,${T.green},${T.accentH})`,border:"none",color:clockedIn?"#fff":"#000",padding:"15px 32px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:15,width:"100%"}}>
-                {clockedIn?"⏹ Clock Out":"⏱ GPS Clock In →"}
+              <button onClick={clockedIn?clockOut:clockIn} style={{background:clockedIn?T.red:`linear-gradient(135deg,${T.green},${T.accentH})`,border:"none",color:clockedIn?"#fff":"#000",padding:"15px 32px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:15,width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+                {clockedIn?<><CircleAlert size={16} strokeWidth={2.2}/> Clock Out</>:<><Timer size={16} strokeWidth={2.2}/> GPS Clock In</>}
               </button>
             </CB>
           </Card>
@@ -3262,19 +3279,19 @@ function TimekeepingModule({user,showToast}){
             <CB>
               <SH title="Payroll Integration Frameworks"/>
               {[
-                ["Paylocity","CSV export ready — compatible with Paylocity Import","⬇ Export",T.green,exportPaylocity],
-                ["ADP Workforce Now","ADP-format CSV — compatible with ADP import wizard","⬇ Export",T.green,exportADP],
-                ["UKG Pro","REST API integration — configure credentials in Settings","⚙ Configure",T.amber,null],
-                ["QuickBooks Payroll","Accounting integration available in v2.0","⌛ Planned",T.textDim,null],
-              ].map(([p,d,s,c,fn])=>(
+                ["Paylocity","CSV export ready — compatible with Paylocity Import",ArrowDownToLine,"Export",T.green,exportPaylocity],
+                ["ADP Workforce Now","ADP-format CSV — compatible with ADP import wizard",ArrowDownToLine,"Export",T.green,exportADP],
+                ["UKG Pro","REST API integration — configure credentials in Settings",Settings,"Configure",T.amber,null],
+                ["QuickBooks Payroll","Accounting integration available in v2.0",Timer,"Planned",T.textDim,null],
+              ].map(([p,d,Ic,s,c,fn])=>(
                 <div key={p} style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:9,padding:"11px 14px",marginBottom:6}}>
                   <div style={{flex:1}}>
                     <div style={{fontSize:12,fontWeight:700,color:T.text}}>{p}</div>
                     <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{d}</div>
                   </div>
                   {fn
-                    ?<button onClick={fn} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"6px 12px",borderRadius:7,cursor:"pointer",fontWeight:700,fontSize:11,whiteSpace:"nowrap"}}>{s}</button>
-                    :<span style={{fontSize:11,color:c,fontWeight:700,whiteSpace:"nowrap"}}>{s}</span>
+                    ?<button onClick={fn} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"6px 12px",borderRadius:7,cursor:"pointer",fontWeight:700,fontSize:11,whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:6}}><Ic size={11} strokeWidth={2.4}/>{s}</button>
+                    :<span style={{fontSize:11,color:c,fontWeight:700,whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:6}}><Ic size={11} strokeWidth={2.4}/>{s}</span>
                   }
                 </div>
               ))}
@@ -3286,11 +3303,11 @@ function TimekeepingModule({user,showToast}){
       {tab==="overtime"&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           {totalOT===0?(
-            <Card><CB style={{textAlign:"center",padding:"32px",color:T.textSub,fontSize:13}}><div style={{fontSize:36,marginBottom:12}}>✅</div>No overtime this week. All officers within standard hours.</CB></Card>
+            <Card><CB style={{textAlign:"center",padding:"32px",color:T.textSub,fontSize:13}}><div style={{display:"flex",justifyContent:"center",marginBottom:12}}><CircleCheck size={32} color={T.green} strokeWidth={1.7}/></div>No overtime this week. All officers within standard hours.</CB></Card>
           ):(
             <>
               <div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",gap:10,alignItems:"center"}}>
-                <span style={{fontSize:18}}>⚠️</span>
+                <AlertTriangle size={18} color={T.red} strokeWidth={2}/>
                 <div style={{fontSize:12,color:T.red,fontWeight:700}}>
                   {sheets.filter(t=>t.otHrs>0).length} officer{sheets.filter(t=>t.otHrs>0).length!==1?"s":""} with overtime this week · Total: {totalOT.toFixed(2)}h OT · Premium est. ${(totalOT*12.25).toFixed(2)}
                 </div>
@@ -3332,27 +3349,27 @@ function TimekeepingModule({user,showToast}){
 // AI COMMAND CENTER
 // ─────────────────────────────────────────────────────────────────
 const ADVISORS={
-  operations:{label:"Operations",icon:"⚡",color:T.accent,
+  operations:{label:"Operations",icon:Activity,color:T.accent,
     system:"You are ShieldSync AI Operations Advisor. Analyze patrol completion, incident response, checkpoint compliance, and dispatch efficiency. Context: 5 officers, 4 sites, 94% patrol rate, 2 open incidents, 4.2min avg response. Be tactical and data-driven. Max 4 sentences.",
     quick:["What needs immediate attention?","Analyze patrol gaps","Dispatch priority","Site risk ranking"],
     alerts:AI_INSIGHTS.filter(a=>a.priority==="critical"||a.priority==="high"),
   },
-  workforce:{label:"Workforce",icon:"👮",color:T.gold,
+  workforce:{label:"Workforce",icon:Users,color:T.gold,
     system:"You are ShieldSync AI Workforce Advisor. Analyze officer performance, scheduling, fatigue risk, and training compliance. Context: 6 officers, 1 expired cert, 2.68 OT hours, 2 pending leave requests. Be direct.",
     quick:["Flag fatigue risks","Scheduling gaps","Top performer analysis","Cert compliance status"],
     alerts:TRAINING_DATA.filter(t=>t.status==="Expired").map(t=>({text:`Expired certification: ${t.cert} — ${t.officer}. Requires immediate renewal.`,priority:"critical"})),
   },
-  compliance:{label:"Compliance",icon:"✅",color:T.green,
+  compliance:{label:"Compliance",icon:CheckCircle2,color:T.green,
     system:"You are ShieldSync AI Compliance Advisor. Track cert expiry, contract renewals, policy acknowledgments, and audit schedules. Focus on risk mitigation and legal compliance. 2 overdue certs, 1 expired contract, Q2 audit pending.",
     quick:["What's overdue?","Audit readiness check","Renewal priorities","Policy acknowledgment status"],
     alerts:COMPLIANCE_ITEMS.filter(c=>c.status==="Overdue").map(c=>({text:c.title+": "+c.notes,priority:"critical"})),
   },
-  risk:{label:"Risk",icon:"🔴",color:T.red,
+  risk:{label:"Risk",icon:ShieldAlert,color:T.red,
     system:"You are ShieldSync AI Risk Advisor. Identify operational, personnel, financial, and compliance risks. Provide risk scores and mitigation strategies. Current risk score: 6.2/10 (elevated). Be concise and prioritized.",
     quick:["Current risk score?","Top 3 risk factors","Mitigation priorities","Financial exposure"],
     alerts:AI_INSIGHTS.filter(a=>a.priority==="critical").slice(0,2),
   },
-  executive:{label:"Executive",icon:"📊",color:T.purple,
+  executive:{label:"Executive",icon:BarChart3,color:T.purple,
     system:"You are ShieldSync AI Executive Advisor. Provide strategic insights on financial performance, business development, and contract health. Monthly revenue $96,750, margin 27%, 4 active contracts. Be executive-level strategic.",
     quick:["Executive summary","Revenue growth opportunities","Contract renewal risks","Strategic priorities"],
     alerts:[{text:"Q2 revenue tracking 8% above prior quarter driven by Northgate contract optimization.",priority:"info"},{text:"CTR-003 Plaza West REIT expired June 1 — client relationship requires immediate executive outreach.",priority:"critical"}],
@@ -3362,6 +3379,7 @@ const ADVISORS={
 function AICommandCenter(){
   const[adv,setAdv]=useState("operations");
   const cfg=ADVISORS[adv];
+  const CfgIcon=cfg.icon;
   const[allMsgs,setAllMsgs]=useState({operations:[],workforce:[],compliance:[],risk:[],executive:[]});
   const[inp,setInp]=useState("");
   const[loading,setLoading]=useState(false);
@@ -3389,16 +3407,18 @@ function AICommandCenter(){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
-        {Object.entries(ADVISORS).map(([key,c])=>(
+        {Object.entries(ADVISORS).map(([key,c])=>{
+          const Icon=c.icon;
+          return(
           <button key={key} onClick={()=>{setAdv(key);setInp("");}} style={{background:adv===key?`${c.color}15`:T.raised,border:`1px solid ${adv===key?c.color+"45":T.border}`,borderRadius:10,padding:"12px 6px",cursor:"pointer",textAlign:"center",transition:"all 0.15s"}}>
-            <div style={{fontSize:22,marginBottom:4}}>{c.icon}</div>
+            <div style={{display:"flex",justifyContent:"center",marginBottom:6}}><Icon size={19} color={c.color} strokeWidth={1.8}/></div>
             <div style={{fontSize:9,color:adv===key?c.color:T.textSub,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.04em",lineHeight:1.3}}>{c.label}</div>
           </button>
-        ))}
+          );})}
       </div>
 
       <div style={{background:`linear-gradient(135deg,${cfg.color}12,${cfg.color}05)`,border:`1px solid ${cfg.color}28`,borderRadius:12,padding:"14px 18px",display:"flex",alignItems:"center",gap:12}}>
-        <div style={{width:44,height:44,borderRadius:12,background:`linear-gradient(135deg,${cfg.color}30,${cfg.color}10)`,border:`1px solid ${cfg.color}45`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{cfg.icon}</div>
+        <div style={{width:44,height:44,borderRadius:12,background:`linear-gradient(135deg,${cfg.color}30,${cfg.color}10)`,border:`1px solid ${cfg.color}45`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><CfgIcon size={21} color={cfg.color} strokeWidth={1.9}/></div>
         <div style={{flex:1}}>
           <div style={{fontSize:15,fontWeight:800,color:T.text}}>{cfg.label} Advisor</div>
           <div style={{fontSize:11,color:T.textSub,marginTop:2}}>AI-powered · Real-time intelligence · Security operations specialist</div>
@@ -3429,19 +3449,19 @@ function AICommandCenter(){
           <div style={{display:"flex",flexDirection:"column",gap:10,minHeight:240,maxHeight:340,overflowY:"auto",marginBottom:10,paddingRight:2}}>
             {curMsgs.length===0&&(
               <div style={{padding:"24px 0",textAlign:"center"}}>
-                <div style={{fontSize:36,marginBottom:8}}>{cfg.icon}</div>
+                <div style={{display:"flex",justifyContent:"center",marginBottom:10}}><div style={{width:52,height:52,borderRadius:14,background:`${cfg.color}15`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center"}}><CfgIcon size={24} color={cfg.color} strokeWidth={1.7}/></div></div>
                 <div style={{fontSize:13,color:T.textSub,lineHeight:1.6}}>The {cfg.label} Advisor is ready.<br/>Select a quick action or type your question below.</div>
               </div>
             )}
             {curMsgs.map((m,i)=>(
               <div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
-                {m.role==="ai"&&<div style={{width:28,height:28,borderRadius:8,flexShrink:0,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{cfg.icon}</div>}
+                {m.role==="ai"&&<div style={{width:28,height:28,borderRadius:8,flexShrink:0,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center"}}><CfgIcon size={14} color={cfg.color} strokeWidth={2}/></div>}
                 <div style={{maxWidth:"85%",padding:"9px 13px",borderRadius:m.role==="user"?"12px 12px 3px 12px":"12px 12px 12px 3px",background:m.role==="user"?`${cfg.color}15`:T.raised,border:`1px solid ${m.role==="user"?cfg.color+"35":T.border}`,fontSize:13,lineHeight:1.6,color:T.text,whiteSpace:"pre-wrap"}}>{m.text}</div>
               </div>
             ))}
             {loading&&(
               <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                <div style={{width:28,height:28,borderRadius:8,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{cfg.icon}</div>
+                <div style={{width:28,height:28,borderRadius:8,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center"}}><CfgIcon size={14} color={cfg.color} strokeWidth={2}/></div>
                 <div style={{background:T.raised,borderRadius:12,border:`1px solid ${T.border}`}}><Dots/></div>
               </div>
             )}
@@ -3514,11 +3534,11 @@ function ProcurementModule({user,showToast}){
 
       <div style={{display:"flex",gap:6,justifyContent:"space-between",flexWrap:"wrap",alignItems:"center"}}>
         <div style={{display:"flex",gap:5}}>
-          {[["requests","📋 Requests"],["vendors","🏢 Vendors"],["assets","📦 Assets"]].map(([t,l])=>(
-            <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+          {[["requests",ClipboardList,"Requests"],["vendors",Building2,"Vendors"],["assets",Package,"Assets"]].map(([t,Ic,l])=>(
+            <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Ic size={13} strokeWidth={2}/>{l}</button>
           ))}
         </div>
-        {tab==="requests"&&<button onClick={()=>setShowForm(p=>!p)} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{showForm?"✕ Cancel":"+ New Request"}</button>}
+        {tab==="requests"&&<button onClick={()=>setShowForm(p=>!p)} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:6}}>{showForm?<><X size={13} strokeWidth={2.4}/> Cancel</>:<><Plus size={13} strokeWidth={2.4}/> New Request</>}</button>}
       </div>
 
       {tab==="requests"&&(
@@ -3558,7 +3578,7 @@ function ProcurementModule({user,showToast}){
                   style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:9,padding:"10px 12px",color:T.text,fontSize:13,resize:"none",outline:"none",boxSizing:"border-box",marginBottom:10}}/>
                 <div style={{display:"flex",gap:8}}>
                   <button onClick={()=>setShowForm(false)} style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px",borderRadius:9,cursor:"pointer",fontWeight:600}}>Cancel</button>
-                  <button onClick={submitReq} disabled={!valid} style={{flex:2,background:valid?T.accent:T.raised,border:`1px solid ${valid?T.accent:T.border}`,color:valid?"#000":T.textDim,padding:"11px",borderRadius:9,cursor:valid?"pointer":"not-allowed",fontWeight:800}}>Submit Request ✓</button>
+                  <button onClick={submitReq} disabled={!valid} style={{flex:2,background:valid?T.accent:T.raised,border:`1px solid ${valid?T.accent:T.border}`,color:valid?"#000":T.textDim,padding:"11px",borderRadius:9,cursor:valid?"pointer":"not-allowed",fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><Check size={14} strokeWidth={2.6}/> Submit Request</button>
                 </div>
               </CB>
             </Card>
@@ -3581,7 +3601,7 @@ function ProcurementModule({user,showToast}){
                 </div>
               </div>
               {r.status==="Pending"&&(
-                <button onClick={()=>approve(r.id)} style={{marginTop:8,background:T.green,border:"none",color:"#000",padding:"8px",borderRadius:7,cursor:"pointer",fontWeight:800,fontSize:11,width:"100%"}}>✓ Approve Request</button>
+                <button onClick={()=>approve(r.id)} style={{marginTop:8,background:T.green,border:"none",color:"#000",padding:"8px",borderRadius:7,cursor:"pointer",fontWeight:800,fontSize:11,width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Check size={12} strokeWidth={2.6}/> Approve Request</button>
               )}
             </div>
           ))}
@@ -3606,10 +3626,10 @@ function ProcurementModule({user,showToast}){
                     </div>
                   </div>
                   <div style={{display:"flex",gap:14,fontSize:11,color:T.textSub,flexWrap:"wrap"}}>
-                    <span>📋 {v.contracts} contract{v.contracts!==1?"s":""}</span>
-                    <span>⭐ {v.rating}/5.0</span>
-                    <span>📧 {v.contact}</span>
-                    <span>📞 {v.phone}</span>
+                    <span style={{display:"inline-flex",alignItems:"center",gap:5}}><FileText size={12} strokeWidth={2}/> {v.contracts} contract{v.contracts!==1?"s":""}</span>
+                    <span style={{display:"inline-flex",alignItems:"center",gap:5}}><Star size={12} strokeWidth={2}/> {v.rating}/5.0</span>
+                    <span style={{display:"inline-flex",alignItems:"center",gap:5}}><Mail size={12} strokeWidth={2}/> {v.contact}</span>
+                    <span style={{display:"inline-flex",alignItems:"center",gap:5}}><Phone size={12} strokeWidth={2}/> {v.phone}</span>
                   </div>
                 </div>
               ))}
@@ -3625,8 +3645,8 @@ function ProcurementModule({user,showToast}){
             <div style={{display:"flex",flexDirection:"column",gap:6}}>
               {ASSET_REGISTER.map(a=>(
                 <div key={a.id} style={{display:"flex",gap:12,alignItems:"center",background:T.raised,borderRadius:9,padding:"10px 13px"}}>
-                  <div style={{width:32,height:32,borderRadius:8,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,flexShrink:0}}>
-                    {a.type==="Vehicle"?"🚗":a.type==="Radio"?"📻":a.type==="Camera"?"📷":a.type==="CEW"?"⚡":a.type==="Medical"?"🏥":"🔧"}
+                  <div style={{width:32,height:32,borderRadius:8,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    {(()=>{const AsIcon=a.type==="Vehicle"?Car:a.type==="Radio"?Radio:a.type==="Camera"?Camera:a.type==="CEW"?Zap:a.type==="Medical"?Briefcase:Wrench;return <AsIcon size={15} color={T.accent} strokeWidth={1.8}/>;})()}
                   </div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:12,fontWeight:700,color:T.text}}>{a.name}</div>
@@ -3653,15 +3673,16 @@ function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
   return(
     <aside style={{width:collapsed?58:210,background:T.surface,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",transition:"width 0.2s ease",flexShrink:0,position:"sticky",top:0,height:"100vh",overflowX:"hidden"}}>
       <div style={{padding:collapsed?"14px 11px":"16px 18px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",gap:12}}>
-        <div style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>⚡</div>
+        <div style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><ShieldCheck size={17} color="#08111f" strokeWidth={2.4}/></div>
         {!collapsed&&<div><div style={{fontWeight:900,fontSize:14,color:T.text,letterSpacing:"-0.02em"}}>ShieldSync</div><div style={{fontSize:9,color:T.textDim,letterSpacing:"0.18em",textTransform:"uppercase"}}>SENTINEL</div></div>}
       </div>
       <nav style={{flex:1,padding:"10px 7px",display:"flex",flexDirection:"column",gap:2,overflowY:"auto"}}>
         {items.map(n=>{
           const a=active===n.id;
+          const Icon=n.icon;
           return(
             <button key={n.id} onClick={()=>onChange(n.id)} title={collapsed?n.label:""} style={{display:"flex",alignItems:"center",gap:10,padding:collapsed?"11px 11px":"10px 12px",background:a?T.accentGlow:"none",border:`1px solid ${a?T.accentB:"transparent"}`,borderRadius:10,cursor:"pointer",color:a?T.accent:T.textSub,fontWeight:a?700:500,fontSize:13,textAlign:"left",width:"100%",transition:"all 0.15s",WebkitTapHighlightColor:"transparent"}}>
-              <span style={{fontSize:16,flexShrink:0}}>{n.icon}</span>
+              <Icon size={17} strokeWidth={2} style={{flexShrink:0}}/>
               {!collapsed&&<span style={{whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{n.label}</span>}
             </button>
           );
@@ -3678,10 +3699,10 @@ function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
           </div>
         )}
         <button onClick={onLogout} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,color:T.textSub,padding:"9px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:6,WebkitTapHighlightColor:"transparent"}}>
-          {collapsed?"×":<><span style={{fontSize:13}}>↩</span><span>Sign Out</span></>}
+          {collapsed?<LogOut size={14}/>:<><LogOut size={13}/><span>Sign Out</span></>}
         </button>
-        <button onClick={()=>setCollapsed(c=>!c)} style={{background:"none",border:`1px solid ${T.border}`,borderRadius:8,color:T.textDim,padding:"7px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:600}}>
-          {collapsed?"→":"← Collapse"}
+        <button onClick={()=>setCollapsed(c=>!c)} style={{background:"none",border:`1px solid ${T.border}`,borderRadius:8,color:T.textDim,padding:"7px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+          {collapsed?<ChevronRight size={14}/>:<><ChevronLeft size={14}/><span>Collapse</span></>}
         </button>
       </div>
     </aside>
@@ -3700,7 +3721,7 @@ function TopBar({modId,now,user,onLogout,isMobile}){
       </div>
       <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
         {!isMobile&&<div style={{display:"flex",alignItems:"center",gap:5,background:`${T.green}10`,border:`1px solid ${T.green}28`,borderRadius:8,padding:"5px 10px"}}>
-          <span style={{fontSize:11}}>🔒</span>
+          <Lock size={11} color={T.green} strokeWidth={2.4}/>
           <span style={{fontSize:10,color:T.green,fontWeight:700}}>Secure</span>
         </div>}
         <div style={{display:"flex",alignItems:"center",gap:6,background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:8,padding:isMobile?"6px 8px":"6px 11px"}}>
@@ -3714,7 +3735,7 @@ function TopBar({modId,now,user,onLogout,isMobile}){
             <div style={{color:T.textDim,fontSize:9,textTransform:"uppercase",letterSpacing:"0.06em"}}>{user.role}</div>
           </div>}
           {isMobile&&(
-            <button onClick={onLogout} title="Sign out" style={{background:"none",border:"none",color:T.textSub,cursor:"pointer",fontSize:14,padding:"4px 6px",WebkitTapHighlightColor:"transparent",minWidth:32,minHeight:32,display:"flex",alignItems:"center",justifyContent:"center"}}>↩</button>
+            <button onClick={onLogout} title="Sign out" style={{background:"none",border:"none",color:T.textSub,cursor:"pointer",padding:"4px 6px",WebkitTapHighlightColor:"transparent",minWidth:32,minHeight:32,display:"flex",alignItems:"center",justifyContent:"center"}}><LogOut size={15}/></button>
           )}
         </div>
       </div>
@@ -3726,13 +3747,17 @@ function MobileNav({items,active,onChange}){
   const scroll=items.length>5;
   return(
     <nav style={{position:"fixed",bottom:0,left:0,right:0,zIndex:50,background:T.surface,borderTop:`1px solid ${T.border}`,display:"flex",alignItems:"stretch",overflowX:scroll?"auto":"visible",WebkitOverflowScrolling:"touch",paddingBottom:"env(safe-area-inset-bottom,0px)"}}>
-      {items.map(n=>(
+      {items.map(n=>{
+        const Icon=n.icon;
+        const a=active===n.id;
+        return(
         <button key={n.id} onClick={()=>onChange(n.id)} style={{flex:scroll?0:items.length<=3?0:1,flexShrink:0,minWidth:scroll?72:items.length<=3?100:0,background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"12px 6px 10px",cursor:"pointer",gap:4,WebkitTapHighlightColor:"transparent",position:"relative"}}>
-          <span style={{fontSize:20,lineHeight:1}}>{n.icon}</span>
-          <span style={{fontSize:9,fontWeight:700,letterSpacing:"0.04em",color:active===n.id?T.accent:T.textDim,transition:"color 0.15s",whiteSpace:"nowrap"}}>{n.label}</span>
-          {active===n.id&&<div style={{position:"absolute",top:0,left:"20%",right:"20%",height:2,background:T.accent,borderRadius:"0 0 2px 2px"}}/>}
+          <Icon size={20} strokeWidth={a?2.3:1.9} color={a?T.accent:T.textDim} style={{transition:"color 0.15s"}}/>
+          <span style={{fontSize:9,fontWeight:700,letterSpacing:"0.04em",color:a?T.accent:T.textDim,transition:"color 0.15s",whiteSpace:"nowrap"}}>{n.label}</span>
+          {a&&<div style={{position:"absolute",top:0,left:"20%",right:"20%",height:2,background:T.accent,borderRadius:"0 0 2px 2px"}}/>}
         </button>
-      ))}
+        );
+      })}
     </nav>
   );
 }
@@ -3753,7 +3778,7 @@ function MFAScreen({user,onVerify,onCancel}){
     <div style={{minHeight:"100vh",background:T.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20,position:"relative",overflow:"hidden"}}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0;}html,body{font-family:'DM Sans',system-ui,sans-serif;background:${T.bg};}@keyframes ssUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}input:focus{border-color:${T.accentB}!important;outline:none;}`}</style>
       <div style={{textAlign:"center",marginBottom:28,animation:"ssUp .35s ease",position:"relative",zIndex:1}}>
-        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,margin:"0 auto 16px",boxShadow:`0 0 60px ${T.accent}38`}}>🔐</div>
+        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",boxShadow:`0 0 60px ${T.accent}38`}}><Fingerprint size={31} color="#08111f" strokeWidth={1.9}/></div>
         <div style={{fontSize:26,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>Two-Factor Auth</div>
         <div style={{fontSize:12,color:T.textSub,marginTop:6}}>Signed in as <strong style={{color:T.text}}>{user.name}</strong></div>
       </div>
@@ -3770,7 +3795,7 @@ function MFAScreen({user,onVerify,onCancel}){
           Verify Identity →
         </button>
         <div style={{display:"flex",justifyContent:"space-between"}}>
-          <button onClick={()=>{setResent(true);setTimeout(()=>setResent(false),3000);}} style={{background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer",padding:0}}>{resent?"Code re-sent ✓":"Resend code"}</button>
+          <button onClick={()=>{setResent(true);setTimeout(()=>setResent(false),3000);}} style={{background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer",padding:0,display:"inline-flex",alignItems:"center",gap:5}}>{resent?<><Check size={12} strokeWidth={2.6}/> Code re-sent</>:"Resend code"}</button>
           <button onClick={onCancel} style={{background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer",padding:0}}>Cancel</button>
         </div>
       </div>
@@ -3783,7 +3808,7 @@ function MFAScreen({user,onVerify,onCancel}){
 // ─────────────────────────────────────────────────────────────────
 function OnboardingWizard({user,onComplete}){
   const STEPS=["Welcome","Add Site","Add Officer","Configure Alerts","You're Live"];
-  const ICONS=["👋","🏢","👮","🔔","🚀"];
+  const ICONS=[Hand,Building2,Users,Bell,Rocket];
   const[step,setStep]=useState(0);
   const[form,setForm]=useState({site:"",address:"",officer:"",email:"",badge:"",alertEmail:true,alertSMS:false,alertPush:true});
   const upd=(k,v)=>setForm(f=>({...f,[k]:v}));
@@ -3809,23 +3834,25 @@ function OnboardingWizard({user,onComplete}){
           <div style={{height:"100%",width:`${Math.round(step/(STEPS.length-1)*100)}%`,background:`linear-gradient(90deg,${T.accent},${T.purple})`,transition:"width .4s ease"}}/>
         </div>
         <div style={{display:"flex",borderBottom:`1px solid ${T.border}`,padding:"14px 24px 0"}}>
-          {STEPS.map((s,i)=>(
+          {STEPS.map((s,i)=>{
+            const StepIcon=ICONS[i];
+            return(
             <div key={s} style={{flex:1,textAlign:"center",paddingBottom:12,borderBottom:`2px solid ${i<=step?T.accent:"transparent"}`,transition:"border-color .3s"}}>
-              <div style={{fontSize:16,marginBottom:3}}>{ICONS[i]}</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:5}}><StepIcon size={15} color={i===step?T.accent:i<step?T.green:T.textDim} strokeWidth={1.9}/></div>
               <div style={{fontSize:9,color:i===step?T.accent:i<step?T.green:T.textDim,fontWeight:700,letterSpacing:"0.06em",textTransform:"uppercase"}}>{s}</div>
             </div>
-          ))}
+            );})}
         </div>
         <div style={{padding:32}}>
           {step===0&&(
             <div style={{textAlign:"center"}}>
-              <div style={{fontSize:36,marginBottom:14}}>👋</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:16}}><div style={{width:60,height:60,borderRadius:16,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><Hand size={28} color={T.accent} strokeWidth={1.8}/></div></div>
               <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:10}}>Welcome to ShieldSync, {user.name.split(" ")[0]}!</div>
               <div style={{fontSize:13,color:T.textSub,lineHeight:1.75,marginBottom:24}}>Your account is ready. Let's set up your first site, add an officer, and configure alerts in under 2 minutes.</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
-                {[["📍","Add Site","Set patrol locations"],["👮","Add Officer","Invite your team"],["🔔","Alerts","Real-time notifications"]].map(([ic,t,s])=>(
+                {[[MapPin,"Add Site","Set patrol locations"],[Users,"Add Officer","Invite your team"],[Bell,"Alerts","Real-time notifications"]].map(([Ic,t,s])=>(
                   <div key={t} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:14,padding:16}}>
-                    <div style={{fontSize:22,marginBottom:8}}>{ic}</div>
+                    <div style={{marginBottom:9}}><Ic size={19} color={T.accent} strokeWidth={1.9}/></div>
                     <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:3}}>{t}</div>
                     <div style={{fontSize:11,color:T.textSub,lineHeight:1.5}}>{s}</div>
                   </div>
@@ -3866,12 +3893,12 @@ function OnboardingWizard({user,onComplete}){
               <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Configure Alert Channels</div>
               <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>Choose how your team gets notified for SOS, missed checkpoints, and incidents.</div>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                {[{k:"alertEmail",label:"Email Alerts",sub:"Incident reports and daily summaries",icon:"📧"},{k:"alertSMS",label:"SMS / Text Alerts",sub:"SOS and critical incidents only",icon:"📱"},{k:"alertPush",label:"Push Notifications",sub:"Real-time browser and mobile alerts",icon:"🔔"}].map(({k,label,sub,icon})=>(
+                {[{k:"alertEmail",label:"Email Alerts",sub:"Incident reports and daily summaries",icon:Mail},{k:"alertSMS",label:"SMS / Text Alerts",sub:"SOS and critical incidents only",icon:Phone},{k:"alertPush",label:"Push Notifications",sub:"Real-time browser and mobile alerts",icon:Bell}].map(({k,label,sub,icon:Icon})=>(
                   <div key={k} onClick={()=>upd(k,!form[k])} style={{display:"flex",alignItems:"center",gap:14,background:form[k]?T.accentGlow:T.raised,border:`1px solid ${form[k]?T.accentB:T.border}`,borderRadius:14,padding:"14px 16px",cursor:"pointer",transition:"all .2s"}}>
-                    <span style={{fontSize:20}}>{icon}</span>
+                    <Icon size={19} color={form[k]?T.accent:T.textSub} strokeWidth={1.9}/>
                     <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:T.text}}>{label}</div><div style={{fontSize:11,color:T.textSub,marginTop:2}}>{sub}</div></div>
                     <div style={{width:22,height:22,borderRadius:6,background:form[k]?T.accent:T.raised,border:`2px solid ${form[k]?T.accent:T.borderLight}`,display:"flex",alignItems:"center",justifyContent:"center",transition:"all .2s",flexShrink:0}}>
-                      {form[k]&&<span style={{color:"#000",fontSize:13,fontWeight:900}}>✓</span>}
+                      {form[k]&&<Check size={13} strokeWidth={3} color="#000"/>}
                     </div>
                   </div>
                 ))}
@@ -3880,13 +3907,13 @@ function OnboardingWizard({user,onComplete}){
           )}
           {step===4&&(
             <div style={{textAlign:"center"}}>
-              <div style={{fontSize:48,marginBottom:14}}>🚀</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:16}}><div style={{width:68,height:68,borderRadius:18,background:T.greenGlow,border:`1px solid ${T.greenB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><Rocket size={31} color={T.green} strokeWidth={1.8}/></div></div>
               <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:10}}>You're All Set!</div>
               <div style={{fontSize:13,color:T.textSub,lineHeight:1.75,marginBottom:22}}>Your ShieldSync workspace is live with demo data. AI features work immediately, and all modules are ready to explore.</div>
               <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:14,padding:18,textAlign:"left",marginBottom:22}}>
                 <div style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:10}}>Configured</div>
-                {[["✅","Site",form.site||"Demo sites pre-loaded"],["✅","Officer",form.officer||"Demo team pre-loaded"],["✅","Alerts",`Email ${form.alertEmail?"on":"off"} · SMS ${form.alertSMS?"on":"off"} · Push ${form.alertPush?"on":"off"}`],["✅","AI Command","5 specialist advisors ready"],["✅","Access control","4-tier RBAC configured"]].map(([ic,lb,v])=>(
-                  <div key={lb} style={{display:"flex",gap:10,fontSize:13,marginBottom:6}}><span>{ic}</span><span style={{color:T.textSub,minWidth:100}}>{lb}</span><span style={{color:T.text,fontWeight:600}}>{v}</span></div>
+                {[["Site",form.site||"Demo sites pre-loaded"],["Officer",form.officer||"Demo team pre-loaded"],["Alerts",`Email ${form.alertEmail?"on":"off"} · SMS ${form.alertSMS?"on":"off"} · Push ${form.alertPush?"on":"off"}`],["AI Command","5 specialist advisors ready"],["Access control","4-tier RBAC configured"]].map(([lb,v])=>(
+                  <div key={lb} style={{display:"flex",alignItems:"center",gap:10,fontSize:13,marginBottom:6}}><CheckCircle2 size={14} color={T.green} strokeWidth={2}/><span style={{color:T.textSub,minWidth:100}}>{lb}</span><span style={{color:T.text,fontWeight:600}}>{v}</span></div>
                 ))}
               </div>
             </div>
@@ -3953,11 +3980,11 @@ function UserManagement({user,showToast}){
 
   return(
     <div style={{padding:20,maxWidth:1040,margin:"0 auto"}}>
-      <SH icon="👥" title="User Management" sub="Manage access, roles, and permissions across your organization"/>
+      <SH icon={UserCog} title="User Management" sub="Manage access, roles, and permissions across your organization"/>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:24}}>
-        {[["Total Users",stats.total,"👥",T.accent],["Active",stats.active,"✅",T.green],["Admins",stats.admins,"👑",T.purple],["MFA Enabled",stats.mfa,"🔐",T.amber]].map(([lb,v,ic,c])=>(
+        {[["Total Users",stats.total,Users,T.accent],["Active",stats.active,CheckCircle2,T.green],["Admins",stats.admins,Crown,T.purple],["MFA Enabled",stats.mfa,Fingerprint,T.amber]].map(([lb,v,Icon,c])=>(
           <Card key={lb}><CB style={{padding:"14px 16px",display:"flex",alignItems:"center",gap:12}}>
-            <div style={{fontSize:22}}>{ic}</div><div><div style={{fontSize:22,fontWeight:900,color:c}}>{v}</div><div style={{fontSize:11,color:T.textSub,marginTop:1}}>{lb}</div></div>
+            <div style={{width:38,height:38,borderRadius:10,background:`${c}16`,border:`1px solid ${c}30`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Icon size={18} color={c} strokeWidth={1.9}/></div><div><div style={{fontSize:22,fontWeight:900,color:c}}>{v}</div><div style={{fontSize:11,color:T.textSub,marginTop:1}}>{lb}</div></div>
           </CB></Card>
         ))}
       </div>
@@ -4009,10 +4036,10 @@ function UserManagement({user,showToast}){
                         }
                       </td>
                       <td style={{padding:"12px 14px"}}><Pill label={u.active!==false?"Active":"Inactive"} color={u.active!==false?T.green:T.textDim}/></td>
-                      <td style={{padding:"12px 14px",fontSize:16}}>{u.mfaEnabled?"🔐":"—"}</td>
+                      <td style={{padding:"12px 14px"}}>{u.mfaEnabled?<Fingerprint size={15} color={T.amber} strokeWidth={2}/>:<span style={{color:T.textDim}}>—</span>}</td>
                       <td style={{padding:"12px 14px"}}>
                         <div style={{display:"flex",gap:6}}>
-                          <button onClick={()=>setEditingId(editingId===u.id?null:u.id)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:600}}>{editingId===u.id?"✕":"Edit"}</button>
+                          <button onClick={()=>setEditingId(editingId===u.id?null:u.id)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:600,display:"inline-flex",alignItems:"center",gap:5}}>{editingId===u.id?<X size={11} strokeWidth={2.4}/>:null}{editingId===u.id?"Close":"Edit"}</button>
                           {u.id!==user.id&&<button onClick={()=>toggleActive(u.id)} style={{background:u.active!==false?T.redGlow:T.greenB,border:`1px solid ${u.active!==false?T.redB:T.greenB}`,color:u.active!==false?T.red:T.green,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:600}}>{u.active!==false?"Deactivate":"Activate"}</button>}
                         </div>
                       </td>
@@ -4029,7 +4056,7 @@ function UserManagement({user,showToast}){
       {tab==="roles"&&(
         <Card>
           <CB>
-            <SH icon="🔑" title="Permission Matrix" sub="Module access by role — read-only in demo"/>
+            <SH icon={KeyRound} title="Permission Matrix" sub="Module access by role — read-only in demo"/>
             <div style={{overflowX:"auto"}}>
               <table style={{width:"100%",borderCollapse:"collapse",minWidth:500}}>
                 <thead><tr style={{borderBottom:`1px solid ${T.border}`}}>
@@ -4042,7 +4069,7 @@ function UserManagement({user,showToast}){
                       <td style={{padding:"9px 14px",fontSize:13,color:T.text}}>{label}</td>
                       {ROLES.map(r=>(
                         <td key={r} style={{padding:"9px 14px",textAlign:"center"}}>
-                          {ROLE_PERMS[r]?.includes(id)?<span style={{fontSize:16,color:T.green}}>✓</span>:<span style={{fontSize:14,color:T.textDim}}>—</span>}
+                          {ROLE_PERMS[r]?.includes(id)?<Check size={15} color={T.green} strokeWidth={2.6}/>:<span style={{fontSize:14,color:T.textDim}}>—</span>}
                         </td>
                       ))}
                     </tr>
@@ -4060,11 +4087,11 @@ function UserManagement({user,showToast}){
             <CB>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
                 <div><div style={{fontSize:10,color:T.textSub,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>User Management</div><div style={{fontSize:18,fontWeight:800,color:T.text}}>Invite User</div></div>
-                <button onClick={()=>setShowInvite(false)} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18}}>✕</button>
+                <button onClick={()=>setShowInvite(false)} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={16} strokeWidth={2}/></button>
               </div>
               {inviteDone?(
                 <div style={{textAlign:"center",padding:"16px 0"}}>
-                  <div style={{fontSize:40,marginBottom:12}}>✉️</div>
+                  <div style={{display:"flex",justifyContent:"center",marginBottom:12}}><div style={{width:56,height:56,borderRadius:16,background:T.greenGlow,border:`1px solid ${T.greenB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><Mail size={26} color={T.green} strokeWidth={1.8}/></div></div>
                   <div style={{fontSize:17,fontWeight:800,color:T.green,marginBottom:8}}>Invitation Sent!</div>
                   <div style={{fontSize:13,color:T.textSub,lineHeight:1.7,marginBottom:18}}><strong style={{color:T.text}}>{invite.name}</strong> can sign in with temp password: <span style={{fontFamily:"monospace",color:T.accent}}>Welcome1!</span></div>
                   <button onClick={()=>setShowInvite(false)} style={{background:T.accent,border:"none",color:"#000",padding:"12px 28px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14}}>Done</button>
@@ -4116,7 +4143,7 @@ function CompanySettings({user,showToast}){
 
   return(
     <div style={{padding:20,maxWidth:900,margin:"0 auto"}}>
-      <SH icon="⚙️" title="Company Settings" sub="Organization profile, security policies, and notification preferences"/>
+      <SH icon={Settings} title="Company Settings" sub="Organization profile, security policies, and notification preferences"/>
       <div style={{display:"flex",gap:2,background:T.surface,border:`1px solid ${T.border}`,borderRadius:12,padding:3,marginBottom:20,width:"fit-content"}}>
         {[["company","Company"],["security","Security"],["notifications","Notifications"],["integrations","Integrations"]].map(([k,lb])=>(
           <button key={k} onClick={()=>setTab(k)} style={{padding:"8px 18px",borderRadius:9,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,background:tab===k?T.accent:"transparent",color:tab===k?"#000":T.textSub,transition:"all .15s"}}>{lb}</button>
@@ -4125,7 +4152,7 @@ function CompanySettings({user,showToast}){
 
       {tab==="company"&&(
         <Card><CB>
-          <SH icon="🏢" title="Company Profile" sub="Basic organization information"/>
+          <SH icon={Building2} title="Company Profile" sub="Basic organization information"/>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
             {[{label:"Company Name",k:"name"},{label:"Website",k:"website"},{label:"Phone",k:"phone"},{label:"Address",k:"address",full:true},{label:"City",k:"city"},{label:"State",k:"state"},{label:"ZIP Code",k:"zip"}].map(({label,k,full})=>(
               <div key={k} style={{gridColumn:full?"1 / -1":undefined}}>
@@ -4152,7 +4179,7 @@ function CompanySettings({user,showToast}){
 
       {tab==="security"&&(
         <Card><CB>
-          <SH icon="🔐" title="Authentication Policy" sub="Control how users sign in and manage sessions"/>
+          <SH icon={Lock} title="Authentication Policy" sub="Control how users sign in and manage sessions"/>
           <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:18}}>
             <Toggle k="mfaRequired" label="Require MFA for All Users" sub="Users must configure two-factor authentication before accessing the platform."/>
           </div>
@@ -4170,7 +4197,7 @@ function CompanySettings({user,showToast}){
 
       {tab==="notifications"&&(
         <Card><CB>
-          <SH icon="🔔" title="Notification Preferences" sub="Configure when and how alerts are delivered"/>
+          <SH icon={Bell} title="Notification Preferences" sub="Configure when and how alerts are delivered"/>
           <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:18}}>
             <Toggle k="n_sos" label="SOS / Emergency Alerts" sub="Immediately notify all supervisors on SOS activation"/>
             <Toggle k="n_cp" label="Missed Checkpoint Alert" sub="Alert when patrol checkpoint is not scanned on schedule"/>
@@ -4188,7 +4215,7 @@ function CompanySettings({user,showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <Card>
             <CB>
-              <SH icon="🔗" title="UKG Pro (Kronos)" sub="REST API integration for workforce management and payroll sync"/>
+              <SH icon={Link2} title="UKG Pro (Kronos)" sub="REST API integration for workforce management and payroll sync"/>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
                 {[
                   {label:"API Base URL",k:"ukg_url",ph:"https://api.ultipro.com"},
@@ -4202,8 +4229,9 @@ function CompanySettings({user,showToast}){
                   </div>
                 ))}
               </div>
-              <div style={{background:s.ukg_key?`${T.green}15`:`${T.amber}15`,border:`1px solid ${s.ukg_key?T.green:T.amber}40`,borderRadius:10,padding:"11px 14px",marginBottom:14,fontSize:12,color:s.ukg_key?T.green:T.amber}}>
-                {s.ukg_key?"✓ Credentials configured — sync will activate on next payroll run":"⚠ Credentials not set — UKG sync disabled. Enter credentials above to enable."}
+              <div style={{background:s.ukg_key?`${T.green}15`:`${T.amber}15`,border:`1px solid ${s.ukg_key?T.green:T.amber}40`,borderRadius:10,padding:"11px 14px",marginBottom:14,fontSize:12,color:s.ukg_key?T.green:T.amber,display:"flex",alignItems:"center",gap:8}}>
+                {s.ukg_key?<Check size={14} strokeWidth={2.6}/>:<AlertTriangle size={14} strokeWidth={2.2}/>}
+                {s.ukg_key?"Credentials configured — sync will activate on next payroll run":"Credentials not set — UKG sync disabled. Enter credentials above to enable."}
               </div>
               <button onClick={save} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:"12px 28px",color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Save UKG Credentials</button>
             </CB>
@@ -4211,17 +4239,17 @@ function CompanySettings({user,showToast}){
 
           <Card>
             <CB>
-              <SH icon="🔧" title="Other Integrations" sub="Platform connection status"/>
+              <SH icon={Network} title="Other Integrations" sub="Platform connection status"/>
               {[
-                {name:"Anthropic AI (Claude)",desc:"Powers AI copilot, reports, and executive briefing",status:"Connected",color:T.green,icon:"🤖"},
-                {name:"Vercel Edge Network",desc:"Global deployment and edge function hosting",status:"Connected",color:T.green,icon:"▲"},
-                {name:"ADP Workforce Now",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:"📊"},
-                {name:"Paylocity",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:"📊"},
-                {name:"QuickBooks Payroll",desc:"Accounting sync — available in v2.0",status:"Planned",color:T.textDim,icon:"📒"},
-                {name:"Supabase",desc:"Set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY to activate",status:"Not Configured",color:T.textSub,icon:"🛢"},
+                {name:"Anthropic AI (Claude)",desc:"Powers AI copilot, reports, and executive briefing",status:"Connected",color:T.green,icon:Bot},
+                {name:"Vercel Edge Network",desc:"Global deployment and edge function hosting",status:"Connected",color:T.green,icon:Network},
+                {name:"ADP Workforce Now",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:BarChart3},
+                {name:"Paylocity",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:BarChart3},
+                {name:"QuickBooks Payroll",desc:"Accounting sync — available in v2.0",status:"Planned",color:T.textDim,icon:BookOpen},
+                {name:"Supabase",desc:"Set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY to activate",status:"Not Configured",color:T.textSub,icon:Database},
               ].map(int=>(
                 <div key={int.name} style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:9,padding:"11px 14px",marginBottom:6}}>
-                  <div style={{fontSize:20,width:28,textAlign:"center",flexShrink:0}}>{int.icon}</div>
+                  <div style={{width:34,height:34,borderRadius:9,background:`${int.color}16`,border:`1px solid ${int.color}30`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><int.icon size={16} color={int.color} strokeWidth={1.8}/></div>
                   <div style={{flex:1}}>
                     <div style={{fontSize:12,fontWeight:700,color:T.text}}>{int.name}</div>
                     <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{int.desc}</div>
@@ -4256,12 +4284,12 @@ function ClientPortal({user,showToast}){
           <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Client Portal</div>
           <div style={{fontSize:20,fontWeight:900,color:T.text}}>Contract & Service Overview</div>
         </div>
-        <button onClick={exportReport} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}>⬇ Export Report</button>
+        <button onClick={exportReport} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><ArrowDownToLine size={13} strokeWidth={2.2}/> Export Report</button>
       </div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {[["overview","📊 Overview"],["sla","✅ SLA"],["incidents","⚡ Incidents"],["billing","💳 Billing"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+        {[["overview",BarChart3,"Overview"],["sla",CheckCircle2,"SLA"],["incidents",AlertTriangle,"Incidents"],["billing",HandCoins,"Billing"]].map(([t,Ic,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Ic size={13} strokeWidth={2}/>{l}</button>
         ))}
       </div>
 
@@ -4455,8 +4483,8 @@ function ITCyberCommand({user,showToast}){
       </div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {[["threats","🚨 Threat Alerts"],["devices","💻 Devices"],["access","🔑 Access Log"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?`${T.red}22`:T.raised,border:`1px solid ${tab===t?T.red+"66":T.border}`,color:tab===t?T.red:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+        {[["threats",ShieldAlert,"Threat Alerts"],["devices",ServerCog,"Devices"],["access",KeyRound,"Access Log"]].map(([t,Ic,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?`${T.red}22`:T.raised,border:`1px solid ${tab===t?T.red+"66":T.border}`,color:tab===t?T.red:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Ic size={13} strokeWidth={2}/>{l}</button>
         ))}
       </div>
 
@@ -4496,7 +4524,9 @@ function ITCyberCommand({user,showToast}){
               <Card key={d.id}>
                 <CB>
                   <div style={{display:"flex",alignItems:"center",gap:12}}>
-                    <div style={{width:36,height:36,borderRadius:9,background:`${rc}22`,border:`1px solid ${rc}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{d.type.includes("NVR")?"📷":d.type.includes("Access")?"🔑":d.type.includes("Switch")?"🔀":d.type.includes("Camera")?"📹":d.type.includes("VPN")||d.type.includes("Firewall")?"🛡️":d.type.includes("Biometric")?"🫆":d.type.includes("LPR")?"🚗":"💻"}</div>
+                    <div style={{width:36,height:36,borderRadius:9,background:`${rc}22`,border:`1px solid ${rc}44`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      {(()=>{const DevIcon=d.type.includes("NVR")?Camera:d.type.includes("Access")?KeyRound:d.type.includes("Switch")?Network:d.type.includes("Camera")?Video:(d.type.includes("VPN")||d.type.includes("Firewall"))?ShieldCheck:d.type.includes("Biometric")?Fingerprint:d.type.includes("LPR")?Car:Cpu;return <DevIcon size={17} color={rc} strokeWidth={1.8}/>;})()}
+                    </div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}}>
                         <span style={{fontSize:12,fontWeight:700,color:T.text}}>{d.name}</span>
@@ -4637,7 +4667,7 @@ export default function App(){
       {/* Offline banner */}
       {!online&&(
         <div style={{background:T.amber,color:"#000",padding:"8px 16px",fontSize:12,fontWeight:700,textAlign:"center",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-          <span>⚡</span> Offline mode — actions are queued and will sync when connection is restored
+          <WifiOff size={14} strokeWidth={2.2}/> Offline mode — actions are queued and will sync when connection is restored
         </div>
       )}
 
@@ -4647,11 +4677,13 @@ export default function App(){
       {/* Toast notifications */}
       {toasts.length>0&&(
         <div style={{position:"fixed",top:16,right:16,zIndex:300,display:"flex",flexDirection:"column",gap:8,pointerEvents:"none",maxWidth:340}}>
-          {toasts.map(t=>(
-            <div key={t.id} style={{background:t.type==="success"?T.green:t.type==="error"?T.red:T.surface,border:`1px solid ${t.type==="success"?T.green:t.type==="error"?T.redB:T.borderLight}`,borderRadius:12,padding:"13px 16px",color:t.type==="success"||t.type==="error"?"#000":T.text,fontSize:13,fontWeight:600,boxShadow:"0 8px 32px rgba(0,0,0,0.55)",animation:"ssToast 0.2s ease"}}>
-              {t.type==="success"?"✓ ":t.type==="error"?"⚠ ":""}{t.msg}
+          {toasts.map(t=>{
+            const ToastIcon=t.type==="success"?CircleCheck:t.type==="error"?AlertTriangle:CircleAlert;
+            return(
+            <div key={t.id} style={{background:t.type==="success"?T.green:t.type==="error"?T.red:T.surface,border:`1px solid ${t.type==="success"?T.green:t.type==="error"?T.redB:T.borderLight}`,borderRadius:12,padding:"13px 16px",color:t.type==="success"||t.type==="error"?"#000":T.text,fontSize:13,fontWeight:600,boxShadow:"0 8px 32px rgba(0,0,0,0.55)",animation:"ssToast 0.2s ease",display:"flex",alignItems:"center",gap:9}}>
+              <ToastIcon size={16} strokeWidth={2.2} style={{flexShrink:0}}/><span>{t.msg}</span>
             </div>
-          ))}
+            );})}
         </div>
       )}
 
