@@ -11,6 +11,7 @@ import {
   BookOpen, Wind, Bandage, Eye, EyeOff, LogOut, Plus, Minus, Wifi, WifiOff,
   CircleCheck, CircleAlert, ScanLine, MapPinned, Briefcase, HandCoins, ShieldQuestion,
   Video, Network, Usb, ServerCog, Rocket, Hand, HelpCircle,
+  UserCircle2, Navigation,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────
@@ -2303,6 +2304,47 @@ function MyShift({user,showToast}){
             )}
           </CB>
         </Card>
+      )}
+
+      {/* Today's Assignment — visible when off duty */}
+      {!clocked&&(
+        <Card>
+          <CB>
+            <SH title="Today's Assignment" icon={ClipboardList}/>
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                {[["Site","Northgate Tower",MapPin,T.accent],["Shift","06:00 – 18:00 (Day)",Clock,T.textSub],["Supervisor","Sarah Chen",UserCircle2,T.textSub],["Checkpoints","21 scheduled",CheckCircle2,T.gold]].map(([l,v,Icon,c])=>(
+                  <div key={l} style={{background:T.raised,borderRadius:9,padding:"11px 13px",display:"flex",gap:9,alignItems:"flex-start"}}>
+                    <Icon size={14} color={c} strokeWidth={2} style={{marginTop:1,flexShrink:0}}/>
+                    <div>
+                      <div style={{fontSize:9,fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase",color:T.textDim,marginBottom:2}}>{l}</div>
+                      <div style={{fontSize:12,fontWeight:600,color:T.text}}>{v}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:9,padding:"10px 13px",display:"flex",alignItems:"center",gap:9}}>
+                <Navigation size={13} color={T.accent} strokeWidth={2.2}/>
+                <span style={{fontSize:12,color:T.accent,fontWeight:600}}>Route: Main Entrance → Lobby → Floors 1–4 → Parking Deck B → Rooftop Access</span>
+              </div>
+            </div>
+          </CB>
+        </Card>
+      )}
+
+      {/* Week stats — visible when off duty */}
+      {!clocked&&(
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+          {[["Hours This Week","36.0h",T.accent,Timer],["Checkpoints","38 scanned",T.green,CheckCircle2],["Avg Response","4.2 min",T.gold,Activity]].map(([l,v,c,Icon])=>(
+            <Card key={l} glow={c}>
+              <CB style={{textAlign:"center",padding:"14px 10px"}}>
+                <div style={{display:"flex",justifyContent:"center",marginBottom:6}}><Icon size={17} color={c} strokeWidth={1.8}/></div>
+                <div style={{fontSize:18,fontWeight:900,color:c}}>{v}</div>
+                <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{l}</div>
+              </CB>
+            </Card>
+          ))}
+        </div>
       )}
 
       {/* Activity */}
