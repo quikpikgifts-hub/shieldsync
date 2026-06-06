@@ -1381,7 +1381,7 @@ function Dashboard({openModal,showToast}){
             <CB style={{padding:"16px 18px"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
                 <div style={{width:34,height:34,borderRadius:9,background:`${k.color}16`,border:`1px solid ${k.color}30`,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={17} color={k.color} strokeWidth={2}/></div>
-                {TrendIcon&&<span style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,fontWeight:800,color:trendColor,background:`${trendColor}14`,padding:"3px 7px",borderRadius:5}}><TrendIcon size={11} strokeWidth={2.5}/>{k.trend.replace(/^[+-]/,"")}</span>}
+                {TrendIcon&&<span style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,fontWeight:800,color:trendColor,background:`${trendColor}14`,padding:"3px 7px",borderRadius:5}}><TrendIcon size={11} strokeWidth={2.5}/>{k.trend.replace(/^[+-]/,"").replace(/^(down|up)$/i,"")}</span>}
               </div>
               <div style={{fontSize:26,fontWeight:900,color:k.color,lineHeight:1}}>{k.value}</div>
               <div style={{fontSize:12,fontWeight:700,color:T.text,marginTop:5}}>{k.label}</div>
@@ -1528,7 +1528,7 @@ function Workforce(){
           <SH title="Today's Schedule" icon={CalendarDays}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {SCHEDULE.map((s,i)=>(
-              <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10}}>
+              <div key={i} className="ss-row" style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10}}>
                 <div style={{width:8,height:8,borderRadius:"50%",background:s.status==="active"?T.green:T.amber,flexShrink:0}}/>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:T.text}}>{s.name}</div>
@@ -1644,7 +1644,7 @@ function Patrol({user,showToast,openModal}){
           <SH title="Scan Log" icon={ScanLine}/>
           <div style={{display:"flex",flexDirection:"column",gap:6}}>
             {scanLog.slice(0,10).map(s=>(
-              <div key={s.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",background:T.raised,borderRadius:8}}>
+              <div key={s.id} className="ss-row" style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",background:T.raised,borderRadius:8}}>
                 <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace",flexShrink:0,width:60}}>{s.ts}</div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:12,fontWeight:700,color:T.text}}>{s.checkpoint}</div>
@@ -1991,7 +1991,7 @@ function Dispatch({showToast,user}){
             {OFFICERS.filter(o=>o.status!=="Off Duty").map(o=>{
               const c=SM(o.status).c;
               return(
-                <div key={o.id} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.raised,borderRadius:10}}>
+                <div key={o.id} className="ss-row" style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.raised,borderRadius:10,cursor:"pointer"}}>
                   <Av initials={o.av} color={c} size={36}/>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:13,fontWeight:700,color:T.text}}>{o.name}</div>
@@ -2311,7 +2311,7 @@ function MyShift({user,showToast}){
           <SH title="Recent Activity" icon={Activity}/>
           <div style={{display:"flex",flexDirection:"column",gap:6}}>
             {activity.slice(0,6).map((a,i)=>(
-              <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",padding:"8px 10px",background:T.raised,borderRadius:8}}>
+              <div key={i} className="ss-row" style={{display:"flex",gap:10,alignItems:"flex-start",padding:"8px 10px",background:T.raised,borderRadius:8}}>
                 <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace",paddingTop:1,flexShrink:0,width:36}}>{a.time}</div>
                 <div style={{fontSize:12,color:T.textSub,lineHeight:1.45}}>{a.text}</div>
               </div>
@@ -2690,7 +2690,7 @@ function AuditLogModule({showToast}){
           ):(
             <div style={{display:"flex",flexDirection:"column",gap:5}}>
               {filtered.slice(0,100).map(e=>(
-                <div key={e.id} style={{display:"flex",gap:10,alignItems:"flex-start",padding:"9px 10px",background:T.raised,borderRadius:8}}>
+                <div key={e.id} className="ss-row" style={{display:"flex",gap:10,alignItems:"flex-start",padding:"9px 10px",background:T.raised,borderRadius:8}}>
                   <div style={{width:8,height:8,borderRadius:"50%",background:actionColor(e.action),flexShrink:0,marginTop:3}}/>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
@@ -4363,7 +4363,7 @@ function ClientPortal({user,showToast}){
                 {sla.map(s=>{
                   const sc=s.status==="Healthy"?T.green:T.red;
                   return(
-                    <div key={s.client} style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:9,padding:"11px 14px"}}>
+                    <div key={s.client} className="ss-row" style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:9,padding:"11px 14px",cursor:"pointer"}}>
                       <div style={{width:8,height:8,borderRadius:"50%",background:sc,flexShrink:0}}/>
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
@@ -4709,9 +4709,9 @@ export default function App(){
         @keyframes ssToast{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
         @keyframes ssQR{0%{top:0;opacity:1}50%{top:calc(100% - 3px);opacity:.7}100%{top:0;opacity:1}}
         .ss-row{transition:background 0.1s;}
-        .ss-row:hover{background:${T.raised}!important;}
-        .ss-nav-btn:hover:not(.ss-nav-active){background:${T.accentGlow}!important;color:${T.textSub}!important;}
-        .ss-ghost-btn:hover{background:${T.raised}!important;border-color:${T.borderLight}!important;}
+        .ss-row:hover{background:${T.border}!important;}
+        .ss-nav-btn:hover:not(.ss-nav-active){background:${T.border}!important;}
+        .ss-ghost-btn:hover{opacity:0.85;}
       `}</style>
 
       {/* Offline banner */}
