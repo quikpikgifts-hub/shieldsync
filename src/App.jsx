@@ -1829,7 +1829,7 @@ function Visitors({openModal,user,showToast}){
             <SH title="Expected Arrivals" icon={Clock}/>
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {PRE_REGISTERED.map(pr=>(
-                <div key={pr.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
+                <div key={pr.id} className="ss-row" style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:13,fontWeight:700,color:T.text}}>{pr.name}</div>
                     <div style={{fontSize:11,color:T.textSub}}>{pr.host} · {pr.site} · {pr.purpose}</div>
@@ -1848,7 +1848,7 @@ function Visitors({openModal,user,showToast}){
           <SH title="Visitor Log" icon={IdCard} action={{label:"Check In",fn:()=>openModal({type:"checkin"}),icon:Plus}}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {visitors.map(v=>(
-              <div key={v.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
+              <div key={v.id} className="ss-row" style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
                 <div style={{width:36,height:36,borderRadius:10,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><User size={16} color={T.accent} strokeWidth={2}/></div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{v.name}</div>
@@ -2370,7 +2370,7 @@ function EquipmentModule({user,showToast}){
           <SH title={isOfficer?"My Equipment":"All Equipment"} icon={WrenchIcon}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {(isOfficer?myItems:items).map(e=>(
-              <div key={e.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
+              <div key={e.id} className="ss-row" style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
                 <div style={{width:36,height:36,borderRadius:9,background:`${statusColor(e.status)}18`,border:`1px solid ${statusColor(e.status)}30`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                   {(()=>{const EqIcon=e.type==="Radio"?Radio:e.type==="Camera"?Camera:e.type==="CEW"?Zap:e.type==="OC Spray"?Wind:e.type==="Medical"?Bandage:Wrench;return <EqIcon size={17} color={statusColor(e.status)} strokeWidth={1.8}/>;})()}
                 </div>
