@@ -2200,7 +2200,7 @@ function MyShift({user,showToast}){
       {clocked&&(
         <Card glow={enRoute?T.gold:undefined}>
           <CB>
-            <SH title="En Route"/>
+            <SH title="En Route" icon={ArrowRight}/>
             {!enRoute?(
               <div style={{display:"flex",gap:8}}>
                 <select value={enRouteDest} onChange={e=>setEnRouteDest(e.target.value)} style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:enRouteDest?T.text:T.textDim,padding:"10px 12px",borderRadius:9,fontSize:13,cursor:"pointer"}}>
@@ -2500,7 +2500,7 @@ function LeaveModule({user,showToast}){
         :(
           <Card>
             <CB>
-              <SH title="New Request"/>
+              <SH title="New Request" icon={Plus}/>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
                   {["Annual","Sick","Training","Emergency"].map(t=>(
@@ -2680,10 +2680,10 @@ function AuditLogModule({showToast}){
       </div>
       <Card>
         <CB>
+          <SH title="Event Log" icon={ClipboardList} action={{label:"Clear Log",fn:clear}}/>
           <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center"}}>
             <input value={filter} onChange={e=>setFilter(e.target.value)} placeholder="Filter by action or user…" style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"9px 12px",borderRadius:8,fontSize:12,outline:"none"}}/>
-            <button onClick={refresh} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 12px",borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center"}}><RotateCw size={14} strokeWidth={2.2}/></button>
-            <button onClick={clear} style={{background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"9px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>Clear</button>
+            <button onClick={refresh} className="ss-ghost-btn" style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 12px",borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",transition:"all 0.15s"}}><RotateCw size={14} strokeWidth={2.2}/></button>
           </div>
           {filtered.length===0?(
             <div style={{textAlign:"center",padding:24,color:T.textSub,fontSize:13}}>No audit events recorded yet. Actions taken in the platform are logged here.</div>
@@ -2788,7 +2788,7 @@ function ExecutiveCommand({showToast}){
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
             <Card>
               <CB>
-                <SH title="Revenue by Contract"/>
+                <SH title="Revenue by Contract" icon={TrendingUp}/>
                 {active.map(c=>(
                   <div key={c.id} style={{marginBottom:11}}>
                     <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
@@ -2802,7 +2802,7 @@ function ExecutiveCommand({showToast}){
             </Card>
             <Card>
               <CB>
-                <SH title="Gross Margin by Contract"/>
+                <SH title="Gross Margin by Contract" icon={BarChart3}/>
                 {active.map(c=>(
                   <div key={c.id} style={{marginBottom:11}}>
                     <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
@@ -2884,7 +2884,7 @@ function ExecutiveCommand({showToast}){
           </div>
           <Card>
             <CB>
-              <SH title="Labor Cost by Site"/>
+              <SH title="Labor Cost by Site" icon={HandCoins}/>
               {active.map(c=>(
                 <div key={c.id} style={{marginBottom:14}}>
                   <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
@@ -2907,7 +2907,7 @@ function ExecutiveCommand({showToast}){
           </Card>
           <Card>
             <CB>
-              <SH title="Officer Hours — Current Week"/>
+              <SH title="Officer Hours — Current Week" icon={Clock4}/>
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
                 {TIMESHEETS.map(ts=>(
                   <div key={ts.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
@@ -2946,7 +2946,7 @@ function ExecutiveCommand({showToast}){
           </div>
           <Card>
             <CB>
-              <SH title="Compliance Action Items"/>
+              <SH title="Compliance Action Items" icon={ShieldAlert}/>
               <div style={{display:"flex",flexDirection:"column",gap:7}}>
                 {COMPLIANCE_ITEMS.map(ci=>{
                   const sc=ci.status==="Overdue"?T.red:ci.status==="Due Soon"?T.amber:ci.status==="Pending"?T.gold:T.accent;
@@ -2973,7 +2973,7 @@ function ExecutiveCommand({showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <Card>
             <CB>
-              <SH title="7-Day Predictive Staffing Heatmap"/>
+              <SH title="7-Day Predictive Staffing Heatmap" icon={Cpu}/>
               <div style={{overflowX:"auto"}}>
                 <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
                   <thead>
@@ -3001,7 +3001,7 @@ function ExecutiveCommand({showToast}){
           </Card>
           <Card>
             <CB>
-              <SH title="AI Workforce Performance Scoring"/>
+              <SH title="AI Workforce Performance Scoring" icon={Sparkles}/>
               <div style={{display:"flex",flexDirection:"column",gap:7}}>
                 {AI_SCORES.map(a=>{
                   const sc=a.score>=85?T.green:a.score>=70?T.amber:T.red;
@@ -3054,7 +3054,7 @@ function ExecutiveCommand({showToast}){
           </div>
           <Card glow={T.accent}>
             <CB>
-              <SH title="Digital Twin — Operational State"/>
+              <SH title="Digital Twin — Operational State" icon={Database}/>
               <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10}}>
                 {[
                   {label:"Active Sites",value:"4",sub:"All systems nominal",color:T.green},
@@ -3211,7 +3211,7 @@ function TimekeepingModule({user,showToast}){
       {tab==="timesheets"&&(
         <Card>
           <CB>
-            <SH title="Timesheets — Week of Jun 1, 2026"/>
+            <SH title="Timesheets — Week of Jun 1, 2026" icon={Clock4}/>
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {sheets.map(ts=>(
                 <div key={ts.id}>
@@ -3240,7 +3240,7 @@ function TimekeepingModule({user,showToast}){
                           </thead>
                           <tbody>
                             {ts.days.map(d=>(
-                              <tr key={d.d} style={{borderBottom:`1px solid ${T.border}20`}}>
+                              <tr key={d.d} className="ss-row" style={{borderBottom:`1px solid ${T.border}20`}}>
                                 <td style={{padding:"7px 8px",color:T.text,fontWeight:600}}>{d.d}</td>
                                 <td style={{padding:"7px 8px",color:T.textSub,fontFamily:"monospace"}}>{d.in}</td>
                                 <td style={{padding:"7px 8px",color:T.textSub,fontFamily:"monospace"}}>{d.out}</td>
@@ -3297,7 +3297,7 @@ function TimekeepingModule({user,showToast}){
           </Card>
           <Card>
             <CB>
-              <SH title="Payroll Integration Frameworks"/>
+              <SH title="Payroll Integration Frameworks" icon={Link2}/>
               {[
                 ["Paylocity","CSV export ready — compatible with Paylocity Import",ArrowDownToLine,"Export",T.green,exportPaylocity],
                 ["ADP Workforce Now","ADP-format CSV — compatible with ADP import wizard",ArrowDownToLine,"Export",T.green,exportADP],
@@ -3334,7 +3334,7 @@ function TimekeepingModule({user,showToast}){
               </div>
               <Card>
                 <CB>
-                  <SH title="Overtime Review Queue"/>
+                  <SH title="Overtime Review Queue" icon={AlertTriangle}/>
                   {sheets.filter(t=>t.otHrs>0).map(ts=>(
                     <div key={ts.id} style={{background:T.raised,borderRadius:10,padding:"14px",marginBottom:8}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
@@ -3631,7 +3631,7 @@ function ProcurementModule({user,showToast}){
       {tab==="vendors"&&(
         <Card>
           <CB>
-            <SH title="Vendor Directory"/>
+            <SH title="Vendor Directory" icon={Briefcase}/>
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {VENDORS.map(v=>(
                 <div key={v.id} style={{background:T.raised,borderRadius:10,padding:"14px 16px"}}>
@@ -3661,7 +3661,7 @@ function ProcurementModule({user,showToast}){
       {tab==="assets"&&(
         <Card>
           <CB>
-            <SH title="Asset Register"/>
+            <SH title="Asset Register" icon={Package}/>
             <div style={{display:"flex",flexDirection:"column",gap:6}}>
               {ASSET_REGISTER.map(a=>(
                 <div key={a.id} style={{display:"flex",gap:12,alignItems:"center",background:T.raised,borderRadius:9,padding:"10px 13px"}}>
@@ -4064,7 +4064,7 @@ function UserManagement({user,showToast}){
                 </tr></thead>
                 <tbody>
                   {filtered.map((u,i)=>(
-                    <tr key={u.id} style={{borderBottom:i<filtered.length-1?`1px solid ${T.border}`:"none"}}>
+                    <tr key={u.id} className="ss-row" style={{borderBottom:i<filtered.length-1?`1px solid ${T.border}`:"none",cursor:"pointer"}}>
                       <td style={{padding:"12px 14px"}}>
                         <div style={{display:"flex",alignItems:"center",gap:10}}>
                           <Av name={u.av||u.name} size={32} color={roleColors[u.role]||T.accent}/>
@@ -4111,7 +4111,7 @@ function UserManagement({user,showToast}){
                 </tr></thead>
                 <tbody>
                   {Object.entries(PERM_LABELS).map(([id,label],i)=>(
-                    <tr key={id} style={{borderBottom:i<Object.keys(PERM_LABELS).length-1?`1px solid ${T.border}`:"none"}}>
+                    <tr key={id} className="ss-row" style={{borderBottom:i<Object.keys(PERM_LABELS).length-1?`1px solid ${T.border}`:"none"}}>
                       <td style={{padding:"9px 14px",fontSize:13,color:T.text}}>{label}</td>
                       {ROLES.map(r=>(
                         <td key={r} style={{padding:"9px 14px",textAlign:"center"}}>
@@ -4358,7 +4358,7 @@ function ClientPortal({user,showToast}){
           </div>
           <Card>
             <CB>
-              <SH title="Site Performance Summary"/>
+              <SH title="Site Performance Summary" icon={Building2}/>
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
                 {sla.map(s=>{
                   const sc=s.status==="Healthy"?T.green:T.red;
@@ -4426,7 +4426,7 @@ function ClientPortal({user,showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <Card>
             <CB>
-              <SH title="Recent Incidents — All Sites"/>
+              <SH title="Recent Incidents — All Sites" icon={AlertTriangle}/>
               <div style={{display:"flex",flexDirection:"column",gap:7}}>
                 {INCIDENTS.map(inc=>{
                   const sc=inc.sev==="High"?T.red:inc.sev==="Medium"?T.amber:T.green;
@@ -4470,7 +4470,7 @@ function ClientPortal({user,showToast}){
           </div>
           <Card>
             <CB>
-              <SH title="Contract Billing Breakdown"/>
+              <SH title="Contract Billing Breakdown" icon={FileText}/>
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
                 {CONTRACTS.map(c=>(
                   <div key={c.id} style={{background:T.raised,borderRadius:9,padding:"12px 14px"}}>
@@ -4595,7 +4595,7 @@ function ITCyberCommand({user,showToast}){
       {tab==="access"&&(
         <Card>
           <CB>
-            <SH title="Recent Access Events"/>
+            <SH title="Recent Access Events" icon={ScanLine}/>
             <div style={{display:"flex",flexDirection:"column",gap:7}}>
               {CYBER_ACCESS_LOG.map((ev,i)=>{
                 const ok=ev.result==="Success";
