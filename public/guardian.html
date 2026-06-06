@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guardian Strategic Security, LLC — Protecting What Matters Most</title>
+  <meta name="description" content="Central Florida's trusted contract security provider. 325 licensed officers. 47 clients. 63 active sites. Serving Orlando since 2014." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:   #1A4F8A;
+      --navy-d: #0f3260;
+      --navy-l: #2563b0;
+      --gold:   #C4A227;
+      --gold-l: #d4b540;
+      --white:  #ffffff;
+      --off:    #f4f6f9;
+      --gray:   #64748b;
+      --dark:   #0d1b2a;
+      --text:   #1e293b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--white); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 70px;
+      background: rgba(13,27,42,0.96); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(196,162,39,0.25);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .nav-shield {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--navy-l), var(--navy-d));
+      border: 2px solid var(--gold);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--gold);
+      letter-spacing: 0;
+    }
+    .nav-name { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--white); letter-spacing: 1.5px; }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-cta {
+      background: var(--gold); color: var(--dark);
+      padding: 9px 22px; border-radius: 6px;
+      text-decoration: none; font-weight: 700; font-size: 14px;
+      transition: background .2s;
+    }
+    .nav-cta:hover { background: var(--gold-l); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; padding-top: 70px;
+      background: linear-gradient(160deg, var(--dark) 0%, var(--navy-d) 55%, #1a3a5c 100%);
+      display: flex; align-items: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-inner { max-width: 1200px; margin: 0 auto; padding: 80px 48px; position: relative; z-index: 1; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(196,162,39,0.15); border: 1px solid rgba(196,162,39,0.4);
+      color: var(--gold); padding: 6px 16px; border-radius: 100px;
+      font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .hero-badge::before { content: '●'; font-size: 8px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 7vw, 90px);
+      line-height: 1; color: var(--white); letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    h1 span { color: var(--gold); }
+    .hero-sub {
+      font-size: clamp(16px, 2.5vw, 22px); color: rgba(255,255,255,0.65);
+      font-weight: 300; max-width: 560px; line-height: 1.6; margin-bottom: 40px;
+    }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--gold); color: var(--dark);
+      padding: 14px 32px; border-radius: 8px;
+      text-decoration: none; font-weight: 700; font-size: 15px;
+      transition: background .2s, transform .15s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover { background: var(--gold-l); transform: translateY(-1px); }
+    .btn-outline {
+      border: 1.5px solid rgba(255,255,255,0.35); color: var(--white);
+      padding: 14px 32px; border-radius: 8px;
+      text-decoration: none; font-weight: 500; font-size: 15px;
+      transition: border-color .2s, background .2s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-outline:hover { border-color: var(--gold); background: rgba(196,162,39,0.08); }
+    .hero-stats {
+      display: flex; gap: 48px; margin-top: 64px; flex-wrap: wrap;
+      padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .hero-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 42px; color: var(--gold); line-height: 1; }
+    .hero-stat-lbl { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; font-weight: 500; }
+
+    /* ── SECTION SHARED ── */
+    section { padding: 96px 48px; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-tag {
+      display: inline-block; background: rgba(26,79,138,0.08); color: var(--navy);
+      padding: 4px 14px; border-radius: 100px; font-size: 12px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16px;
+    }
+    h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 5vw, 56px); color: var(--dark); letter-spacing: 1px; line-height: 1.05; margin-bottom: 16px; }
+    .section-lead { font-size: 18px; color: var(--gray); line-height: 1.7; max-width: 600px; margin-bottom: 56px; }
+
+    /* ── CERTS STRIP ── */
+    .certs-strip {
+      background: var(--navy-d); padding: 20px 48px;
+      display: flex; align-items: center; gap: 0; overflow: hidden;
+    }
+    .cert-item {
+      display: flex; align-items: center; gap: 10px;
+      color: rgba(255,255,255,0.75); font-size: 13px; font-weight: 600;
+      white-space: nowrap; padding: 0 36px; letter-spacing: .5px;
+      border-right: 1px solid rgba(255,255,255,0.12);
+    }
+    .cert-item:last-child { border-right: none; }
+    .cert-icon { color: var(--gold); font-size: 16px; }
+
+    /* ── SERVICES ── */
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .service-card {
+      background: var(--off); border-radius: 12px; padding: 32px;
+      border: 1px solid #e2e8f0; transition: transform .2s, box-shadow .2s;
+    }
+    .service-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(26,79,138,0.12); }
+    .service-icon {
+      width: 52px; height: 52px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--navy), var(--navy-l));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin-bottom: 20px;
+    }
+    .service-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: var(--dark); }
+    .service-card p { font-size: 14px; color: var(--gray); line-height: 1.7; }
+
+    /* ── SITES ── */
+    .sites-section { background: var(--off); }
+    .sites-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+    .site-card {
+      background: var(--white); border-radius: 12px; padding: 24px;
+      border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 16px;
+    }
+    .site-header { display: flex; align-items: flex-start; gap: 14px; }
+    .site-type-icon {
+      width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .site-name { font-size: 15px; font-weight: 700; color: var(--dark); line-height: 1.3; }
+    .site-client { font-size: 13px; color: var(--gray); margin-top: 2px; }
+    .site-meta { display: flex; gap: 16px; }
+    .site-meta-item { font-size: 12px; color: var(--gray); }
+    .site-meta-item strong { display: block; font-size: 18px; font-weight: 700; color: var(--navy); }
+    .site-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 100px;
+    }
+    .status-active { background: #dcfce7; color: #15803d; }
+    .status-alert  { background: #fef9c3; color: #a16207; }
+
+    /* ── STATS BAND ── */
+    .stats-band {
+      background: linear-gradient(135deg, var(--navy-d), var(--navy));
+      color: var(--white);
+    }
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 40px; text-align: center; }
+    .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 56px; color: var(--gold); line-height: 1; }
+    .stat-lbl { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 6px; font-weight: 500; letter-spacing: .5px; text-transform: uppercase; }
+
+    /* ── TEAM ── */
+    .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
+    .team-card {
+      text-align: center; padding: 32px 24px;
+      border: 1px solid #e2e8f0; border-radius: 12px;
+      transition: box-shadow .2s;
+    }
+    .team-card:hover { box-shadow: 0 8px 24px rgba(26,79,138,0.1); }
+    .team-av {
+      width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 16px;
+      background: linear-gradient(135deg, var(--navy), var(--navy-l));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--gold);
+      border: 3px solid var(--gold);
+    }
+    .team-name { font-size: 16px; font-weight: 700; color: var(--dark); }
+    .team-title { font-size: 13px; color: var(--gray); margin-top: 4px; line-height: 1.4; }
+    .team-badge {
+      display: inline-block; margin-top: 10px;
+      background: rgba(26,79,138,0.08); color: var(--navy);
+      padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700;
+    }
+
+    /* ── TESTIMONIAL ── */
+    .testimonials-section { background: var(--off); }
+    .testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+    .testi-card {
+      background: var(--white); border-radius: 12px; padding: 32px;
+      border: 1px solid #e2e8f0; position: relative;
+    }
+    .testi-card::before {
+      content: '"'; position: absolute; top: 16px; left: 24px;
+      font-family: 'Bebas Neue', sans-serif; font-size: 80px; color: var(--gold);
+      opacity: .25; line-height: 1;
+    }
+    .testi-text { font-size: 15px; line-height: 1.75; color: var(--text); margin-bottom: 20px; padding-top: 12px; }
+    .testi-author { display: flex; align-items: center; gap: 12px; }
+    .testi-av {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--navy); display: flex; align-items: center; justify-content: center;
+      color: var(--gold); font-weight: 700; font-size: 14px;
+    }
+    .testi-name { font-size: 14px; font-weight: 700; }
+    .testi-co { font-size: 12px; color: var(--gray); }
+
+    /* ── DEMO CTA ── */
+    .demo-cta-section {
+      background: linear-gradient(135deg, var(--dark), var(--navy-d));
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .demo-cta-section::before {
+      content: 'GUARDIAN';
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-family: 'Bebas Neue', sans-serif; font-size: 220px;
+      color: rgba(255,255,255,0.02); white-space: nowrap; pointer-events: none;
+    }
+    .demo-cta-section h2 { color: var(--white); margin-bottom: 16px; }
+    .demo-cta-section p { color: rgba(255,255,255,0.6); font-size: 18px; max-width: 540px; margin: 0 auto 40px; }
+    .demo-logins {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 40px;
+    }
+    .login-chip {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px; padding: 10px 18px; text-align: left; cursor: default;
+    }
+    .login-chip-role { font-size: 11px; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .login-chip-email { font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 2px; font-family: monospace; }
+
+    /* ── CONTACT ── */
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+    .contact-info { display: flex; flex-direction: column; gap: 24px; }
+    .contact-item { display: flex; align-items: flex-start; gap: 16px; }
+    .contact-icon {
+      width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+      background: rgba(26,79,138,0.08);
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .contact-label { font-size: 12px; color: var(--gray); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+    .contact-value { font-size: 16px; font-weight: 600; color: var(--dark); margin-top: 2px; }
+    .contact-form { display: flex; flex-direction: column; gap: 16px; }
+    .contact-form input, .contact-form select, .contact-form textarea {
+      border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 12px 16px;
+      font-size: 15px; font-family: inherit; color: var(--text);
+      transition: border-color .2s; background: var(--white); width: 100%;
+    }
+    .contact-form input:focus, .contact-form select:focus, .contact-form textarea:focus {
+      outline: none; border-color: var(--navy);
+    }
+    .contact-form textarea { resize: vertical; min-height: 100px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .contact-form .btn-primary { border: none; cursor: pointer; justify-content: center; font-size: 16px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark); color: rgba(255,255,255,0.5);
+      padding: 48px; text-align: center; font-size: 13px;
+    }
+    footer strong { color: var(--gold); }
+    footer p { margin-top: 8px; }
+    .footer-links { display: flex; justify-content: center; gap: 24px; margin-top: 16px; }
+    .footer-links a { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 12px; }
+    .footer-links a:hover { color: var(--gold); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      section { padding: 64px 20px; }
+      .hero-inner { padding: 60px 20px; }
+      .hero-stats { gap: 24px; }
+      .certs-strip { padding: 16px 20px; overflow-x: auto; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .demo-cta-section::before { font-size: 80px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-shield">G</div>
+    <span class="nav-name">Guardian Strategic Security</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#sites">Sites</a></li>
+    <li><a href="#team">Leadership</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a class="nav-cta" href="/">Access ShieldSync →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">Central Florida's Premier Contract Security</div>
+    <h1>Protecting What<br /><span>Matters Most</span></h1>
+    <p class="hero-sub">Licensed, insured, and ASIS-certified security professionals guarding Orlando's most critical facilities since 2014.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#contact">Request a Quote →</a>
+      <a class="btn-outline" href="/">View Live Operations Dashboard</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-val">325</div>
+        <div class="hero-stat-lbl">Licensed Officers</div>
+      </div>
+      <div>
+        <div class="hero-stat-val">47</div>
+        <div class="hero-stat-lbl">Active Clients</div>
+      </div>
+      <div>
+        <div class="hero-stat-val">63</div>
+        <div class="hero-stat-lbl">Guarded Sites</div>
+      </div>
+      <div>
+        <div class="hero-stat-val">12</div>
+        <div class="hero-stat-lbl">Years in Business</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CERTS STRIP -->
+<div class="certs-strip">
+  <div class="cert-item"><span class="cert-icon">✦</span> ASIS CPP Certified Staff</div>
+  <div class="cert-item"><span class="cert-icon">✦</span> FL Class D/G Licensed — #B2200348</div>
+  <div class="cert-item"><span class="cert-icon">✦</span> ISO 9001:2015 Certified</div>
+  <div class="cert-item"><span class="cert-icon">✦</span> NAPSO Member</div>
+  <div class="cert-item"><span class="cert-icon">✦</span> Fully Insured &amp; Bonded</div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-inner">
+    <div class="section-tag">Our Services</div>
+    <h2>Comprehensive Security Solutions</h2>
+    <p class="section-lead">From static guarding to mobile patrol, we tailor every engagement to your site's specific threat profile and compliance requirements.</p>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">🏥</div>
+        <h3>Healthcare Security</h3>
+        <p>Combative patient protocols, Code Gray procedures, and HIPAA-compliant incident documentation for hospitals and medical campuses.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🏢</div>
+        <h3>Corporate Campus</h3>
+        <p>Executive escort, visitor management, access control integration, and after-hours perimeter patrol for Class-A office facilities.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🏭</div>
+        <h3>Industrial &amp; Logistics</h3>
+        <p>24/7 dock access control, mandatory vehicle inspection on entry, and cargo chain-of-custody security for distribution centers.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🏨</div>
+        <h3>Hospitality &amp; Events</h3>
+        <p>High-visibility guest-service-oriented security with lost-child protocol, pool safety monitoring, and crowd management.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🚌</div>
+        <h3>Transit &amp; Public Safety</h3>
+        <p>High-footfall patrol, rapid aggressive-subject response, and real-time incident escalation for transit hubs and public facilities.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">📱</div>
+        <h3>Technology-Driven Patrol</h3>
+        <p>Real-time checkpoint scanning via ShieldSync, AI-assisted report generation, and live supervisor dashboards for full accountability.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACTIVE SITES -->
+<section id="sites" class="sites-section">
+  <div class="section-inner">
+    <div class="section-tag">Active Deployments</div>
+    <h2>Sites We Protect</h2>
+    <p class="section-lead">Five flagship sites across the Greater Orlando area, each staffed by dedicated officers trained for that environment's specific requirements.</p>
+    <div class="sites-grid">
+
+      <div class="site-card">
+        <div class="site-header">
+          <div class="site-type-icon" style="background:#eff6ff;">🏥</div>
+          <div>
+            <div class="site-name">Orlando Regional Hospital</div>
+            <div class="site-client">Orlando Health System</div>
+          </div>
+        </div>
+        <div class="site-meta">
+          <div class="site-meta-item"><strong>12</strong>Officers</div>
+          <div class="site-meta-item"><strong>14</strong>Checkpoints</div>
+          <div class="site-meta-item"><strong>94%</strong>Health Score</div>
+        </div>
+        <div><span class="site-status status-active">● Active</span></div>
+      </div>
+
+      <div class="site-card">
+        <div class="site-header">
+          <div class="site-type-icon" style="background:#f0fdf4;">🏢</div>
+          <div>
+            <div class="site-name">Lake Nona Corporate Campus</div>
+            <div class="site-client">Tavistock Group</div>
+          </div>
+        </div>
+        <div class="site-meta">
+          <div class="site-meta-item"><strong>6</strong>Officers</div>
+          <div class="site-meta-item"><strong>8</strong>Checkpoints</div>
+          <div class="site-meta-item"><strong>88%</strong>Health Score</div>
+        </div>
+        <div><span class="site-status status-active">● Active</span></div>
+      </div>
+
+      <div class="site-card">
+        <div class="site-header">
+          <div class="site-type-icon" style="background:#fefce8;">🏭</div>
+          <div>
+            <div class="site-name">Winter Garden Distribution Center</div>
+            <div class="site-client">Amazon Logistics FL</div>
+          </div>
+        </div>
+        <div class="site-meta">
+          <div class="site-meta-item"><strong>8</strong>Officers</div>
+          <div class="site-meta-item"><strong>12</strong>Checkpoints</div>
+          <div class="site-meta-item"><strong>91%</strong>Health Score</div>
+        </div>
+        <div><span class="site-status status-active">● Active</span></div>
+      </div>
+
+      <div class="site-card">
+        <div class="site-header">
+          <div class="site-type-icon" style="background:#fff7ed;">🏨</div>
+          <div>
+            <div class="site-name">Resort Security Complex</div>
+            <div class="site-client">Marriott Vacations Worldwide</div>
+          </div>
+        </div>
+        <div class="site-meta">
+          <div class="site-meta-item"><strong>10</strong>Officers</div>
+          <div class="site-meta-item"><strong>11</strong>Checkpoints</div>
+          <div class="site-meta-item"><strong>79%</strong>Health Score</div>
+        </div>
+        <div><span class="site-status status-alert">⚠ Alert — Active Investigation</span></div>
+      </div>
+
+      <div class="site-card">
+        <div class="site-header">
+          <div class="site-type-icon" style="background:#f5f3ff;">🚌</div>
+          <div>
+            <div class="site-name">Metro Transit Hub</div>
+            <div class="site-client">LYNX Central Florida</div>
+          </div>
+        </div>
+        <div class="site-meta">
+          <div class="site-meta-item"><strong>15</strong>Officers</div>
+          <div class="site-meta-item"><strong>18</strong>Checkpoints</div>
+          <div class="site-meta-item"><strong>72%</strong>Health Score</div>
+        </div>
+        <div><span class="site-status status-active">● Active — Elevated Protocol</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAND -->
+<section class="stats-band">
+  <div class="section-inner">
+    <div class="stats-row">
+      <div>
+        <div class="stat-num">325</div>
+        <div class="stat-lbl">Licensed Officers</div>
+      </div>
+      <div>
+        <div class="stat-num">38</div>
+        <div class="stat-lbl">Fleet Vehicles</div>
+      </div>
+      <div>
+        <div class="stat-num">$357K</div>
+        <div class="stat-lbl">Monthly Contract Value</div>
+      </div>
+      <div>
+        <div class="stat-num">99.2%</div>
+        <div class="stat-lbl">Shift Coverage Rate</div>
+      </div>
+      <div>
+        <div class="stat-num">&lt; 4 min</div>
+        <div class="stat-lbl">Avg. Incident Response</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="section-inner">
+    <div class="section-tag">Leadership Team</div>
+    <h2>Command &amp; Operations</h2>
+    <p class="section-lead">Experienced security professionals who built Guardian from the ground up and oversee every aspect of client service delivery.</p>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-av">RM</div>
+        <div class="team-name">Robert Martinez</div>
+        <div class="team-title">Chief Executive Officer</div>
+        <div class="team-badge">EXEC-001</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">SJ</div>
+        <div class="team-name">Sarah Jenkins</div>
+        <div class="team-title">Chief Operating Officer</div>
+        <div class="team-badge">EXEC-002</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">MT</div>
+        <div class="team-name">Michael Thompson</div>
+        <div class="team-title">Director of Operations</div>
+        <div class="team-badge">OPS-001</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">LB</div>
+        <div class="team-name">Lisa Brown</div>
+        <div class="team-title">Dispatch Supervisor</div>
+        <div class="team-badge">DISP-001</div>
+      </div>
+      <div class="team-card">
+        <div class="team-av">DW</div>
+        <div class="team-name">David Wilson</div>
+        <div class="team-title">Field Supervisor — Zone A</div>
+        <div class="team-badge">SUP-401</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section">
+  <div class="section-inner">
+    <div class="section-tag">Client Feedback</div>
+    <h2>Trusted by Orlando's Best</h2>
+    <p class="section-lead">What our clients say about Guardian's service and the ShieldSync platform that backs every shift.</p>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <p class="testi-text">Guardian's officers at our hospital are professional, calm under pressure, and their incident reports are the most thorough we've ever received. The real-time dashboard gives our admin team visibility we didn't have before.</p>
+        <div class="testi-author">
+          <div class="testi-av">OH</div>
+          <div>
+            <div class="testi-name">Director of Facilities</div>
+            <div class="testi-co">Orlando Health System</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <p class="testi-text">We vetted six providers before choosing Guardian. The combination of licensed armed officers and the ShieldSync technology platform was unlike anything else in the market. Our executive team has visibility 24/7.</p>
+        <div class="testi-author">
+          <div class="testi-av">TV</div>
+          <div>
+            <div class="testi-name">VP of Operations</div>
+            <div class="testi-co">Tavistock Group</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <p class="testi-text">Dock security compliance went from our biggest headache to a non-issue. Vehicle inspection logs are automatic, chain of custody is airtight, and shift coverage has been 100% since day one.</p>
+        <div class="testi-author">
+          <div class="testi-av">AL</div>
+          <div>
+            <div class="testi-name">Site Operations Manager</div>
+            <div class="testi-co">Amazon Logistics FL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO CTA -->
+<section class="demo-cta-section">
+  <div class="section-inner" style="position:relative;z-index:1;">
+    <div class="section-tag" style="background:rgba(196,162,39,0.15);color:var(--gold);">Live Demo Access</div>
+    <h2>Experience Guardian in ShieldSync</h2>
+    <p>Log in as any Guardian team member and explore the full operations platform — real data, real workflows, zero setup.</p>
+    <div class="demo-logins">
+      <div class="login-chip">
+        <div class="login-chip-role">CEO View</div>
+        <div class="login-chip-email">ceo@guardian.demo</div>
+      </div>
+      <div class="login-chip">
+        <div class="login-chip-role">COO View</div>
+        <div class="login-chip-email">coo@guardian.demo</div>
+      </div>
+      <div class="login-chip">
+        <div class="login-chip-role">Operations</div>
+        <div class="login-chip-email">operations@guardian.demo</div>
+      </div>
+      <div class="login-chip">
+        <div class="login-chip-role">Dispatch</div>
+        <div class="login-chip-email">dispatch@guardian.demo</div>
+      </div>
+      <div class="login-chip">
+        <div class="login-chip-role">Supervisor</div>
+        <div class="login-chip-email">supervisor@guardian.demo</div>
+      </div>
+      <div class="login-chip">
+        <div class="login-chip-role">Officer</div>
+        <div class="login-chip-email">mw@guardian.demo</div>
+      </div>
+    </div>
+    <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:24px;">All accounts use password: <code style="background:rgba(255,255,255,0.08);padding:2px 8px;border-radius:4px;color:var(--gold);">Guardian2026!</code></p>
+    <a class="btn-primary" href="/" style="font-size:16px;padding:16px 40px;">Open ShieldSync Dashboard →</a>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-tag">Get in Touch</div>
+    <h2>Request a Security Assessment</h2>
+    <p class="section-lead">We'll conduct a complimentary site assessment and deliver a custom staffing and technology proposal within 48 hours.</p>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div>
+            <div class="contact-label">Headquarters</div>
+            <div class="contact-value">Orlando, Florida 32801</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📞</div>
+          <div>
+            <div class="contact-label">Operations Center</div>
+            <div class="contact-value">(407) 555-0192</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">✉️</div>
+          <div>
+            <div class="contact-label">Email</div>
+            <div class="contact-value">ops@guardianstrategic.com</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">🪪</div>
+          <div>
+            <div class="contact-label">License</div>
+            <div class="contact-value">FL Class D/G — #B2200348</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">🕐</div>
+          <div>
+            <div class="contact-label">Dispatch</div>
+            <div class="contact-value">24 / 7 / 365</div>
+          </div>
+        </div>
+      </div>
+      <form class="contact-form" onsubmit="handleForm(event)">
+        <div class="form-row">
+          <input type="text" placeholder="First Name" required />
+          <input type="text" placeholder="Last Name" required />
+        </div>
+        <input type="email" placeholder="Business Email" required />
+        <input type="text" placeholder="Company / Facility Name" required />
+        <select required>
+          <option value="" disabled selected>Type of Security Needed</option>
+          <option>Healthcare Security</option>
+          <option>Corporate / Office</option>
+          <option>Industrial / Logistics</option>
+          <option>Hospitality / Events</option>
+          <option>Transit / Public Safety</option>
+          <option>Other</option>
+        </select>
+        <textarea placeholder="Briefly describe your site and requirements..."></textarea>
+        <button type="submit" class="btn-primary">Submit Request →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <strong>Guardian Strategic Security, LLC</strong>
+  <p>Orlando, FL · FL Class D/G Lic# B2200348 · ISO 9001:2015 · ASIS CPP Certified · NAPSO Member</p>
+  <p style="margin-top:12px;font-size:11px;opacity:.4;">This is a demonstration company profile for ShieldSync platform demos. All data is fictional.</p>
+  <div class="footer-links">
+    <a href="/">ShieldSync Dashboard</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+  </div>
+</footer>
+
+<script>
+  function handleForm(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.textContent = '✓ Request Submitted';
+    btn.style.background = '#16a34a';
+    setTimeout(() => { btn.textContent = 'Submit Request →'; btn.style.background = ''; }, 3000);
+  }
+
+  // Active nav link highlight on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
+    links.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current ? 'var(--gold)' : '';
+    });
+  });
+</script>
+</body>
+</html>
