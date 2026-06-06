@@ -513,6 +513,7 @@ function Card({children,glow,style={},onClick}){
 function CB({children,style={}}){return<div style={{padding:"18px 20px",...style}}>{children}</div>;}
 function SH({title,action,icon,sub}){
   const Icon=icon&&typeof icon!=="string"?icon:null;
+  const ActionIco=action?.icon||null;
   return(
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}}>
       <div>
@@ -522,7 +523,7 @@ function SH({title,action,icon,sub}){
         </div>
         {sub&&<div style={{fontSize:11,color:T.textDim,marginTop:3,lineHeight:1.4}}>{sub}</div>}
       </div>
-      {action&&<button onClick={action.fn} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,fontSize:11,fontWeight:700,padding:"9px 14px",borderRadius:8,cursor:"pointer",WebkitTapHighlightColor:"transparent",minHeight:38,display:"flex",alignItems:"center",flexShrink:0}}>{action.label}</button>}
+      {action&&<button onClick={action.fn} className="ss-ghost-btn" style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,fontSize:11,fontWeight:700,padding:"7px 12px",borderRadius:8,cursor:"pointer",WebkitTapHighlightColor:"transparent",minHeight:34,display:"inline-flex",alignItems:"center",gap:6,flexShrink:0,transition:"all 0.15s"}}>{ActionIco&&<ActionIco size={11} strokeWidth={2.4}/>}{action.label}</button>}
     </div>
   );
 }
@@ -1374,12 +1375,13 @@ function Dashboard({openModal,showToast}){
         {KPI_DATA.map(k=>{
           const Icon=k.icon;
           const TrendIcon=k.trend==="down"?TrendingDown:k.trend.startsWith("-")?TrendingDown:k.trend.startsWith("+")?TrendingUp:null;
+          const trendColor=k.trend.startsWith("+")?T.green:k.trend.startsWith("-")?T.red:T.textDim;
           return(
           <Card key={k.label} glow={k.color}>
             <CB style={{padding:"16px 18px"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
                 <div style={{width:34,height:34,borderRadius:9,background:`${k.color}16`,border:`1px solid ${k.color}30`,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={17} color={k.color} strokeWidth={2}/></div>
-                {TrendIcon&&<span style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,fontWeight:800,color:k.color,background:`${k.color}18`,padding:"3px 7px",borderRadius:5}}><TrendIcon size={11} strokeWidth={2.5}/>{k.trend.replace(/^[+-]/,"")}</span>}
+                {TrendIcon&&<span style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,fontWeight:800,color:trendColor,background:`${trendColor}14`,padding:"3px 7px",borderRadius:5}}><TrendIcon size={11} strokeWidth={2.5}/>{k.trend.replace(/^[+-]/,"")}</span>}
               </div>
               <div style={{fontSize:26,fontWeight:900,color:k.color,lineHeight:1}}>{k.value}</div>
               <div style={{fontSize:12,fontWeight:700,color:T.text,marginTop:5}}>{k.label}</div>
@@ -1420,20 +1422,25 @@ function Dashboard({openModal,showToast}){
           </Card>
         </div>
       </div>
-      {/* Live ops feed */}
-      {feed.length>0&&(
-        <Card glow={T.accent}>
-          <CB>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-              <div style={{width:7,height:7,borderRadius:"50%",background:T.green,boxShadow:`0 0 6px ${T.green}`,animation:"ssB 1s infinite"}}/>
-              <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:T.textSub}}>Live Ops Feed</span>
-              <span style={{fontSize:10,color:T.textDim,marginLeft:"auto"}}>{feed.length} events</span>
+      {/* Live ops feed — always visible */}
+      <Card>
+        <CB>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:feed.length>0?12:0}}>
+            <div style={{width:7,height:7,borderRadius:"50%",background:T.green,boxShadow:`0 0 6px ${T.green}`,animation:"ssB 1.2s infinite",flexShrink:0}}/>
+            <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:T.textSub}}>Live Ops Feed</span>
+            {feed.length>0&&<span style={{fontSize:10,color:T.textDim,marginLeft:"auto"}}>{feed.length} event{feed.length!==1?"s":""}</span>}
+          </div>
+          {feed.length===0?(
+            <div style={{padding:"14px 0 2px",display:"flex",alignItems:"center",gap:8}}>
+              <Dots/>
+              <span style={{fontSize:12,color:T.textDim}}>Monitoring operational feeds — no events yet</span>
             </div>
+          ):(
             <div style={{display:"flex",flexDirection:"column",gap:5}}>
               {feed.slice(0,6).map((e,i)=>{
                 const c=e.type==="success"?T.green:e.type==="warning"?T.red:e.type==="dispatch"?T.gold:e.type==="scan"?T.accent:T.textSub;
                 return(
-                  <div key={e.id} style={{display:"flex",gap:10,alignItems:"center",padding:"7px 10px",background:T.raised,borderRadius:7,animation:i===0?"ssUp 0.2s ease":"none"}}>
+                  <div key={e.id} className="ss-row" style={{display:"flex",gap:10,alignItems:"center",padding:"7px 10px",background:T.raised,borderRadius:7,animation:i===0?"ssUp 0.2s ease":"none"}}>
                     <div style={{width:6,height:6,borderRadius:"50%",background:c,flexShrink:0}}/>
                     <span style={{flex:1,fontSize:12,color:T.text}}>{e.msg}</span>
                     <span style={{fontSize:10,color:T.textDim,fontFamily:"monospace",flexShrink:0}}>{e.time}</span>
@@ -1441,9 +1448,9 @@ function Dashboard({openModal,showToast}){
                 );
               })}
             </div>
-          </CB>
-        </Card>
-      )}
+          )}
+        </CB>
+      </Card>
       <Card style={{display:"flex",flexDirection:"column"}}>
         <CB style={{display:"flex",flexDirection:"column"}}>
           <SH title="ShieldSync AI Copilot" icon={Bot}/>
@@ -1452,24 +1459,24 @@ function Dashboard({openModal,showToast}){
       </Card>
       <Card>
         <CB>
-          <SH title="Recent Incidents" action={{label:"+ New Incident",fn:()=>openModal({type:"incident"})}}/>
+          <SH title="Recent Incidents" icon={AlertTriangle} action={{label:"New Incident",fn:()=>openModal({type:"incident"}),icon:Plus}}/>
           <div style={{overflowX:"auto"}}>
             <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,minWidth:540}}>
               <thead>
                 <tr style={{borderBottom:`1px solid ${T.border}`}}>
                   {["ID","Type","Site","Officer","Time","Severity","Status"].map(h=>(
-                    <th key={h} style={{textAlign:"left",padding:"7px 10px",color:T.textSub,fontWeight:700,fontSize:10,letterSpacing:"0.07em",textTransform:"uppercase",whiteSpace:"nowrap"}}>{h}</th>
+                    <th key={h} style={{textAlign:"left",padding:"6px 10px",color:T.textDim,fontWeight:700,fontSize:10,letterSpacing:"0.08em",textTransform:"uppercase",whiteSpace:"nowrap"}}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {INCIDENTS.map(inc=>(
-                  <tr key={inc.id} style={{borderBottom:`1px solid ${T.border}20`}}>
+                  <tr key={inc.id} className="ss-row" style={{borderBottom:`1px solid ${T.border}20`,cursor:"pointer"}}>
                     <td style={{padding:"11px 10px",color:T.accent,fontWeight:800,fontFamily:"monospace",whiteSpace:"nowrap"}}>{inc.id}</td>
-                    <td style={{padding:"11px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.type}</td>
+                    <td style={{padding:"11px 10px",color:T.text,fontWeight:600,whiteSpace:"nowrap"}}>{inc.type}</td>
                     <td style={{padding:"11px 10px",color:T.textSub,whiteSpace:"nowrap"}}>{inc.site}</td>
                     <td style={{padding:"11px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.officer}</td>
-                    <td style={{padding:"11px 10px",color:T.textSub}}>{inc.time}</td>
+                    <td style={{padding:"11px 10px",color:T.textSub,fontFamily:"monospace",fontSize:12}}>{inc.time}</td>
                     <td style={{padding:"11px 10px"}}><Pill label={inc.sev} color={inc.sev==="High"?T.red:inc.sev==="Medium"?T.amber:T.textSub}/></td>
                     <td style={{padding:"11px 10px"}}><Pill label={inc.status}/></td>
                   </tr>
@@ -1518,7 +1525,7 @@ function Workforce(){
       </div>
       <Card>
         <CB>
-          <SH title="Today's Schedule"/>
+          <SH title="Today's Schedule" icon={CalendarDays}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {SCHEDULE.map((s,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10}}>
@@ -1604,7 +1611,7 @@ function Patrol({user,showToast,openModal}){
 
       <Card>
         <CB>
-          <SH title="Checkpoint Status"/>
+          <SH title="Checkpoint Status" icon={MapPinned}/>
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {CHECKPOINTS.map(cp=>{
               const total=cp.scans+cp.missed;
@@ -1634,7 +1641,7 @@ function Patrol({user,showToast,openModal}){
 
       <Card>
         <CB>
-          <SH title="Scan Log"/>
+          <SH title="Scan Log" icon={ScanLine}/>
           <div style={{display:"flex",flexDirection:"column",gap:6}}>
             {scanLog.slice(0,10).map(s=>(
               <div key={s.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",background:T.raised,borderRadius:8}}>
@@ -1749,7 +1756,7 @@ function Fleet({openModal}){
           </div>
           <Card>
             <CB>
-              <SH title="Fleet Cost Breakdown — Current Month"/>
+              <SH title="Fleet Cost Breakdown — Current Month" icon={TrendingUp}/>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 {FLEET_COSTS.map(v=>(
                   <div key={v.vehicle} style={{background:T.raised,borderRadius:10,padding:"13px 15px"}}>
@@ -1819,7 +1826,7 @@ function Visitors({openModal,user,showToast}){
       {PRE_REGISTERED.length>0&&(
         <Card glow={T.purple}>
           <CB>
-            <SH title="Expected Arrivals"/>
+            <SH title="Expected Arrivals" icon={Clock}/>
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {PRE_REGISTERED.map(pr=>(
                 <div key={pr.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
@@ -1838,7 +1845,7 @@ function Visitors({openModal,user,showToast}){
 
       <Card>
         <CB>
-          <SH title="Visitor Log" action={{label:"+ Check In",fn:()=>openModal({type:"checkin"})}}/>
+          <SH title="Visitor Log" icon={IdCard} action={{label:"Check In",fn:()=>openModal({type:"checkin"}),icon:Plus}}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {visitors.map(v=>(
               <div key={v.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
@@ -1884,7 +1891,7 @@ function Reports(){
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
       <Card>
         <CB>
-          <SH title="AI Report Generator"/>
+          <SH title="AI Report Generator" icon={Sparkles}/>
           <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:16}}>
             {REPORT_TYPES.map(t=>(
               <button key={t} onClick={()=>setRtype(t)} style={{background:rtype===t?T.accentGlow:T.raised,border:`1px solid ${rtype===t?T.accentB:T.border}`,color:rtype===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:9,cursor:"pointer",fontSize:12,fontWeight:700,transition:"all 0.15s"}}>{t}</button>
@@ -1979,7 +1986,7 @@ function Dispatch({showToast,user}){
       </Card>
       <Card>
         <CB>
-          <SH title="Field Units"/>
+          <SH title="Field Units" icon={Radio}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {OFFICERS.filter(o=>o.status!=="Off Duty").map(o=>{
               const c=SM(o.status).c;
@@ -2285,7 +2292,7 @@ function MyShift({user,showToast}){
       {clocked&&(
         <Card>
           <CB>
-            <SH title="Shift Handover Notes"/>
+            <SH title="Shift Handover Notes" icon={ClipboardList}/>
             {!handoverSent?(
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 <textarea value={handoverNote} onChange={e=>setHandoverNote(e.target.value)} rows={3} placeholder="Outstanding incidents, patrol notes, equipment status…" style={{background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"11px 13px",borderRadius:9,fontSize:12,resize:"vertical",outline:"none"}}/>
@@ -2301,7 +2308,7 @@ function MyShift({user,showToast}){
       {/* Activity */}
       <Card>
         <CB>
-          <SH title="Recent Activity"/>
+          <SH title="Recent Activity" icon={Activity}/>
           <div style={{display:"flex",flexDirection:"column",gap:6}}>
             {activity.slice(0,6).map((a,i)=>(
               <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",padding:"8px 10px",background:T.raised,borderRadius:8}}>
@@ -2360,7 +2367,7 @@ function EquipmentModule({user,showToast}){
 
       <Card>
         <CB>
-          <SH title={isOfficer?"My Equipment":"All Equipment"}/>
+          <SH title={isOfficer?"My Equipment":"All Equipment"} icon={WrenchIcon}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {(isOfficer?myItems:items).map(e=>(
               <div key={e.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
@@ -2524,7 +2531,7 @@ function LeaveModule({user,showToast}){
       {/* Requests list */}
       <Card>
         <CB>
-          <SH title="Leave Requests"/>
+          <SH title="Leave Requests" icon={CalendarDays}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {requests.map(r=>(
               <div key={r.id} style={{padding:"12px 14px",background:T.raised,borderRadius:10}}>
@@ -2595,7 +2602,7 @@ function TrainingModule(){
       )}
       <Card>
         <CB>
-          <SH title="Compliance Overview"/>
+          <SH title="Compliance Overview" icon={ShieldCheck}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {byOfficer.filter(o=>o.status!=="Off Duty").map(o=>(
               <div key={o.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
@@ -3699,7 +3706,7 @@ function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
               {newGroup&&!collapsed&&idx>0&&<div style={{height:1,background:T.border,margin:"8px 5px 4px"}}/>}
               {newGroup&&!collapsed&&<div style={{padding:"0 5px 3px",fontSize:9,fontWeight:700,letterSpacing:"0.13em",textTransform:"uppercase",color:T.textDim}}>{NAV_GROUP_LABELS[n.group]||n.group}</div>}
               {newGroup&&collapsed&&idx>0&&<div style={{height:1,background:T.border,margin:"6px 11px"}}/>}
-              <button key={n.id} onClick={()=>onChange(n.id)} title={collapsed?n.label:""} style={{display:"flex",alignItems:"center",gap:10,padding:collapsed?"10px 11px":"9px 11px",background:a?T.accentGlow:"none",border:`1px solid ${a?T.accentB:"transparent"}`,borderRadius:8,cursor:"pointer",color:a?T.accent:T.textSub,fontWeight:a?700:500,fontSize:13,textAlign:"left",width:"100%",transition:"all 0.15s",WebkitTapHighlightColor:"transparent"}}>
+              <button key={n.id} onClick={()=>onChange(n.id)} title={collapsed?n.label:""} className={`ss-nav-btn${a?" ss-nav-active":""}`} style={{display:"flex",alignItems:"center",gap:10,padding:collapsed?"10px 11px":"9px 11px",background:a?T.accentGlow:"none",border:`1px solid ${a?T.accentB:"transparent"}`,borderRadius:8,cursor:"pointer",color:a?T.accent:T.textSub,fontWeight:a?700:500,fontSize:13,textAlign:"left",width:"100%",transition:"all 0.15s",WebkitTapHighlightColor:"transparent"}}>
                 <Icon size={16} strokeWidth={a?2.2:1.9} style={{flexShrink:0}}/>
                 {!collapsed&&<span style={{whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",fontSize:12}}>{n.label}</span>}
               </button>
@@ -3707,7 +3714,20 @@ function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
           );
         })}
       </nav>
-      <div style={{padding:"10px 7px",borderTop:`1px solid ${T.border}`,display:"flex",flexDirection:"column",gap:6}}>
+      <div style={{padding:"8px 7px 0",flexShrink:0}}>
+        {!collapsed?(
+          <div style={{background:T.raised,borderRadius:8,padding:"7px 11px",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+            <div style={{display:"flex",alignItems:"center",gap:5}}>
+              <div style={{width:5,height:5,borderRadius:"50%",background:T.green,animation:"ssB 1.5s infinite"}}/>
+              <span style={{fontSize:9,color:T.green,fontWeight:800,letterSpacing:"0.07em"}}>LIVE</span>
+            </div>
+            <span style={{fontSize:9,color:T.textDim}}>5 on duty · 4 sites</span>
+          </div>
+        ):(
+          <div style={{height:1,background:T.border,margin:"0 6px 6px"}}/>
+        )}
+      </div>
+      <div style={{padding:"0 7px 10px",borderTop:`1px solid ${T.border}`,display:"flex",flexDirection:"column",gap:6,paddingTop:8}}>
         {!collapsed&&(
           <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"11px 12px",display:"flex",gap:10,alignItems:"center"}}>
             <div style={{width:30,height:30,borderRadius:8,background:`linear-gradient(135deg,${T.accent}35,${T.purple}25)`,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:900,color:T.accent,flexShrink:0}}>{user.av}</div>
@@ -3744,6 +3764,12 @@ function TopBar({modId,now,user,onLogout,isMobile}){
           <Lock size={11} color={T.green} strokeWidth={2.4}/>
           <span style={{fontSize:10,color:T.green,fontWeight:700}}>Secure</span>
         </div>}
+        <div style={{position:"relative"}}>
+          <button className="ss-ghost-btn" style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",padding:0,color:T.textSub,WebkitTapHighlightColor:"transparent",transition:"all 0.15s"}}>
+            <Bell size={14} strokeWidth={2}/>
+          </button>
+          <span style={{position:"absolute",top:-4,right:-4,minWidth:16,height:16,borderRadius:8,background:T.red,color:"#fff",fontSize:9,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",padding:"0 3px",border:`2px solid ${T.bg}`,letterSpacing:"-0.02em"}}>4</span>
+        </div>
         <div style={{display:"flex",alignItems:"center",gap:6,background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:8,padding:isMobile?"6px 8px":"6px 11px"}}>
           <div style={{width:6,height:6,borderRadius:"50%",background:T.red,animation:"ssB 1s infinite"}}/>
           {!isMobile&&<span style={{fontSize:11,color:T.red,fontWeight:700,whiteSpace:"nowrap"}}>2 Active</span>}
@@ -4682,6 +4708,10 @@ export default function App(){
         @keyframes glow{0%,100%{opacity:.07}50%{opacity:.15}}
         @keyframes ssToast{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
         @keyframes ssQR{0%{top:0;opacity:1}50%{top:calc(100% - 3px);opacity:.7}100%{top:0;opacity:1}}
+        .ss-row{transition:background 0.1s;}
+        .ss-row:hover{background:${T.raised}!important;}
+        .ss-nav-btn:hover:not(.ss-nav-active){background:${T.accentGlow}!important;color:${T.textSub}!important;}
+        .ss-ghost-btn:hover{background:${T.raised}!important;border-color:${T.borderLight}!important;}
       `}</style>
 
       {/* Offline banner */}
