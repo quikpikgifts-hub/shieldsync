@@ -8,6 +8,8 @@
 export const config = { runtime: "edge" };
 
 const ALLOWED_ORIGINS = [
+  "https://shieldsync-qldm.vercel.app",
+  "https://shieldsync-psi.vercel.app",
   "https://shieldsync-jbsx.vercel.app",
   "https://shieldsync-app.vercel.app",
 ];
