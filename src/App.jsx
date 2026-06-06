@@ -1,5 +1,18 @@
 import React, { Component, useState, useEffect, useRef, useCallback, memo, useMemo, useTransition } from "react";
 import { audit, callAI, watchPosition, onlineStatus, HAS_SUPABASE } from "./db.js";
+import {
+  LayoutDashboard, BarChart3, Clock, Clock4, User, Users, Shield, ShieldCheck, ShieldAlert,
+  Car, IdCard, FileText, Radio, Wrench, CalendarDays, GraduationCap, Bot, Package,
+  ClipboardList, UserCog, Settings, Building2, MapPin, CheckCircle2, Timer,
+  AlertTriangle, TrendingUp, Activity, Check, X, ChevronLeft, ChevronRight, ArrowRight,
+  ArrowLeft, ArrowDownToLine, RotateCcw, RotateCw, Lock, KeyRound, Fingerprint, Bell,
+  Mail, Phone, Star, Crown, Camera, Fuel, Wrench as WrenchIcon, TrendingDown, Siren,
+  Gauge, Zap, Printer, ChevronDown, ChevronUp, Sparkles, Cpu, Database, Link2,
+  BookOpen, Wind, Bandage, Eye, EyeOff, LogOut, Plus, Minus, Wifi, WifiOff,
+  CircleCheck, CircleAlert, ScanLine, MapPinned, Briefcase, HandCoins, ShieldQuestion,
+  Video, Network, Usb, ServerCog, Rocket, Hand, HelpCircle,
+  UserCircle2, Navigation,
+} from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────
 // LOCAL STORAGE LAYER
@@ -76,12 +89,11 @@ const PERM_LABELS={
   training:"Training",aicommand:"AI Command",procurement:"Procurement",
   auditlog:"Audit Log",users:"User Management",settings:"Company Settings",myshift:"My Shift",
   clientportal:"Client Portal",itcommand:"IT/Cyber",
-  postorders:"Post Orders",compliance:"Compliance",opmap:"Operations Map",shiftmarket:"Shift Market",
 };
 const ROLE_PERMS={
-  "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings","clientportal","itcommand","postorders","compliance","opmap","shiftmarket"],
-  "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","itcommand","postorders","compliance","opmap"],
-  "Officer":["dashboard","myshift","patrol","visitors","equipment","leave","postorders","shiftmarket"],
+  "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings","clientportal","itcommand"],
+  "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","itcommand"],
+  "Officer":["dashboard","myshift","patrol","visitors","equipment","leave"],
   "Client":["clientportal","reports"],
 };
 function getUsers(){const s=LS.get("ss_users_v1",null);if(s)return s;const init=AUTH_USERS.map(u=>({...u,active:true,createdAt:"2024-01-01",mfaEnabled:false,company:"ShieldSync Demo"}));LS.set("ss_users_v1",init);return init;}
@@ -184,38 +196,35 @@ const AI_INSIGHTS=[
 ];
 const REPORT_TYPES=["Daily Operations Summary","Incident Report","Patrol Analysis","Workforce Performance","Risk Assessment"];
 const NAV=[
-  {id:"dashboard",label:"Command",icon:"⚡",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"executive",label:"Executive",icon:"📊",roles:["Company Admin"]},
-  {id:"myshift",label:"My Shift",icon:"⏱️",roles:["Officer"]},
-  {id:"workforce",label:"Workforce",icon:"👮",roles:["Company Admin","Supervisor"]},
-  {id:"timekeeping",label:"Timekeeping",icon:"🕐",roles:["Company Admin","Supervisor"]},
-  {id:"patrol",label:"Patrol",icon:"🛡️",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"fleet",label:"Fleet",icon:"🚗",roles:["Company Admin","Supervisor"]},
-  {id:"visitors",label:"Visitors",icon:"🪪",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"reports",label:"Reports",icon:"📄",roles:["Company Admin","Supervisor","Client"]},
-  {id:"dispatch",label:"Dispatch",icon:"📡",roles:["Company Admin","Supervisor"]},
-  {id:"equipment",label:"Equipment",icon:"🔧",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"leave",label:"Leave",icon:"📅",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"training",label:"Training",icon:"🎓",roles:["Company Admin","Supervisor"]},
-  {id:"postorders",label:"Post Orders",icon:"📋",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"compliance",label:"Compliance",icon:"🪪",roles:["Company Admin","Supervisor"]},
-  {id:"opmap",label:"Ops Map",icon:"🗺️",roles:["Company Admin","Supervisor"]},
-  {id:"shiftmarket",label:"Shift Market",icon:"🔄",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"aicommand",label:"AI Command",icon:"🤖",roles:["Company Admin","Supervisor"]},
-  {id:"procurement",label:"Procurement",icon:"📦",roles:["Company Admin"]},
-  {id:"auditlog",label:"Audit Log",icon:"📋",roles:["Company Admin"]},
-  {id:"users",label:"Users",icon:"👥",roles:["Company Admin"]},
-  {id:"settings",label:"Settings",icon:"⚙️",roles:["Company Admin"]},
-  {id:"clientportal",label:"Client Portal",icon:"🏢",roles:["Company Admin","Client"]},
-  {id:"itcommand",label:"IT/Cyber",icon:"🔒",roles:["Company Admin","Supervisor"]},
+  {id:"dashboard",label:"Command",icon:LayoutDashboard,roles:["Company Admin","Supervisor","Officer"],group:"ops"},
+  {id:"executive",label:"Executive",icon:BarChart3,roles:["Company Admin"],group:"ops"},
+  {id:"myshift",label:"My Shift",icon:Clock,roles:["Officer"],group:"ops"},
+  {id:"patrol",label:"Patrol",icon:Shield,roles:["Company Admin","Supervisor","Officer"],group:"field"},
+  {id:"dispatch",label:"Dispatch",icon:Radio,roles:["Company Admin","Supervisor"],group:"field"},
+  {id:"fleet",label:"Fleet",icon:Car,roles:["Company Admin","Supervisor"],group:"field"},
+  {id:"visitors",label:"Visitors",icon:IdCard,roles:["Company Admin","Supervisor","Officer"],group:"field"},
+  {id:"equipment",label:"Equipment",icon:Wrench,roles:["Company Admin","Supervisor","Officer"],group:"field"},
+  {id:"workforce",label:"Workforce",icon:Users,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"timekeeping",label:"Timekeeping",icon:Clock4,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"leave",label:"Leave",icon:CalendarDays,roles:["Company Admin","Supervisor","Officer"],group:"people"},
+  {id:"training",label:"Training",icon:GraduationCap,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"aicommand",label:"AI Command",icon:Bot,roles:["Company Admin","Supervisor"],group:"intel"},
+  {id:"reports",label:"Reports",icon:FileText,roles:["Company Admin","Supervisor","Client"],group:"intel"},
+  {id:"procurement",label:"Procurement",icon:Package,roles:["Company Admin"],group:"admin"},
+  {id:"auditlog",label:"Audit Log",icon:ClipboardList,roles:["Company Admin"],group:"admin"},
+  {id:"users",label:"Users",icon:UserCog,roles:["Company Admin"],group:"admin"},
+  {id:"settings",label:"Settings",icon:Settings,roles:["Company Admin"],group:"admin"},
+  {id:"clientportal",label:"Client Portal",icon:Building2,roles:["Company Admin","Client"],group:"admin"},
+  {id:"itcommand",label:"IT/Cyber",icon:ShieldAlert,roles:["Company Admin","Supervisor"],group:"admin"},
 ];
+const NAV_GROUP_LABELS={ops:"OPERATIONS",field:"FIELD OPS",people:"WORKFORCE",intel:"INTELLIGENCE",admin:"ADMIN"};
 const KPI_DATA=[
-  {label:"Active Officers",value:"5",sub:"1 off duty",icon:"👮",color:T.accent,trend:"+2"},
-  {label:"Open Incidents",value:"2",sub:"1 critical",icon:"⚡",color:T.red,trend:"-1"},
-  {label:"Patrols Today",value:"38",sub:"94% complete",icon:"🛡️",color:T.green,trend:"+4"},
-  {label:"Sites Active",value:"4",sub:"All nominal",icon:"📍",color:T.gold,trend:"0"},
-  {label:"Checkpoints",value:"38/42",sub:"4 missed",icon:"✅",color:T.purple,trend:"-2"},
-  {label:"Avg Response",value:"4.2m",sub:"↓12% today",icon:"⏱️",color:T.amber,trend:"↓"},
+  {label:"Active Officers",value:"5",sub:"1 off duty",icon:Users,color:T.accent,trend:"+2"},
+  {label:"Open Incidents",value:"2",sub:"1 critical",icon:AlertTriangle,color:T.red,trend:"-1"},
+  {label:"Patrols Today",value:"38",sub:"94% complete",icon:Shield,color:T.green,trend:"+4"},
+  {label:"Sites Active",value:"4",sub:"All nominal",icon:MapPin,color:T.gold,trend:"0"},
+  {label:"Checkpoints",value:"38/42",sub:"4 missed",icon:CheckCircle2,color:T.purple,trend:"-2"},
+  {label:"Avg Response",value:"4.2m",sub:"12% faster today",icon:Timer,color:T.amber,trend:"down"},
 ];
 const PHOTO_SLOTS=[
   {key:"front",label:"Front"},{key:"rear",label:"Rear"},
@@ -335,67 +344,6 @@ const CYBER_ACCESS_LOG=[
   {time:"07:42",user:"officer@shieldsync.com",action:"Login",ip:"10.0.0.4",result:"Success",device:"Android / Chrome"},
   {time:"07:21",user:"unknown@external.io",action:"Login",ip:"45.33.32.156",result:"Failed",device:"curl/7.88"},
   {time:"06:55",user:"client@shieldsync.com",action:"Report View",ip:"172.16.0.8",result:"Success",device:"Firefox / Windows"},
-];
-const POST_ORDERS=[
-  {id:"PO-001",site:"Northgate Tower",version:3,updated:"2026-06-01",author:"Sarah Chen",status:"Active",
-   content:`NORTHGATE TOWER — POST ORDERS v3\nEffective: June 1, 2026\n\n1. GENERAL RESPONSIBILITIES\n- Report for duty 15 minutes before shift start\n- Uniform must be clean, pressed, and complete at all times\n- Maintain visitor log at all times\n\n2. ACCESS CONTROL\n- All visitors must sign in and receive a temp badge\n- Contractor access limited to 06:00–18:00 Mon–Fri\n- No tailgating — challenge any unknown person at entry\n\n3. PATROL REQUIREMENTS\n- Complete patrol rounds every 90 minutes minimum\n- Scan all 8 checkpoints during each round\n- Document any anomalies immediately\n\n4. EMERGENCY PROCEDURES\n- Fire: Initiate evacuation per floor warden plan\n- Medical: Call 911, then notify supervisor\n- Active threat: Lockdown, call 911, shelter-in-place\n\n5. REPORTING\n- Complete DAR before shift end\n- All incidents require immediate report submission\n- Escalate to supervisor within 5 minutes of any critical event`,
-   acks:["Marcus Webb","Jordan Park"],pending:["Ava Simmons"]},
-  {id:"PO-002",site:"Harbor Logistics",version:2,updated:"2026-05-15",author:"Admin",status:"Active",
-   content:`HARBOR LOGISTICS — POST ORDERS v2\nEffective: May 15, 2026\n\n1. ACCESS CONTROL\n- Truck drivers must present BOL and valid ID\n- All vehicles logged in yard management system\n- Gate code changes every Monday — obtain from supervisor\n\n2. PATROL\n- Perimeter patrol every 60 minutes\n- Check all loading docks and lock seals\n- Verify container seals match manifest\n\n3. INCIDENTS\n- Any cargo discrepancy — notify shift supervisor immediately\n- Damage to property — photograph and report\n- Unauthorized individuals — detain and notify law enforcement if necessary`,
-   acks:["Diana Reyes"],pending:[]},
-  {id:"PO-003",site:"Plaza West",version:1,updated:"2026-04-10",author:"Admin",status:"Active",
-   content:`PLAZA WEST — POST ORDERS v1\nEffective: April 10, 2026\n\n1. RETAIL ENVIRONMENT\n- Visible deterrence is primary role — maintain visible presence\n- Assist retail associates with loss prevention observations only\n- Never physically detain shoppers — observe and report\n\n2. PATROL\n- Internal mall patrol every 45 minutes\n- Parking lot patrol every 90 minutes\n- Focus on high-theft areas (electronics, cosmetics)\n\n3. CUSTOMER SERVICE\n- Assist lost shoppers, medical situations\n- Coordinate with tenant security teams\n- Escort closing staff to vehicles on request`,
-   acks:[],pending:["Theo Okafor"]},
-  {id:"PO-004",site:"Eastside Mall",version:2,updated:"2026-05-28",author:"Sarah Chen",status:"Active",
-   content:`EASTSIDE MALL — POST ORDERS v2\nEffective: May 28, 2026\n\n1. GENERAL\n- Two-officer coverage during peak hours (12:00–20:00)\n- Maintain radio contact with partner at all times\n- Off-duty personnel not permitted on site in uniform\n\n2. PATROL & COVERAGE\n- Entry points monitored during all operating hours\n- Food court patrol every 30 minutes during peak\n- Parking structure sweep at 22:00 before close\n\n3. CLOSING PROCEDURE\n- Verify all tenant spaces secured by 22:30\n- Final patrol log signed and submitted by 23:00\n- Handover to overnight officer by 23:00`,
-   acks:["Ava Simmons"],pending:[]},
-];
-const GUARD_CERTS=[
-  {id:"GC-001",officer:"Marcus Webb",badge:"S-0041",state:"CA",cardNo:"BSIS-44201",type:"Guard Card",expires:"2026-08-15",training:"Unarmed",status:"Active",daysLeft:71},
-  {id:"GC-002",officer:"Marcus Webb",badge:"S-0041",state:"CA",cardNo:"CPRO-2891",type:"CPR/First Aid",expires:"2026-07-01",training:"Medical",status:"Expiring",daysLeft:26},
-  {id:"GC-003",officer:"Diana Reyes",badge:"S-0067",state:"CA",cardNo:"BSIS-38847",type:"Guard Card",expires:"2027-01-20",training:"Unarmed",status:"Active",daysLeft:229},
-  {id:"GC-004",officer:"Diana Reyes",badge:"S-0067",state:"CA",cardNo:"ARMS-1204",type:"Armed Permit",expires:"2026-06-20",training:"Armed",status:"Critical",daysLeft:15},
-  {id:"GC-005",officer:"Theo Okafor",badge:"S-0083",state:"CA",cardNo:"BSIS-51023",type:"Guard Card",expires:"2026-06-12",training:"Unarmed",status:"Critical",daysLeft:7},
-  {id:"GC-006",officer:"Ava Simmons",badge:"S-0092",state:"CA",cardNo:"BSIS-62914",type:"Guard Card",expires:"2027-03-10",training:"Unarmed",status:"Active",daysLeft:278},
-  {id:"GC-007",officer:"Jordan Park",badge:"S-0105",state:"CA",cardNo:"BSIS-47382",type:"Guard Card",expires:"2026-09-30",training:"Unarmed",status:"Active",daysLeft:117},
-  {id:"GC-008",officer:"Jordan Park",badge:"S-0105",state:"CA",cardNo:"CPRO-3312",type:"CPR/First Aid",expires:"2026-06-25",training:"Medical",status:"Expiring",daysLeft:20},
-  {id:"GC-009",officer:"Elena Voss",badge:"S-0118",state:"CA",cardNo:"BSIS-55901",type:"Guard Card",expires:"2026-06-08",training:"Unarmed",status:"Critical",daysLeft:3},
-  {id:"GC-010",officer:"Elena Voss",badge:"S-0118",state:"CA",cardNo:"ARMS-2201",type:"Armed Permit",expires:"2026-07-15",training:"Armed",status:"Expiring",daysLeft:40},
-];
-const OPEN_SHIFTS=[
-  {id:"OS-001",site:"Northgate Tower",date:"2026-06-06",start:"06:00",end:"18:00",type:"Day",urgency:"Normal",rate:22,posted:"2h ago",requirements:"Guard Card CA",claimed:null},
-  {id:"OS-002",site:"Harbor Logistics",date:"2026-06-06",start:"18:00",end:"06:00",type:"Night",urgency:"Urgent",rate:25,posted:"30min ago",requirements:"Guard Card CA",claimed:null},
-  {id:"OS-003",site:"Plaza West",date:"2026-06-07",start:"12:00",end:"00:00",type:"Evening",urgency:"Normal",rate:22,posted:"4h ago",requirements:"Guard Card CA",claimed:null},
-  {id:"OS-004",site:"Eastside Mall",date:"2026-06-07",start:"06:00",end:"14:00",type:"Day",urgency:"Normal",rate:22,posted:"1h ago",requirements:"Guard Card CA",claimed:null},
-  {id:"OS-005",site:"Harbor Logistics",date:"2026-06-08",start:"06:00",end:"18:00",type:"Day",urgency:"Normal",rate:22,posted:"6h ago",requirements:"Guard Card CA",claimed:null},
-];
-const VISITOR_WATCHLIST=[
-  {id:"WL-001",name:"Robert Henley",dob:"1978-04-22",reason:"Trespassing — Eastside Mall (2025-11-14)",addedBy:"Sarah Chen",photo:"RH",severity:"High"},
-  {id:"WL-002",name:"Tamara Osei",dob:"1991-07-03",reason:"Theft — Northgate Tower (2026-01-08)",addedBy:"Admin",photo:"TO",severity:"Medium"},
-  {id:"WL-003",name:"Unknown Male",dob:"—",reason:"Attempted tailgating — Harbor Logistics (2026-03-21)",addedBy:"Diana Reyes",photo:"??",severity:"High"},
-  {id:"WL-004",name:"Gary Mitch",dob:"1965-09-18",reason:"Harassment — Plaza West (2026-02-14)",addedBy:"Theo Okafor",photo:"GM",severity:"Low"},
-];
-const FATIGUE_DATA=[
-  {officer:"Marcus Webb",badge:"S-0041",av:"MW",hoursLast7:60.38,consecutiveNight:0,missedCPs:0,incidentRate:2,score:28,risk:"Low"},
-  {officer:"Diana Reyes",badge:"S-0067",av:"DR",hoursLast7:60.5,consecutiveNight:0,missedCPs:1,incidentRate:0,score:41,risk:"Low"},
-  {officer:"Theo Okafor",badge:"S-0083",av:"TO",hoursLast7:60,consecutiveNight:0,missedCPs:3,incidentRate:1,score:62,risk:"Moderate"},
-  {officer:"Ava Simmons",badge:"S-0092",av:"AS",hoursLast7:60,consecutiveNight:0,missedCPs:2,incidentRate:0,score:48,risk:"Low"},
-  {officer:"Jordan Park",badge:"S-0105",av:"JP",hoursLast7:62.25,consecutiveNight:0,missedCPs:0,incidentRate:0,score:55,risk:"Moderate"},
-  {officer:"Elena Voss",badge:"S-0118",av:"EV",hoursLast7:60,consecutiveNight:5,missedCPs:4,incidentRate:0,score:78,risk:"High"},
-];
-const PERF_SCORES=[
-  {officer:"Marcus Webb",av:"MW",badge:"S-0041",patrol:94,cps:8,incidents:2,fatigue:28,onTime:100,grade:"B+",score:84},
-  {officer:"Diana Reyes",av:"DR",badge:"S-0067",patrol:100,cps:5,incidents:0,fatigue:41,onTime:100,grade:"A-",score:91},
-  {officer:"Theo Okafor",av:"TO",badge:"S-0083",patrol:72,cps:3,incidents:1,fatigue:62,onTime:95,grade:"C+",score:67},
-  {officer:"Ava Simmons",av:"AS",badge:"S-0092",patrol:78,cps:0,incidents:0,fatigue:48,onTime:98,grade:"B-",score:72},
-  {officer:"Jordan Park",av:"JP",badge:"S-0105",patrol:88,cps:6,incidents:0,fatigue:55,onTime:100,grade:"B",score:80},
-  {officer:"Elena Voss",av:"EV",badge:"S-0118",patrol:60,cps:0,incidents:0,fatigue:78,onTime:92,grade:"D",score:42},
-];
-const CONTRACT_RISK=[
-  {id:"CTR-001",client:"Northgate Properties",end:"2026-12-31",daysLeft:209,health:92,margin:25,risk:"Low",score:12,lastContact:"2 days ago"},
-  {id:"CTR-002",client:"Harbor Logistics Group",end:"2027-02-28",daysLeft:268,health:74,margin:15,risk:"Medium",score:45,lastContact:"8 days ago"},
-  {id:"CTR-003",client:"Plaza West REIT",end:"2026-05-31",daysLeft:-5,health:61,margin:30,risk:"Critical",score:92,lastContact:"14 days ago"},
-  {id:"CTR-004",client:"Eastside Mall Corp",end:"2027-12-31",daysLeft:574,health:88,margin:25,risk:"Low",score:18,lastContact:"1 day ago"},
 ];
 
 // ─────────────────────────────────────────────────────────────────
@@ -526,10 +474,10 @@ class ErrorBoundary extends Component{
   render(){
     if(this.state.err)return(
       <div style={{padding:48,textAlign:"center"}}>
-        <div style={{fontSize:40,marginBottom:14}}>⚠️</div>
+        <div style={{display:"flex",justifyContent:"center",marginBottom:14}}><AlertTriangle size={36} color={T.red} strokeWidth={1.8}/></div>
         <div style={{fontSize:16,fontWeight:800,color:T.red,marginBottom:8}}>Module Error</div>
         <div style={{fontSize:13,color:T.textSub,marginBottom:24,maxWidth:340,margin:"0 auto 24px",lineHeight:1.6}}>{this.state.err.message}</div>
-        <button onClick={()=>this.setState({err:null})} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px 24px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:13}}>↺ Retry Module</button>
+        <button onClick={()=>this.setState({err:null})} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px 24px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:13,display:"inline-flex",alignItems:"center",gap:7}}><RotateCcw size={14} strokeWidth={2.2}/>Retry Module</button>
       </div>
     );
     return this.props.children;
@@ -565,16 +513,18 @@ function Card({children,glow,style={},onClick}){
 }
 function CB({children,style={}}){return<div style={{padding:"18px 20px",...style}}>{children}</div>;}
 function SH({title,action,icon,sub}){
+  const Icon=icon&&typeof icon!=="string"?icon:null;
+  const ActionIco=action?.icon||null;
   return(
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}}>
       <div>
-        <div style={{display:"flex",alignItems:"center",gap:6}}>
-          {icon&&<span style={{fontSize:14}}>{icon}</span>}
+        <div style={{display:"flex",alignItems:"center",gap:7}}>
+          {Icon?<Icon size={14} color={T.textSub} strokeWidth={2}/>:icon?<span style={{fontSize:14}}>{icon}</span>:null}
           <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:T.textSub}}>{title}</span>
         </div>
         {sub&&<div style={{fontSize:11,color:T.textDim,marginTop:3,lineHeight:1.4}}>{sub}</div>}
       </div>
-      {action&&<button onClick={action.fn} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,fontSize:11,fontWeight:700,padding:"9px 14px",borderRadius:8,cursor:"pointer",WebkitTapHighlightColor:"transparent",minHeight:38,display:"flex",alignItems:"center",flexShrink:0}}>{action.label}</button>}
+      {action&&<button onClick={action.fn} className="ss-ghost-btn" style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,fontSize:11,fontWeight:700,padding:"7px 12px",borderRadius:8,cursor:"pointer",WebkitTapHighlightColor:"transparent",minHeight:34,display:"inline-flex",alignItems:"center",gap:6,flexShrink:0,transition:"all 0.15s"}}>{ActionIco&&<ActionIco size={11} strokeWidth={2.4}/>}{action.label}</button>}
     </div>
   );
 }
@@ -700,7 +650,7 @@ function AuthScreen({onLogin,onRegister}){
       <div style={{position:"absolute",top:"5%",left:"50%",transform:"translateX(-50%)",width:"90vw",maxWidth:800,height:"55vh",background:`radial-gradient(ellipse at center,${T.accentGlow} 0%,transparent 65%)`,pointerEvents:"none",animation:"glow 4s ease-in-out infinite"}}/>
 
       <div style={{textAlign:"center",marginBottom:24,animation:"ssUp .35s ease",position:"relative",zIndex:1}}>
-        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,margin:"0 auto 14px",boxShadow:`0 0 60px ${T.accent}38,0 0 120px ${T.accent}12`}}>⚡</div>
+        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 14px",boxShadow:`0 0 60px ${T.accent}38,0 0 120px ${T.accent}12`}}><ShieldCheck size={32} color="#08111f" strokeWidth={2.2}/></div>
         <div style={{fontSize:32,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>ShieldSync</div>
         <div style={{fontSize:9,color:T.textDim,letterSpacing:"0.24em",textTransform:"uppercase",marginTop:5}}>SENTINEL · ENTERPRISE SECURITY PLATFORM</div>
       </div>
@@ -772,7 +722,7 @@ function AuthScreen({onLogin,onRegister}){
               <div style={{fontSize:19,fontWeight:800,color:T.text}}>Secure Access</div>
               <div style={{fontSize:12,color:T.textSub,marginTop:4,lineHeight:1.6}}>Authorized personnel only. All sessions are monitored and logged.</div>
             </div>
-            {err&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"11px 14px",marginBottom:16,fontSize:13,color:T.red,display:"flex",gap:9,alignItems:"center"}}><span>⚠</span><span>{err}</span></div>}
+            {err&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"11px 14px",marginBottom:16,fontSize:13,color:T.red,display:"flex",gap:9,alignItems:"center"}}><AlertTriangle size={15} strokeWidth={2.2}/><span>{err}</span></div>}
             <div style={{display:"flex",flexDirection:"column",gap:14}}>
               <div>
                 <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Email Address</label>
@@ -794,8 +744,8 @@ function AuthScreen({onLogin,onRegister}){
               </button>
             </div>
             <div style={{display:"flex",justifyContent:"center",gap:22,marginTop:20,paddingTop:16,borderTop:`1px solid ${T.border}`}}>
-              {[["🔒","TLS 1.3"],["🛡","SOC 2 Ready"],["✓","ISO 27001"]].map(([ic,lb])=>(
-                <div key={lb} style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:T.textDim}}><span style={{color:T.textSub}}>{ic}</span><span>{lb}</span></div>
+              {[[Lock,"TLS 1.3"],[ShieldCheck,"SOC 2 Ready"],[Check,"ISO 27001"]].map(([Ic,lb])=>(
+                <div key={lb} style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:T.textDim}}><Ic size={12} color={T.textSub} strokeWidth={2.2}/><span>{lb}</span></div>
               ))}
             </div>
             <div style={{marginTop:14}}>
@@ -825,7 +775,7 @@ function AuthScreen({onLogin,onRegister}){
         {forgotStep===0&&tab==="register"&&(
           regDone?(
             <div style={{textAlign:"center",padding:"24px 0"}}>
-              <div style={{fontSize:48,marginBottom:14}}>🏢</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:14}}><div style={{width:64,height:64,borderRadius:16,background:T.greenGlow,border:`1px solid ${T.greenB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><Building2 size={30} color={T.green} strokeWidth={1.8}/></div></div>
               <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:10}}>Company Registered!</div>
               <div style={{fontSize:13,color:T.textSub,lineHeight:1.7,marginBottom:22}}>
                 <strong style={{color:T.text}}>{reg.company}</strong> is set up. Sign in to start your onboarding.
@@ -905,7 +855,7 @@ function CheckInModal({onClose,showToast}){
     <ModalWrap>
       <Card style={{width:"min(400px,92vw)",textAlign:"center"}}>
         <CB style={{padding:"44px 32px"}}>
-          <div style={{fontSize:48,marginBottom:14}}>🪪</div>
+          <div style={{display:"flex",justifyContent:"center",marginBottom:14}}><div style={{width:64,height:64,borderRadius:16,background:T.greenGlow,border:`1px solid ${T.greenB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><IdCard size={30} color={T.green} strokeWidth={1.8}/></div></div>
           <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:10}}>Check-In Complete</div>
           <div style={{fontSize:13,color:T.textSub,lineHeight:1.65}}>
             <strong style={{color:T.text}}>{form.name}</strong> is now checked in at {form.site}.<br/>Badge <span style={{color:T.accent,fontFamily:"monospace"}}>{badge}</span> issued · Host notified.
@@ -925,7 +875,7 @@ function CheckInModal({onClose,showToast}){
               <div style={{fontSize:10,color:T.textSub,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Visitor Management</div>
               <div style={{fontSize:18,fontWeight:800,color:T.text}}>New Check-In</div>
             </div>
-            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={16} strokeWidth={2}/></button>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
             <div>
@@ -957,8 +907,8 @@ function CheckInModal({onClose,showToast}){
               <span style={{fontSize:13,color:T.accent,fontFamily:"monospace",fontWeight:800}}>{badge}</span>
             </div>
             <button onClick={submit} disabled={!valid}
-              style={{background:valid?T.green:T.raised,border:`1px solid ${valid?T.green:T.border}`,color:valid?"#000":T.textDim,padding:"13px",borderRadius:12,cursor:valid?"pointer":"not-allowed",fontWeight:800,fontSize:14}}>
-              Check In Visitor ✓
+              style={{background:valid?T.green:T.raised,border:`1px solid ${valid?T.green:T.border}`,color:valid?"#000":T.textDim,padding:"13px",borderRadius:12,cursor:valid?"pointer":"not-allowed",fontWeight:800,fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
+              <Check size={15} strokeWidth={2.6}/> Check In Visitor
             </button>
           </div>
         </CB>
@@ -1062,11 +1012,11 @@ function AICopilot(){
   },[inp,msgs,loading]);
 
   return(
-    <div style={{display:"flex",flexDirection:"column",height:"100%",minHeight:280}}>
-      <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:10,paddingBottom:4}}>
+    <div style={{display:"flex",flexDirection:"column",minHeight:0}}>
+      <div style={{maxHeight:220,overflowY:"auto",display:"flex",flexDirection:"column",gap:10,paddingBottom:4}}>
         {msgs.map((m,i)=>(
           <div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
-            {m.role==="ai"&&<div style={{width:26,height:26,borderRadius:8,flexShrink:0,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⚡</div>}
+            {m.role==="ai"&&<div style={{width:26,height:26,borderRadius:8,flexShrink:0,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Sparkles size={13} color="#08111f" strokeWidth={2.2}/></div>}
             <div style={{maxWidth:"82%",padding:"9px 13px",borderRadius:m.role==="user"?"12px 12px 3px 12px":"12px 12px 12px 3px",background:m.role==="user"?`linear-gradient(135deg,${T.accent}20,${T.purple}15)`:T.raised,border:`1px solid ${m.role==="user"?T.accentB:T.border}`,fontSize:13,lineHeight:1.6,color:T.text}}>
               {m.text}
             </div>
@@ -1074,7 +1024,7 @@ function AICopilot(){
         ))}
         {loading&&(
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
-            <div style={{width:26,height:26,borderRadius:8,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⚡</div>
+            <div style={{width:26,height:26,borderRadius:8,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Sparkles size={13} color="#08111f" strokeWidth={2.2}/></div>
             <div style={{background:T.raised,borderRadius:12,border:`1px solid ${T.border}`}}><Dots/></div>
           </div>
         )}
@@ -1133,7 +1083,7 @@ function InspModal({vehicle,onClose}){
     <ModalWrap>
       <Card style={{width:"min(440px,92vw)",textAlign:"center"}}>
         <CB style={{padding:"48px 32px"}}>
-          <div style={{fontSize:52,marginBottom:16}}>✅</div>
+          <div style={{display:"flex",justifyContent:"center",marginBottom:16}}><div style={{width:68,height:68,borderRadius:18,background:T.greenGlow,border:`1px solid ${T.greenB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><CircleCheck size={32} color={T.green} strokeWidth={1.7}/></div></div>
           <div style={{fontSize:20,fontWeight:800,color:T.green,marginBottom:8}}>Inspection Submitted</div>
           <div style={{fontSize:13,color:T.textSub,lineHeight:1.6}}>Vehicle {vehicle.plate} inspection logged.<br/>Sent to supervisor for review.</div>
           <div style={{marginTop:16,fontSize:11,color:T.textDim}}>{pc} photo{pc!==1?"s":""} captured · Mileage: {mileage} · Fuel: {fuel}%</div>
@@ -1175,7 +1125,7 @@ function InspModal({vehicle,onClose}){
               <div style={{fontSize:18,fontWeight:800,color:T.text}}>{vehicle.make}</div>
               <div style={{fontSize:12,color:T.accent,fontFamily:"monospace",marginTop:2}}>{vehicle.plate} · {vehicle.id}</div>
             </div>
-            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={16} strokeWidth={2}/></button>
           </div>
           <div style={{marginBottom:20}}>
             <div style={{display:"flex",gap:3,marginBottom:8}}>
@@ -1191,8 +1141,8 @@ function InspModal({vehicle,onClose}){
                   <span style={{fontSize:13,color:T.text,fontWeight:700,textAlign:"right"}}>{v}</span>
                 </div>
               ))}
-              <div style={{marginTop:4,padding:"10px 14px",background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:9,fontSize:12,color:T.accent}}>
-                📍 GPS tagged · {new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})} · Inspector logged
+              <div style={{marginTop:4,padding:"10px 14px",background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:9,fontSize:12,color:T.accent,display:"flex",alignItems:"center",gap:7}}>
+                <MapPin size={14} strokeWidth={2.2}/> GPS tagged · {new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})} · Inspector logged
               </div>
             </div>
           )}
@@ -1205,18 +1155,18 @@ function InspModal({vehicle,onClose}){
                     {photos[sl.key]?(
                       <>
                         <img src={photos[sl.key]} alt={sl.label} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                        <div style={{position:"absolute",top:4,right:4,background:T.green,width:18,height:18,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:"#000"}}>✓</div>
+                        <div style={{position:"absolute",top:4,right:4,background:T.green,width:18,height:18,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center"}}><Check size={11} strokeWidth={3} color="#000"/></div>
                       </>
                     ):(
                       <>
-                        <span style={{fontSize:22,marginBottom:4}}>📷</span>
+                        <Camera size={22} color={T.textDim} strokeWidth={1.7} style={{marginBottom:4}}/>
                         <span style={{fontSize:10,color:T.textSub,textAlign:"center",padding:"0 4px"}}>{sl.label}</span>
                       </>
                     )}
                   </div>
                 ))}
               </div>
-              <div style={{marginTop:12,fontSize:11,color:T.textSub,textAlign:"center"}}>{pc}/6 photos{pc===6&&" · ✅ All areas captured"}</div>
+              <div style={{marginTop:12,fontSize:11,color:T.textSub,textAlign:"center",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>{pc}/6 photos{pc===6&&<><CircleCheck size={12} color={T.green} strokeWidth={2.2}/> All areas captured</>}</div>
             </div>
           )}
           {step===2&&(
@@ -1244,10 +1194,10 @@ function InspModal({vehicle,onClose}){
               </div>
               <div style={{padding:"12px 14px",background:T.raised,borderRadius:9,display:"flex",flexDirection:"column",gap:5}}>
                 <div style={{fontSize:11,color:T.textSub,fontWeight:700,letterSpacing:"0.06em",textTransform:"uppercase",marginBottom:4}}>Summary</div>
-                <div style={{fontSize:12,color:T.text}}>📷 {pc}/6 photos</div>
-                <div style={{fontSize:12,color:T.text}}>📊 Mileage: {mileage} mi</div>
-                <div style={{fontSize:12,color:T.text}}>⛽ Fuel: {fuel}%</div>
-                {dmg&&<div style={{fontSize:12,color:T.amber}}>⚠️ Damage notes recorded</div>}
+                <div style={{fontSize:12,color:T.text,display:"flex",alignItems:"center",gap:7}}><Camera size={13} color={T.textSub} strokeWidth={2}/> {pc}/6 photos</div>
+                <div style={{fontSize:12,color:T.text,display:"flex",alignItems:"center",gap:7}}><Gauge size={13} color={T.textSub} strokeWidth={2}/> Mileage: {mileage} mi</div>
+                <div style={{fontSize:12,color:T.text,display:"flex",alignItems:"center",gap:7}}><Fuel size={13} color={T.textSub} strokeWidth={2}/> Fuel: {fuel}%</div>
+                {dmg&&<div style={{fontSize:12,color:T.amber,display:"flex",alignItems:"center",gap:7}}><AlertTriangle size={13} strokeWidth={2.2}/> Damage notes recorded</div>}
               </div>
             </div>
           )}
@@ -1257,7 +1207,7 @@ function InspModal({vehicle,onClose}){
                 By signing, you confirm this inspection is accurate and complete. This report will be archived and sent to your supervisor.
               </div>
               <div onClick={()=>!signed&&setSigOpen(true)} style={{padding:"20px",background:signed?T.greenGlow:T.raised,border:`2px ${signed?"solid":"dashed"} ${signed?T.green:T.border}`,borderRadius:12,textAlign:"center",cursor:signed?"default":"pointer",WebkitTapHighlightColor:"transparent"}}>
-                {signed?<div style={{color:T.green,fontWeight:800,fontSize:15}}>✓ Digitally Signed</div>:<div style={{color:T.textSub,fontSize:13}}>Tap to sign digitally →</div>}
+                {signed?<div style={{color:T.green,fontWeight:800,fontSize:15,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><Check size={16} strokeWidth={2.6}/> Digitally Signed</div>:<div style={{color:T.textSub,fontSize:13}}>Tap to sign digitally →</div>}
               </div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
                 {[["Photos",`${pc}/6`,pc===6?T.green:T.amber],["Mileage",`${mileage} mi`,T.text],["Fuel",`${fuel}%`,parseInt(fuel)>25?T.text:T.red],["Signature",signed?"Done":"Needed",signed?T.green:T.amber]].map(([l,v,c])=>(
@@ -1274,7 +1224,7 @@ function InspModal({vehicle,onClose}){
             {step<INSP_STEPS.length-1?(
               <button onClick={()=>setStep(s=>s+1)} style={{flex:2,background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",color:"#000",padding:"13px",borderRadius:12,cursor:"pointer",fontWeight:800,fontSize:14}}>Continue →</button>
             ):(
-              <button onClick={()=>signed&&setDone(true)} disabled={!signed} style={{flex:2,background:signed?T.green:T.raised,border:`1px solid ${signed?T.green:T.border}`,color:signed?"#000":T.textDim,padding:"13px",borderRadius:12,cursor:signed?"pointer":"not-allowed",fontWeight:800,fontSize:14}}>Submit Inspection ✓</button>
+              <button onClick={()=>signed&&setDone(true)} disabled={!signed} style={{flex:2,background:signed?T.green:T.raised,border:`1px solid ${signed?T.green:T.border}`,color:signed?"#000":T.textDim,padding:"13px",borderRadius:12,cursor:signed?"pointer":"not-allowed",fontWeight:800,fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><Check size={15} strokeWidth={2.6}/> Submit Inspection</button>
             )}
           </div>
         </CB>
@@ -1314,15 +1264,11 @@ function IncModal({onClose,showToast}){
   if(done)return(
     <ModalWrap>
       <Card style={{width:"min(440px,92vw)",textAlign:"center"}}>
-        <CB style={{padding:"40px 28px"}}>
-          <div style={{fontSize:52,marginBottom:16}}>📋</div>
+        <CB style={{padding:"48px 32px"}}>
+          <div style={{display:"flex",justifyContent:"center",marginBottom:16}}><div style={{width:68,height:68,borderRadius:18,background:T.greenGlow,border:`1px solid ${T.greenB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><FileText size={30} color={T.green} strokeWidth={1.7}/></div></div>
           <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:8}}>Incident Logged</div>
-          <div style={{fontSize:13,color:T.textSub,marginBottom:20}}>INC-2848 created and submitted for supervisor review.</div>
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
-            <button onClick={onClose} style={{background:T.green,border:"none",color:"#000",padding:"13px 36px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14,width:"100%"}}>Done →</button>
-            <button onClick={()=>{showToast("⚖️ Legal hold placed on INC-2848 — evidence preserved","success");}} style={{background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"11px",borderRadius:12,fontWeight:700,cursor:"pointer",fontSize:13,width:"100%"}}>⚖️ Place Legal Hold &amp; Preserve Evidence</button>
-          </div>
-          <div style={{marginTop:12,fontSize:10,color:T.textDim}}>Legal hold prevents deletion and flags for counsel review</div>
+          <div style={{fontSize:13,color:T.textSub}}>INC-2848 created and submitted for supervisor review.</div>
+          <button onClick={onClose} style={{marginTop:24,background:T.green,border:"none",color:"#000",padding:"13px 36px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14,width:"100%"}}>Done →</button>
         </CB>
       </Card>
     </ModalWrap>
@@ -1337,7 +1283,7 @@ function IncModal({onClose,showToast}){
               <div style={{fontSize:10,color:T.textSub,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>New Incident</div>
               <div style={{fontSize:18,fontWeight:800,color:T.text}}>INC-2848</div>
             </div>
-            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={16} strokeWidth={2}/></button>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
@@ -1364,8 +1310,8 @@ function IncModal({onClose,showToast}){
               <label style={{fontSize:11,color:T.textSub,display:"block",marginBottom:6,fontWeight:700}}>Officer Notes</label>
               <textarea value={form.desc} onChange={e=>upd("desc",e.target.value)} placeholder="Describe what happened, persons involved, actions taken…" rows={5} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px",color:T.text,fontSize:13,resize:"none",outline:"none",boxSizing:"border-box",lineHeight:1.6}}/>
             </div>
-            <button onClick={genNarrative} disabled={gen||!form.desc} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:10,cursor:form.desc?"pointer":"not-allowed",fontWeight:700,fontSize:13,opacity:!form.desc?.5:1}}>
-              {gen?"⚡ Generating…":"⚡ Generate AI Narrative"}
+            <button onClick={genNarrative} disabled={gen||!form.desc} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:10,cursor:form.desc?"pointer":"not-allowed",fontWeight:700,fontSize:13,opacity:!form.desc?.5:1,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
+              <Sparkles size={14} strokeWidth={2.2}/> {gen?"Generating…":"Generate AI Narrative"}
             </button>
             {ai&&(
               <div style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:10,padding:"14px 16px"}}>
@@ -1391,7 +1337,7 @@ const LIVE_TICKER=[
   {t:40000,msg:"Jordan Park — Break ended, returning to patrol",type:"info"},
   {t:57000,msg:"V-02 Highlander dispatched — authorised by Supervisor Chen",type:"dispatch"},
   {t:73000,msg:"Diana Reyes — Checkpoint scanned: Loading Dock",type:"scan"},
-  {t:88000,msg:"⚠ Lone worker check-in pending — Jordan Park",type:"warning"},
+  {t:88000,msg:"Lone worker check-in pending — Jordan Park",type:"warning"},
   {t:104000,msg:"INC-2847 resolved — subject processed by Northgate PD",type:"success"},
   {t:119000,msg:"Ava Simmons — Started patrol route, Eastside Mall",type:"info"},
 ];
@@ -1427,43 +1373,75 @@ function Dashboard({openModal,showToast}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:18}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(148px,1fr))",gap:10}}>
-        {KPI_DATA.map(k=>(
+        {KPI_DATA.map(k=>{
+          const Icon=k.icon;
+          const TrendIcon=k.trend==="down"?TrendingDown:k.trend.startsWith("-")?TrendingDown:k.trend.startsWith("+")?TrendingUp:null;
+          const trendColor=k.trend.startsWith("+")?T.green:k.trend.startsWith("-")?T.red:T.textDim;
+          return(
           <Card key={k.label} glow={k.color}>
             <CB style={{padding:"16px 18px"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
-                <span style={{fontSize:22}}>{k.icon}</span>
-                <span style={{fontSize:10,fontWeight:800,color:k.color,background:`${k.color}18`,padding:"2px 7px",borderRadius:4}}>{k.trend}</span>
+                <div style={{width:34,height:34,borderRadius:9,background:`${k.color}16`,border:`1px solid ${k.color}30`,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={17} color={k.color} strokeWidth={2}/></div>
+                {TrendIcon&&<span style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,fontWeight:800,color:trendColor,background:`${trendColor}14`,padding:"3px 7px",borderRadius:5}}><TrendIcon size={11} strokeWidth={2.5}/>{k.trend.replace(/^[+-]/,"").replace(/^(down|up)$/i,"")}</span>}
               </div>
               <div style={{fontSize:26,fontWeight:900,color:k.color,lineHeight:1}}>{k.value}</div>
               <div style={{fontSize:12,fontWeight:700,color:T.text,marginTop:5}}>{k.label}</div>
               <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{k.sub}</div>
             </CB>
           </Card>
-        ))}
+        );})}
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.5fr) minmax(0,1fr)",gap:16}}>
-        <Card><CB><SH title="Live Operations Map"/><LiveMap officers={OFFICERS} positions={positions}/></CB></Card>
-        <Card style={{display:"flex",flexDirection:"column"}}>
-          <CB style={{flex:1,display:"flex",flexDirection:"column"}}>
-            <SH title="ShieldSync AI Copilot"/>
-            <div style={{flex:1}}><AICopilot/></div>
-          </CB>
-        </Card>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))",gap:16}}>
+        <div style={{minWidth:0}}>
+          <Card>
+            <CB>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+                <div style={{width:7,height:7,borderRadius:"50%",background:T.green,boxShadow:`0 0 5px ${T.green}`,animation:"ssB 1s infinite",flexShrink:0}}/>
+                <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:T.textSub}}>Live Operations Map</span>
+              </div>
+              <LiveMap officers={OFFICERS} positions={positions}/>
+            </CB>
+          </Card>
+        </div>
+        <div style={{minWidth:0}}>
+          <Card>
+            <CB>
+              <SH title="AI Risk Intelligence" icon={ShieldAlert}/>
+              <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                {AI_INSIGHTS.map((ins,i)=>{
+                  const c={critical:T.red,high:T.amber,medium:T.gold,info:T.accent}[ins.priority]||T.textSub;
+                  return(
+                    <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",padding:"9px 12px",background:`${c}08`,border:`1px solid ${c}20`,borderRadius:9}}>
+                      <div style={{width:6,height:6,borderRadius:"50%",background:c,marginTop:5,flexShrink:0}}/>
+                      <p style={{margin:0,fontSize:12,color:T.text,lineHeight:1.5,flex:1}}>{ins.text}</p>
+                      <Pill label={ins.priority} color={c}/>
+                    </div>
+                  );
+                })}
+              </div>
+            </CB>
+          </Card>
+        </div>
       </div>
-      {/* Live ops feed */}
-      {feed.length>0&&(
-        <Card glow={T.accent}>
-          <CB>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-              <div style={{width:7,height:7,borderRadius:"50%",background:T.green,boxShadow:`0 0 6px ${T.green}`,animation:"ssB 1s infinite"}}/>
-              <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:T.textSub}}>Live Ops Feed</span>
-              <span style={{fontSize:10,color:T.textDim,marginLeft:"auto"}}>{feed.length} events</span>
+      {/* Live ops feed — always visible */}
+      <Card>
+        <CB>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:feed.length>0?12:0}}>
+            <div style={{width:7,height:7,borderRadius:"50%",background:T.green,boxShadow:`0 0 6px ${T.green}`,animation:"ssB 1.2s infinite",flexShrink:0}}/>
+            <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:T.textSub}}>Live Ops Feed</span>
+            {feed.length>0&&<span style={{fontSize:10,color:T.textDim,marginLeft:"auto"}}>{feed.length} event{feed.length!==1?"s":""}</span>}
+          </div>
+          {feed.length===0?(
+            <div style={{padding:"14px 0 2px",display:"flex",alignItems:"center",gap:8}}>
+              <Dots/>
+              <span style={{fontSize:12,color:T.textDim}}>Monitoring operational feeds — no events yet</span>
             </div>
+          ):(
             <div style={{display:"flex",flexDirection:"column",gap:5}}>
               {feed.slice(0,6).map((e,i)=>{
                 const c=e.type==="success"?T.green:e.type==="warning"?T.red:e.type==="dispatch"?T.gold:e.type==="scan"?T.accent:T.textSub;
                 return(
-                  <div key={e.id} style={{display:"flex",gap:10,alignItems:"center",padding:"7px 10px",background:T.raised,borderRadius:7,animation:i===0?"ssUp 0.2s ease":"none"}}>
+                  <div key={e.id} className="ss-row" style={{display:"flex",gap:10,alignItems:"center",padding:"7px 10px",background:T.raised,borderRadius:7,animation:i===0?"ssUp 0.2s ease":"none"}}>
                     <div style={{width:6,height:6,borderRadius:"50%",background:c,flexShrink:0}}/>
                     <span style={{flex:1,fontSize:12,color:T.text}}>{e.msg}</span>
                     <span style={{fontSize:10,color:T.textDim,fontFamily:"monospace",flexShrink:0}}>{e.time}</span>
@@ -1471,46 +1449,35 @@ function Dashboard({openModal,showToast}){
                 );
               })}
             </div>
-          </CB>
-        </Card>
-      )}
-      <Card>
-        <CB>
-          <SH title="AI Risk Intelligence"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {AI_INSIGHTS.map((ins,i)=>{
-              const c={critical:T.red,high:T.amber,medium:T.gold,info:T.accent}[ins.priority]||T.textSub;
-              return(
-                <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start",padding:"11px 14px",background:`${c}08`,border:`1px solid ${c}22`,borderRadius:10}}>
-                  <div style={{width:7,height:7,borderRadius:"50%",background:c,marginTop:5,flexShrink:0}}/>
-                  <p style={{margin:0,fontSize:13,color:T.text,lineHeight:1.55,flex:1}}>{ins.text}</p>
-                  <Pill label={ins.priority} color={c}/>
-                </div>
-              );
-            })}
-          </div>
+          )}
+        </CB>
+      </Card>
+      <Card style={{display:"flex",flexDirection:"column"}}>
+        <CB style={{display:"flex",flexDirection:"column"}}>
+          <SH title="ShieldSync AI Copilot" icon={Bot}/>
+          <AICopilot/>
         </CB>
       </Card>
       <Card>
         <CB>
-          <SH title="Recent Incidents" action={{label:"+ New Incident",fn:()=>openModal({type:"incident"})}}/>
+          <SH title="Recent Incidents" icon={AlertTriangle} action={{label:"New Incident",fn:()=>openModal({type:"incident"}),icon:Plus}}/>
           <div style={{overflowX:"auto"}}>
             <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,minWidth:540}}>
               <thead>
                 <tr style={{borderBottom:`1px solid ${T.border}`}}>
                   {["ID","Type","Site","Officer","Time","Severity","Status"].map(h=>(
-                    <th key={h} style={{textAlign:"left",padding:"7px 10px",color:T.textSub,fontWeight:700,fontSize:10,letterSpacing:"0.07em",textTransform:"uppercase",whiteSpace:"nowrap"}}>{h}</th>
+                    <th key={h} style={{textAlign:"left",padding:"6px 10px",color:T.textDim,fontWeight:700,fontSize:10,letterSpacing:"0.08em",textTransform:"uppercase",whiteSpace:"nowrap"}}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {INCIDENTS.map(inc=>(
-                  <tr key={inc.id} style={{borderBottom:`1px solid ${T.border}20`}}>
+                  <tr key={inc.id} className="ss-row" style={{borderBottom:`1px solid ${T.border}20`,cursor:"pointer"}}>
                     <td style={{padding:"11px 10px",color:T.accent,fontWeight:800,fontFamily:"monospace",whiteSpace:"nowrap"}}>{inc.id}</td>
-                    <td style={{padding:"11px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.type}</td>
+                    <td style={{padding:"11px 10px",color:T.text,fontWeight:600,whiteSpace:"nowrap"}}>{inc.type}</td>
                     <td style={{padding:"11px 10px",color:T.textSub,whiteSpace:"nowrap"}}>{inc.site}</td>
                     <td style={{padding:"11px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.officer}</td>
-                    <td style={{padding:"11px 10px",color:T.textSub}}>{inc.time}</td>
+                    <td style={{padding:"11px 10px",color:T.textSub,fontFamily:"monospace",fontSize:12}}>{inc.time}</td>
                     <td style={{padding:"11px 10px"}}><Pill label={inc.sev} color={inc.sev==="High"?T.red:inc.sev==="Medium"?T.amber:T.textSub}/></td>
                     <td style={{padding:"11px 10px"}}><Pill label={inc.status}/></td>
                   </tr>
@@ -1551,7 +1518,7 @@ function Workforce(){
                     <div style={{fontSize:12,color:T.accent,fontWeight:800}}>{o.cps} hit</div>
                   </div>
                 </div>
-                {o.incidents>0&&<div style={{marginTop:10,padding:"9px 12px",background:T.redGlow,borderRadius:8,border:`1px solid ${T.redB}`,fontSize:12,color:T.red,fontWeight:700}}>⚡ {o.incidents} active incident{o.incidents>1?"s":""}</div>}
+                {o.incidents>0&&<div style={{marginTop:10,padding:"9px 12px",background:T.redGlow,borderRadius:8,border:`1px solid ${T.redB}`,fontSize:12,color:T.red,fontWeight:700,display:"flex",alignItems:"center",gap:7}}><AlertTriangle size={13} strokeWidth={2.2}/> {o.incidents} active incident{o.incidents>1?"s":""}</div>}
               </CB>
             </Card>
           );
@@ -1559,10 +1526,10 @@ function Workforce(){
       </div>
       <Card>
         <CB>
-          <SH title="Today's Schedule"/>
+          <SH title="Today's Schedule" icon={CalendarDays}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {SCHEDULE.map((s,i)=>(
-              <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10}}>
+              <div key={i} className="ss-row" style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10}}>
                 <div style={{width:8,height:8,borderRadius:"50%",background:s.status==="active"?T.green:T.amber,flexShrink:0}}/>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:T.text}}>{s.name}</div>
@@ -1573,60 +1540,6 @@ function Workforce(){
                 <Pill label={s.status} color={s.status==="active"?T.green:T.amber}/>
               </div>
             ))}
-          </div>
-        </CB>
-      </Card>
-      <Card>
-        <CB>
-          <SH title="Officer Fatigue Monitor" icon="⚠️" sub="Based on hours worked, consecutive nights, missed checkpoints, and incident rate"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {FATIGUE_DATA.map(f=>{
-              const col=f.risk==="High"?T.red:f.risk==="Moderate"?T.amber:T.green;
-              return(
-                <div key={f.badge} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.raised,borderRadius:10,border:`1px solid ${f.risk==="High"?T.redB:T.border}`}}>
-                  <Av initials={f.av} color={col} size={36}/>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{f.officer}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{f.badge} · {f.hoursLast7}h / 7 days · {f.consecutiveNight} night shifts</div>
-                  </div>
-                  <div style={{width:80}}>
-                    <div style={{fontSize:10,color:T.textSub,marginBottom:4,textAlign:"right"}}>Fatigue Score</div>
-                    <div style={{height:6,background:T.bg,borderRadius:3,overflow:"hidden"}}>
-                      <div style={{height:"100%",width:`${f.score}%`,background:`linear-gradient(90deg,${T.green},${f.score>70?T.red:f.score>50?T.amber:T.green})`,borderRadius:3}}/>
-                    </div>
-                    <div style={{fontSize:11,fontWeight:800,color:col,textAlign:"right",marginTop:3}}>{f.score}/100</div>
-                  </div>
-                  <Pill label={f.risk} color={col}/>
-                </div>
-              );
-            })}
-          </div>
-        </CB>
-      </Card>
-
-      <Card>
-        <CB>
-          <SH title="Officer Performance Scorecard" icon="🏆" sub="Weekly composite score: patrol %, checkpoint hits, incidents, fatigue, on-time arrival"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {PERF_SCORES.map(p=>{
-              const gc=p.score>=85?T.green:p.score>=70?T.accent:p.score>=55?T.amber:T.red;
-              return(
-                <div key={p.badge} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.raised,borderRadius:10}}>
-                  <Av initials={p.av} color={gc} size={36}/>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{p.officer}</div>
-                    <div style={{fontSize:10,color:T.textSub,marginTop:2}}>Patrol {p.patrol}% · {p.cps} CPs · {p.incidents} incidents · On-time {p.onTime}%</div>
-                  </div>
-                  <div style={{width:72}}>
-                    <div style={{height:5,background:T.bg,borderRadius:3,overflow:"hidden",marginBottom:4}}>
-                      <div style={{height:"100%",width:`${p.score}%`,background:`linear-gradient(90deg,${gc},${p.score>80?T.green:gc})`,borderRadius:3}}/>
-                    </div>
-                    <div style={{fontSize:10,color:T.textSub,textAlign:"center"}}>{p.score}/100</div>
-                  </div>
-                  <div style={{width:36,height:36,borderRadius:8,background:`${gc}20`,border:`1px solid ${gc}40`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:900,color:gc,flexShrink:0}}>{p.grade}</div>
-                </div>
-              );
-            })}
           </div>
         </CB>
       </Card>
@@ -1654,7 +1567,7 @@ function Patrol({user,showToast,openModal}){
         const entry={id:`SC-${Date.now()}`,checkpoint:cp.name,site:cp.site,officer:user?.name||"Officer",badge:user?.badge||"—",ts,method:"QR"};
         setScanLog(l=>[entry,...l.slice(0,99)]);
         logAction(user,"CHECKPOINT_SCAN",`${cp.name} — ${cp.site}`);
-        showToast(`✓ ${cp.name} scanned successfully`,"success");
+        showToast(`${cp.name} scanned successfully`,"success");
         setScanning(false);setScanTarget(null);setScanProgress(0);
       }
     },55);
@@ -1664,10 +1577,10 @@ function Patrol({user,showToast,openModal}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(138px,1fr))",gap:10}}>
-        {[["38","Total Patrols",T.accent,"🛡️"],["36","Completed",T.green,"✅"],["4","Missed CPs",T.red,"⚠️"],["42m","Avg Duration",T.gold,"⏱️"]].map(([v,l,c,icon])=>(
+        {[["38","Total Patrols",T.accent,Shield],["36","Completed",T.green,CheckCircle2],["4","Missed CPs",T.red,AlertTriangle],["42m","Avg Duration",T.gold,Timer]].map(([v,l,c,Icon])=>(
           <Card key={l} glow={c}>
             <CB style={{textAlign:"center",padding:"16px 12px"}}>
-              <div style={{fontSize:22,marginBottom:8}}>{icon}</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:8}}><Icon size={20} color={c} strokeWidth={1.8}/></div>
               <div style={{fontSize:28,fontWeight:900,color:c}}>{v}</div>
               <div style={{fontSize:11,color:T.textSub,marginTop:4}}>{l}</div>
             </CB>
@@ -1685,21 +1598,21 @@ function Patrol({user,showToast,openModal}){
               {["tl","tr","bl","br"].map(c=>(
                 <div key={c} style={{position:"absolute",...(c==="tl"?{top:8,left:8}:c==="tr"?{top:8,right:8}:c==="bl"?{bottom:8,left:8}:{bottom:8,right:8}),width:20,height:20,borderTop:c.startsWith("t")?`3px solid ${T.accent}`:"none",borderBottom:c.startsWith("b")?`3px solid ${T.accent}`:"none",borderLeft:c.endsWith("l")?`3px solid ${T.accent}`:"none",borderRight:c.endsWith("r")?`3px solid ${T.accent}`:"none"}}/>
               ))}
-              <div style={{fontSize:28}}>📷</div>
+              <Camera size={28} color={T.accent} strokeWidth={1.6}/>
             </div>
             <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:4}}>{scanTarget.name}</div>
             <div style={{fontSize:11,color:T.textSub,marginBottom:16}}>{scanTarget.site}</div>
             <div style={{height:6,background:T.raised,borderRadius:3,marginBottom:16,overflow:"hidden"}}>
               <div style={{height:"100%",width:`${scanProgress}%`,background:`linear-gradient(90deg,${T.accent},${T.green})`,borderRadius:3,transition:"width 0.05s linear"}}/>
             </div>
-            <div style={{fontSize:12,color:T.accent}}>{scanProgress<100?"Reading code…":"Confirmed ✓"}</div>
+            <div style={{fontSize:12,color:T.accent,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>{scanProgress<100?"Reading code…":<><Check size={13} strokeWidth={2.6}/> Confirmed</>}</div>
           </div>
         </ModalWrap>
       )}
 
       <Card>
         <CB>
-          <SH title="Checkpoint Status"/>
+          <SH title="Checkpoint Status" icon={MapPinned}/>
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {CHECKPOINTS.map(cp=>{
               const total=cp.scans+cp.missed;
@@ -1729,10 +1642,10 @@ function Patrol({user,showToast,openModal}){
 
       <Card>
         <CB>
-          <SH title="Scan Log"/>
+          <SH title="Scan Log" icon={ScanLine}/>
           <div style={{display:"flex",flexDirection:"column",gap:6}}>
             {scanLog.slice(0,10).map(s=>(
-              <div key={s.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",background:T.raised,borderRadius:8}}>
+              <div key={s.id} className="ss-row" style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",background:T.raised,borderRadius:8}}>
                 <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace",flexShrink:0,width:60}}>{s.ts}</div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:12,fontWeight:700,color:T.text}}>{s.checkpoint}</div>
@@ -1747,7 +1660,7 @@ function Patrol({user,showToast,openModal}){
 
       <Card>
         <CB>
-          <SH title="Pre-Patrol Vehicle Inspection" icon="🚗" sub="Tap Inspect to photograph and log vehicle condition before departure"/>
+          <SH title="Pre-Patrol Vehicle Inspection" icon={Car} sub="Tap Inspect to photograph and log vehicle condition before departure"/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:12}}>
             {VEHICLES.map(v=>{
               const c=SM(v.status).c;
@@ -1771,8 +1684,8 @@ function Patrol({user,showToast,openModal}){
                   <FuelBar pct={v.fuel}/>
                   <button
                     onClick={()=>openModal&&openModal({type:"inspection",vehicle:v})}
-                    style={{width:"100%",marginTop:12,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}
-                  >📷 Inspect &amp; Capture Photos</button>
+                    style={{width:"100%",marginTop:12,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}
+                  ><Camera size={14} strokeWidth={2.2}/> Inspect &amp; Capture Photos</button>
                 </div>
               );
             })}
@@ -1790,8 +1703,8 @@ function Fleet({openModal}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
       <div style={{display:"flex",gap:6}}>
-        {[["vehicles","🚗 Vehicles"],["costs","💰 Cost Analytics"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+        {[["vehicles",Car,"Vehicles"],["costs",HandCoins,"Cost Analytics"]].map(([t,Ic,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Ic size={13} strokeWidth={2}/>{l}</button>
         ))}
       </div>
 
@@ -1818,7 +1731,7 @@ function Fleet({openModal}){
                     ))}
                   </div>
                   <FuelBar pct={v.fuel}/>
-                  <button onClick={()=>openModal({type:"inspection",vehicle:v})} style={{width:"100%",marginTop:14,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:13}}>📋 Start Inspection</button>
+                  <button onClick={()=>openModal({type:"inspection",vehicle:v})} style={{width:"100%",marginTop:14,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><ClipboardList size={14} strokeWidth={2.2}/> Start Inspection</button>
                 </CB>
               </Card>
             );
@@ -1844,7 +1757,7 @@ function Fleet({openModal}){
           </div>
           <Card>
             <CB>
-              <SH title="Fleet Cost Breakdown — Current Month"/>
+              <SH title="Fleet Cost Breakdown — Current Month" icon={TrendingUp}/>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 {FLEET_COSTS.map(v=>(
                   <div key={v.vehicle} style={{background:T.raised,borderRadius:10,padding:"13px 15px"}}>
@@ -1856,8 +1769,9 @@ function Fleet({openModal}){
                       <div style={{fontSize:18,fontWeight:900,color:T.accent}}>${v.total.toLocaleString()}</div>
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6}}>
-                      {[["⛽ Fuel",v.fuel,T.amber],["🔧 Maint.",v.maintenance,T.gold],["🛡 Insurance",v.insurance,T.accent],["📉 Deprec.",v.depreciation,T.purple]].map(([l,val,c])=>(
+                      {[[Fuel,"Fuel",v.fuel,T.amber],[Wrench,"Maint.",v.maintenance,T.gold],[ShieldCheck,"Insurance",v.insurance,T.accent],[TrendingDown,"Deprec.",v.depreciation,T.purple]].map(([Ic,l,val,c])=>(
                         <div key={l} style={{textAlign:"center",background:T.bg,borderRadius:7,padding:"8px 6px"}}>
+                          <div style={{display:"flex",justifyContent:"center",marginBottom:3}}><Ic size={11} color={c} strokeWidth={2}/></div>
                           <div style={{fontSize:11,fontWeight:700,color:c}}>${val}</div>
                           <div style={{fontSize:9,color:T.textDim,marginTop:2}}>{l}</div>
                         </div>
@@ -1879,7 +1793,6 @@ function Fleet({openModal}){
 
 function Visitors({openModal,user,showToast}){
   const[visitors,setVisitors]=useLS("ss_visitors",VISITORS_DATA);
-  const[tab,setTab]=useState("log");
   const active=visitors.filter(v=>v.status==="Active").length;
   const out=visitors.filter(v=>v.status==="Checked Out").length;
 
@@ -1901,7 +1814,7 @@ function Visitors({openModal,user,showToast}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-        {[["Active",active,T.green],["Out Today",out,T.textSub],["Watchlist",VISITOR_WATCHLIST.length,T.red]].map(([l,v,c])=>(
+        {[["Active",active,T.green],["Out Today",out,T.textSub],["Watchlist","0",T.red]].map(([l,v,c])=>(
           <Card key={l} glow={c}>
             <CB style={{textAlign:"center"}}>
               <div style={{fontSize:30,fontWeight:900,color:c}}>{v}</div>
@@ -1911,82 +1824,48 @@ function Visitors({openModal,user,showToast}){
         ))}
       </div>
 
-      <div style={{display:"flex",gap:6}}>
-        {[["log","📋 Visitor Log"],["watchlist","🚫 Watchlist"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
-        ))}
-      </div>
-
-      {tab==="log"&&(
-        <>
-          {PRE_REGISTERED.length>0&&(
-            <Card glow={T.purple}>
-              <CB>
-                <SH title="Expected Arrivals"/>
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {PRE_REGISTERED.map(pr=>(
-                    <div key={pr.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:13,fontWeight:700,color:T.text}}>{pr.name}</div>
-                        <div style={{fontSize:11,color:T.textSub}}>{pr.host} · {pr.site} · {pr.purpose}</div>
-                      </div>
-                      <div style={{fontSize:11,color:T.purple,fontWeight:700,flexShrink:0}}>{pr.expected}</div>
-                      <button onClick={()=>checkInPreReg(pr)} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"7px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11,flexShrink:0}}>Check In</button>
-                    </div>
-                  ))}
-                </div>
-              </CB>
-            </Card>
-          )}
-
-          <Card>
-            <CB>
-              <SH title="Visitor Log" action={{label:"+ Check In",fn:()=>openModal({type:"checkin"})}}/>
-              <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                {visitors.map(v=>(
-                  <div key={v.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
-                    <div style={{width:36,height:36,borderRadius:10,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>👤</div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:13,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{v.name}</div>
-                      <div style={{fontSize:11,color:T.textSub}}>Host: {v.host} · {v.site}</div>
-                    </div>
-                    <div style={{textAlign:"right",fontSize:11,color:T.textSub,flexShrink:0}}><div>In: {v.in}</div><div>Out: {v.out}</div></div>
-                    <div style={{textAlign:"right",flexShrink:0,display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
-                      <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace"}}>{v.badge}</div>
-                      <Pill label={v.status} color={v.status==="Active"?T.green:T.textSub}/>
-                      {v.status==="Active"&&<button onClick={()=>checkOut(v.id)} style={{fontSize:10,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"3px 8px",borderRadius:5,cursor:"pointer",fontWeight:700}}>Check Out</button>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CB>
-          </Card>
-        </>
-      )}
-
-      {tab==="watchlist"&&(
-        <Card>
+      {PRE_REGISTERED.length>0&&(
+        <Card glow={T.purple}>
           <CB>
-            <SH title="Security Watchlist" icon="🚫" sub="Individuals flagged for access denial or enhanced scrutiny"/>
-            <div style={{display:"flex",flexDirection:"column",gap:10}}>
-              {VISITOR_WATCHLIST.map(w=>{
-                const col=w.severity==="High"?T.red:w.severity==="Medium"?T.amber:T.textSub;
-                return(
-                  <div key={w.id} style={{display:"flex",gap:14,alignItems:"center",padding:"14px 16px",background:T.raised,borderRadius:12,border:`1px solid ${w.severity==="High"?T.redB:T.border}`}}>
-                    <div style={{width:44,height:44,borderRadius:"50%",background:`${col}20`,border:`2px solid ${col}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,color:col,flexShrink:0}}>{w.photo}</div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:14,fontWeight:800,color:T.text}}>{w.name}</div>
-                      <div style={{fontSize:11,color:T.textSub,marginTop:2}}>DOB: {w.dob} · Added by {w.addedBy}</div>
-                      <div style={{fontSize:11,color:T.textSub,marginTop:3,fontStyle:"italic"}}>{w.reason}</div>
-                    </div>
-                    <Pill label={w.severity} color={col}/>
+            <SH title="Expected Arrivals" icon={Clock}/>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {PRE_REGISTERED.map(pr=>(
+                <div key={pr.id} className="ss-row" style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{pr.name}</div>
+                    <div style={{fontSize:11,color:T.textSub}}>{pr.host} · {pr.site} · {pr.purpose}</div>
                   </div>
-                );
-              })}
+                  <div style={{fontSize:11,color:T.purple,fontWeight:700,flexShrink:0}}>{pr.expected}</div>
+                  <button onClick={()=>checkInPreReg(pr)} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"7px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11,flexShrink:0}}>Check In</button>
+                </div>
+              ))}
             </div>
           </CB>
         </Card>
       )}
+
+      <Card>
+        <CB>
+          <SH title="Visitor Log" icon={IdCard} action={{label:"Check In",fn:()=>openModal({type:"checkin"}),icon:Plus}}/>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {visitors.map(v=>(
+              <div key={v.id} className="ss-row" style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
+                <div style={{width:36,height:36,borderRadius:10,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><User size={16} color={T.accent} strokeWidth={2}/></div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:13,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{v.name}</div>
+                  <div style={{fontSize:11,color:T.textSub}}>Host: {v.host} · {v.site}</div>
+                </div>
+                <div style={{textAlign:"right",fontSize:11,color:T.textSub,flexShrink:0}}><div>In: {v.in}</div><div>Out: {v.out}</div></div>
+                <div style={{textAlign:"right",flexShrink:0,display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
+                  <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace"}}>{v.badge}</div>
+                  <Pill label={v.status} color={v.status==="Active"?T.green:T.textSub}/>
+                  {v.status==="Active"&&<button onClick={()=>checkOut(v.id)} style={{fontSize:10,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"3px 8px",borderRadius:5,cursor:"pointer",fontWeight:700}}>Check Out</button>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CB>
+      </Card>
     </div>
   );
 }
@@ -2013,14 +1892,14 @@ function Reports(){
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
       <Card>
         <CB>
-          <SH title="AI Report Generator"/>
+          <SH title="AI Report Generator" icon={Sparkles}/>
           <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:16}}>
             {REPORT_TYPES.map(t=>(
               <button key={t} onClick={()=>setRtype(t)} style={{background:rtype===t?T.accentGlow:T.raised,border:`1px solid ${rtype===t?T.accentB:T.border}`,color:rtype===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:9,cursor:"pointer",fontSize:12,fontWeight:700,transition:"all 0.15s"}}>{t}</button>
             ))}
           </div>
-          <button onClick={generate} disabled={loading} style={{width:"100%",background:loading?T.raised:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:loading?`1px solid ${T.border}`:"none",color:loading?T.textSub:"#000",padding:"14px",borderRadius:12,cursor:loading?"not-allowed":"pointer",fontWeight:800,fontSize:14,marginBottom:report?16:0}}>
-            {loading?"⚡ Generating Report…":`Generate ${rtype}`}
+          <button onClick={generate} disabled={loading} style={{width:"100%",background:loading?T.raised:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:loading?`1px solid ${T.border}`:"none",color:loading?T.textSub:"#000",padding:"14px",borderRadius:12,cursor:loading?"not-allowed":"pointer",fontWeight:800,fontSize:14,marginBottom:report?16:0,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+            <Sparkles size={15} strokeWidth={2.2}/> {loading?"Generating Report…":`Generate ${rtype}`}
           </button>
           {report&&(
             <div>
@@ -2031,12 +1910,12 @@ function Reports(){
                   const url=URL.createObjectURL(new Blob([html],{type:"text/html"}));
                   const w=window.open(url,"_blank");
                   w?.addEventListener("load",()=>{w.print();URL.revokeObjectURL(url);},{once:true});
-                }} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>🖨 Print / PDF</button>
+                }} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Printer size={13} strokeWidth={2.2}/> Print / PDF</button>
                 <button onClick={()=>{
                   const url=URL.createObjectURL(new Blob([report],{type:"text/plain"}));
                   const a=document.createElement("a");a.href=url;a.download=`${rtype.replace(/ /g,"_")}.txt`;a.click();
                   setTimeout(()=>URL.revokeObjectURL(url),150);
-                }} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>⬇ Export</button>
+                }} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><ArrowDownToLine size={13} strokeWidth={2.2}/> Export</button>
               </div>
               <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:12,padding:"20px 22px"}}>
                 <pre style={{margin:0,fontSize:13,color:T.text,whiteSpace:"pre-wrap",lineHeight:1.75,fontFamily:"inherit"}}>{report}</pre>
@@ -2096,24 +1975,24 @@ function Dispatch({showToast,user}){
           <div style={{fontSize:13,color:T.text,lineHeight:1.6,marginBottom:14}}>Theo Okafor has been handling an active trespass at Plaza West for 27 min. Backup dispatch recommended.</div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             <button onClick={()=>setDispatched(p=>({...p,5:"Plaza West"}))}
-              style={{background:dispatched[5]?T.greenGlow:T.red,border:`1px solid ${dispatched[5]?T.greenB:"transparent"}`,color:dispatched[5]?T.green:"#fff",padding:"11px 20px",borderRadius:10,cursor:"pointer",fontWeight:800,fontSize:13,transition:"all .2s"}}>
-              {dispatched[5]?"✓ Jordan Park Dispatched":"Dispatch Jordan Park →"}
+              style={{background:dispatched[5]?T.greenGlow:T.red,border:`1px solid ${dispatched[5]?T.greenB:"transparent"}`,color:dispatched[5]?T.green:"#fff",padding:"11px 20px",borderRadius:10,cursor:"pointer",fontWeight:800,fontSize:13,transition:"all .2s",display:"inline-flex",alignItems:"center",gap:7}}>
+              {dispatched[5]?<><Check size={14} strokeWidth={2.6}/> Jordan Park Dispatched</>:"Dispatch Jordan Park →"}
             </button>
             <button onClick={radioAll} disabled={radioState!=="idle"}
-              style={{background:radioState==="sent"?T.greenGlow:radioState==="broadcasting"?T.accentGlow:T.raised,border:`1px solid ${radioState==="sent"?T.greenB:radioState==="broadcasting"?T.accentB:T.border}`,color:radioState==="sent"?T.green:radioState==="broadcasting"?T.accent:T.textSub,padding:"11px 16px",borderRadius:10,cursor:radioState==="idle"?"pointer":"default",fontWeight:700,fontSize:13,transition:"all .2s"}}>
-              {radioState==="broadcasting"?"📡 Broadcasting…":radioState==="sent"?"✓ All Units Notified · CH-4":"📡 Radio All Units"}
+              style={{background:radioState==="sent"?T.greenGlow:radioState==="broadcasting"?T.accentGlow:T.raised,border:`1px solid ${radioState==="sent"?T.greenB:radioState==="broadcasting"?T.accentB:T.border}`,color:radioState==="sent"?T.green:radioState==="broadcasting"?T.accent:T.textSub,padding:"11px 16px",borderRadius:10,cursor:radioState==="idle"?"pointer":"default",fontWeight:700,fontSize:13,transition:"all .2s",display:"inline-flex",alignItems:"center",gap:7}}>
+              <Radio size={14} strokeWidth={2.2}/> {radioState==="broadcasting"?"Broadcasting…":radioState==="sent"?"All Units Notified · CH-4":"Radio All Units"}
             </button>
           </div>
         </CB>
       </Card>
       <Card>
         <CB>
-          <SH title="Field Units"/>
+          <SH title="Field Units" icon={Radio}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {OFFICERS.filter(o=>o.status!=="Off Duty").map(o=>{
               const c=SM(o.status).c;
               return(
-                <div key={o.id} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.raised,borderRadius:10}}>
+                <div key={o.id} className="ss-row" style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.raised,borderRadius:10,cursor:"pointer"}}>
                   <Av initials={o.av} color={c} size={36}/>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:13,fontWeight:700,color:T.text}}>{o.name}</div>
@@ -2121,7 +2000,7 @@ function Dispatch({showToast,user}){
                   </div>
                   <Pill label={o.status}/>
                   {dispatched[o.id]?(
-                    <div style={{fontSize:11,color:T.green,fontWeight:700,whiteSpace:"nowrap",background:T.greenGlow,border:`1px solid ${T.greenB}`,padding:"5px 10px",borderRadius:7}}>→ {dispatched[o.id]}</div>
+                    <div style={{fontSize:11,color:T.green,fontWeight:700,whiteSpace:"nowrap",background:T.greenGlow,border:`1px solid ${T.greenB}`,padding:"5px 10px",borderRadius:7,display:"inline-flex",alignItems:"center",gap:5}}><ArrowRight size={11} strokeWidth={2.4}/> {dispatched[o.id]}</div>
                   ):(
                     <button onClick={()=>dispatchOfficer(o,"Plaza West")}
                       style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"6px 12px",borderRadius:8,cursor:"pointer",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>Dispatch</button>
@@ -2191,7 +2070,7 @@ function MyShift({user,showToast}){
         setLoneWorker(t=>{
           if(t<=1){
             clearInterval(lwRef.current);
-            showToast("⚠️ Lone worker check-in MISSED — supervisor alerted","error");
+            showToast("Lone worker check-in MISSED — supervisor alerted","error");
             logAction(user,"LONE_WORKER_MISSED","Automatic alert triggered");
             return 30*60;
           }
@@ -2206,7 +2085,7 @@ function MyShift({user,showToast}){
 
   const lwCheckIn=()=>{
     setLoneWorker(30*60);
-    addActivity("Lone worker check-in confirmed ✓");
+    addActivity("Lone worker check-in confirmed");
     showToast("Check-in confirmed — next in 30 min","success");
     logAction(user,"LONE_WORKER_CHECKIN","Manual check-in");
   };
@@ -2274,8 +2153,8 @@ function MyShift({user,showToast}){
     setEnRouteDest("");
   };
   const sos=()=>{
-    addActivity("🚨 SOS ACTIVATED — Supervisor notified");
-    showToast("🚨 SOS sent — supervisor and dispatch alerted","error");
+    addActivity("SOS ACTIVATED — Supervisor notified");
+    showToast("SOS sent — supervisor and dispatch alerted","error");
   };
 
   const SHIFT_DURATION=12*3600;
@@ -2306,7 +2185,7 @@ function MyShift({user,showToast}){
           )}
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             {!clocked
-              ?<button onClick={clockIn} style={{flex:1,background:`linear-gradient(135deg,${T.green},#00a84e)`,border:"none",color:"#000",padding:"14px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:15}}>⏱ Clock In</button>
+              ?<button onClick={clockIn} style={{flex:1,background:`linear-gradient(135deg,${T.green},#00a84e)`,border:"none",color:"#000",padding:"14px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:15,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><Clock size={16} strokeWidth={2.4}/> Clock In</button>
               :<>
                 {["On Patrol","On Site","Break"].map(s=>(
                   <button key={s} onClick={()=>{setShiftStatus(s);addActivity(`Status changed to ${s}`);}} style={{flex:1,background:shiftStatus===s?`${SM(s).c}20`:T.raised,border:`1px solid ${shiftStatus===s?SM(s).c:T.border}`,color:shiftStatus===s?SM(s).c:T.textSub,padding:"9px 8px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:11}}>{s}</button>
@@ -2322,7 +2201,7 @@ function MyShift({user,showToast}){
       {clocked&&(
         <Card glow={enRoute?T.gold:undefined}>
           <CB>
-            <SH title="En Route"/>
+            <SH title="En Route" icon={ArrowRight}/>
             {!enRoute?(
               <div style={{display:"flex",gap:8}}>
                 <select value={enRouteDest} onChange={e=>setEnRouteDest(e.target.value)} style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:enRouteDest?T.text:T.textDim,padding:"10px 12px",borderRadius:9,fontSize:13,cursor:"pointer"}}>
@@ -2338,7 +2217,7 @@ function MyShift({user,showToast}){
                     <div style={{fontSize:13,fontWeight:700,color:T.text}}>{enRouteDest}</div>
                     <div style={{fontSize:11,color:T.gold}}>ETA: {Math.ceil(etaRemaining/60)} min remaining</div>
                   </div>
-                  <button onClick={arrived} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:13}}>✓ Arrived</button>
+                  <button onClick={arrived} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:13,display:"inline-flex",alignItems:"center",gap:6}}><Check size={13} strokeWidth={2.6}/> Arrived</button>
                 </div>
                 <PBar value={enRouteElapsed} max={enRouteETA*60} color={T.gold}/>
               </div>
@@ -2352,7 +2231,7 @@ function MyShift({user,showToast}){
         <Card glow={gps?T.green:undefined}>
           <CB style={{padding:"12px 16px"}}>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
-              <span style={{fontSize:18}}>📍</span>
+              <MapPin size={18} color={gps?T.green:T.textDim} strokeWidth={2}/>
               <div style={{flex:1,minWidth:0}}>
                 {gps?(
                   <>
@@ -2374,10 +2253,10 @@ function MyShift({user,showToast}){
       {/* Today stats */}
       {clocked&&(
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-          {[["Checkpoints","8",T.accent,"✅"],["Incidents","0",T.green,"⚡"],["Hours",fmt(elapsed),T.gold,"⏱️"]].map(([l,v,c,icon])=>(
+          {[["Checkpoints","8",T.accent,CheckCircle2],["Incidents","0",T.green,Activity],["Hours",fmt(elapsed),T.gold,Timer]].map(([l,v,c,Icon])=>(
             <Card key={l} glow={c}>
               <CB style={{textAlign:"center",padding:"14px 10px"}}>
-                <div style={{fontSize:18,marginBottom:6}}>{icon}</div>
+                <div style={{display:"flex",justifyContent:"center",marginBottom:6}}><Icon size={17} color={c} strokeWidth={1.8}/></div>
                 <div style={{fontSize:20,fontWeight:900,color:c}}>{v}</div>
                 <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{l}</div>
               </CB>
@@ -2396,7 +2275,7 @@ function MyShift({user,showToast}){
                 {loneWorkerActive&&<div style={{fontSize:11,color:loneWorker<300?T.red:T.amber,marginTop:3}}>Next check-in in {Math.floor(loneWorker/60)}:{String(loneWorker%60).padStart(2,"0")}</div>}
               </div>
               <div style={{display:"flex",gap:7}}>
-                {loneWorkerActive&&<button onClick={lwCheckIn} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>✓ Check In</button>}
+                {loneWorkerActive&&<button onClick={lwCheckIn} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:6}}><Check size={12} strokeWidth={2.6}/> Check In</button>}
                 <button onClick={()=>setLoneWorkerActive(a=>!a)} style={{background:loneWorkerActive?T.redGlow:T.accentGlow,border:`1px solid ${loneWorkerActive?T.redB:T.accentB}`,color:loneWorkerActive?T.red:T.accent,padding:"8px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{loneWorkerActive?"Disable":"Enable"}</button>
               </div>
             </div>
@@ -2407,46 +2286,74 @@ function MyShift({user,showToast}){
 
       {/* SOS */}
       {clocked&&(
-        <Card glow={T.red}>
-          <CB>
-            <SH title="Emergency SOS" icon="🆘" sub="Tap only in a genuine emergency — alerts all supervisors and dispatch with your GPS location"/>
-            <button
-              onClick={()=>{
-                const ts=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-                logAction(user,"SOS_ALERT",`Emergency SOS triggered by ${user?.name} at ${ts}`);
-                showToast("🆘 SOS SENT — Supervisors and dispatch alerted with your location","success");
-              }}
-              style={{width:"100%",background:"rgba(240,68,68,0.15)",border:`2px solid ${T.red}`,color:T.red,padding:"18px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:18,letterSpacing:"0.08em"}}
-            >🆘 SEND EMERGENCY ALERT</button>
-            <div style={{marginTop:10,fontSize:11,color:T.textDim,textAlign:"center"}}>Your GPS location will be shared with supervisors and dispatch</div>
-          </CB>
-        </Card>
+        <button onClick={sos} style={{width:"100%",background:"rgba(240,68,68,0.12)",border:`2px solid ${T.red}`,color:T.red,padding:"16px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:16,letterSpacing:"0.08em",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}><Siren size={19} strokeWidth={2.2}/> SOS — Emergency Alert</button>
       )}
 
       {/* Shift Handover */}
       {clocked&&(
         <Card>
           <CB>
-            <SH title="Shift Handover Notes"/>
+            <SH title="Shift Handover Notes" icon={ClipboardList}/>
             {!handoverSent?(
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 <textarea value={handoverNote} onChange={e=>setHandoverNote(e.target.value)} rows={3} placeholder="Outstanding incidents, patrol notes, equipment status…" style={{background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"11px 13px",borderRadius:9,fontSize:12,resize:"vertical",outline:"none"}}/>
                 <button onClick={()=>{if(!handoverNote.trim())return;logAction(user,"HANDOVER_NOTES",handoverNote.slice(0,120));setHandoverSent(true);showToast("Handover notes submitted","success");}} style={{background:handoverNote.trim()?T.accentGlow:T.raised,border:`1px solid ${handoverNote.trim()?T.accentB:T.border}`,color:handoverNote.trim()?T.accent:T.textDim,padding:"10px",borderRadius:9,cursor:handoverNote.trim()?"pointer":"not-allowed",fontWeight:700,fontSize:13}}>Submit Handover</button>
               </div>
             ):(
-              <div style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,borderRadius:9,padding:"13px 15px",color:T.green,fontWeight:700,fontSize:13}}>✓ Handover notes submitted to incoming shift</div>
+              <div style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,borderRadius:9,padding:"13px 15px",color:T.green,fontWeight:700,fontSize:13,display:"flex",alignItems:"center",gap:8}}><Check size={15} strokeWidth={2.6}/> Handover notes submitted to incoming shift</div>
             )}
           </CB>
         </Card>
       )}
 
+      {/* Today's Assignment — visible when off duty */}
+      {!clocked&&(
+        <Card>
+          <CB>
+            <SH title="Today's Assignment" icon={ClipboardList}/>
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                {[["Site","Northgate Tower",MapPin,T.accent],["Shift","06:00 – 18:00 (Day)",Clock,T.textSub],["Supervisor","Sarah Chen",UserCircle2,T.textSub],["Checkpoints","21 scheduled",CheckCircle2,T.gold]].map(([l,v,Icon,c])=>(
+                  <div key={l} style={{background:T.raised,borderRadius:9,padding:"11px 13px",display:"flex",gap:9,alignItems:"flex-start"}}>
+                    <Icon size={14} color={c} strokeWidth={2} style={{marginTop:1,flexShrink:0}}/>
+                    <div>
+                      <div style={{fontSize:9,fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase",color:T.textDim,marginBottom:2}}>{l}</div>
+                      <div style={{fontSize:12,fontWeight:600,color:T.text}}>{v}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:9,padding:"10px 13px",display:"flex",alignItems:"center",gap:9}}>
+                <Navigation size={13} color={T.accent} strokeWidth={2.2}/>
+                <span style={{fontSize:12,color:T.accent,fontWeight:600}}>Route: Main Entrance → Lobby → Floors 1–4 → Parking Deck B → Rooftop Access</span>
+              </div>
+            </div>
+          </CB>
+        </Card>
+      )}
+
+      {/* Week stats — visible when off duty */}
+      {!clocked&&(
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+          {[["Hours This Week","36.0h",T.accent,Timer],["Checkpoints","38 scanned",T.green,CheckCircle2],["Avg Response","4.2 min",T.gold,Activity]].map(([l,v,c,Icon])=>(
+            <Card key={l} glow={c}>
+              <CB style={{textAlign:"center",padding:"14px 10px"}}>
+                <div style={{display:"flex",justifyContent:"center",marginBottom:6}}><Icon size={17} color={c} strokeWidth={1.8}/></div>
+                <div style={{fontSize:18,fontWeight:900,color:c}}>{v}</div>
+                <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{l}</div>
+              </CB>
+            </Card>
+          ))}
+        </div>
+      )}
+
       {/* Activity */}
       <Card>
         <CB>
-          <SH title="Recent Activity"/>
+          <SH title="Recent Activity" icon={Activity}/>
           <div style={{display:"flex",flexDirection:"column",gap:6}}>
             {activity.slice(0,6).map((a,i)=>(
-              <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",padding:"8px 10px",background:T.raised,borderRadius:8}}>
+              <div key={i} className="ss-row" style={{display:"flex",gap:10,alignItems:"flex-start",padding:"8px 10px",background:T.raised,borderRadius:8}}>
                 <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace",paddingTop:1,flexShrink:0,width:36}}>{a.time}</div>
                 <div style={{fontSize:12,color:T.textSub,lineHeight:1.45}}>{a.text}</div>
               </div>
@@ -2502,12 +2409,12 @@ function EquipmentModule({user,showToast}){
 
       <Card>
         <CB>
-          <SH title={isOfficer?"My Equipment":"All Equipment"}/>
+          <SH title={isOfficer?"My Equipment":"All Equipment"} icon={WrenchIcon}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {(isOfficer?myItems:items).map(e=>(
-              <div key={e.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
-                <div style={{width:36,height:36,borderRadius:9,background:`${statusColor(e.status)}18`,border:`1px solid ${statusColor(e.status)}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>
-                  {e.type==="Radio"?"📻":e.type==="Camera"?"📷":e.type==="CEW"?"⚡":e.type==="OC Spray"?"💨":e.type==="Medical"?"🩹":"🔧"}
+              <div key={e.id} className="ss-row" style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
+                <div style={{width:36,height:36,borderRadius:9,background:`${statusColor(e.status)}18`,border:`1px solid ${statusColor(e.status)}30`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  {(()=>{const EqIcon=e.type==="Radio"?Radio:e.type==="Camera"?Camera:e.type==="CEW"?Zap:e.type==="OC Spray"?Wind:e.type==="Medical"?Bandage:Wrench;return <EqIcon size={17} color={statusColor(e.status)} strokeWidth={1.8}/>;})()}
                 </div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.name}</div>
@@ -2635,7 +2542,7 @@ function LeaveModule({user,showToast}){
         :(
           <Card>
             <CB>
-              <SH title="New Request"/>
+              <SH title="New Request" icon={Plus}/>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
                   {["Annual","Sick","Training","Emergency"].map(t=>(
@@ -2666,7 +2573,7 @@ function LeaveModule({user,showToast}){
       {/* Requests list */}
       <Card>
         <CB>
-          <SH title="Leave Requests"/>
+          <SH title="Leave Requests" icon={CalendarDays}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {requests.map(r=>(
               <div key={r.id} style={{padding:"12px 14px",background:T.raised,borderRadius:10}}>
@@ -2684,9 +2591,9 @@ function LeaveModule({user,showToast}){
                 </div>
                 {isManager&&r.status==="Pending"&&(
                   <div style={{display:"flex",gap:7,marginTop:10}}>
-                    {r.type==="Emergency"&&<div style={{fontSize:10,color:T.amber,background:T.goldGlow,border:`1px solid ${T.gold}30`,padding:"4px 8px",borderRadius:6,fontWeight:700,flex:1}}>⚠ Check coverage before approving</div>}
-                    <button onClick={()=>approve(r.id)} style={{flex:1,background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>✓ Approve</button>
-                    <button onClick={()=>deny(r.id)} style={{flex:1,background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"8px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>✕ Deny</button>
+                    {r.type==="Emergency"&&<div style={{fontSize:10,color:T.amber,background:T.goldGlow,border:`1px solid ${T.gold}30`,padding:"4px 8px",borderRadius:6,fontWeight:700,flex:1,display:"flex",alignItems:"center",gap:5}}><AlertTriangle size={11} strokeWidth={2.4}/> Check coverage before approving</div>}
+                    <button onClick={()=>approve(r.id)} style={{flex:1,background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6}}><Check size={12} strokeWidth={2.6}/> Approve</button>
+                    <button onClick={()=>deny(r.id)} style={{flex:1,background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"8px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6}}><X size={12} strokeWidth={2.6}/> Deny</button>
                   </div>
                 )}
               </div>
@@ -2731,13 +2638,13 @@ function TrainingModule(){
       </div>
       {expired>0&&(
         <div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",gap:10,alignItems:"center"}}>
-          <span style={{fontSize:18}}>⚠️</span>
+          <AlertTriangle size={18} color={T.red} strokeWidth={2}/>
           <div style={{fontSize:12,color:T.red,fontWeight:700}}>Action Required: {expired} expired certificate{expired!==1?"s":" "} — officers may not be legally compliant for deployment. Escalate to HR.</div>
         </div>
       )}
       <Card>
         <CB>
-          <SH title="Compliance Overview"/>
+          <SH title="Compliance Overview" icon={ShieldCheck}/>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {byOfficer.filter(o=>o.status!=="Off Duty").map(o=>(
               <div key={o.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
@@ -2779,37 +2686,6 @@ function TrainingModule(){
           </div>
         </CB>
       </Card>
-
-      <Card>
-        <CB>
-          <SH title="Upcoming Training Deadlines" icon="📅" sub="Required recertifications and training renewals — 90 day window"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {[
-              {officer:"Elena Voss",badge:"S-0118",cert:"Annual Firearms Qualification",due:"2026-06-15",days:10,priority:"Critical"},
-              {officer:"Theo Okafor",badge:"S-0083",cert:"Use of Force Refresher",due:"2026-06-20",days:15,priority:"Critical"},
-              {officer:"Marcus Webb",badge:"S-0041",cert:"De-escalation Training",due:"2026-07-01",days:26,priority:"High"},
-              {officer:"Jordan Park",badge:"S-0105",cert:"First Aid / CPR Recert",due:"2026-07-10",days:35,priority:"High"},
-              {officer:"Diana Reyes",badge:"S-0067",cert:"Active Threat Response",due:"2026-07-25",days:50,priority:"Medium"},
-              {officer:"Ava Simmons",badge:"S-0092",cert:"Customer Service & Report Writing",due:"2026-08-15",days:71,priority:"Low"},
-            ].map((d,i)=>{
-              const col=d.priority==="Critical"?T.red:d.priority==="High"?T.amber:d.priority==="Medium"?T.gold:T.green;
-              return(
-                <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10,border:`1px solid ${d.priority==="Critical"?T.redB:T.border}`}}>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{d.officer}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{d.cert}</div>
-                  </div>
-                  <div style={{textAlign:"right",marginRight:8,flexShrink:0}}>
-                    <div style={{fontSize:11,color:col,fontWeight:700}}>{d.days}d</div>
-                    <div style={{fontSize:10,color:T.textDim}}>{d.due}</div>
-                  </div>
-                  <Pill label={d.priority} color={col}/>
-                </div>
-              );
-            })}
-          </div>
-        </CB>
-      </Card>
     </div>
   );
 }
@@ -2846,17 +2722,17 @@ function AuditLogModule({showToast}){
       </div>
       <Card>
         <CB>
+          <SH title="Event Log" icon={ClipboardList} action={{label:"Clear Log",fn:clear}}/>
           <div style={{display:"flex",gap:8,marginBottom:14,alignItems:"center"}}>
             <input value={filter} onChange={e=>setFilter(e.target.value)} placeholder="Filter by action or user…" style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"9px 12px",borderRadius:8,fontSize:12,outline:"none"}}/>
-            <button onClick={refresh} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>↻</button>
-            <button onClick={clear} style={{background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"9px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>Clear</button>
+            <button onClick={refresh} className="ss-ghost-btn" style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 12px",borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",transition:"all 0.15s"}}><RotateCw size={14} strokeWidth={2.2}/></button>
           </div>
           {filtered.length===0?(
             <div style={{textAlign:"center",padding:24,color:T.textSub,fontSize:13}}>No audit events recorded yet. Actions taken in the platform are logged here.</div>
           ):(
             <div style={{display:"flex",flexDirection:"column",gap:5}}>
               {filtered.slice(0,100).map(e=>(
-                <div key={e.id} style={{display:"flex",gap:10,alignItems:"flex-start",padding:"9px 10px",background:T.raised,borderRadius:8}}>
+                <div key={e.id} className="ss-row" style={{display:"flex",gap:10,alignItems:"flex-start",padding:"9px 10px",background:T.raised,borderRadius:8}}>
                   <div style={{width:8,height:8,borderRadius:"50%",background:actionColor(e.action),flexShrink:0,marginTop:3}}/>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
@@ -2910,25 +2786,25 @@ function ExecutiveCommand({showToast}){
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10}}>
         {[
-          ["Monthly Revenue",`$${(totalRev/1000).toFixed(0)}k`,T.green,"↑ +8% QoQ"],
-          ["Labor Cost",`$${(totalCost/1000).toFixed(0)}k`,T.amber,`${Math.round(totalCost/totalRev*100)}% of rev`],
-          ["Gross Margin",`${totalMargin}%`,totalMargin>=25?T.green:T.amber,"↑ +2pts"],
-          ["Active Contracts",active.length,T.accent,"4 sites"],
-          ["Avg Health",`${avgHealth}%`,hc(avgHealth),"1 at risk"],
-        ].map(([l,v,c,s])=>(
+          ["Monthly Revenue",`$${(totalRev/1000).toFixed(0)}k`,T.green,"+8% QoQ",TrendingUp],
+          ["Labor Cost",`$${(totalCost/1000).toFixed(0)}k`,T.amber,`${Math.round(totalCost/totalRev*100)}% of rev`,null],
+          ["Gross Margin",`${totalMargin}%`,totalMargin>=25?T.green:T.amber,"+2pts",TrendingUp],
+          ["Active Contracts",active.length,T.accent,"4 sites",null],
+          ["Avg Health",`${avgHealth}%`,hc(avgHealth),"1 at risk",null],
+        ].map(([l,v,c,s,TIcon])=>(
           <Card key={l} glow={c}>
             <CB style={{textAlign:"center",padding:"16px 8px"}}>
               <div style={{fontSize:26,fontWeight:900,color:c,lineHeight:1}}>{v}</div>
               <div style={{fontSize:10,color:T.textSub,margin:"4px 0 3px",lineHeight:1.3}}>{l}</div>
-              <div style={{fontSize:10,color:c,fontWeight:700}}>{s}</div>
+              <div style={{fontSize:10,color:c,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:4}}>{TIcon&&<TIcon size={11} strokeWidth={2.6}/>}{s}</div>
             </CB>
           </Card>
         ))}
       </div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {[["overview","📊 Overview"],["contracts","📋 Contracts"],["labor","💰 Labor"],["compliance","✅ Compliance"],["predictive","🧠 Predictive"],["renewals","🔄 Renewals"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+        {[["overview",BarChart3,"Overview"],["contracts",FileText,"Contracts"],["labor",HandCoins,"Labor"],["compliance",CheckCircle2,"Compliance"],["predictive",Cpu,"Predictive"]].map(([t,Ic,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Ic size={13} strokeWidth={2}/>{l}</button>
         ))}
       </div>
 
@@ -2941,8 +2817,8 @@ function ExecutiveCommand({showToast}){
                   <div style={{fontSize:10,color:T.purple,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase"}}>AI Executive Briefing</div>
                   <div style={{fontSize:14,fontWeight:800,color:T.text,marginTop:3}}>Today's Intelligence Summary</div>
                 </div>
-                <button onClick={genBrief} disabled={loadBrief} style={{background:T.purpleGlow,border:`1px solid ${T.purple}40`,color:T.purple,padding:"9px 14px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,opacity:loadBrief?.6:1}}>
-                  {loadBrief?"Generating…":"⚡ Generate"}
+                <button onClick={genBrief} disabled={loadBrief} style={{background:T.purpleGlow,border:`1px solid ${T.purple}40`,color:T.purple,padding:"9px 14px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,opacity:loadBrief?.6:1,display:"inline-flex",alignItems:"center",gap:7}}>
+                  <Sparkles size={13} strokeWidth={2.2}/> {loadBrief?"Generating…":"Generate"}
                 </button>
               </div>
               {briefing
@@ -2954,7 +2830,7 @@ function ExecutiveCommand({showToast}){
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
             <Card>
               <CB>
-                <SH title="Revenue by Contract"/>
+                <SH title="Revenue by Contract" icon={TrendingUp}/>
                 {active.map(c=>(
                   <div key={c.id} style={{marginBottom:11}}>
                     <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
@@ -2968,7 +2844,7 @@ function ExecutiveCommand({showToast}){
             </Card>
             <Card>
               <CB>
-                <SH title="Gross Margin by Contract"/>
+                <SH title="Gross Margin by Contract" icon={BarChart3}/>
                 {active.map(c=>(
                   <div key={c.id} style={{marginBottom:11}}>
                     <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
@@ -3050,7 +2926,7 @@ function ExecutiveCommand({showToast}){
           </div>
           <Card>
             <CB>
-              <SH title="Labor Cost by Site"/>
+              <SH title="Labor Cost by Site" icon={HandCoins}/>
               {active.map(c=>(
                 <div key={c.id} style={{marginBottom:14}}>
                   <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
@@ -3073,7 +2949,7 @@ function ExecutiveCommand({showToast}){
           </Card>
           <Card>
             <CB>
-              <SH title="Officer Hours — Current Week"/>
+              <SH title="Officer Hours — Current Week" icon={Clock4}/>
               <div style={{display:"flex",flexDirection:"column",gap:6}}>
                 {TIMESHEETS.map(ts=>(
                   <div key={ts.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
@@ -3112,7 +2988,7 @@ function ExecutiveCommand({showToast}){
           </div>
           <Card>
             <CB>
-              <SH title="Compliance Action Items"/>
+              <SH title="Compliance Action Items" icon={ShieldAlert}/>
               <div style={{display:"flex",flexDirection:"column",gap:7}}>
                 {COMPLIANCE_ITEMS.map(ci=>{
                   const sc=ci.status==="Overdue"?T.red:ci.status==="Due Soon"?T.amber:ci.status==="Pending"?T.gold:T.accent;
@@ -3139,7 +3015,7 @@ function ExecutiveCommand({showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <Card>
             <CB>
-              <SH title="7-Day Predictive Staffing Heatmap"/>
+              <SH title="7-Day Predictive Staffing Heatmap" icon={Cpu}/>
               <div style={{overflowX:"auto"}}>
                 <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
                   <thead>
@@ -3167,7 +3043,7 @@ function ExecutiveCommand({showToast}){
           </Card>
           <Card>
             <CB>
-              <SH title="AI Workforce Performance Scoring"/>
+              <SH title="AI Workforce Performance Scoring" icon={Sparkles}/>
               <div style={{display:"flex",flexDirection:"column",gap:7}}>
                 {AI_SCORES.map(a=>{
                   const sc=a.score>=85?T.green:a.score>=70?T.amber:T.red;
@@ -3220,7 +3096,7 @@ function ExecutiveCommand({showToast}){
           </div>
           <Card glow={T.accent}>
             <CB>
-              <SH title="Digital Twin — Operational State"/>
+              <SH title="Digital Twin — Operational State" icon={Database}/>
               <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10}}>
                 {[
                   {label:"Active Sites",value:"4",sub:"All systems nominal",color:T.green},
@@ -3236,61 +3112,6 @@ function ExecutiveCommand({showToast}){
                     <div style={{fontSize:10,color:T.textDim,marginTop:2}}>{d.sub}</div>
                   </div>
                 ))}
-              </div>
-            </CB>
-          </Card>
-        </div>
-      )}
-
-      {tab==="renewals"&&(
-        <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-            {[["🔴 Critical",CONTRACT_RISK.filter(c=>c.risk==="Critical").length,"Immediate action required",T.red],
-              ["🟡 At Risk",CONTRACT_RISK.filter(c=>c.risk==="Medium").length,"Review within 30 days",T.amber],
-              ["✅ Secure",CONTRACT_RISK.filter(c=>c.risk==="Low").length,"No immediate action needed",T.green],
-            ].map(([l,v,s,c])=>(
-              <Card key={l} glow={c}><CB style={{textAlign:"center",padding:"16px 8px"}}>
-                <div style={{fontSize:24,fontWeight:900,color:c}}>{v}</div>
-                <div style={{fontSize:11,fontWeight:700,color:T.text,marginTop:4}}>{l}</div>
-                <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{s}</div>
-              </CB></Card>
-            ))}
-          </div>
-          <Card>
-            <CB>
-              <SH title="Contract Renewal Risk Analysis" icon="🔄" sub="Risk score based on health, margin, days to renewal, and client engagement"/>
-              <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                {CONTRACT_RISK.sort((a,b)=>b.score-a.score).map(c=>{
-                  const rc=c.risk==="Critical"?T.red:c.risk==="Medium"?T.amber:T.green;
-                  return(
-                    <div key={c.id} style={{padding:"14px 16px",background:T.raised,borderRadius:12,border:`1px solid ${c.risk==="Critical"?T.redB:T.border}`}}>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
-                        <div>
-                          <div style={{fontSize:14,fontWeight:800,color:T.text}}>{c.client}</div>
-                          <div style={{fontSize:11,color:T.textSub,marginTop:2}}>
-                            {c.daysLeft<0?`⚠️ Expired ${Math.abs(c.daysLeft)} days ago`:`Renews in ${c.daysLeft} days — ${c.end}`}
-                          </div>
-                        </div>
-                        <Pill label={c.risk} color={rc}/>
-                      </div>
-                      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:10}}>
-                        {[["Health",`${c.health}%`,c.health>=80?T.green:c.health>=60?T.amber:T.red],
-                          ["Margin",`${c.margin}%`,c.margin>=25?T.green:c.margin>=15?T.amber:T.red],
-                          ["Risk Score",`${c.score}/100`,rc],
-                          ["Last Contact",c.lastContact,T.textSub],
-                        ].map(([l,v,col])=>(
-                          <div key={l} style={{background:T.bg,borderRadius:8,padding:"8px 10px"}}>
-                            <div style={{fontSize:9,color:T.textSub,textTransform:"uppercase",letterSpacing:"0.08em"}}>{l}</div>
-                            <div style={{fontSize:12,fontWeight:800,color:col,marginTop:3}}>{v}</div>
-                          </div>
-                        ))}
-                      </div>
-                      <div style={{height:5,background:T.bg,borderRadius:3,overflow:"hidden"}}>
-                        <div style={{height:"100%",width:`${c.score}%`,background:`linear-gradient(90deg,${T.green},${c.score>70?T.red:c.score>40?T.amber:T.green})`,borderRadius:3}}/>
-                      </div>
-                    </div>
-                  );
-                })}
               </div>
             </CB>
           </Card>
@@ -3359,7 +3180,7 @@ function TimekeepingModule({user,showToast}){
     const doClockIn=(gpsData,gfStatus)=>{
       setClockedIn(true);setClockTime(new Date());setElapsed(0);setGeofenceStatus(gfStatus);
       if(gpsData)setGps(gpsData);
-      if(gfStatus==="outside")showToast(`⚠ Outside ${site} geofence — location noted`,"info");
+      if(gfStatus==="outside")showToast(`Outside ${site} geofence — location noted`,"info");
       else showToast(`Clocked in at ${site}`,"success");
       logAction(user,"CLOCK_IN",`GPS clock-in at ${site}${gfStatus?" (geofence:"+gfStatus+")":""}`);
     };
@@ -3422,17 +3243,17 @@ function TimekeepingModule({user,showToast}){
 
       <div style={{display:"flex",gap:6,justifyContent:"space-between",flexWrap:"wrap",alignItems:"center"}}>
         <div style={{display:"flex",gap:5}}>
-          {[["timesheets","📋 Timesheets"],["clockin","⏱ GPS Clock In"],["overtime","⚠ Overtime"]].map(([t,l])=>(
-            <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+          {[["timesheets",ClipboardList,"Timesheets"],["clockin",Timer,"GPS Clock In"],["overtime",AlertTriangle,"Overtime"]].map(([t,Ic,l])=>(
+            <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Ic size={13} strokeWidth={2}/>{l}</button>
           ))}
         </div>
-        <button onClick={exportCSV} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>↓ Export Payroll CSV</button>
+        <button onClick={exportCSV} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><ArrowDownToLine size={13} strokeWidth={2.2}/> Export Payroll CSV</button>
       </div>
 
       {tab==="timesheets"&&(
         <Card>
           <CB>
-            <SH title="Timesheets — Week of Jun 1, 2026"/>
+            <SH title="Timesheets — Week of Jun 1, 2026" icon={Clock4}/>
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {sheets.map(ts=>(
                 <div key={ts.id}>
@@ -3461,7 +3282,7 @@ function TimekeepingModule({user,showToast}){
                           </thead>
                           <tbody>
                             {ts.days.map(d=>(
-                              <tr key={d.d} style={{borderBottom:`1px solid ${T.border}20`}}>
+                              <tr key={d.d} className="ss-row" style={{borderBottom:`1px solid ${T.border}20`}}>
                                 <td style={{padding:"7px 8px",color:T.text,fontWeight:600}}>{d.d}</td>
                                 <td style={{padding:"7px 8px",color:T.textSub,fontFamily:"monospace"}}>{d.in}</td>
                                 <td style={{padding:"7px 8px",color:T.textSub,fontFamily:"monospace"}}>{d.out}</td>
@@ -3475,7 +3296,7 @@ function TimekeepingModule({user,showToast}){
                         </table>
                       </div>
                       {ts.status!=="Approved"&&(
-                        <button onClick={()=>approveSheet(ts.id)} style={{marginTop:10,background:T.green,border:"none",color:"#000",padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:800,fontSize:12,width:"100%"}}>✓ Approve All Shifts</button>
+                        <button onClick={()=>approveSheet(ts.id)} style={{marginTop:10,background:T.green,border:"none",color:"#000",padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:800,fontSize:12,width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><Check size={13} strokeWidth={2.6}/> Approve All Shifts</button>
                       )}
                     </div>
                   )}
@@ -3490,19 +3311,19 @@ function TimekeepingModule({user,showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <Card glow={clockedIn?T.green:T.accent}>
             <CB style={{textAlign:"center",padding:"28px 24px"}}>
-              <div style={{fontSize:44,marginBottom:12}}>{clockedIn?"🟢":"⏱️"}</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:12}}>{clockedIn?<Activity size={38} color={T.green} strokeWidth={1.7}/>:<Timer size={38} color={T.textDim} strokeWidth={1.6}/>}</div>
               <div style={{fontSize:20,fontWeight:900,color:clockedIn?T.green:T.text,marginBottom:6}}>
                 {clockedIn?`On Duty — ${site}`:"Ready to Clock In"}
               </div>
               {clockedIn&&<div style={{fontSize:36,fontWeight:900,color:T.green,fontFamily:"monospace",marginBottom:6,letterSpacing:"-0.02em"}}>{fmtHM(elapsed)}</div>}
               {clockedIn&&clockTime&&<div style={{fontSize:12,color:T.textSub,marginBottom:10}}>Since {clockTime.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</div>}
-              {gps&&<div style={{fontSize:11,color:T.accent,marginBottom:4}}>📍 {gps.lat}, {gps.lng}{gps.dist!==undefined?` · ${gps.dist}m from site`:""}</div>}
+              {gps&&<div style={{fontSize:11,color:T.accent,marginBottom:4,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><MapPin size={12} strokeWidth={2.2}/> {gps.lat}, {gps.lng}{gps.dist!==undefined?` · ${gps.dist}m from site`:""}</div>}
               {gps&&gps.dist!==undefined&&(
-                <div style={{fontSize:11,fontWeight:700,color:gps.dist<=gps.radius?T.green:T.red,marginBottom:8,background:gps.dist<=gps.radius?T.greenB:T.redGlow,border:`1px solid ${gps.dist<=gps.radius?T.greenB:T.redB}`,borderRadius:8,padding:"4px 10px",display:"inline-block"}}>
-                  {gps.dist<=gps.radius?`✓ Inside ${site} geofence (${gps.radius}m radius)`:`⚠ Outside geofence — ${gps.dist}m (max ${gps.radius}m)`}
+                <div style={{fontSize:11,fontWeight:700,color:gps.dist<=gps.radius?T.green:T.red,marginBottom:8,background:gps.dist<=gps.radius?T.greenB:T.redGlow,border:`1px solid ${gps.dist<=gps.radius?T.greenB:T.redB}`,borderRadius:8,padding:"4px 10px",display:"inline-flex",alignItems:"center",gap:6}}>
+                  {gps.dist<=gps.radius?<><Check size={12} strokeWidth={2.6}/> Inside {site} geofence ({gps.radius}m radius)</>:<><AlertTriangle size={12} strokeWidth={2.2}/> Outside geofence — {gps.dist}m (max {gps.radius}m)</>}
                 </div>
               )}
-              {gpsErr&&<div style={{fontSize:11,color:T.amber,marginBottom:8}}>⚠ {gpsErr}</div>}
+              {gpsErr&&<div style={{fontSize:11,color:T.amber,marginBottom:8,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><AlertTriangle size={12} strokeWidth={2.2}/> {gpsErr}</div>}
               {!clockedIn&&(
                 <div style={{marginBottom:16,textAlign:"left"}}>
                   <label style={{fontSize:11,color:T.textSub,fontWeight:700,display:"block",marginBottom:6}}>Deployment Site</label>
@@ -3511,28 +3332,28 @@ function TimekeepingModule({user,showToast}){
                   </select>
                 </div>
               )}
-              <button onClick={clockedIn?clockOut:clockIn} style={{background:clockedIn?T.red:`linear-gradient(135deg,${T.green},${T.accentH})`,border:"none",color:clockedIn?"#fff":"#000",padding:"15px 32px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:15,width:"100%"}}>
-                {clockedIn?"⏹ Clock Out":"⏱ GPS Clock In →"}
+              <button onClick={clockedIn?clockOut:clockIn} style={{background:clockedIn?T.red:`linear-gradient(135deg,${T.green},${T.accentH})`,border:"none",color:clockedIn?"#fff":"#000",padding:"15px 32px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:15,width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+                {clockedIn?<><CircleAlert size={16} strokeWidth={2.2}/> Clock Out</>:<><Timer size={16} strokeWidth={2.2}/> GPS Clock In</>}
               </button>
             </CB>
           </Card>
           <Card>
             <CB>
-              <SH title="Payroll Integration Frameworks"/>
+              <SH title="Payroll Integration Frameworks" icon={Link2}/>
               {[
-                ["Paylocity","CSV export ready — compatible with Paylocity Import","⬇ Export",T.green,exportPaylocity],
-                ["ADP Workforce Now","ADP-format CSV — compatible with ADP import wizard","⬇ Export",T.green,exportADP],
-                ["UKG Pro","REST API integration — configure credentials in Settings","⚙ Configure",T.amber,null],
-                ["QuickBooks Payroll","Accounting integration available in v2.0","⌛ Planned",T.textDim,null],
-              ].map(([p,d,s,c,fn])=>(
+                ["Paylocity","CSV export ready — compatible with Paylocity Import",ArrowDownToLine,"Export",T.green,exportPaylocity],
+                ["ADP Workforce Now","ADP-format CSV — compatible with ADP import wizard",ArrowDownToLine,"Export",T.green,exportADP],
+                ["UKG Pro","REST API integration — configure credentials in Settings",Settings,"Configure",T.amber,null],
+                ["QuickBooks Payroll","Accounting integration available in v2.0",Timer,"Planned",T.textDim,null],
+              ].map(([p,d,Ic,s,c,fn])=>(
                 <div key={p} style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:9,padding:"11px 14px",marginBottom:6}}>
                   <div style={{flex:1}}>
                     <div style={{fontSize:12,fontWeight:700,color:T.text}}>{p}</div>
                     <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{d}</div>
                   </div>
                   {fn
-                    ?<button onClick={fn} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"6px 12px",borderRadius:7,cursor:"pointer",fontWeight:700,fontSize:11,whiteSpace:"nowrap"}}>{s}</button>
-                    :<span style={{fontSize:11,color:c,fontWeight:700,whiteSpace:"nowrap"}}>{s}</span>
+                    ?<button onClick={fn} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"6px 12px",borderRadius:7,cursor:"pointer",fontWeight:700,fontSize:11,whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:6}}><Ic size={11} strokeWidth={2.4}/>{s}</button>
+                    :<span style={{fontSize:11,color:c,fontWeight:700,whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:6}}><Ic size={11} strokeWidth={2.4}/>{s}</span>
                   }
                 </div>
               ))}
@@ -3544,18 +3365,18 @@ function TimekeepingModule({user,showToast}){
       {tab==="overtime"&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           {totalOT===0?(
-            <Card><CB style={{textAlign:"center",padding:"32px",color:T.textSub,fontSize:13}}><div style={{fontSize:36,marginBottom:12}}>✅</div>No overtime this week. All officers within standard hours.</CB></Card>
+            <Card><CB style={{textAlign:"center",padding:"32px",color:T.textSub,fontSize:13}}><div style={{display:"flex",justifyContent:"center",marginBottom:12}}><CircleCheck size={32} color={T.green} strokeWidth={1.7}/></div>No overtime this week. All officers within standard hours.</CB></Card>
           ):(
             <>
               <div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",gap:10,alignItems:"center"}}>
-                <span style={{fontSize:18}}>⚠️</span>
+                <AlertTriangle size={18} color={T.red} strokeWidth={2}/>
                 <div style={{fontSize:12,color:T.red,fontWeight:700}}>
                   {sheets.filter(t=>t.otHrs>0).length} officer{sheets.filter(t=>t.otHrs>0).length!==1?"s":""} with overtime this week · Total: {totalOT.toFixed(2)}h OT · Premium est. ${(totalOT*12.25).toFixed(2)}
                 </div>
               </div>
               <Card>
                 <CB>
-                  <SH title="Overtime Review Queue"/>
+                  <SH title="Overtime Review Queue" icon={AlertTriangle}/>
                   {sheets.filter(t=>t.otHrs>0).map(ts=>(
                     <div key={ts.id} style={{background:T.raised,borderRadius:10,padding:"14px",marginBottom:8}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
@@ -3590,27 +3411,27 @@ function TimekeepingModule({user,showToast}){
 // AI COMMAND CENTER
 // ─────────────────────────────────────────────────────────────────
 const ADVISORS={
-  operations:{label:"Operations",icon:"⚡",color:T.accent,
+  operations:{label:"Operations",icon:Activity,color:T.accent,
     system:"You are ShieldSync AI Operations Advisor. Analyze patrol completion, incident response, checkpoint compliance, and dispatch efficiency. Context: 5 officers, 4 sites, 94% patrol rate, 2 open incidents, 4.2min avg response. Be tactical and data-driven. Max 4 sentences.",
     quick:["What needs immediate attention?","Analyze patrol gaps","Dispatch priority","Site risk ranking"],
     alerts:AI_INSIGHTS.filter(a=>a.priority==="critical"||a.priority==="high"),
   },
-  workforce:{label:"Workforce",icon:"👮",color:T.gold,
+  workforce:{label:"Workforce",icon:Users,color:T.gold,
     system:"You are ShieldSync AI Workforce Advisor. Analyze officer performance, scheduling, fatigue risk, and training compliance. Context: 6 officers, 1 expired cert, 2.68 OT hours, 2 pending leave requests. Be direct.",
     quick:["Flag fatigue risks","Scheduling gaps","Top performer analysis","Cert compliance status"],
     alerts:TRAINING_DATA.filter(t=>t.status==="Expired").map(t=>({text:`Expired certification: ${t.cert} — ${t.officer}. Requires immediate renewal.`,priority:"critical"})),
   },
-  compliance:{label:"Compliance",icon:"✅",color:T.green,
+  compliance:{label:"Compliance",icon:CheckCircle2,color:T.green,
     system:"You are ShieldSync AI Compliance Advisor. Track cert expiry, contract renewals, policy acknowledgments, and audit schedules. Focus on risk mitigation and legal compliance. 2 overdue certs, 1 expired contract, Q2 audit pending.",
     quick:["What's overdue?","Audit readiness check","Renewal priorities","Policy acknowledgment status"],
     alerts:COMPLIANCE_ITEMS.filter(c=>c.status==="Overdue").map(c=>({text:c.title+": "+c.notes,priority:"critical"})),
   },
-  risk:{label:"Risk",icon:"🔴",color:T.red,
+  risk:{label:"Risk",icon:ShieldAlert,color:T.red,
     system:"You are ShieldSync AI Risk Advisor. Identify operational, personnel, financial, and compliance risks. Provide risk scores and mitigation strategies. Current risk score: 6.2/10 (elevated). Be concise and prioritized.",
     quick:["Current risk score?","Top 3 risk factors","Mitigation priorities","Financial exposure"],
     alerts:AI_INSIGHTS.filter(a=>a.priority==="critical").slice(0,2),
   },
-  executive:{label:"Executive",icon:"📊",color:T.purple,
+  executive:{label:"Executive",icon:BarChart3,color:T.purple,
     system:"You are ShieldSync AI Executive Advisor. Provide strategic insights on financial performance, business development, and contract health. Monthly revenue $96,750, margin 27%, 4 active contracts. Be executive-level strategic.",
     quick:["Executive summary","Revenue growth opportunities","Contract renewal risks","Strategic priorities"],
     alerts:[{text:"Q2 revenue tracking 8% above prior quarter driven by Northgate contract optimization.",priority:"info"},{text:"CTR-003 Plaza West REIT expired June 1 — client relationship requires immediate executive outreach.",priority:"critical"}],
@@ -3620,6 +3441,7 @@ const ADVISORS={
 function AICommandCenter(){
   const[adv,setAdv]=useState("operations");
   const cfg=ADVISORS[adv];
+  const CfgIcon=cfg.icon;
   const[allMsgs,setAllMsgs]=useState({operations:[],workforce:[],compliance:[],risk:[],executive:[]});
   const[inp,setInp]=useState("");
   const[loading,setLoading]=useState(false);
@@ -3647,16 +3469,18 @@ function AICommandCenter(){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
-        {Object.entries(ADVISORS).map(([key,c])=>(
+        {Object.entries(ADVISORS).map(([key,c])=>{
+          const Icon=c.icon;
+          return(
           <button key={key} onClick={()=>{setAdv(key);setInp("");}} style={{background:adv===key?`${c.color}15`:T.raised,border:`1px solid ${adv===key?c.color+"45":T.border}`,borderRadius:10,padding:"12px 6px",cursor:"pointer",textAlign:"center",transition:"all 0.15s"}}>
-            <div style={{fontSize:22,marginBottom:4}}>{c.icon}</div>
+            <div style={{display:"flex",justifyContent:"center",marginBottom:6}}><Icon size={19} color={c.color} strokeWidth={1.8}/></div>
             <div style={{fontSize:9,color:adv===key?c.color:T.textSub,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.04em",lineHeight:1.3}}>{c.label}</div>
           </button>
-        ))}
+          );})}
       </div>
 
       <div style={{background:`linear-gradient(135deg,${cfg.color}12,${cfg.color}05)`,border:`1px solid ${cfg.color}28`,borderRadius:12,padding:"14px 18px",display:"flex",alignItems:"center",gap:12}}>
-        <div style={{width:44,height:44,borderRadius:12,background:`linear-gradient(135deg,${cfg.color}30,${cfg.color}10)`,border:`1px solid ${cfg.color}45`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{cfg.icon}</div>
+        <div style={{width:44,height:44,borderRadius:12,background:`linear-gradient(135deg,${cfg.color}30,${cfg.color}10)`,border:`1px solid ${cfg.color}45`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><CfgIcon size={21} color={cfg.color} strokeWidth={1.9}/></div>
         <div style={{flex:1}}>
           <div style={{fontSize:15,fontWeight:800,color:T.text}}>{cfg.label} Advisor</div>
           <div style={{fontSize:11,color:T.textSub,marginTop:2}}>AI-powered · Real-time intelligence · Security operations specialist</div>
@@ -3687,19 +3511,19 @@ function AICommandCenter(){
           <div style={{display:"flex",flexDirection:"column",gap:10,minHeight:240,maxHeight:340,overflowY:"auto",marginBottom:10,paddingRight:2}}>
             {curMsgs.length===0&&(
               <div style={{padding:"24px 0",textAlign:"center"}}>
-                <div style={{fontSize:36,marginBottom:8}}>{cfg.icon}</div>
+                <div style={{display:"flex",justifyContent:"center",marginBottom:10}}><div style={{width:52,height:52,borderRadius:14,background:`${cfg.color}15`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center"}}><CfgIcon size={24} color={cfg.color} strokeWidth={1.7}/></div></div>
                 <div style={{fontSize:13,color:T.textSub,lineHeight:1.6}}>The {cfg.label} Advisor is ready.<br/>Select a quick action or type your question below.</div>
               </div>
             )}
             {curMsgs.map((m,i)=>(
               <div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
-                {m.role==="ai"&&<div style={{width:28,height:28,borderRadius:8,flexShrink:0,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{cfg.icon}</div>}
+                {m.role==="ai"&&<div style={{width:28,height:28,borderRadius:8,flexShrink:0,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center"}}><CfgIcon size={14} color={cfg.color} strokeWidth={2}/></div>}
                 <div style={{maxWidth:"85%",padding:"9px 13px",borderRadius:m.role==="user"?"12px 12px 3px 12px":"12px 12px 12px 3px",background:m.role==="user"?`${cfg.color}15`:T.raised,border:`1px solid ${m.role==="user"?cfg.color+"35":T.border}`,fontSize:13,lineHeight:1.6,color:T.text,whiteSpace:"pre-wrap"}}>{m.text}</div>
               </div>
             ))}
             {loading&&(
               <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                <div style={{width:28,height:28,borderRadius:8,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{cfg.icon}</div>
+                <div style={{width:28,height:28,borderRadius:8,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center"}}><CfgIcon size={14} color={cfg.color} strokeWidth={2}/></div>
                 <div style={{background:T.raised,borderRadius:12,border:`1px solid ${T.border}`}}><Dots/></div>
               </div>
             )}
@@ -3772,11 +3596,11 @@ function ProcurementModule({user,showToast}){
 
       <div style={{display:"flex",gap:6,justifyContent:"space-between",flexWrap:"wrap",alignItems:"center"}}>
         <div style={{display:"flex",gap:5}}>
-          {[["requests","📋 Requests"],["vendors","🏢 Vendors"],["assets","📦 Assets"]].map(([t,l])=>(
-            <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+          {[["requests",ClipboardList,"Requests"],["vendors",Building2,"Vendors"],["assets",Package,"Assets"]].map(([t,Ic,l])=>(
+            <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Ic size={13} strokeWidth={2}/>{l}</button>
           ))}
         </div>
-        {tab==="requests"&&<button onClick={()=>setShowForm(p=>!p)} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{showForm?"✕ Cancel":"+ New Request"}</button>}
+        {tab==="requests"&&<button onClick={()=>setShowForm(p=>!p)} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:6}}>{showForm?<><X size={13} strokeWidth={2.4}/> Cancel</>:<><Plus size={13} strokeWidth={2.4}/> New Request</>}</button>}
       </div>
 
       {tab==="requests"&&(
@@ -3816,7 +3640,7 @@ function ProcurementModule({user,showToast}){
                   style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:9,padding:"10px 12px",color:T.text,fontSize:13,resize:"none",outline:"none",boxSizing:"border-box",marginBottom:10}}/>
                 <div style={{display:"flex",gap:8}}>
                   <button onClick={()=>setShowForm(false)} style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px",borderRadius:9,cursor:"pointer",fontWeight:600}}>Cancel</button>
-                  <button onClick={submitReq} disabled={!valid} style={{flex:2,background:valid?T.accent:T.raised,border:`1px solid ${valid?T.accent:T.border}`,color:valid?"#000":T.textDim,padding:"11px",borderRadius:9,cursor:valid?"pointer":"not-allowed",fontWeight:800}}>Submit Request ✓</button>
+                  <button onClick={submitReq} disabled={!valid} style={{flex:2,background:valid?T.accent:T.raised,border:`1px solid ${valid?T.accent:T.border}`,color:valid?"#000":T.textDim,padding:"11px",borderRadius:9,cursor:valid?"pointer":"not-allowed",fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><Check size={14} strokeWidth={2.6}/> Submit Request</button>
                 </div>
               </CB>
             </Card>
@@ -3839,7 +3663,7 @@ function ProcurementModule({user,showToast}){
                 </div>
               </div>
               {r.status==="Pending"&&(
-                <button onClick={()=>approve(r.id)} style={{marginTop:8,background:T.green,border:"none",color:"#000",padding:"8px",borderRadius:7,cursor:"pointer",fontWeight:800,fontSize:11,width:"100%"}}>✓ Approve Request</button>
+                <button onClick={()=>approve(r.id)} style={{marginTop:8,background:T.green,border:"none",color:"#000",padding:"8px",borderRadius:7,cursor:"pointer",fontWeight:800,fontSize:11,width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Check size={12} strokeWidth={2.6}/> Approve Request</button>
               )}
             </div>
           ))}
@@ -3849,7 +3673,7 @@ function ProcurementModule({user,showToast}){
       {tab==="vendors"&&(
         <Card>
           <CB>
-            <SH title="Vendor Directory"/>
+            <SH title="Vendor Directory" icon={Briefcase}/>
             <div style={{display:"flex",flexDirection:"column",gap:8}}>
               {VENDORS.map(v=>(
                 <div key={v.id} style={{background:T.raised,borderRadius:10,padding:"14px 16px"}}>
@@ -3864,10 +3688,10 @@ function ProcurementModule({user,showToast}){
                     </div>
                   </div>
                   <div style={{display:"flex",gap:14,fontSize:11,color:T.textSub,flexWrap:"wrap"}}>
-                    <span>📋 {v.contracts} contract{v.contracts!==1?"s":""}</span>
-                    <span>⭐ {v.rating}/5.0</span>
-                    <span>📧 {v.contact}</span>
-                    <span>📞 {v.phone}</span>
+                    <span style={{display:"inline-flex",alignItems:"center",gap:5}}><FileText size={12} strokeWidth={2}/> {v.contracts} contract{v.contracts!==1?"s":""}</span>
+                    <span style={{display:"inline-flex",alignItems:"center",gap:5}}><Star size={12} strokeWidth={2}/> {v.rating}/5.0</span>
+                    <span style={{display:"inline-flex",alignItems:"center",gap:5}}><Mail size={12} strokeWidth={2}/> {v.contact}</span>
+                    <span style={{display:"inline-flex",alignItems:"center",gap:5}}><Phone size={12} strokeWidth={2}/> {v.phone}</span>
                   </div>
                 </div>
               ))}
@@ -3879,12 +3703,12 @@ function ProcurementModule({user,showToast}){
       {tab==="assets"&&(
         <Card>
           <CB>
-            <SH title="Asset Register"/>
+            <SH title="Asset Register" icon={Package}/>
             <div style={{display:"flex",flexDirection:"column",gap:6}}>
               {ASSET_REGISTER.map(a=>(
                 <div key={a.id} style={{display:"flex",gap:12,alignItems:"center",background:T.raised,borderRadius:9,padding:"10px 13px"}}>
-                  <div style={{width:32,height:32,borderRadius:8,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,flexShrink:0}}>
-                    {a.type==="Vehicle"?"🚗":a.type==="Radio"?"📻":a.type==="Camera"?"📷":a.type==="CEW"?"⚡":a.type==="Medical"?"🏥":"🔧"}
+                  <div style={{width:32,height:32,borderRadius:8,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    {(()=>{const AsIcon=a.type==="Vehicle"?Car:a.type==="Radio"?Radio:a.type==="Camera"?Camera:a.type==="CEW"?Zap:a.type==="Medical"?Briefcase:Wrench;return <AsIcon size={15} color={T.accent} strokeWidth={1.8}/>;})()}
                   </div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:12,fontWeight:700,color:T.text}}>{a.name}</div>
@@ -3911,21 +3735,41 @@ function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
   return(
     <aside style={{width:collapsed?58:210,background:T.surface,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",transition:"width 0.2s ease",flexShrink:0,position:"sticky",top:0,height:"100vh",overflowX:"hidden"}}>
       <div style={{padding:collapsed?"14px 11px":"16px 18px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",gap:12}}>
-        <div style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>⚡</div>
+        <div style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><ShieldCheck size={17} color="#08111f" strokeWidth={2.4}/></div>
         {!collapsed&&<div><div style={{fontWeight:900,fontSize:14,color:T.text,letterSpacing:"-0.02em"}}>ShieldSync</div><div style={{fontSize:9,color:T.textDim,letterSpacing:"0.18em",textTransform:"uppercase"}}>SENTINEL</div></div>}
       </div>
-      <nav style={{flex:1,padding:"10px 7px",display:"flex",flexDirection:"column",gap:2,overflowY:"auto"}}>
-        {items.map(n=>{
+      <nav style={{flex:1,padding:"10px 7px",display:"flex",flexDirection:"column",gap:1,overflowY:"auto"}}>
+        {items.map((n,idx)=>{
           const a=active===n.id;
+          const Icon=n.icon;
+          const newGroup=n.group&&(idx===0||items[idx-1].group!==n.group);
           return(
-            <button key={n.id} onClick={()=>onChange(n.id)} title={collapsed?n.label:""} style={{display:"flex",alignItems:"center",gap:10,padding:collapsed?"11px 11px":"10px 12px",background:a?T.accentGlow:"none",border:`1px solid ${a?T.accentB:"transparent"}`,borderRadius:10,cursor:"pointer",color:a?T.accent:T.textSub,fontWeight:a?700:500,fontSize:13,textAlign:"left",width:"100%",transition:"all 0.15s",WebkitTapHighlightColor:"transparent"}}>
-              <span style={{fontSize:16,flexShrink:0}}>{n.icon}</span>
-              {!collapsed&&<span style={{whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{n.label}</span>}
-            </button>
+            <React.Fragment key={n.id}>
+              {newGroup&&!collapsed&&idx>0&&<div style={{height:1,background:T.border,margin:"8px 5px 4px"}}/>}
+              {newGroup&&!collapsed&&<div style={{padding:"0 5px 3px",fontSize:9,fontWeight:700,letterSpacing:"0.13em",textTransform:"uppercase",color:T.textDim}}>{NAV_GROUP_LABELS[n.group]||n.group}</div>}
+              {newGroup&&collapsed&&idx>0&&<div style={{height:1,background:T.border,margin:"6px 11px"}}/>}
+              <button key={n.id} onClick={()=>onChange(n.id)} title={collapsed?n.label:""} className={`ss-nav-btn${a?" ss-nav-active":""}`} style={{display:"flex",alignItems:"center",gap:10,padding:collapsed?"10px 11px":"9px 11px",background:a?T.accentGlow:"none",border:`1px solid ${a?T.accentB:"transparent"}`,borderRadius:8,cursor:"pointer",color:a?T.accent:T.textSub,fontWeight:a?700:500,fontSize:13,textAlign:"left",width:"100%",transition:"all 0.15s",WebkitTapHighlightColor:"transparent"}}>
+                <Icon size={16} strokeWidth={a?2.2:1.9} style={{flexShrink:0}}/>
+                {!collapsed&&<span style={{whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",fontSize:12}}>{n.label}</span>}
+              </button>
+            </React.Fragment>
           );
         })}
       </nav>
-      <div style={{padding:"10px 7px",borderTop:`1px solid ${T.border}`,display:"flex",flexDirection:"column",gap:6}}>
+      <div style={{padding:"8px 7px 0",flexShrink:0}}>
+        {!collapsed?(
+          <div style={{background:T.raised,borderRadius:8,padding:"7px 11px",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+            <div style={{display:"flex",alignItems:"center",gap:5}}>
+              <div style={{width:5,height:5,borderRadius:"50%",background:T.green,animation:"ssB 1.5s infinite"}}/>
+              <span style={{fontSize:9,color:T.green,fontWeight:800,letterSpacing:"0.07em"}}>LIVE</span>
+            </div>
+            <span style={{fontSize:9,color:T.textDim}}>5 on duty · 4 sites</span>
+          </div>
+        ):(
+          <div style={{height:1,background:T.border,margin:"0 6px 6px"}}/>
+        )}
+      </div>
+      <div style={{padding:"0 7px 10px",borderTop:`1px solid ${T.border}`,display:"flex",flexDirection:"column",gap:6,paddingTop:8}}>
         {!collapsed&&(
           <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"11px 12px",display:"flex",gap:10,alignItems:"center"}}>
             <div style={{width:30,height:30,borderRadius:8,background:`linear-gradient(135deg,${T.accent}35,${T.purple}25)`,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:900,color:T.accent,flexShrink:0}}>{user.av}</div>
@@ -3936,10 +3780,10 @@ function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
           </div>
         )}
         <button onClick={onLogout} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,color:T.textSub,padding:"9px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:6,WebkitTapHighlightColor:"transparent"}}>
-          {collapsed?"×":<><span style={{fontSize:13}}>↩</span><span>Sign Out</span></>}
+          {collapsed?<LogOut size={14}/>:<><LogOut size={13}/><span>Sign Out</span></>}
         </button>
-        <button onClick={()=>setCollapsed(c=>!c)} style={{background:"none",border:`1px solid ${T.border}`,borderRadius:8,color:T.textDim,padding:"7px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:600}}>
-          {collapsed?"→":"← Collapse"}
+        <button onClick={()=>setCollapsed(c=>!c)} style={{background:"none",border:`1px solid ${T.border}`,borderRadius:8,color:T.textDim,padding:"7px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
+          {collapsed?<ChevronRight size={14}/>:<><ChevronLeft size={14}/><span>Collapse</span></>}
         </button>
       </div>
     </aside>
@@ -3951,16 +3795,23 @@ function TopBar({modId,now,user,onLogout,isMobile}){
   return(
     <header style={{background:T.surface,borderBottom:`1px solid ${T.border}`,padding:"12px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:40,flexShrink:0,gap:10}}>
       <div style={{minWidth:0}}>
-        <div style={{fontSize:17,fontWeight:900,color:T.text,whiteSpace:"nowrap"}}>{m?.label}</div>
+        {m?.group&&<div style={{fontSize:9,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",color:T.textDim,marginBottom:1}}>{NAV_GROUP_LABELS[m.group]}</div>}
+        <div style={{fontSize:16,fontWeight:800,color:T.text,whiteSpace:"nowrap",letterSpacing:"-0.01em"}}>{m?.label}</div>
         <div style={{fontSize:10,color:T.textSub,marginTop:1}}>
           {now.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"})} · {now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
         </div>
       </div>
       <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
         {!isMobile&&<div style={{display:"flex",alignItems:"center",gap:5,background:`${T.green}10`,border:`1px solid ${T.green}28`,borderRadius:8,padding:"5px 10px"}}>
-          <span style={{fontSize:11}}>🔒</span>
+          <Lock size={11} color={T.green} strokeWidth={2.4}/>
           <span style={{fontSize:10,color:T.green,fontWeight:700}}>Secure</span>
         </div>}
+        <div style={{position:"relative"}}>
+          <button className="ss-ghost-btn" style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,width:34,height:34,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",padding:0,color:T.textSub,WebkitTapHighlightColor:"transparent",transition:"all 0.15s"}}>
+            <Bell size={14} strokeWidth={2}/>
+          </button>
+          <span style={{position:"absolute",top:-4,right:-4,minWidth:16,height:16,borderRadius:8,background:T.red,color:"#fff",fontSize:9,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",padding:"0 3px",border:`2px solid ${T.bg}`,letterSpacing:"-0.02em"}}>4</span>
+        </div>
         <div style={{display:"flex",alignItems:"center",gap:6,background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:8,padding:isMobile?"6px 8px":"6px 11px"}}>
           <div style={{width:6,height:6,borderRadius:"50%",background:T.red,animation:"ssB 1s infinite"}}/>
           {!isMobile&&<span style={{fontSize:11,color:T.red,fontWeight:700,whiteSpace:"nowrap"}}>2 Active</span>}
@@ -3972,7 +3823,7 @@ function TopBar({modId,now,user,onLogout,isMobile}){
             <div style={{color:T.textDim,fontSize:9,textTransform:"uppercase",letterSpacing:"0.06em"}}>{user.role}</div>
           </div>}
           {isMobile&&(
-            <button onClick={onLogout} title="Sign out" style={{background:"none",border:"none",color:T.textSub,cursor:"pointer",fontSize:14,padding:"4px 6px",WebkitTapHighlightColor:"transparent",minWidth:32,minHeight:32,display:"flex",alignItems:"center",justifyContent:"center"}}>↩</button>
+            <button onClick={onLogout} title="Sign out" style={{background:"none",border:"none",color:T.textSub,cursor:"pointer",padding:"4px 6px",WebkitTapHighlightColor:"transparent",minWidth:32,minHeight:32,display:"flex",alignItems:"center",justifyContent:"center"}}><LogOut size={15}/></button>
           )}
         </div>
       </div>
@@ -3984,13 +3835,17 @@ function MobileNav({items,active,onChange}){
   const scroll=items.length>5;
   return(
     <nav style={{position:"fixed",bottom:0,left:0,right:0,zIndex:50,background:T.surface,borderTop:`1px solid ${T.border}`,display:"flex",alignItems:"stretch",overflowX:scroll?"auto":"visible",WebkitOverflowScrolling:"touch",paddingBottom:"env(safe-area-inset-bottom,0px)"}}>
-      {items.map(n=>(
+      {items.map(n=>{
+        const Icon=n.icon;
+        const a=active===n.id;
+        return(
         <button key={n.id} onClick={()=>onChange(n.id)} style={{flex:scroll?0:items.length<=3?0:1,flexShrink:0,minWidth:scroll?72:items.length<=3?100:0,background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"12px 6px 10px",cursor:"pointer",gap:4,WebkitTapHighlightColor:"transparent",position:"relative"}}>
-          <span style={{fontSize:20,lineHeight:1}}>{n.icon}</span>
-          <span style={{fontSize:9,fontWeight:700,letterSpacing:"0.04em",color:active===n.id?T.accent:T.textDim,transition:"color 0.15s",whiteSpace:"nowrap"}}>{n.label}</span>
-          {active===n.id&&<div style={{position:"absolute",top:0,left:"20%",right:"20%",height:2,background:T.accent,borderRadius:"0 0 2px 2px"}}/>}
+          <Icon size={20} strokeWidth={a?2.3:1.9} color={a?T.accent:T.textDim} style={{transition:"color 0.15s"}}/>
+          <span style={{fontSize:9,fontWeight:700,letterSpacing:"0.04em",color:a?T.accent:T.textDim,transition:"color 0.15s",whiteSpace:"nowrap"}}>{n.label}</span>
+          {a&&<div style={{position:"absolute",top:0,left:"20%",right:"20%",height:2,background:T.accent,borderRadius:"0 0 2px 2px"}}/>}
         </button>
-      ))}
+        );
+      })}
     </nav>
   );
 }
@@ -4011,7 +3866,7 @@ function MFAScreen({user,onVerify,onCancel}){
     <div style={{minHeight:"100vh",background:T.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20,position:"relative",overflow:"hidden"}}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0;}html,body{font-family:'DM Sans',system-ui,sans-serif;background:${T.bg};}@keyframes ssUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}input:focus{border-color:${T.accentB}!important;outline:none;}`}</style>
       <div style={{textAlign:"center",marginBottom:28,animation:"ssUp .35s ease",position:"relative",zIndex:1}}>
-        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,margin:"0 auto 16px",boxShadow:`0 0 60px ${T.accent}38`}}>🔐</div>
+        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",boxShadow:`0 0 60px ${T.accent}38`}}><Fingerprint size={31} color="#08111f" strokeWidth={1.9}/></div>
         <div style={{fontSize:26,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>Two-Factor Auth</div>
         <div style={{fontSize:12,color:T.textSub,marginTop:6}}>Signed in as <strong style={{color:T.text}}>{user.name}</strong></div>
       </div>
@@ -4028,7 +3883,7 @@ function MFAScreen({user,onVerify,onCancel}){
           Verify Identity →
         </button>
         <div style={{display:"flex",justifyContent:"space-between"}}>
-          <button onClick={()=>{setResent(true);setTimeout(()=>setResent(false),3000);}} style={{background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer",padding:0}}>{resent?"Code re-sent ✓":"Resend code"}</button>
+          <button onClick={()=>{setResent(true);setTimeout(()=>setResent(false),3000);}} style={{background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer",padding:0,display:"inline-flex",alignItems:"center",gap:5}}>{resent?<><Check size={12} strokeWidth={2.6}/> Code re-sent</>:"Resend code"}</button>
           <button onClick={onCancel} style={{background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer",padding:0}}>Cancel</button>
         </div>
       </div>
@@ -4041,7 +3896,7 @@ function MFAScreen({user,onVerify,onCancel}){
 // ─────────────────────────────────────────────────────────────────
 function OnboardingWizard({user,onComplete}){
   const STEPS=["Welcome","Add Site","Add Officer","Configure Alerts","You're Live"];
-  const ICONS=["👋","🏢","👮","🔔","🚀"];
+  const ICONS=[Hand,Building2,Users,Bell,Rocket];
   const[step,setStep]=useState(0);
   const[form,setForm]=useState({site:"",address:"",officer:"",email:"",badge:"",alertEmail:true,alertSMS:false,alertPush:true});
   const upd=(k,v)=>setForm(f=>({...f,[k]:v}));
@@ -4067,23 +3922,25 @@ function OnboardingWizard({user,onComplete}){
           <div style={{height:"100%",width:`${Math.round(step/(STEPS.length-1)*100)}%`,background:`linear-gradient(90deg,${T.accent},${T.purple})`,transition:"width .4s ease"}}/>
         </div>
         <div style={{display:"flex",borderBottom:`1px solid ${T.border}`,padding:"14px 24px 0"}}>
-          {STEPS.map((s,i)=>(
+          {STEPS.map((s,i)=>{
+            const StepIcon=ICONS[i];
+            return(
             <div key={s} style={{flex:1,textAlign:"center",paddingBottom:12,borderBottom:`2px solid ${i<=step?T.accent:"transparent"}`,transition:"border-color .3s"}}>
-              <div style={{fontSize:16,marginBottom:3}}>{ICONS[i]}</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:5}}><StepIcon size={15} color={i===step?T.accent:i<step?T.green:T.textDim} strokeWidth={1.9}/></div>
               <div style={{fontSize:9,color:i===step?T.accent:i<step?T.green:T.textDim,fontWeight:700,letterSpacing:"0.06em",textTransform:"uppercase"}}>{s}</div>
             </div>
-          ))}
+            );})}
         </div>
         <div style={{padding:32}}>
           {step===0&&(
             <div style={{textAlign:"center"}}>
-              <div style={{fontSize:36,marginBottom:14}}>👋</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:16}}><div style={{width:60,height:60,borderRadius:16,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><Hand size={28} color={T.accent} strokeWidth={1.8}/></div></div>
               <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:10}}>Welcome to ShieldSync, {user.name.split(" ")[0]}!</div>
               <div style={{fontSize:13,color:T.textSub,lineHeight:1.75,marginBottom:24}}>Your account is ready. Let's set up your first site, add an officer, and configure alerts in under 2 minutes.</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
-                {[["📍","Add Site","Set patrol locations"],["👮","Add Officer","Invite your team"],["🔔","Alerts","Real-time notifications"]].map(([ic,t,s])=>(
+                {[[MapPin,"Add Site","Set patrol locations"],[Users,"Add Officer","Invite your team"],[Bell,"Alerts","Real-time notifications"]].map(([Ic,t,s])=>(
                   <div key={t} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:14,padding:16}}>
-                    <div style={{fontSize:22,marginBottom:8}}>{ic}</div>
+                    <div style={{marginBottom:9}}><Ic size={19} color={T.accent} strokeWidth={1.9}/></div>
                     <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:3}}>{t}</div>
                     <div style={{fontSize:11,color:T.textSub,lineHeight:1.5}}>{s}</div>
                   </div>
@@ -4124,12 +3981,12 @@ function OnboardingWizard({user,onComplete}){
               <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Configure Alert Channels</div>
               <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>Choose how your team gets notified for SOS, missed checkpoints, and incidents.</div>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                {[{k:"alertEmail",label:"Email Alerts",sub:"Incident reports and daily summaries",icon:"📧"},{k:"alertSMS",label:"SMS / Text Alerts",sub:"SOS and critical incidents only",icon:"📱"},{k:"alertPush",label:"Push Notifications",sub:"Real-time browser and mobile alerts",icon:"🔔"}].map(({k,label,sub,icon})=>(
+                {[{k:"alertEmail",label:"Email Alerts",sub:"Incident reports and daily summaries",icon:Mail},{k:"alertSMS",label:"SMS / Text Alerts",sub:"SOS and critical incidents only",icon:Phone},{k:"alertPush",label:"Push Notifications",sub:"Real-time browser and mobile alerts",icon:Bell}].map(({k,label,sub,icon:Icon})=>(
                   <div key={k} onClick={()=>upd(k,!form[k])} style={{display:"flex",alignItems:"center",gap:14,background:form[k]?T.accentGlow:T.raised,border:`1px solid ${form[k]?T.accentB:T.border}`,borderRadius:14,padding:"14px 16px",cursor:"pointer",transition:"all .2s"}}>
-                    <span style={{fontSize:20}}>{icon}</span>
+                    <Icon size={19} color={form[k]?T.accent:T.textSub} strokeWidth={1.9}/>
                     <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:T.text}}>{label}</div><div style={{fontSize:11,color:T.textSub,marginTop:2}}>{sub}</div></div>
                     <div style={{width:22,height:22,borderRadius:6,background:form[k]?T.accent:T.raised,border:`2px solid ${form[k]?T.accent:T.borderLight}`,display:"flex",alignItems:"center",justifyContent:"center",transition:"all .2s",flexShrink:0}}>
-                      {form[k]&&<span style={{color:"#000",fontSize:13,fontWeight:900}}>✓</span>}
+                      {form[k]&&<Check size={13} strokeWidth={3} color="#000"/>}
                     </div>
                   </div>
                 ))}
@@ -4138,13 +3995,13 @@ function OnboardingWizard({user,onComplete}){
           )}
           {step===4&&(
             <div style={{textAlign:"center"}}>
-              <div style={{fontSize:48,marginBottom:14}}>🚀</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:16}}><div style={{width:68,height:68,borderRadius:18,background:T.greenGlow,border:`1px solid ${T.greenB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><Rocket size={31} color={T.green} strokeWidth={1.8}/></div></div>
               <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:10}}>You're All Set!</div>
               <div style={{fontSize:13,color:T.textSub,lineHeight:1.75,marginBottom:22}}>Your ShieldSync workspace is live with demo data. AI features work immediately, and all modules are ready to explore.</div>
               <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:14,padding:18,textAlign:"left",marginBottom:22}}>
                 <div style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:10}}>Configured</div>
-                {[["✅","Site",form.site||"Demo sites pre-loaded"],["✅","Officer",form.officer||"Demo team pre-loaded"],["✅","Alerts",`Email ${form.alertEmail?"on":"off"} · SMS ${form.alertSMS?"on":"off"} · Push ${form.alertPush?"on":"off"}`],["✅","AI Command","5 specialist advisors ready"],["✅","Access control","4-tier RBAC configured"]].map(([ic,lb,v])=>(
-                  <div key={lb} style={{display:"flex",gap:10,fontSize:13,marginBottom:6}}><span>{ic}</span><span style={{color:T.textSub,minWidth:100}}>{lb}</span><span style={{color:T.text,fontWeight:600}}>{v}</span></div>
+                {[["Site",form.site||"Demo sites pre-loaded"],["Officer",form.officer||"Demo team pre-loaded"],["Alerts",`Email ${form.alertEmail?"on":"off"} · SMS ${form.alertSMS?"on":"off"} · Push ${form.alertPush?"on":"off"}`],["AI Command","5 specialist advisors ready"],["Access control","4-tier RBAC configured"]].map(([lb,v])=>(
+                  <div key={lb} style={{display:"flex",alignItems:"center",gap:10,fontSize:13,marginBottom:6}}><CheckCircle2 size={14} color={T.green} strokeWidth={2}/><span style={{color:T.textSub,minWidth:100}}>{lb}</span><span style={{color:T.text,fontWeight:600}}>{v}</span></div>
                 ))}
               </div>
             </div>
@@ -4211,11 +4068,11 @@ function UserManagement({user,showToast}){
 
   return(
     <div style={{padding:20,maxWidth:1040,margin:"0 auto"}}>
-      <SH icon="👥" title="User Management" sub="Manage access, roles, and permissions across your organization"/>
+      <SH icon={UserCog} title="User Management" sub="Manage access, roles, and permissions across your organization"/>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:24}}>
-        {[["Total Users",stats.total,"👥",T.accent],["Active",stats.active,"✅",T.green],["Admins",stats.admins,"👑",T.purple],["MFA Enabled",stats.mfa,"🔐",T.amber]].map(([lb,v,ic,c])=>(
+        {[["Total Users",stats.total,Users,T.accent],["Active",stats.active,CheckCircle2,T.green],["Admins",stats.admins,Crown,T.purple],["MFA Enabled",stats.mfa,Fingerprint,T.amber]].map(([lb,v,Icon,c])=>(
           <Card key={lb}><CB style={{padding:"14px 16px",display:"flex",alignItems:"center",gap:12}}>
-            <div style={{fontSize:22}}>{ic}</div><div><div style={{fontSize:22,fontWeight:900,color:c}}>{v}</div><div style={{fontSize:11,color:T.textSub,marginTop:1}}>{lb}</div></div>
+            <div style={{width:38,height:38,borderRadius:10,background:`${c}16`,border:`1px solid ${c}30`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Icon size={18} color={c} strokeWidth={1.9}/></div><div><div style={{fontSize:22,fontWeight:900,color:c}}>{v}</div><div style={{fontSize:11,color:T.textSub,marginTop:1}}>{lb}</div></div>
           </CB></Card>
         ))}
       </div>
@@ -4249,7 +4106,7 @@ function UserManagement({user,showToast}){
                 </tr></thead>
                 <tbody>
                   {filtered.map((u,i)=>(
-                    <tr key={u.id} style={{borderBottom:i<filtered.length-1?`1px solid ${T.border}`:"none"}}>
+                    <tr key={u.id} className="ss-row" style={{borderBottom:i<filtered.length-1?`1px solid ${T.border}`:"none",cursor:"pointer"}}>
                       <td style={{padding:"12px 14px"}}>
                         <div style={{display:"flex",alignItems:"center",gap:10}}>
                           <Av name={u.av||u.name} size={32} color={roleColors[u.role]||T.accent}/>
@@ -4267,10 +4124,10 @@ function UserManagement({user,showToast}){
                         }
                       </td>
                       <td style={{padding:"12px 14px"}}><Pill label={u.active!==false?"Active":"Inactive"} color={u.active!==false?T.green:T.textDim}/></td>
-                      <td style={{padding:"12px 14px",fontSize:16}}>{u.mfaEnabled?"🔐":"—"}</td>
+                      <td style={{padding:"12px 14px"}}>{u.mfaEnabled?<Fingerprint size={15} color={T.amber} strokeWidth={2}/>:<span style={{color:T.textDim}}>—</span>}</td>
                       <td style={{padding:"12px 14px"}}>
                         <div style={{display:"flex",gap:6}}>
-                          <button onClick={()=>setEditingId(editingId===u.id?null:u.id)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:600}}>{editingId===u.id?"✕":"Edit"}</button>
+                          <button onClick={()=>setEditingId(editingId===u.id?null:u.id)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:600,display:"inline-flex",alignItems:"center",gap:5}}>{editingId===u.id?<X size={11} strokeWidth={2.4}/>:null}{editingId===u.id?"Close":"Edit"}</button>
                           {u.id!==user.id&&<button onClick={()=>toggleActive(u.id)} style={{background:u.active!==false?T.redGlow:T.greenB,border:`1px solid ${u.active!==false?T.redB:T.greenB}`,color:u.active!==false?T.red:T.green,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:600}}>{u.active!==false?"Deactivate":"Activate"}</button>}
                         </div>
                       </td>
@@ -4287,7 +4144,7 @@ function UserManagement({user,showToast}){
       {tab==="roles"&&(
         <Card>
           <CB>
-            <SH icon="🔑" title="Permission Matrix" sub="Module access by role — read-only in demo"/>
+            <SH icon={KeyRound} title="Permission Matrix" sub="Module access by role — read-only in demo"/>
             <div style={{overflowX:"auto"}}>
               <table style={{width:"100%",borderCollapse:"collapse",minWidth:500}}>
                 <thead><tr style={{borderBottom:`1px solid ${T.border}`}}>
@@ -4296,11 +4153,11 @@ function UserManagement({user,showToast}){
                 </tr></thead>
                 <tbody>
                   {Object.entries(PERM_LABELS).map(([id,label],i)=>(
-                    <tr key={id} style={{borderBottom:i<Object.keys(PERM_LABELS).length-1?`1px solid ${T.border}`:"none"}}>
+                    <tr key={id} className="ss-row" style={{borderBottom:i<Object.keys(PERM_LABELS).length-1?`1px solid ${T.border}`:"none"}}>
                       <td style={{padding:"9px 14px",fontSize:13,color:T.text}}>{label}</td>
                       {ROLES.map(r=>(
                         <td key={r} style={{padding:"9px 14px",textAlign:"center"}}>
-                          {ROLE_PERMS[r]?.includes(id)?<span style={{fontSize:16,color:T.green}}>✓</span>:<span style={{fontSize:14,color:T.textDim}}>—</span>}
+                          {ROLE_PERMS[r]?.includes(id)?<Check size={15} color={T.green} strokeWidth={2.6}/>:<span style={{fontSize:14,color:T.textDim}}>—</span>}
                         </td>
                       ))}
                     </tr>
@@ -4318,11 +4175,11 @@ function UserManagement({user,showToast}){
             <CB>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
                 <div><div style={{fontSize:10,color:T.textSub,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>User Management</div><div style={{fontSize:18,fontWeight:800,color:T.text}}>Invite User</div></div>
-                <button onClick={()=>setShowInvite(false)} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18}}>✕</button>
+                <button onClick={()=>setShowInvite(false)} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={16} strokeWidth={2}/></button>
               </div>
               {inviteDone?(
                 <div style={{textAlign:"center",padding:"16px 0"}}>
-                  <div style={{fontSize:40,marginBottom:12}}>✉️</div>
+                  <div style={{display:"flex",justifyContent:"center",marginBottom:12}}><div style={{width:56,height:56,borderRadius:16,background:T.greenGlow,border:`1px solid ${T.greenB}`,display:"flex",alignItems:"center",justifyContent:"center"}}><Mail size={26} color={T.green} strokeWidth={1.8}/></div></div>
                   <div style={{fontSize:17,fontWeight:800,color:T.green,marginBottom:8}}>Invitation Sent!</div>
                   <div style={{fontSize:13,color:T.textSub,lineHeight:1.7,marginBottom:18}}><strong style={{color:T.text}}>{invite.name}</strong> can sign in with temp password: <span style={{fontFamily:"monospace",color:T.accent}}>Welcome1!</span></div>
                   <button onClick={()=>setShowInvite(false)} style={{background:T.accent,border:"none",color:"#000",padding:"12px 28px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14}}>Done</button>
@@ -4374,7 +4231,7 @@ function CompanySettings({user,showToast}){
 
   return(
     <div style={{padding:20,maxWidth:900,margin:"0 auto"}}>
-      <SH icon="⚙️" title="Company Settings" sub="Organization profile, security policies, and notification preferences"/>
+      <SH icon={Settings} title="Company Settings" sub="Organization profile, security policies, and notification preferences"/>
       <div style={{display:"flex",gap:2,background:T.surface,border:`1px solid ${T.border}`,borderRadius:12,padding:3,marginBottom:20,width:"fit-content"}}>
         {[["company","Company"],["security","Security"],["notifications","Notifications"],["integrations","Integrations"]].map(([k,lb])=>(
           <button key={k} onClick={()=>setTab(k)} style={{padding:"8px 18px",borderRadius:9,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,background:tab===k?T.accent:"transparent",color:tab===k?"#000":T.textSub,transition:"all .15s"}}>{lb}</button>
@@ -4383,7 +4240,7 @@ function CompanySettings({user,showToast}){
 
       {tab==="company"&&(
         <Card><CB>
-          <SH icon="🏢" title="Company Profile" sub="Basic organization information"/>
+          <SH icon={Building2} title="Company Profile" sub="Basic organization information"/>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
             {[{label:"Company Name",k:"name"},{label:"Website",k:"website"},{label:"Phone",k:"phone"},{label:"Address",k:"address",full:true},{label:"City",k:"city"},{label:"State",k:"state"},{label:"ZIP Code",k:"zip"}].map(({label,k,full})=>(
               <div key={k} style={{gridColumn:full?"1 / -1":undefined}}>
@@ -4410,7 +4267,7 @@ function CompanySettings({user,showToast}){
 
       {tab==="security"&&(
         <Card><CB>
-          <SH icon="🔐" title="Authentication Policy" sub="Control how users sign in and manage sessions"/>
+          <SH icon={Lock} title="Authentication Policy" sub="Control how users sign in and manage sessions"/>
           <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:18}}>
             <Toggle k="mfaRequired" label="Require MFA for All Users" sub="Users must configure two-factor authentication before accessing the platform."/>
           </div>
@@ -4428,7 +4285,7 @@ function CompanySettings({user,showToast}){
 
       {tab==="notifications"&&(
         <Card><CB>
-          <SH icon="🔔" title="Notification Preferences" sub="Configure when and how alerts are delivered"/>
+          <SH icon={Bell} title="Notification Preferences" sub="Configure when and how alerts are delivered"/>
           <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:18}}>
             <Toggle k="n_sos" label="SOS / Emergency Alerts" sub="Immediately notify all supervisors on SOS activation"/>
             <Toggle k="n_cp" label="Missed Checkpoint Alert" sub="Alert when patrol checkpoint is not scanned on schedule"/>
@@ -4446,7 +4303,7 @@ function CompanySettings({user,showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <Card>
             <CB>
-              <SH icon="🔗" title="UKG Pro (Kronos)" sub="REST API integration for workforce management and payroll sync"/>
+              <SH icon={Link2} title="UKG Pro (Kronos)" sub="REST API integration for workforce management and payroll sync"/>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
                 {[
                   {label:"API Base URL",k:"ukg_url",ph:"https://api.ultipro.com"},
@@ -4460,8 +4317,9 @@ function CompanySettings({user,showToast}){
                   </div>
                 ))}
               </div>
-              <div style={{background:s.ukg_key?`${T.green}15`:`${T.amber}15`,border:`1px solid ${s.ukg_key?T.green:T.amber}40`,borderRadius:10,padding:"11px 14px",marginBottom:14,fontSize:12,color:s.ukg_key?T.green:T.amber}}>
-                {s.ukg_key?"✓ Credentials configured — sync will activate on next payroll run":"⚠ Credentials not set — UKG sync disabled. Enter credentials above to enable."}
+              <div style={{background:s.ukg_key?`${T.green}15`:`${T.amber}15`,border:`1px solid ${s.ukg_key?T.green:T.amber}40`,borderRadius:10,padding:"11px 14px",marginBottom:14,fontSize:12,color:s.ukg_key?T.green:T.amber,display:"flex",alignItems:"center",gap:8}}>
+                {s.ukg_key?<Check size={14} strokeWidth={2.6}/>:<AlertTriangle size={14} strokeWidth={2.2}/>}
+                {s.ukg_key?"Credentials configured — sync will activate on next payroll run":"Credentials not set — UKG sync disabled. Enter credentials above to enable."}
               </div>
               <button onClick={save} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:"12px 28px",color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Save UKG Credentials</button>
             </CB>
@@ -4469,17 +4327,17 @@ function CompanySettings({user,showToast}){
 
           <Card>
             <CB>
-              <SH icon="🔧" title="Other Integrations" sub="Platform connection status"/>
+              <SH icon={Network} title="Other Integrations" sub="Platform connection status"/>
               {[
-                {name:"Anthropic AI (Claude)",desc:"Powers AI copilot, reports, and executive briefing",status:"Connected",color:T.green,icon:"🤖"},
-                {name:"Vercel Edge Network",desc:"Global deployment and edge function hosting",status:"Connected",color:T.green,icon:"▲"},
-                {name:"ADP Workforce Now",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:"📊"},
-                {name:"Paylocity",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:"📊"},
-                {name:"QuickBooks Payroll",desc:"Accounting sync — available in v2.0",status:"Planned",color:T.textDim,icon:"📒"},
-                {name:"Supabase",desc:"Set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY to activate",status:"Not Configured",color:T.textSub,icon:"🛢"},
+                {name:"Anthropic AI (Claude)",desc:"Powers AI copilot, reports, and executive briefing",status:"Connected",color:T.green,icon:Bot},
+                {name:"Vercel Edge Network",desc:"Global deployment and edge function hosting",status:"Connected",color:T.green,icon:Network},
+                {name:"ADP Workforce Now",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:BarChart3},
+                {name:"Paylocity",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:BarChart3},
+                {name:"QuickBooks Payroll",desc:"Accounting sync — available in v2.0",status:"Planned",color:T.textDim,icon:BookOpen},
+                {name:"Supabase",desc:"Set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY to activate",status:"Not Configured",color:T.textSub,icon:Database},
               ].map(int=>(
                 <div key={int.name} style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:9,padding:"11px 14px",marginBottom:6}}>
-                  <div style={{fontSize:20,width:28,textAlign:"center",flexShrink:0}}>{int.icon}</div>
+                  <div style={{width:34,height:34,borderRadius:9,background:`${int.color}16`,border:`1px solid ${int.color}30`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><int.icon size={16} color={int.color} strokeWidth={1.8}/></div>
                   <div style={{flex:1}}>
                     <div style={{fontSize:12,fontWeight:700,color:T.text}}>{int.name}</div>
                     <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{int.desc}</div>
@@ -4490,458 +4348,6 @@ function CompanySettings({user,showToast}){
             </CB>
           </Card>
         </div>
-      )}
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
-// POST ORDERS MODULE
-// ─────────────────────────────────────────────────────────────────
-function PostOrdersModule({user,showToast}){
-  const[orders,setOrders]=useLS("ss_postorders",POST_ORDERS);
-  const[selected,setSelected]=useState(orders[0]||null);
-  const[editing,setEditing]=useState(false);
-  const[editContent,setEditContent]=useState("");
-  const isAdmin=user?.role==="Company Admin"||user?.role==="Supervisor";
-
-  const acknowledge=(orderId)=>{
-    setOrders(os=>os.map(o=>{
-      if(o.id!==orderId)return o;
-      if(o.acks.includes(user?.name))return o;
-      return{...o,acks:[...o.acks,user?.name],pending:o.pending.filter(n=>n!==user?.name)};
-    }));
-    logAction(user,"POST_ORDER_ACK",`Acknowledged: ${selected?.site} v${selected?.version}`);
-    showToast("Post orders acknowledged","success");
-  };
-
-  const saveEdit=()=>{
-    setOrders(os=>os.map(o=>o.id===selected?.id?{...o,content:editContent,version:o.version+1,updated:new Date().toISOString().slice(0,10),author:user?.name}:o));
-    setEditing(false);
-    showToast("Post orders updated — officers notified","success");
-    logAction(user,"POST_ORDER_UPDATE",`Updated: ${selected?.site}`);
-  };
-
-  const selOrder=orders.find(o=>o.id===selected?.id)||orders[0];
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
-        <div>
-          <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Post Orders</div>
-          <div style={{fontSize:20,fontWeight:900,color:T.text}}>Site Instructions & Procedures</div>
-        </div>
-        {isAdmin&&<div style={{display:"flex",gap:8}}>
-          <button onClick={()=>{setEditContent(selOrder?.content||"");setEditing(true);}} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}>✏️ Edit Orders</button>
-        </div>}
-      </div>
-
-      <div style={{display:"grid",gridTemplateColumns:"240px 1fr",gap:14,alignItems:"start"}}>
-        <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {orders.map(o=>{
-            const pendingMe=o.pending.includes(user?.name);
-            const ackMe=o.acks.includes(user?.name);
-            return(
-              <div key={o.id} onClick={()=>setSelected(o)} style={{background:selected?.id===o.id?T.accentGlow:T.raised,border:`1px solid ${selected?.id===o.id?T.accentB:T.border}`,borderRadius:10,padding:"12px 14px",cursor:"pointer"}}>
-                <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:4}}>{o.site}</div>
-                <div style={{fontSize:11,color:T.textSub}}>v{o.version} · {o.updated}</div>
-                <div style={{marginTop:6,display:"flex",gap:6,flexWrap:"wrap"}}>
-                  {pendingMe&&<Pill label="⚠ Pending Ack" color={T.amber}/>}
-                  {ackMe&&<Pill label="✓ Acknowledged" color={T.green}/>}
-                  {o.pending.length>0&&isAdmin&&<Pill label={`${o.pending.length} pending`} color={T.amber}/>}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <Card>
-          <CB>
-            {selOrder&&(
-              <>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
-                  <div>
-                    <div style={{fontSize:16,fontWeight:900,color:T.text}}>{selOrder.site}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:3}}>Version {selOrder.version} · Updated {selOrder.updated} by {selOrder.author}</div>
-                  </div>
-                  <Pill label={selOrder.status} color={T.green}/>
-                </div>
-
-                {editing?(
-                  <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                    <textarea value={editContent} onChange={e=>setEditContent(e.target.value)} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,color:T.text,fontSize:12,padding:"12px",fontFamily:"monospace",lineHeight:1.7,minHeight:320,width:"100%",resize:"vertical"}}/>
-                    <div style={{display:"flex",gap:8}}>
-                      <button onClick={saveEdit} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>Save & Notify Officers</button>
-                      <button onClick={()=>setEditing(false)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"9px 16px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>Cancel</button>
-                    </div>
-                  </div>
-                ):(
-                  <>
-                    <pre style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"16px",fontSize:12,color:T.text,lineHeight:1.8,fontFamily:"'DM Sans',sans-serif",whiteSpace:"pre-wrap",wordBreak:"break-word",marginBottom:16}}>{selOrder.content}</pre>
-                    {isAdmin&&(
-                      <div style={{marginBottom:16}}>
-                        <div style={{fontSize:11,fontWeight:700,color:T.textSub,marginBottom:8}}>ACKNOWLEDGMENTS</div>
-                        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                          {selOrder.acks.map(n=><span key={n} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,borderRadius:6,padding:"4px 9px",fontSize:11,fontWeight:700}}>✓ {n}</span>)}
-                          {selOrder.pending.map(n=><span key={n} style={{background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,borderRadius:6,padding:"4px 9px",fontSize:11,fontWeight:700}}>⏳ {n}</span>)}
-                        </div>
-                      </div>
-                    )}
-                    {!isAdmin&&!selOrder.acks.includes(user?.name)&&(
-                      <button onClick={()=>acknowledge(selOrder.id)} style={{width:"100%",background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"13px",borderRadius:10,cursor:"pointer",fontWeight:800,fontSize:14}}>✓ Acknowledge Post Orders</button>
-                    )}
-                    {!isAdmin&&selOrder.acks.includes(user?.name)&&(
-                      <div style={{textAlign:"center",padding:"12px",background:T.greenGlow,border:`1px solid ${T.greenB}`,borderRadius:10,color:T.green,fontWeight:700,fontSize:13}}>✓ You have acknowledged these post orders</div>
-                    )}
-                  </>
-                )}
-              </>
-            )}
-          </CB>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
-// COMPLIANCE MODULE — Guard Card & Certification Expiry Tracker
-// ─────────────────────────────────────────────────────────────────
-function ComplianceModule({user,showToast}){
-  const[certs]=useLS("ss_guard_certs",GUARD_CERTS);
-  const[filter,setFilter]=useState("All");
-  const critical=certs.filter(c=>c.status==="Critical");
-  const expiring=certs.filter(c=>c.status==="Expiring");
-
-  const statusColor=(s)=>s==="Critical"?T.red:s==="Expiring"?T.amber:T.green;
-  const filtered=filter==="All"?certs:certs.filter(c=>c.status===filter);
-
-  const exportCompliance=()=>{
-    dlCSV(
-      [["Officer","Badge","State","Card #","Type","Expires","Days Left","Status"],
-       ...certs.map(c=>[c.officer,c.badge,c.state,c.cardNo,c.type,c.expires,c.daysLeft,c.status])],
-      `compliance_${new Date().toISOString().slice(0,10)}.csv`
-    );
-    showToast("Compliance report exported","success");
-    logAction(user,"COMPLIANCE_EXPORT",`${certs.length} certifications`);
-  };
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
-        <div>
-          <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Compliance Tracker</div>
-          <div style={{fontSize:20,fontWeight:900,color:T.text}}>Guard Cards & Certifications</div>
-        </div>
-        <button onClick={exportCompliance} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}>⬇ Export CSV</button>
-      </div>
-
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-        {[["🔴 Critical",critical.length,"Expire within 14 days",T.red],
-          ["🟡 Expiring Soon",expiring.length,"Expire within 30 days",T.amber],
-          ["✅ Active",certs.filter(c=>c.status==="Active").length,"No action needed",T.green]
-        ].map(([l,v,s,c])=>(
-          <Card key={l} glow={c}>
-            <CB style={{textAlign:"center",padding:"16px 12px"}}>
-              <div style={{fontSize:24,fontWeight:900,color:c,marginBottom:4}}>{v}</div>
-              <div style={{fontSize:12,fontWeight:700,color:T.text}}>{l}</div>
-              <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{s}</div>
-            </CB>
-          </Card>
-        ))}
-      </div>
-
-      {critical.length>0&&(
-        <Card>
-          <CB>
-            <SH title="🚨 Immediate Action Required" icon="🔴"/>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {critical.map(c=>(
-                <div key={c.id} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10}}>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{c.officer} — {c.type}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{c.cardNo} · {c.state} · Expires {c.expires}</div>
-                  </div>
-                  <div style={{textAlign:"right"}}>
-                    <div style={{fontSize:20,fontWeight:900,color:T.red}}>{c.daysLeft}d</div>
-                    <div style={{fontSize:9,color:T.red}}>remaining</div>
-                  </div>
-                  <Pill label="CRITICAL" color={T.red}/>
-                </div>
-              ))}
-            </div>
-          </CB>
-        </Card>
-      )}
-
-      <Card>
-        <CB>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-            <SH title="All Certifications"/>
-            <div style={{display:"flex",gap:6}}>
-              {["All","Critical","Expiring","Active"].map(f=>(
-                <button key={f} onClick={()=>setFilter(f)} style={{background:filter===f?T.accentGlow:T.raised,border:`1px solid ${filter===f?T.accentB:T.border}`,color:filter===f?T.accent:T.textSub,padding:"6px 10px",borderRadius:7,cursor:"pointer",fontWeight:700,fontSize:11}}>{f}</button>
-              ))}
-            </div>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {filtered.map(c=>{
-              const col=statusColor(c.status);
-              return(
-                <div key={c.id} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10,border:`1px solid ${c.status==="Critical"?T.redB:c.status==="Expiring"?T.border:T.border}`}}>
-                  <div style={{width:10,height:10,borderRadius:"50%",background:col,flexShrink:0}}/>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{c.officer}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{c.type} · {c.cardNo} · {c.state}</div>
-                  </div>
-                  <div style={{textAlign:"right",marginRight:8}}>
-                    <div style={{fontSize:12,color:T.textSub}}>Expires {c.expires}</div>
-                    <div style={{fontSize:11,fontWeight:700,color:col}}>{c.daysLeft} days left</div>
-                  </div>
-                  <Pill label={c.status} color={col}/>
-                </div>
-              );
-            })}
-          </div>
-        </CB>
-      </Card>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
-// OPERATIONS MAP MODULE — Live Dispatch View
-// ─────────────────────────────────────────────────────────────────
-const OPS_MAP_OFFICERS=[
-  {name:"Marcus Webb",badge:"S-0041",av:"MW",status:"On Patrol",site:"Northgate Tower",x:38,y:28,color:"#00C8F0"},
-  {name:"Diana Reyes",badge:"S-0067",av:"DR",status:"On Site",site:"Harbor Logistics",x:72,y:62,color:"#00D464"},
-  {name:"Theo Okafor",badge:"S-0083",av:"TO",status:"Incident Active",site:"Plaza West",x:24,y:71,color:"#F04444"},
-  {name:"Ava Simmons",badge:"S-0092",av:"AS",status:"Clocked In",site:"Eastside Mall",x:61,y:34,color:"#F0A800"},
-  {name:"Jordan Park",badge:"S-0105",av:"JP",status:"On Patrol",site:"Northgate Tower",x:42,y:31,color:"#00C8F0"},
-  {name:"Elena Voss",badge:"S-0118",av:"EV",status:"Off Duty",site:"—",x:55,y:80,color:"#384D6A"},
-];
-const OPS_MAP_INCIDENTS=[
-  {id:"INC-001",site:"Plaza West",type:"Disturbance",severity:"High",x:24,y:71,status:"Active"},
-  {id:"INC-002",site:"Northgate Tower",type:"Suspicious Activity",severity:"Medium",x:40,y:28,status:"Active"},
-];
-const OPS_MAP_SITES=[
-  {name:"Northgate Tower",x:40,y:28,officers:2},{name:"Harbor Logistics",x:72,y:62,officers:1},
-  {name:"Plaza West",x:24,y:71,officers:1},{name:"Eastside Mall",x:61,y:34,officers:1},
-];
-function OperationsMapModule({user,showToast}){
-  const[selected,setSelected]=useState(null);
-  const[filter,setFilter]=useState("All");
-  const visible=filter==="All"?OPS_MAP_OFFICERS:OPS_MAP_OFFICERS.filter(o=>SM(o.status).c!==T.textDim);
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
-        <div>
-          <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Operations Map</div>
-          <div style={{fontSize:20,fontWeight:900,color:T.text}}>Live Officer & Incident Positions</div>
-        </div>
-        <div style={{display:"flex",gap:6,alignItems:"center"}}>
-          <div style={{width:8,height:8,borderRadius:"50%",background:T.green,boxShadow:`0 0 6px ${T.green}`}}/>
-          <span style={{fontSize:11,color:T.green,fontWeight:700}}>LIVE</span>
-        </div>
-      </div>
-
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
-        {[["Active Officers",OPS_MAP_OFFICERS.filter(o=>o.status!=="Off Duty").length,T.accent,"👮"],
-          ["On Patrol",OPS_MAP_OFFICERS.filter(o=>o.status==="On Patrol").length,T.green,"🛡️"],
-          ["Active Incidents",OPS_MAP_INCIDENTS.length,T.red,"⚡"],
-          ["Sites Covered",OPS_MAP_SITES.length,T.gold,"📍"]
-        ].map(([l,v,c,ic])=>(
-          <Card key={l} glow={c}><CB style={{textAlign:"center",padding:"14px 10px"}}>
-            <div style={{fontSize:20}}>{ic}</div>
-            <div style={{fontSize:24,fontWeight:900,color:c,margin:"6px 0"}}>{v}</div>
-            <div style={{fontSize:10,color:T.textSub}}>{l}</div>
-          </CB></Card>
-        ))}
-      </div>
-
-      <div style={{display:"grid",gridTemplateColumns:"1fr 300px",gap:14,alignItems:"start"}}>
-        <Card>
-          <CB style={{padding:"20px"}}>
-            <div style={{position:"relative",width:"100%",paddingBottom:"60%",background:"#0a1520",borderRadius:12,overflow:"hidden",border:`1px solid ${T.border}`}}>
-              <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(circle at 50% 50%, rgba(0,200,240,0.03) 0%, transparent 70%),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(26,40,64,0.4) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(26,40,64,0.4) 40px)"}}>
-                {OPS_MAP_SITES.map(s=>(
-                  <div key={s.name} style={{position:"absolute",left:`${s.x}%`,top:`${s.y}%`,transform:"translate(-50%,-50%)"}}>
-                    <div style={{background:"rgba(0,200,240,0.08)",border:`1px solid rgba(0,200,240,0.2)`,borderRadius:8,padding:"6px 10px",fontSize:9,color:T.accent,fontWeight:700,whiteSpace:"nowrap"}}>{s.name}</div>
-                  </div>
-                ))}
-                {OPS_MAP_INCIDENTS.map(inc=>(
-                  <div key={inc.id} style={{position:"absolute",left:`${inc.x}%`,top:`${inc.y}%`,transform:"translate(-50%,-50%)"}}>
-                    <div style={{width:22,height:22,borderRadius:"50%",background:T.red,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,boxShadow:`0 0 12px ${T.red}`,animation:"ssB 1s ease-in-out infinite",cursor:"pointer",zIndex:2}}>⚡</div>
-                  </div>
-                ))}
-                {visible.map(o=>{
-                  const c=SM(o.status).c;
-                  return(
-                    <div key={o.badge} onClick={()=>setSelected(selected?.badge===o.badge?null:o)} style={{position:"absolute",left:`${o.x}%`,top:`${o.y}%`,transform:"translate(-50%,-50%)",cursor:"pointer",zIndex:3}}>
-                      <div style={{width:28,height:28,borderRadius:"50%",background:c,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:T.bg,border:`2px solid ${selected?.badge===o.badge?"white":T.bg}`,boxShadow:selected?.badge===o.badge?`0 0 12px ${c}`:"none",transition:"all 0.15s"}}>
-                        {o.av}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div style={{display:"flex",gap:12,marginTop:12,flexWrap:"wrap"}}>
-              {[["🔵 On Patrol",T.accent],["🟢 On Site",T.green],["🔴 Incident",T.red],["🟡 Clocked In",T.amber],["⚫ Off Duty",T.textDim]].map(([l,c])=>(
-                <div key={l} style={{display:"flex",alignItems:"center",gap:5}}>
-                  <div style={{width:8,height:8,borderRadius:"50%",background:c}}/>
-                  <span style={{fontSize:10,color:T.textSub}}>{l}</span>
-                </div>
-              ))}
-            </div>
-          </CB>
-        </Card>
-
-        <div style={{display:"flex",flexDirection:"column",gap:10}}>
-          {selected&&(
-            <Card glow={SM(selected.status).c}>
-              <CB>
-                <div style={{display:"flex",gap:12,alignItems:"center",marginBottom:12}}>
-                  <Av initials={selected.av} color={SM(selected.status).c} size={40}/>
-                  <div>
-                    <div style={{fontSize:14,fontWeight:800,color:T.text}}>{selected.name}</div>
-                    <div style={{fontSize:11,color:T.textSub}}>{selected.badge}</div>
-                  </div>
-                </div>
-                <Pill label={selected.status}/>
-                <div style={{marginTop:10,fontSize:12,color:T.textSub}}>{selected.site}</div>
-                <div style={{display:"flex",gap:8,marginTop:12}}>
-                  <button onClick={()=>{showToast(`Dispatching ${selected.name}...`,"success");logAction(user,"DISPATCH_OFFICER",selected.name);}} style={{flex:1,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11}}>📡 Dispatch</button>
-                  <button onClick={()=>showToast(`Contacting ${selected.name}...`)} style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"9px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11}}>📞 Contact</button>
-                </div>
-              </CB>
-            </Card>
-          )}
-
-          <Card>
-            <CB>
-              <SH title="Active Incidents" icon="⚡"/>
-              {OPS_MAP_INCIDENTS.map(inc=>(
-                <div key={inc.id} style={{padding:"10px 12px",background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:9,marginBottom:8}}>
-                  <div style={{fontSize:12,fontWeight:700,color:T.red}}>{inc.type}</div>
-                  <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{inc.site}</div>
-                  <div style={{marginTop:6}}><Pill label={inc.severity} color={inc.severity==="High"?T.red:T.amber}/></div>
-                </div>
-              ))}
-            </CB>
-          </Card>
-
-          <Card>
-            <CB>
-              <SH title="Officer Roster" icon="👮"/>
-              {OPS_MAP_OFFICERS.map(o=>(
-                <div key={o.badge} onClick={()=>setSelected(selected?.badge===o.badge?null:o)} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0",borderBottom:`1px solid ${T.border}`,cursor:"pointer"}}>
-                  <div style={{width:8,height:8,borderRadius:"50%",background:SM(o.status).c,flexShrink:0}}/>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{o.name}</div>
-                    <div style={{fontSize:10,color:T.textSub}}>{o.site}</div>
-                  </div>
-                  <Pill label={o.status}/>
-                </div>
-              ))}
-            </CB>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
-// SHIFT MARKETPLACE MODULE
-// ─────────────────────────────────────────────────────────────────
-function ShiftMarketplaceModule({user,showToast}){
-  const[shifts,setShifts]=useLS("ss_open_shifts",OPEN_SHIFTS);
-  const[claimed,setClaimed]=useLS("ss_my_claims",[]);
-  const isAdmin=user?.role==="Company Admin"||user?.role==="Supervisor";
-
-  const claimShift=(id)=>{
-    setShifts(ss=>ss.map(s=>s.id===id?{...s,claimed:user?.name}:s));
-    setClaimed(c=>[...c,id]);
-    showToast("Shift claimed! Supervisor will confirm shortly","success");
-    logAction(user,"SHIFT_CLAIMED",`Shift ${id} claimed by ${user?.name}`);
-  };
-  const releaseShift=(id)=>{
-    setShifts(ss=>ss.map(s=>s.id===id?{...s,claimed:null}:s));
-    setClaimed(c=>c.filter(x=>x!==id));
-    showToast("Shift released","success");
-  };
-
-  const open=shifts.filter(s=>!s.claimed);
-  const filled=shifts.filter(s=>s.claimed);
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
-        <div>
-          <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Shift Marketplace</div>
-          <div style={{fontSize:20,fontWeight:900,color:T.text}}>Open Shifts Available</div>
-        </div>
-        <div style={{display:"flex",gap:10}}>
-          <div style={{background:T.raised,borderRadius:8,padding:"8px 14px",fontSize:12,color:T.text,fontWeight:700}}>{open.length} open · {filled.length} filled</div>
-        </div>
-      </div>
-
-      {open.length===0&&<Card><CB><div style={{textAlign:"center",padding:"32px 0",color:T.textSub,fontSize:13}}>✅ All shifts are currently filled</div></CB></Card>}
-
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:12}}>
-        {open.map(s=>{
-          const isClaimed=claimed.includes(s.id);
-          return(
-            <Card key={s.id} glow={s.urgency==="Urgent"?T.red:T.accent}>
-              <CB>
-                {s.urgency==="Urgent"&&<div style={{marginBottom:10,padding:"6px 10px",background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:7,fontSize:11,fontWeight:700,color:T.red}}>🚨 URGENT — Immediate fill needed</div>}
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
-                  <div>
-                    <div style={{fontSize:14,fontWeight:800,color:T.text}}>{s.site}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{s.date}</div>
-                  </div>
-                  <Pill label={s.type} color={s.type==="Night"?T.purple:s.type==="Evening"?T.amber:T.gold}/>
-                </div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
-                  {[["Time",`${s.start}–${s.end}`],["Rate",`$${s.rate}/hr`],["Posted",s.posted]].map(([l,v])=>(
-                    <div key={l} style={{background:T.raised,borderRadius:8,padding:"8px 10px"}}>
-                      <div style={{fontSize:10,color:T.textSub}}>{l}</div>
-                      <div style={{fontSize:12,fontWeight:700,color:T.text,marginTop:1}}>{v}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{fontSize:11,color:T.textSub,marginBottom:12}}>Requirement: {s.requirements}</div>
-                {!isAdmin&&(
-                  isClaimed
-                    ?<button onClick={()=>releaseShift(s.id)} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:13}}>✕ Release Shift</button>
-                    :<button onClick={()=>claimShift(s.id)} style={{width:"100%",background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:13}}>✋ Claim This Shift</button>
-                )}
-                {isAdmin&&<div style={{textAlign:"center",fontSize:11,color:T.textSub}}>Posted {s.posted}</div>}
-              </CB>
-            </Card>
-          );
-        })}
-      </div>
-
-      {filled.length>0&&(
-        <Card>
-          <CB>
-            <SH title="Filled Shifts" icon="✅"/>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {filled.map(s=>(
-                <div key={s.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",background:T.raised,borderRadius:10}}>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{s.site} — {s.date}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{s.start}–{s.end} · {s.type}</div>
-                  </div>
-                  <div style={{fontSize:12,color:T.green,fontWeight:700}}>{s.claimed}</div>
-                  <Pill label="Filled" color={T.green}/>
-                </div>
-              ))}
-            </div>
-          </CB>
-        </Card>
       )}
     </div>
   );
@@ -4966,12 +4372,12 @@ function ClientPortal({user,showToast}){
           <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Client Portal</div>
           <div style={{fontSize:20,fontWeight:900,color:T.text}}>Contract & Service Overview</div>
         </div>
-        <button onClick={exportReport} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}>⬇ Export Report</button>
+        <button onClick={exportReport} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><ArrowDownToLine size={13} strokeWidth={2.2}/> Export Report</button>
       </div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {[["overview","📊 Overview"],["sla","✅ SLA"],["incidents","⚡ Incidents"],["billing","💳 Billing"],["report","📊 Report"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+        {[["overview",BarChart3,"Overview"],["sla",CheckCircle2,"SLA"],["incidents",AlertTriangle,"Incidents"],["billing",HandCoins,"Billing"]].map(([t,Ic,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Ic size={13} strokeWidth={2}/>{l}</button>
         ))}
       </div>
 
@@ -4994,12 +4400,12 @@ function ClientPortal({user,showToast}){
           </div>
           <Card>
             <CB>
-              <SH title="Site Performance Summary"/>
+              <SH title="Site Performance Summary" icon={Building2}/>
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
                 {sla.map(s=>{
                   const sc=s.status==="Healthy"?T.green:T.red;
                   return(
-                    <div key={s.client} style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:9,padding:"11px 14px"}}>
+                    <div key={s.client} className="ss-row" style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:9,padding:"11px 14px",cursor:"pointer"}}>
                       <div style={{width:8,height:8,borderRadius:"50%",background:sc,flexShrink:0}}/>
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
@@ -5062,7 +4468,7 @@ function ClientPortal({user,showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <Card>
             <CB>
-              <SH title="Recent Incidents — All Sites"/>
+              <SH title="Recent Incidents — All Sites" icon={AlertTriangle}/>
               <div style={{display:"flex",flexDirection:"column",gap:7}}>
                 {INCIDENTS.map(inc=>{
                   const sc=inc.sev==="High"?T.red:inc.sev==="Medium"?T.amber:T.green;
@@ -5106,7 +4512,7 @@ function ClientPortal({user,showToast}){
           </div>
           <Card>
             <CB>
-              <SH title="Contract Billing Breakdown"/>
+              <SH title="Contract Billing Breakdown" icon={FileText}/>
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
                 {CONTRACTS.map(c=>(
                   <div key={c.id} style={{background:T.raised,borderRadius:9,padding:"12px 14px"}}>
@@ -5127,49 +4533,6 @@ function ClientPortal({user,showToast}){
             </CB>
           </Card>
         </div>
-      )}
-
-      {tab==="report"&&(
-        <Card>
-          <CB>
-            <SH title="Auto-Generate Monthly Report" icon="📊" sub="Download a complete operations summary for all sites as a CSV file"/>
-            <div style={{display:"flex",flexDirection:"column",gap:16}}>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10}}>
-                {sla.map(s=>(
-                  <div key={s.client} style={{background:T.raised,borderRadius:10,padding:"14px 16px"}}>
-                    <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:6}}>{s.site}</div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-                      {[["Patrol Rate",s.patrols+"%",s.patrols>=90?T.green:T.amber],
-                        ["Response",s.responseTime+"m",s.responseTime<=4?T.green:T.amber],
-                        ["Satisfaction",s.satisfaction+"%",s.satisfaction>=85?T.green:T.red],
-                        ["Status",s.status,s.status==="Healthy"?T.green:T.red]
-                      ].map(([l,v,c])=>(
-                        <div key={l} style={{background:T.bg,borderRadius:7,padding:"8px 10px"}}>
-                          <div style={{fontSize:9,color:T.textSub}}>{l}</div>
-                          <div style={{fontSize:12,fontWeight:700,color:c,marginTop:1}}>{v}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={()=>{
-                  dlCSV([
-                    ["ShieldSync — Monthly Operations Report"],
-                    ["Generated",new Date().toISOString().slice(0,10)],
-                    [""],
-                    ["SITE","PATROL RATE","RESPONSE TIME","SATISFACTION","INCIDENTS"],
-                    ...CLIENT_SLA.map(s=>[s.client,s.patrol+"%",s.response+"min",s.satisfaction+"%","—"]),
-                  ],`shieldsync_report_${new Date().toISOString().slice(0,10)}.csv`);
-                  showToast("Monthly report generated and downloaded","success");
-                  logAction(user,"AUTO_REPORT_GENERATED","Monthly operations report");
-                }}
-                style={{width:"100%",background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",color:"#000",padding:"14px",borderRadius:12,cursor:"pointer",fontWeight:800,fontSize:14}}
-              >⬇ Generate & Download Monthly Report</button>
-            </div>
-          </CB>
-        </Card>
       )}
     </div>
   );
@@ -5208,8 +4571,8 @@ function ITCyberCommand({user,showToast}){
       </div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {[["threats","🚨 Threat Alerts"],["devices","💻 Devices"],["access","🔑 Access Log"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?`${T.red}22`:T.raised,border:`1px solid ${tab===t?T.red+"66":T.border}`,color:tab===t?T.red:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+        {[["threats",ShieldAlert,"Threat Alerts"],["devices",ServerCog,"Devices"],["access",KeyRound,"Access Log"]].map(([t,Ic,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?`${T.red}22`:T.raised,border:`1px solid ${tab===t?T.red+"66":T.border}`,color:tab===t?T.red:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"inline-flex",alignItems:"center",gap:7}}><Ic size={13} strokeWidth={2}/>{l}</button>
         ))}
       </div>
 
@@ -5249,7 +4612,9 @@ function ITCyberCommand({user,showToast}){
               <Card key={d.id}>
                 <CB>
                   <div style={{display:"flex",alignItems:"center",gap:12}}>
-                    <div style={{width:36,height:36,borderRadius:9,background:`${rc}22`,border:`1px solid ${rc}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{d.type.includes("NVR")?"📷":d.type.includes("Access")?"🔑":d.type.includes("Switch")?"🔀":d.type.includes("Camera")?"📹":d.type.includes("VPN")||d.type.includes("Firewall")?"🛡️":d.type.includes("Biometric")?"🫆":d.type.includes("LPR")?"🚗":"💻"}</div>
+                    <div style={{width:36,height:36,borderRadius:9,background:`${rc}22`,border:`1px solid ${rc}44`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      {(()=>{const DevIcon=d.type.includes("NVR")?Camera:d.type.includes("Access")?KeyRound:d.type.includes("Switch")?Network:d.type.includes("Camera")?Video:(d.type.includes("VPN")||d.type.includes("Firewall"))?ShieldCheck:d.type.includes("Biometric")?Fingerprint:d.type.includes("LPR")?Car:Cpu;return <DevIcon size={17} color={rc} strokeWidth={1.8}/>;})()}
+                    </div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}}>
                         <span style={{fontSize:12,fontWeight:700,color:T.text}}>{d.name}</span>
@@ -5272,7 +4637,7 @@ function ITCyberCommand({user,showToast}){
       {tab==="access"&&(
         <Card>
           <CB>
-            <SH title="Recent Access Events"/>
+            <SH title="Recent Access Events" icon={ScanLine}/>
             <div style={{display:"flex",flexDirection:"column",gap:7}}>
               {CYBER_ACCESS_LOG.map((ev,i)=>{
                 const ok=ev.result==="Success";
@@ -5363,20 +4728,16 @@ export default function App(){
       case "settings":    return <CompanySettings user={user} showToast={showToast}/>;
       case "clientportal":return <ClientPortal user={user} showToast={showToast}/>;
       case "itcommand":   return <ITCyberCommand user={user} showToast={showToast}/>;
-      case "postorders":  return <PostOrdersModule user={user} showToast={showToast}/>;
-      case "compliance":  return <ComplianceModule user={user} showToast={showToast}/>;
-      case "opmap":       return <OperationsMapModule user={user} showToast={showToast}/>;
-      case "shiftmarket": return <ShiftMarketplaceModule user={user} showToast={showToast}/>;
       default:            return <Dashboard openModal={openModal} showToast={showToast}/>;
     }
   };
 
   return(
-    <div style={{height:"100%",background:T.bg,color:T.text,display:"flex",flexDirection:"column"}}>
+    <div style={{height:"100dvh",background:T.bg,color:T.text,display:"flex",flexDirection:"column",overflow:"hidden"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
         *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
-        html,body,#root{font-family:'DM Sans',system-ui,sans-serif;background:${T.bg};overflow-x:hidden;-webkit-text-size-adjust:100%;height:100%;}
+        html,body,#root{font-family:'DM Sans',system-ui,sans-serif;background:${T.bg};overflow-x:hidden;-webkit-text-size-adjust:100%;height:100%;min-height:100dvh;}
         input,textarea,select,button{font-family:inherit;}
         ::-webkit-scrollbar{width:4px;height:4px;}
         ::-webkit-scrollbar-track{background:transparent;}
@@ -5389,12 +4750,16 @@ export default function App(){
         @keyframes glow{0%,100%{opacity:.07}50%{opacity:.15}}
         @keyframes ssToast{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
         @keyframes ssQR{0%{top:0;opacity:1}50%{top:calc(100% - 3px);opacity:.7}100%{top:0;opacity:1}}
+        .ss-row{transition:background 0.1s;}
+        .ss-row:hover{background:${T.border}!important;}
+        .ss-nav-btn:hover:not(.ss-nav-active){background:${T.border}!important;}
+        .ss-ghost-btn:hover{opacity:0.85;}
       `}</style>
 
       {/* Offline banner */}
       {!online&&(
         <div style={{background:T.amber,color:"#000",padding:"8px 16px",fontSize:12,fontWeight:700,textAlign:"center",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-          <span>⚡</span> Offline mode — actions are queued and will sync when connection is restored
+          <WifiOff size={14} strokeWidth={2.2}/> Offline mode — actions are queued and will sync when connection is restored
         </div>
       )}
 
@@ -5404,21 +4769,23 @@ export default function App(){
       {/* Toast notifications */}
       {toasts.length>0&&(
         <div style={{position:"fixed",top:16,right:16,zIndex:300,display:"flex",flexDirection:"column",gap:8,pointerEvents:"none",maxWidth:340}}>
-          {toasts.map(t=>(
-            <div key={t.id} style={{background:t.type==="success"?T.green:t.type==="error"?T.red:T.surface,border:`1px solid ${t.type==="success"?T.green:t.type==="error"?T.redB:T.borderLight}`,borderRadius:12,padding:"13px 16px",color:t.type==="success"||t.type==="error"?"#000":T.text,fontSize:13,fontWeight:600,boxShadow:"0 8px 32px rgba(0,0,0,0.55)",animation:"ssToast 0.2s ease"}}>
-              {t.type==="success"?"✓ ":t.type==="error"?"⚠ ":""}{t.msg}
+          {toasts.map(t=>{
+            const ToastIcon=t.type==="success"?CircleCheck:t.type==="error"?AlertTriangle:CircleAlert;
+            return(
+            <div key={t.id} style={{background:t.type==="success"?T.green:t.type==="error"?T.red:T.surface,border:`1px solid ${t.type==="success"?T.green:t.type==="error"?T.redB:T.borderLight}`,borderRadius:12,padding:"13px 16px",color:t.type==="success"||t.type==="error"?"#000":T.text,fontSize:13,fontWeight:600,boxShadow:"0 8px 32px rgba(0,0,0,0.55)",animation:"ssToast 0.2s ease",display:"flex",alignItems:"center",gap:9}}>
+              <ToastIcon size={16} strokeWidth={2.2} style={{flexShrink:0}}/><span>{t.msg}</span>
             </div>
-          ))}
+            );})}
         </div>
       )}
 
-      <div style={{display:"flex",flex:1,position:"relative"}}>
+      <div style={{display:"flex",flex:1,position:"relative",overflow:"hidden",minHeight:0}}>
         {!isMobile&&(
           <Sidebar items={visNav} active={mod} onChange={setMod} user={user} onLogout={logout} collapsed={collapsed} setCollapsed={setCollapsed}/>
         )}
-        <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,minHeight:0}}>
+        <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,minHeight:0,overflow:"hidden"}}>
           <TopBar modId={mod} now={now} user={user} onLogout={logout} isMobile={isMobile}/>
-          <main style={{flex:1,overflowY:"auto",padding:isMobile?"14px 14px 84px":"20px 24px",animation:isMobile?"none":"ssUp 0.22s ease",WebkitOverflowScrolling:"touch"}}>
+          <main style={{flex:1,overflowY:"auto",padding:isMobile?"14px 14px 84px":"20px 24px",animation:isMobile?"none":"ssUp 0.22s ease",WebkitOverflowScrolling:"touch",minHeight:0}}>
             <ErrorBoundary key={mod}>
               {renderMod()}
             </ErrorBoundary>
