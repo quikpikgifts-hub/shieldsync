@@ -33,7 +33,7 @@ function useLS(key,init){
 // ─────────────────────────────────────────────────────────────────
 // AUDIT (delegates to db.js — localStorage today, Supabase tomorrow)
 // ─────────────────────────────────────────────────────────────────
-const logAction=(user,action,detail="")=>audit.log(user,action,detail);
+const logAction=(user,action,detail="",opts={})=>audit.log(user,action,detail,opts);
 function getAuditLog(){const r=LS.get("ss_audit_v1",[]);return r;}
 const clearAuditLog=()=>audit.clear();
 
@@ -2211,31 +2211,135 @@ function Visitors({openModal,user,showToast,isMobile}){
 // ─────────────────────────────────────────────────────────────────
 // SCHEDULING MODULE
 // ─────────────────────────────────────────────────────────────────
+const SCHED_OFFICER_LIST=[
+  {name:"Marcus Webb",badge:"S-0041",certOk:true},
+  {name:"Diana Reyes",badge:"S-0067",certOk:true},
+  {name:"Theo Okafor",badge:"S-0083",certOk:false,certNote:"SIA Door Supervisor expired Nov 2025"},
+  {name:"Ava Simmons",badge:"S-0092",certOk:true},
+  {name:"Jordan Park",badge:"S-0105",certOk:true},
+  {name:"Elena Voss",badge:"S-0118",certOk:true},
+];
+const SCHED_SITES=["Northgate Tower","Harbor Logistics","Plaza West","Eastside Mall"];
+
+function calcShiftHours(start,end){
+  const[sh,sm]=start.split(":").map(Number);
+  const[eh,em]=end.split(":").map(Number);
+  let mins=(eh*60+em)-(sh*60+sm);
+  if(mins<=0)mins+=24*60;
+  return Math.round(mins/60*100)/100;
+}
+
 function ScheduleModule({user,showToast,isMobile}){
   const DAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-  const[dayFilter,setDayFilter]=useState("All");
-  const[siteFilter,setSiteFilter]=useState("All");
-  const[showCreate,setShowCreate]=useState(false);
+  const EMPTY={officer:"",badge:"",site:"Northgate Tower",day:"Mon",start:"06:00",end:"18:00",status:"Confirmed"};
+
   const[shifts,setShifts]=useLS("ss_schedule_shifts",WEEKLY_SHIFTS);
   const[openShifts,setOpenShifts]=useLS("ss_schedule_open",OPEN_SHIFTS);
+  const[dayFilter,setDayFilter]=useState("All");
+  const[siteFilter,setSiteFilter]=useState("All");
+  const[showForm,setShowForm]=useState(false);
+  const[editTarget,setEditTarget]=useState(null);
+  const[form,setForm]=useState(EMPTY);
+  const[certOverride,setCertOverride]=useState(false);
+  const[deleteId,setDeleteId]=useState(null);
 
-  const sites=[...new Set(WEEKLY_SHIFTS.map(s=>s.site))];
+  const isSup=["Company Admin","Supervisor"].includes(user?.role);
+
+  const sites=[...new Set(shifts.map(s=>s.site))];
   const filtered=shifts.filter(s=>(dayFilter==="All"||s.day===dayFilter)&&(siteFilter==="All"||s.site===siteFilter));
   const otCount=shifts.filter(s=>s.ot).length;
   const certWarn=shifts.filter(s=>!s.certOk).length;
   const totalHours=shifts.reduce((a,s)=>a+s.hours,0);
 
+  const officerInfo=(badge)=>SCHED_OFFICER_LIST.find(o=>o.badge===badge)||{certOk:true};
+  const formOfficer=SCHED_OFFICER_LIST.find(o=>o.badge===form.badge);
+  const formCertOk=formOfficer?formOfficer.certOk:true;
+
+  const hasConflict=(badge,day,start,end,excludeId=null)=>{
+    const toMins=(t)=>{const[h,m]=t.split(":").map(Number);return h*60+m;};
+    let ns=toMins(start),ne=toMins(end);
+    if(ne<=ns)ne+=1440;
+    return shifts.some(s=>{
+      if(s.id===excludeId||s.badge!==badge||s.day!==day)return false;
+      let es=toMins(s.start),ee=toMins(s.end);
+      if(ee<=es)ee+=1440;
+      return ns<ee&&ne>es;
+    });
+  };
+
+  const openCreate=()=>{setForm(EMPTY);setEditTarget(null);setCertOverride(false);setShowForm(true);};
+  const openEdit=(s)=>{
+    setForm({officer:s.officer,badge:s.badge,site:s.site,day:s.day,start:s.start,end:s.end,status:s.status});
+    setEditTarget(s);setCertOverride(!s.certOk);setShowForm(true);
+  };
+  const closeForm=()=>{setShowForm(false);setEditTarget(null);setForm(EMPTY);setCertOverride(false);};
+
+  const handleOfficerSelect=(e)=>{
+    const o=SCHED_OFFICER_LIST.find(o=>o.name===e.target.value)||{};
+    setForm(p=>({...p,officer:o.name||"",badge:o.badge||""}));
+    setCertOverride(false);
+  };
+
+  const handleSave=()=>{
+    if(!form.officer||!form.site||!form.day||!form.start||!form.end){
+      showToast("All fields required","error");return;
+    }
+    if(!formCertOk&&!certOverride){
+      showToast("Expired certification — supervisor must check the override box to confirm","error");return;
+    }
+    if(hasConflict(form.badge,form.day,form.start,form.end,editTarget?.id)){
+      showToast(`Conflict: ${form.officer} already has a shift on ${form.day} that overlaps these times`,"error");return;
+    }
+    const hours=calcShiftHours(form.start,form.end);
+    const ot=hours>12;
+    const certOk=formCertOk;
+    const shType=parseInt(form.start.split(":")[0],10)>=18||parseInt(form.start.split(":")[0],10)<6?"Night":"Day";
+
+    if(editTarget){
+      const prev=editTarget;
+      setShifts(p=>p.map(s=>s.id===prev.id?{...s,...form,hours,ot,certOk,type:shType}:s));
+      logAction(user,"SHIFT_EDITED",`${form.officer} ${form.day} ${form.start}–${form.end} at ${form.site}`,
+        {prevValue:`${prev.officer} ${prev.day} ${prev.start}–${prev.end}`,newValue:`${form.officer} ${form.day} ${form.start}–${form.end}`});
+      showToast("Shift updated","success");
+    } else {
+      const id=`SH-U${Date.now().toString(36).toUpperCase()}`;
+      setShifts(p=>[...p,{...form,id,hours,ot,certOk,type:shType}]);
+      logAction(user,"SHIFT_CREATED",`${form.officer} ${form.day} ${form.start}–${form.end} at ${form.site}`,
+        {prevValue:null,newValue:`${form.officer} ${form.day} ${form.start}–${form.end} at ${form.site}`});
+      showToast("Shift created","success");
+    }
+    closeForm();
+  };
+
+  const handleDelete=(id)=>{
+    const s=shifts.find(x=>x.id===id);
+    setShifts(p=>p.filter(x=>x.id!==id));
+    logAction(user,"SHIFT_DELETED",`${s?.officer} ${s?.day} ${s?.start}–${s?.end}`,
+      {prevValue:`${s?.officer} ${s?.day} at ${s?.site}`,newValue:null});
+    showToast("Shift deleted","success");
+    setDeleteId(null);
+  };
+
   const typeColor=(t)=>t==="Night"?T.purple:T.accent;
   const statusColor=(s)=>s==="Confirmed"?T.green:s==="Pending"?T.amber:T.textDim;
+  const today=new Date();
+  const weekLabel=`${today.toLocaleDateString([],{month:"short",day:"numeric"})} week`;
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      <SH icon={Calendar} title="Scheduling" sub="Week of Jun 9–15, 2026"/>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
+        <SH icon={Calendar} title="Scheduling" sub={weekLabel}/>
+        {isSup&&(
+          <button onClick={openCreate} style={{display:"flex",alignItems:"center",gap:6,fontSize:12,background:T.accent,color:"#fff",border:"none",borderRadius:7,padding:"8px 16px",cursor:"pointer",fontWeight:700,flexShrink:0}}>
+            <Plus size={13} strokeWidth={2.5}/> Add Shift
+          </button>
+        )}
+      </div>
 
       {certWarn>0&&(
-        <div style={{background:"rgba(239,68,68,0.08)",border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",alignItems:"center",gap:10}}>
+        <div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",alignItems:"center",gap:10}}>
           <AlertTriangle size={15} color={T.red} strokeWidth={2}/>
-          <span style={{fontSize:13,color:T.red,fontWeight:600}}>{certWarn} shift{certWarn>1?"s":""}  assigned to officers with expired certifications — review before deployment</span>
+          <span style={{fontSize:13,color:T.red,fontWeight:700}}>{certWarn} shift{certWarn>1?"s":""} assigned to officers with expired certifications — cannot be deployed without supervisor override</span>
         </div>
       )}
 
@@ -2244,7 +2348,7 @@ function ScheduleModule({user,showToast,isMobile}){
           {label:"Total Shifts",val:shifts.length,color:T.accent,icon:Calendar},
           {label:"Scheduled Hours",val:`${totalHours.toFixed(0)}h`,color:T.green,icon:Clock4},
           {label:"Overtime Shifts",val:otCount,color:otCount>0?T.amber:T.textDim,icon:AlertTriangle},
-          {label:"Cert Warnings",val:certWarn,color:certWarn>0?T.red:T.textDim,icon:ShieldAlert},
+          {label:"Cert Blocked",val:certWarn,color:certWarn>0?T.red:T.textDim,icon:ShieldAlert},
         ].map(s=>(
           <Card key={s.label} style={{padding:"14px 16px"}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
@@ -2261,27 +2365,23 @@ function ScheduleModule({user,showToast,isMobile}){
       {openShifts.length>0&&(
         <Card>
           <CB>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
               <div style={{display:"flex",alignItems:"center",gap:8}}>
                 <AlertTriangle size={15} color={T.amber} strokeWidth={2}/>
                 <span style={{fontSize:13,fontWeight:700,color:T.text}}>Open Shifts Requiring Coverage</span>
                 <Pill c={T.amber}>{openShifts.length} open</Pill>
               </div>
-              <button onClick={()=>showToast("Broadcast sent to available officers","success")} style={{fontSize:11,background:T.amber,color:"#000",border:"none",borderRadius:6,padding:"5px 12px",cursor:"pointer",fontWeight:700}}>
-                Broadcast All
-              </button>
+              {isSup&&<button onClick={()=>showToast("Broadcast sent to available officers","success")} style={{fontSize:11,background:T.amber,color:"#000",border:"none",borderRadius:6,padding:"5px 12px",cursor:"pointer",fontWeight:700}}>Broadcast All</button>}
             </div>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            <div style={{display:"flex",flexDirection:"column",gap:6}}>
               {openShifts.map(s=>(
-                <div key={s.id} style={{background:T.raised,borderRadius:8,padding:"12px 14px",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+                <div key={s.id} style={{background:T.raised,borderRadius:8,padding:"11px 14px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
                   <Pill c={s.priority==="High"?T.red:T.amber}>{s.priority}</Pill>
                   <div style={{flex:1,minWidth:120}}>
                     <div style={{fontSize:13,fontWeight:700,color:T.text}}>{s.site}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{s.day} {s.date} · {s.start}–{s.end} · {s.type} · {s.reason}</div>
+                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{s.day} {s.date} · {s.start}–{s.end} · {s.type} · {s.reason}</div>
                   </div>
-                  <button onClick={()=>showToast(`Notifying available officers for ${s.site} ${s.day}`,"success")} style={{fontSize:11,background:T.accentB,color:T.accent,border:`1px solid ${T.accent}`,borderRadius:6,padding:"5px 12px",cursor:"pointer",fontWeight:700}}>
-                    Find Cover
-                  </button>
+                  {isSup&&<button onClick={()=>showToast(`Notifying available officers for ${s.site} ${s.day}`,"success")} style={{fontSize:11,background:T.accentB,color:T.accent,border:`1px solid ${T.accent}`,borderRadius:6,padding:"5px 10px",cursor:"pointer",fontWeight:700}}>Find Cover</button>}
                 </div>
               ))}
             </div>
@@ -2289,52 +2389,149 @@ function ScheduleModule({user,showToast,isMobile}){
         </Card>
       )}
 
+      {showForm&&(
+        <Card style={{border:`1px solid ${T.accentB}`}}>
+          <CB>
+            <div style={{fontSize:14,fontWeight:800,color:T.text,marginBottom:14}}>{editTarget?"Edit Shift":"Create Shift"}</div>
+            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr 1fr",gap:12,marginBottom:12}}>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Officer</div>
+                <select value={form.officer} onChange={handleOfficerSelect} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}>
+                  <option value="">Select officer…</option>
+                  {SCHED_OFFICER_LIST.map(o=>(
+                    <option key={o.badge} value={o.name}>{o.name}{!o.certOk?" [CERT EXPIRED]":""}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Site</div>
+                <select value={form.site} onChange={e=>setForm(p=>({...p,site:e.target.value}))} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}>
+                  {SCHED_SITES.map(s=><option key={s}>{s}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Day</div>
+                <select value={form.day} onChange={e=>setForm(p=>({...p,day:e.target.value}))} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}>
+                  {DAYS.map(d=><option key={d}>{d}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Start Time</div>
+                <input type="time" value={form.start} onChange={e=>setForm(p=>({...p,start:e.target.value}))} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}/>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>End Time</div>
+                <input type="time" value={form.end} onChange={e=>setForm(p=>({...p,end:e.target.value}))} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}/>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Status</div>
+                <select value={form.status} onChange={e=>setForm(p=>({...p,status:e.target.value}))} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}>
+                  <option>Confirmed</option><option>Pending</option>
+                </select>
+              </div>
+            </div>
+
+            {form.officer&&form.start&&form.end&&(
+              <div style={{marginBottom:12,padding:"9px 12px",background:T.raised,borderRadius:7,fontSize:12,color:T.textSub,display:"flex",gap:16,flexWrap:"wrap"}}>
+                <span>Duration: <strong style={{color:T.text}}>{calcShiftHours(form.start,form.end)}h</strong></span>
+                <span>Type: <strong style={{color:parseInt(form.start.split(":")[0],10)>=18||parseInt(form.start.split(":")[0],10)<6?T.purple:T.accent}}>{parseInt(form.start.split(":")[0],10)>=18||parseInt(form.start.split(":")[0],10)<6?"Night":"Day"}</strong></span>
+                {calcShiftHours(form.start,form.end)>12&&<span style={{color:T.amber,fontWeight:700}}>OT — exceeds 12h</span>}
+                {form.badge&&hasConflict(form.badge,form.day,form.start,form.end,editTarget?.id)&&<span style={{color:T.red,fontWeight:700}}>Scheduling conflict detected</span>}
+              </div>
+            )}
+
+            {!formCertOk&&(
+              <div style={{marginBottom:12,background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:7,padding:"10px 12px"}}>
+                <div style={{fontSize:12,color:T.red,fontWeight:700,marginBottom:6}}><AlertTriangle size={12} strokeWidth={2} style={{display:"inline",marginRight:5}}/>{formOfficer?.certNote||"Officer certification expired"}</div>
+                <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:12,color:T.text}}>
+                  <input type="checkbox" checked={certOverride} onChange={e=>setCertOverride(e.target.checked)} style={{width:14,height:14}}/>
+                  I confirm supervisor approval to deploy this officer — risk acknowledged
+                </label>
+              </div>
+            )}
+
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={handleSave} style={{background:T.accent,color:"#fff",border:"none",borderRadius:7,padding:"9px 20px",cursor:"pointer",fontWeight:700,fontSize:12}}>
+                {editTarget?"Save Changes":"Create Shift"}
+              </button>
+              <button onClick={closeForm} style={{background:"transparent",border:`1px solid ${T.border}`,color:T.textSub,borderRadius:7,padding:"9px 14px",cursor:"pointer",fontWeight:600,fontSize:12}}>Cancel</button>
+            </div>
+          </CB>
+        </Card>
+      )}
+
+      {deleteId&&(
+        <ModalWrap onClose={()=>setDeleteId(null)}>
+          <div style={{background:T.card,border:`1px solid ${T.redB}`,borderRadius:14,padding:24,maxWidth:380,width:"100%"}}>
+            <div style={{fontSize:14,fontWeight:800,color:T.text,marginBottom:8}}>Delete Shift</div>
+            <div style={{fontSize:13,color:T.textSub,marginBottom:20}}>This will permanently remove the shift from the schedule. This action cannot be undone.</div>
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={()=>handleDelete(deleteId)} style={{flex:1,background:T.red,color:"#fff",border:"none",borderRadius:7,padding:"9px",cursor:"pointer",fontWeight:700,fontSize:12}}>Delete</button>
+              <button onClick={()=>setDeleteId(null)} style={{flex:1,background:"transparent",border:`1px solid ${T.border}`,color:T.textSub,borderRadius:7,padding:"9px",cursor:"pointer",fontSize:12}}>Cancel</button>
+            </div>
+          </div>
+        </ModalWrap>
+      )}
+
       <Card>
         <CB>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,flexWrap:"wrap"}}>
-            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12,flexWrap:"wrap"}}>
+            <div style={{display:"flex",gap:5,flexWrap:"wrap",flex:1}}>
               {["All",...DAYS].map(d=>(
-                <button key={d} onClick={()=>setDayFilter(d)} style={{fontSize:11,padding:"5px 10px",borderRadius:6,border:`1px solid ${dayFilter===d?T.accent:T.border}`,background:dayFilter===d?T.accentB:"transparent",color:dayFilter===d?T.accent:T.textSub,cursor:"pointer",fontWeight:600}}>
+                <button key={d} onClick={()=>setDayFilter(d)} style={{fontSize:11,padding:"5px 9px",borderRadius:5,border:`1px solid ${dayFilter===d?T.accent:T.border}`,background:dayFilter===d?T.accentB:"transparent",color:dayFilter===d?T.accent:T.textSub,cursor:"pointer",fontWeight:600}}>
                   {d}
                 </button>
               ))}
             </div>
-            <select value={siteFilter} onChange={e=>setSiteFilter(e.target.value)} style={{fontSize:12,background:T.raised,border:`1px solid ${T.border}`,color:T.text,borderRadius:6,padding:"5px 8px",marginLeft:"auto"}}>
+            <select value={siteFilter} onChange={e=>setSiteFilter(e.target.value)} style={{fontSize:12,background:T.raised,border:`1px solid ${T.border}`,color:T.text,borderRadius:6,padding:"5px 8px"}}>
               <option>All</option>
               {sites.map(s=><option key={s}>{s}</option>)}
             </select>
           </div>
-          <div className="ss-table-wrap">
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-              <thead>
-                <tr style={{borderBottom:`1px solid ${T.border}`}}>
-                  {["Officer","Badge","Site","Day","Shift","Hours","Type","Status","Flags"].map(h=>(
-                    <th key={h} style={{textAlign:"left",padding:"6px 10px",color:T.textSub,fontWeight:700,fontSize:10,textTransform:"uppercase",letterSpacing:".06em",whiteSpace:"nowrap"}}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((s,i)=>(
-                  <tr key={s.id} style={{borderBottom:`1px solid ${T.border}`,background:i%2===0?"transparent":T.raised}}>
-                    <td style={{padding:"9px 10px",color:T.text,fontWeight:600}}>{s.officer}</td>
-                    <td style={{padding:"9px 10px",color:T.textSub,fontFamily:"monospace"}}>{s.badge}</td>
-                    <td style={{padding:"9px 10px",color:T.textSub}}>{s.site}</td>
-                    <td style={{padding:"9px 10px",color:T.text,fontWeight:600}}>{s.day}</td>
-                    <td style={{padding:"9px 10px",color:T.textSub,whiteSpace:"nowrap"}}>{s.start}–{s.end}</td>
-                    <td style={{padding:"9px 10px",color:s.ot?T.amber:T.text,fontWeight:s.ot?700:400}}>{s.hours}h</td>
-                    <td style={{padding:"9px 10px"}}><Pill c={typeColor(s.type)}>{s.type}</Pill></td>
-                    <td style={{padding:"9px 10px"}}><Pill c={statusColor(s.status)}>{s.status}</Pill></td>
-                    <td style={{padding:"9px 10px"}}>
-                      <div style={{display:"flex",gap:4}}>
-                        {s.ot&&<Pill c={T.amber}>OT</Pill>}
-                        {!s.certOk&&<Pill c={T.red}>CERT</Pill>}
-                      </div>
-                    </td>
+
+          {filtered.length===0?(
+            <div style={{textAlign:"center",padding:"24px 0",color:T.textSub,fontSize:13}}>No shifts match this filter. {isSup&&"Use Add Shift to create one."}</div>
+          ):(
+            <div className="ss-table-wrap">
+              <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+                <thead>
+                  <tr style={{borderBottom:`1px solid ${T.border}`}}>
+                    {["Officer","Badge","Site","Day","Shift","Hrs","Type","Status","Flags",isSup?"Actions":""].filter(Boolean).map(h=>(
+                      <th key={h} style={{textAlign:"left",padding:"6px 10px",color:T.textSub,fontWeight:700,fontSize:10,textTransform:"uppercase",letterSpacing:".06em",whiteSpace:"nowrap"}}>{h}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {filtered.map((s,i)=>(
+                    <tr key={s.id} style={{borderBottom:`1px solid ${T.border}`,background:i%2===0?"transparent":T.raised}}>
+                      <td style={{padding:"9px 10px",color:s.certOk?T.text:T.red,fontWeight:600}}>{s.officer}</td>
+                      <td style={{padding:"9px 10px",color:T.textSub,fontFamily:"monospace"}}>{s.badge}</td>
+                      <td style={{padding:"9px 10px",color:T.textSub}}>{s.site}</td>
+                      <td style={{padding:"9px 10px",color:T.text,fontWeight:600}}>{s.day}</td>
+                      <td style={{padding:"9px 10px",color:T.textSub,whiteSpace:"nowrap"}}>{s.start}–{s.end}</td>
+                      <td style={{padding:"9px 10px",color:s.ot?T.amber:T.text,fontWeight:s.ot?700:400}}>{s.hours}h</td>
+                      <td style={{padding:"9px 10px"}}><Pill c={s.type==="Night"?T.purple:T.accent}>{s.type||"Day"}</Pill></td>
+                      <td style={{padding:"9px 10px"}}><Pill c={s.status==="Confirmed"?T.green:T.amber}>{s.status}</Pill></td>
+                      <td style={{padding:"9px 10px"}}>
+                        <div style={{display:"flex",gap:4}}>
+                          {s.ot&&<Pill c={T.amber}>OT</Pill>}
+                          {!s.certOk&&<Pill c={T.red}>CERT</Pill>}
+                        </div>
+                      </td>
+                      {isSup&&(
+                        <td style={{padding:"9px 10px"}}>
+                          <div style={{display:"flex",gap:4}}>
+                            <button onClick={()=>openEdit(s)} style={{fontSize:10,background:T.accentB,color:T.accent,border:`1px solid ${T.accent}`,borderRadius:4,padding:"3px 7px",cursor:"pointer",fontWeight:700}}>Edit</button>
+                            <button onClick={()=>setDeleteId(s.id)} style={{fontSize:10,background:T.redGlow,color:T.red,border:`1px solid ${T.redB}`,borderRadius:4,padding:"3px 7px",cursor:"pointer",fontWeight:700}}>Del</button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CB>
       </Card>
     </div>
@@ -2347,17 +2544,33 @@ function ScheduleModule({user,showToast,isMobile}){
 function PostOrdersModule({user,showToast,isMobile}){
   const[selectedSite,setSelectedSite]=useState(POST_ORDERS[0].id);
   const[openSection,setOpenSection]=useState(null);
+  // Persistent acknowledgment store: {"PO-001:v3.2:S-0041": {officer,badge,date,version,poId}}
+  const[acks,setAcks]=useLS("ss_post_acks",{});
   const po=POST_ORDERS.find(p=>p.id===selectedSite)||POST_ORDERS[0];
   const isOfficer=user?.role==="Officer";
 
+  const ackKey=(poId,version,badge)=>`${poId}:${version}:${badge}`;
+
   const handleAck=()=>{
-    const alreadyAcked=po.acknowledgments.find(a=>a.badge===user?.badge&&a.version===po.version);
-    if(alreadyAcked){showToast("You have already acknowledged the current version","info");return;}
-    logAction(user,"POST_ORDER_ACK",`${po.site} ${po.version}`);
+    const k=ackKey(po.id,po.version,user?.badge);
+    if(acks[k]){showToast("You have already acknowledged the current version","info");return;}
+    const entry={officer:user?.name,badge:user?.badge,date:new Date().toISOString().slice(0,10),version:po.version,poId:po.id};
+    setAcks(prev=>({...prev,[k]:entry}));
+    logAction(user,"POST_ORDER_ACK",`${po.site} ${po.version}`,{prevValue:null,newValue:`Acknowledged by ${user?.name}`});
     showToast(`Post order acknowledged for ${po.site} ${po.version}`,"success");
   };
 
-  const userAcked=po.acknowledgments.find(a=>a.badge===user?.badge&&a.version===po.version);
+  // Merge static seed acks with persisted acks for display
+  const allAcks=(poId,version)=>{
+    const staticA=POST_ORDERS.find(p=>p.id===poId)?.acknowledgments||[];
+    const persisted=Object.values(acks).filter(a=>a.poId===poId&&a.version===version);
+    const merged=[...staticA];
+    persisted.forEach(p=>{if(!merged.find(a=>a.badge===p.badge&&a.version===p.version))merged.push(p);});
+    return merged;
+  };
+
+  const userAcked=acks[ackKey(po.id,po.version,user?.badge)]||
+    po.acknowledgments.find(a=>a.badge===user?.badge&&a.version===po.version);
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
@@ -2412,25 +2625,29 @@ function PostOrdersModule({user,showToast,isMobile}){
       {!isOfficer&&(
         <Card>
           <CB>
-            <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
-              <Users size={14} strokeWidth={2}/> Officer Acknowledgments — {po.version}
-              <Pill c={po.acknowledgments.length>=2?T.green:T.amber}>{po.acknowledgments.length} acknowledged</Pill>
-            </div>
-            {po.acknowledgments.length===0?(
-              <div style={{fontSize:12,color:T.textSub,padding:"8px 0"}}>No acknowledgments yet for this version.</div>
-            ):(
-              <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                {po.acknowledgments.map((a,i)=>(
-                  <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",background:T.raised,borderRadius:7}}>
-                    <CheckCircle2 size={13} color={T.green} strokeWidth={2}/>
-                    <span style={{fontSize:13,fontWeight:600,color:T.text,flex:1}}>{a.officer}</span>
-                    <span style={{fontSize:11,color:T.textSub,fontFamily:"monospace"}}>{a.badge}</span>
-                    <span style={{fontSize:11,color:T.textSub}}>{a.date}</span>
-                    <Pill c={T.green}>{a.version}</Pill>
+            {(()=>{const list=allAcks(po.id,po.version);return(
+              <>
+                <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
+                  <Users size={14} strokeWidth={2}/> Officer Acknowledgments — {po.version}
+                  <Pill c={list.length>=2?T.green:T.amber}>{list.length} acknowledged</Pill>
+                </div>
+                {list.length===0?(
+                  <div style={{fontSize:12,color:T.textSub,padding:"8px 0"}}>No acknowledgments yet for this version.</div>
+                ):(
+                  <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                    {list.map((a,i)=>(
+                      <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",background:T.raised,borderRadius:7}}>
+                        <CheckCircle2 size={13} color={T.green} strokeWidth={2}/>
+                        <span style={{fontSize:13,fontWeight:600,color:T.text,flex:1}}>{a.officer}</span>
+                        <span style={{fontSize:11,color:T.textSub,fontFamily:"monospace"}}>{a.badge}</span>
+                        <span style={{fontSize:11,color:T.textSub}}>{a.date}</span>
+                        <Pill c={T.green}>{a.version}</Pill>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
+                )}
+              </>
+            );})()}
           </CB>
         </Card>
       )}
@@ -2755,15 +2972,29 @@ function CorrectiveActions({user,showToast,isMobile}){
 // ─────────────────────────────────────────────────────────────────
 // SHIFT HANDOVER MODULE
 // ─────────────────────────────────────────────────────────────────
+const HO_ITEM_TYPES=["incident","patrol","compliance","fleet","key","note","equipment","personnel"];
+const HO_PRIORITIES=["critical","high","medium","low"];
+
 function ShiftHandover({user,showToast,isMobile}){
   const[records,setRecords]=useLS("ss_handover",HANDOVER_RECORDS);
-  const[activeId,setActiveId]=useState(records[0]?.id||null);
+  const[resolvedItems,setResolvedItems]=useLS("ss_handover_resolved",{});
+  const[activeId,setActiveId]=useState(()=>{
+    const r=LS.get("ss_handover",HANDOVER_RECORDS);
+    return r.find(x=>x.status!=="Complete")?.id||r[0]?.id||null;
+  });
   const[showHistory,setShowHistory]=useState(false);
-  const[additionalNote,setAdditionalNote]=useState("");
-  const[resolvedItems,setResolvedItems]=useState({});
+  const[showCreate,setShowCreate]=useState(false);
+  const[showAddItem,setShowAddItem]=useState(false);
+
+  const EMPTY_HO={outShift:"Day 06:00–18:00",outSup:user?.name||"",outTime:"17:55",inShift:"Night 18:00–06:00",inSup:"",notes:""};
+  const EMPTY_ITEM={type:"incident",priority:"high",text:""};
+  const[hoForm,setHoForm]=useState(EMPTY_HO);
+  const[itemForm,setItemForm]=useState(EMPTY_ITEM);
+  const[hoItems,setHoItems]=useState([]);
 
   const active=records.find(r=>r.id===activeId);
   const history=records.filter(r=>r.status==="Complete");
+  const isSup=["Company Admin","Supervisor"].includes(user?.role);
 
   const priorityColor=(p)=>p==="critical"?T.red:p==="high"?T.amber:p==="medium"?T.accent:T.textDim;
   const typeIcon=(t)=>{
@@ -2778,33 +3009,166 @@ function ShiftHandover({user,showToast,isMobile}){
   const handleSignOff=()=>{
     const ts=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
     setRecords(prev=>prev.map(r=>r.id===activeId?{...r,incoming:{...r.incoming,acknowledgedAt:ts},status:"Complete"}:r));
-    logAction(user,"HANDOVER_SIGNED",`HO ${activeId} acknowledged by incoming supervisor`);
+    logAction(user,"HANDOVER_SIGNED",`HO ${activeId} signed off`,{prevValue:"Pending Incoming Sign-Off",newValue:"Complete"});
     showToast("Shift handover signed off — all items transferred to incoming shift","success");
   };
 
   const toggleItemResolved=(itemId)=>{
-    setResolvedItems(prev=>({...prev,[itemId]:!prev[itemId]}));
-    logAction(user,"HANDOVER_ITEM_RESOLVED",`Item ${itemId} marked resolved`);
+    const wasResolved=resolvedItems[itemId]||false;
+    setResolvedItems(prev=>({...prev,[itemId]:!wasResolved}));
+    logAction(user,"HANDOVER_ITEM_RESOLVED",`Item ${itemId}`,{prevValue:wasResolved?"Resolved":"Open",newValue:wasResolved?"Open":"Resolved"});
   };
 
-  const criticalItems=active?.items.filter(i=>i.priority==="critical")||[];
-  const highItems=active?.items.filter(i=>i.priority==="high")||[];
-  const otherItems=active?.items.filter(i=>i.priority!=="critical"&&i.priority!=="high")||[];
+  const handleCreateHandover=()=>{
+    if(!hoForm.outSup||!hoForm.inSup){showToast("Both supervisors required","error");return;}
+    const id=`HO-U${Date.now().toString(36).toUpperCase()}`;
+    const date=new Date().toISOString().slice(0,10);
+    const newHO={
+      id,date,
+      outgoing:{shift:hoForm.outShift,supervisor:hoForm.outSup,signedAt:hoForm.outTime},
+      incoming:{shift:hoForm.inShift,supervisor:hoForm.inSup,acknowledgedAt:null},
+      status:"Pending Incoming Sign-Off",
+      items:hoItems.map((it,i)=>({...it,id:`${id}-I${i}`,resolved:false})),
+      notes:hoForm.notes,
+    };
+    setRecords(prev=>[newHO,...prev]);
+    setActiveId(id);
+    logAction(user,"HANDOVER_CREATED",`${hoForm.outSup} → ${hoForm.inSup} on ${date}`,{prevValue:null,newValue:id});
+    showToast(`Handover ${id} created`,"success");
+    setShowCreate(false);setHoForm(EMPTY_HO);setHoItems([]);setShowHistory(false);
+  };
+
+  const addItem=()=>{
+    if(!itemForm.text.trim()){showToast("Item description required","error");return;}
+    setHoItems(p=>[...p,{...itemForm,id:`tmp-${Date.now()}`}]);
+    setItemForm(EMPTY_ITEM);setShowAddItem(false);
+  };
+
+  const renderItems=(items,color,bg,border)=>(
+    <div style={{display:"flex",flexDirection:"column",gap:6}}>
+      {items.map(item=>{
+        const IIcon=typeIcon(item.type);
+        const isRes=resolvedItems[item.id]||item.resolved;
+        return(
+          <div key={item.id} style={{background:bg,border:`1px solid ${border}`,borderRadius:8,padding:"12px 14px",display:"flex",gap:10,alignItems:"flex-start",opacity:isRes?0.6:1}}>
+            <IIcon size={14} color={isRes?T.textDim:color} strokeWidth={2} style={{marginTop:2,flexShrink:0}}/>
+            <div style={{flex:1,fontSize:12,color:isRes?T.textSub:T.text,lineHeight:1.6,textDecoration:isRes?"line-through":"none"}}>{item.text}</div>
+            {isSup&&!item.resolved&&(
+              <button onClick={()=>toggleItemResolved(item.id)} style={{fontSize:10,background:isRes?T.greenB:T.raised,color:isRes?T.green:T.textSub,border:`1px solid ${isRes?T.green:T.border}`,borderRadius:5,padding:"4px 8px",cursor:"pointer",fontWeight:700,flexShrink:0,whiteSpace:"nowrap"}}>
+                {isRes?"Resolved":"Mark Resolved"}
+              </button>
+            )}
+            {item.resolved&&<Pill c={T.green}>Resolved</Pill>}
+          </div>
+        );
+      })}
+    </div>
+  );
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      <SH icon={ArrowLeftRight} title="Shift Handover" sub="Digital pass-down — open items, status transfer, supervisor sign-off"/>
-
-      <div style={{display:"flex",gap:8,borderBottom:`1px solid ${T.border}`,paddingBottom:12}}>
-        <button onClick={()=>setShowHistory(false)} style={{fontSize:12,padding:"6px 14px",borderRadius:6,border:`1px solid ${!showHistory?T.accent:T.border}`,background:!showHistory?T.accentB:"transparent",color:!showHistory?T.accent:T.textSub,cursor:"pointer",fontWeight:700}}>
-          Active Handover
-        </button>
-        <button onClick={()=>setShowHistory(true)} style={{fontSize:12,padding:"6px 14px",borderRadius:6,border:`1px solid ${showHistory?T.accent:T.border}`,background:showHistory?T.accentB:"transparent",color:showHistory?T.accent:T.textSub,cursor:"pointer",fontWeight:700}}>
-          History ({history.length})
-        </button>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
+        <SH icon={ArrowLeftRight} title="Shift Handover" sub="Digital pass-down — open items, status transfer, supervisor sign-off"/>
+        {isSup&&(
+          <button onClick={()=>{setShowCreate(true);setShowHistory(false);}} style={{display:"flex",alignItems:"center",gap:6,fontSize:12,background:T.accent,color:"#fff",border:"none",borderRadius:7,padding:"8px 16px",cursor:"pointer",fontWeight:700,flexShrink:0}}>
+            <Plus size={13} strokeWidth={2.5}/> New Handover
+          </button>
+        )}
       </div>
 
-      {!showHistory&&active&&(
+      <div style={{display:"flex",gap:8,borderBottom:`1px solid ${T.border}`,paddingBottom:12,flexWrap:"wrap"}}>
+        {[
+          {label:"Active Handover",val:false},
+          {label:`History (${history.length})`,val:true},
+        ].map(t=>(
+          <button key={t.label} onClick={()=>{setShowHistory(t.val);setShowCreate(false);}} style={{fontSize:12,padding:"6px 14px",borderRadius:6,border:`1px solid ${showHistory===t.val&&!showCreate?T.accent:T.border}`,background:showHistory===t.val&&!showCreate?T.accentB:"transparent",color:showHistory===t.val&&!showCreate?T.accent:T.textSub,cursor:"pointer",fontWeight:700}}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {showCreate&&(
+        <Card style={{border:`1px solid ${T.accentB}`}}>
+          <CB>
+            <div style={{fontSize:14,fontWeight:800,color:T.text,marginBottom:14}}>Create Shift Handover</div>
+            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr 1fr",gap:12,marginBottom:12}}>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Outgoing Shift</div>
+                <input value={hoForm.outShift} onChange={e=>setHoForm(p=>({...p,outShift:e.target.value}))} placeholder="e.g. Day 06:00–18:00" style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}/>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Outgoing Supervisor</div>
+                <input value={hoForm.outSup} onChange={e=>setHoForm(p=>({...p,outSup:e.target.value}))} placeholder="Name" style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}/>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Outgoing Sign Time</div>
+                <input type="time" value={hoForm.outTime} onChange={e=>setHoForm(p=>({...p,outTime:e.target.value}))} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}/>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Incoming Shift</div>
+                <input value={hoForm.inShift} onChange={e=>setHoForm(p=>({...p,inShift:e.target.value}))} placeholder="e.g. Night 18:00–06:00" style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}/>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Incoming Supervisor</div>
+                <input value={hoForm.inSup} onChange={e=>setHoForm(p=>({...p,inSup:e.target.value}))} placeholder="Name" style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}/>
+              </div>
+            </div>
+            <div style={{marginBottom:12}}>
+              <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Supervisor Notes</div>
+              <textarea value={hoForm.notes} onChange={e=>setHoForm(p=>({...p,notes:e.target.value}))} rows={3} placeholder="Briefing notes for incoming supervisor…" style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12,resize:"vertical"}}/>
+            </div>
+
+            <div style={{marginBottom:12}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+                <div style={{fontSize:12,fontWeight:700,color:T.text}}>Pass-Down Items ({hoItems.length})</div>
+                <button onClick={()=>setShowAddItem(!showAddItem)} style={{fontSize:11,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,borderRadius:6,padding:"4px 10px",cursor:"pointer",fontWeight:600}}>
+                  {showAddItem?"Cancel":"Add Item"}
+                </button>
+              </div>
+              {showAddItem&&(
+                <div style={{background:T.raised,borderRadius:8,padding:"12px",marginBottom:8,display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr 1fr",gap:8}}>
+                  <div>
+                    <div style={{fontSize:10,color:T.textSub,fontWeight:600,marginBottom:4}}>Type</div>
+                    <select value={itemForm.type} onChange={e=>setItemForm(p=>({...p,type:e.target.value}))} style={{width:"100%",background:T.card,border:`1px solid ${T.border}`,borderRadius:5,padding:"6px 8px",color:T.text,fontSize:11}}>
+                      {HO_ITEM_TYPES.map(t=><option key={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <div style={{fontSize:10,color:T.textSub,fontWeight:600,marginBottom:4}}>Priority</div>
+                    <select value={itemForm.priority} onChange={e=>setItemForm(p=>({...p,priority:e.target.value}))} style={{width:"100%",background:T.card,border:`1px solid ${T.border}`,borderRadius:5,padding:"6px 8px",color:T.text,fontSize:11}}>
+                      {HO_PRIORITIES.map(p=><option key={p}>{p}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <div style={{fontSize:10,color:T.textSub,fontWeight:600,marginBottom:4}}>Description</div>
+                    <input value={itemForm.text} onChange={e=>setItemForm(p=>({...p,text:e.target.value}))} placeholder="Describe the item…" style={{width:"100%",background:T.card,border:`1px solid ${T.border}`,borderRadius:5,padding:"6px 8px",color:T.text,fontSize:11}}/>
+                  </div>
+                  <button onClick={addItem} style={{gridColumn:isMobile?"auto":"3",background:T.accent,color:"#fff",border:"none",borderRadius:6,padding:"6px 12px",cursor:"pointer",fontWeight:700,fontSize:11,alignSelf:"end"}}>Add</button>
+                </div>
+              )}
+              {hoItems.length>0&&(
+                <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                  {hoItems.map((it,i)=>(
+                    <div key={it.id} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",background:T.raised,borderRadius:6}}>
+                      <Pill c={priorityColor(it.priority)}>{it.priority}</Pill>
+                      <Pill c={T.accent}>{it.type}</Pill>
+                      <span style={{flex:1,fontSize:11,color:T.text}}>{it.text}</span>
+                      <button onClick={()=>setHoItems(p=>p.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:T.red,cursor:"pointer",fontSize:11,fontWeight:700,padding:"2px 6px"}}>Remove</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={handleCreateHandover} style={{background:T.accent,color:"#fff",border:"none",borderRadius:7,padding:"9px 20px",cursor:"pointer",fontWeight:700,fontSize:12}}>Create Handover</button>
+              <button onClick={()=>{setShowCreate(false);setHoItems([]);}} style={{background:"transparent",border:`1px solid ${T.border}`,color:T.textSub,borderRadius:7,padding:"9px 14px",cursor:"pointer",fontSize:12}}>Cancel</button>
+            </div>
+          </CB>
+        </Card>
+      )}
+
+      {!showHistory&&!showCreate&&active&&(
         <>
           <Card style={{border:`1px solid ${active.status==="Pending Incoming Sign-Off"?T.amberB:T.border}`}}>
             <CB>
@@ -2813,6 +3177,7 @@ function ShiftHandover({user,showToast,isMobile}){
                   <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
                     <span style={{fontSize:15,fontWeight:800,color:T.text}}>Handover — {active.date}</span>
                     <Pill c={active.status==="Complete"?T.green:T.amber}>{active.status}</Pill>
+                    <span style={{fontSize:10,color:T.textDim,fontFamily:"monospace"}}>{active.id}</span>
                   </div>
                   <div style={{display:"flex",gap:20,flexWrap:"wrap"}}>
                     <div>
@@ -2820,7 +3185,7 @@ function ShiftHandover({user,showToast,isMobile}){
                       <div style={{fontSize:12,color:T.text,fontWeight:600}}>{active.outgoing.supervisor}</div>
                       <div style={{fontSize:11,color:T.textSub}}>{active.outgoing.shift} · Signed {active.outgoing.signedAt}</div>
                     </div>
-                    <div style={{color:T.border,fontSize:20,alignSelf:"center"}}>→</div>
+                    <div style={{color:T.border,fontSize:18,alignSelf:"center"}}>→</div>
                     <div>
                       <div style={{fontSize:10,color:T.textSub,fontWeight:700,textTransform:"uppercase",letterSpacing:".06em",marginBottom:2}}>Incoming</div>
                       <div style={{fontSize:12,color:T.text,fontWeight:600}}>{active.incoming.supervisor}</div>
@@ -2830,9 +3195,9 @@ function ShiftHandover({user,showToast,isMobile}){
                     </div>
                   </div>
                 </div>
-                {active.status==="Pending Incoming Sign-Off"&&(
-                  <button onClick={handleSignOff} style={{background:T.green,color:"#000",border:"none",borderRadius:8,padding:"10px 20px",cursor:"pointer",fontWeight:800,fontSize:13,display:"flex",alignItems:"center",gap:7}}>
-                    <CheckCircle2 size={15} strokeWidth={2.5}/> Sign Off Handover
+                {isSup&&active.status==="Pending Incoming Sign-Off"&&(
+                  <button onClick={handleSignOff} style={{background:T.green,color:"#000",border:"none",borderRadius:8,padding:"10px 18px",cursor:"pointer",fontWeight:800,fontSize:13,display:"flex",alignItems:"center",gap:7}}>
+                    <CheckCircle2 size={15} strokeWidth={2.5}/> Sign Off
                   </button>
                 )}
               </div>
@@ -2845,79 +3210,26 @@ function ShiftHandover({user,showToast,isMobile}){
             </CB>
           </Card>
 
-          {criticalItems.length>0&&(
-            <div>
-              <div style={{fontSize:11,color:T.red,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
-                <AlertTriangle size={13} strokeWidth={2}/> Critical Items ({criticalItems.length})
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                {criticalItems.map(item=>{
-                  const IIcon=typeIcon(item.type);
-                  const isRes=resolvedItems[item.id]||item.resolved;
-                  return(
-                    <div key={item.id} style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:8,padding:"12px 14px",display:"flex",gap:10,alignItems:"flex-start",opacity:isRes?.6:1}}>
-                      <IIcon size={14} color={T.red} strokeWidth={2} style={{marginTop:2,flexShrink:0}}/>
-                      <div style={{flex:1,fontSize:12,color:isRes?T.textSub:T.text,lineHeight:1.6,textDecoration:isRes?"line-through":"none"}}>{item.text}</div>
-                      {!item.resolved&&(
-                        <button onClick={()=>toggleItemResolved(item.id)} style={{fontSize:10,background:isRes?T.greenB:T.raised,color:isRes?T.green:T.textSub,border:`1px solid ${isRes?T.green:T.border}`,borderRadius:5,padding:"4px 8px",cursor:"pointer",fontWeight:700,flexShrink:0,whiteSpace:"nowrap"}}>
-                          {isRes?"Resolved":"Mark Resolved"}
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {highItems.length>0&&(
-            <div>
-              <div style={{fontSize:11,color:T.amber,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
-                <AlertTriangle size={13} strokeWidth={2}/> High Priority ({highItems.length})
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                {highItems.map(item=>{
-                  const IIcon=typeIcon(item.type);
-                  const isRes=resolvedItems[item.id]||item.resolved;
-                  return(
-                    <div key={item.id} style={{background:T.amberGlow,border:`1px solid ${T.amberB}`,borderRadius:8,padding:"12px 14px",display:"flex",gap:10,alignItems:"flex-start",opacity:isRes?.6:1}}>
-                      <IIcon size={14} color={T.amber} strokeWidth={2} style={{marginTop:2,flexShrink:0}}/>
-                      <div style={{flex:1,fontSize:12,color:isRes?T.textSub:T.text,lineHeight:1.6,textDecoration:isRes?"line-through":"none"}}>{item.text}</div>
-                      {!item.resolved&&(
-                        <button onClick={()=>toggleItemResolved(item.id)} style={{fontSize:10,background:isRes?T.greenB:T.raised,color:isRes?T.green:T.textSub,border:`1px solid ${isRes?T.green:T.border}`,borderRadius:5,padding:"4px 8px",cursor:"pointer",fontWeight:700,flexShrink:0,whiteSpace:"nowrap"}}>
-                          {isRes?"Resolved":"Mark Resolved"}
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {otherItems.length>0&&(
-            <div>
-              <div style={{fontSize:11,color:T.textSub,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8}}>Other Items ({otherItems.length})</div>
-              <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                {otherItems.map(item=>{
-                  const IIcon=typeIcon(item.type);
-                  const isRes=resolvedItems[item.id]||item.resolved;
-                  return(
-                    <div key={item.id} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,padding:"12px 14px",display:"flex",gap:10,alignItems:"flex-start",opacity:isRes?.7:1}}>
-                      <IIcon size={14} color={priorityColor(item.priority)} strokeWidth={2} style={{marginTop:2,flexShrink:0}}/>
-                      <div style={{flex:1,fontSize:12,color:isRes?T.textSub:T.text,lineHeight:1.6,textDecoration:isRes?"line-through":"none"}}>{item.text}</div>
-                      {!item.resolved&&(
-                        <button onClick={()=>toggleItemResolved(item.id)} style={{fontSize:10,background:isRes?T.greenB:T.raised,color:isRes?T.green:T.textSub,border:`1px solid ${isRes?T.green:T.border}`,borderRadius:5,padding:"4px 8px",cursor:"pointer",fontWeight:700,flexShrink:0,whiteSpace:"nowrap"}}>
-                          {isRes?"Resolved":"Mark Resolved"}
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          {(()=>{
+            const critical=active.items.filter(i=>i.priority==="critical");
+            const high=active.items.filter(i=>i.priority==="high");
+            const other=active.items.filter(i=>i.priority!=="critical"&&i.priority!=="high");
+            return(<>
+              {critical.length>0&&(<div><div style={{fontSize:11,color:T.red,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8,display:"flex",alignItems:"center",gap:6}}><AlertTriangle size={13} strokeWidth={2}/> Critical ({critical.length})</div>{renderItems(critical,T.red,T.redGlow,T.redB)}</div>)}
+              {high.length>0&&(<div style={{marginTop:high.length&&critical.length?8:0}}><div style={{fontSize:11,color:T.amber,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8,display:"flex",alignItems:"center",gap:6}}><AlertTriangle size={13} strokeWidth={2}/> High Priority ({high.length})</div>{renderItems(high,T.amber,T.amberGlow,T.amberB)}</div>)}
+              {other.length>0&&(<div style={{marginTop:other.length&&(high.length||critical.length)?8:0}}><div style={{fontSize:11,color:T.textSub,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8}}>Other Items ({other.length})</div>{renderItems(other,T.accent,T.raised,T.border)}</div>)}
+              {active.items.length===0&&<div style={{textAlign:"center",padding:"16px 0",color:T.textSub,fontSize:13}}>No pass-down items. Use New Handover to add items.</div>}
+            </>);
+          })()}
         </>
+      )}
+
+      {!showHistory&&!showCreate&&!active&&(
+        <div style={{textAlign:"center",padding:"32px 0",color:T.textSub}}>
+          <ArrowLeftRight size={32} color={T.textDim} strokeWidth={1.5} style={{display:"block",margin:"0 auto 12px"}}/>
+          <div style={{fontSize:14,fontWeight:700,marginBottom:6}}>No active handover</div>
+          <div style={{fontSize:12}}>All handovers have been completed. Create a new one for the next shift.</div>
+        </div>
       )}
 
       {showHistory&&(
@@ -2934,9 +3246,23 @@ function ShiftHandover({user,showToast,isMobile}){
                     </div>
                     <div style={{fontSize:11,color:T.textSub}}>{r.outgoing.supervisor} → {r.incoming.supervisor} · Acknowledged {r.incoming.acknowledgedAt}</div>
                   </div>
-                  <div style={{fontSize:11,color:T.textSub}}>{r.items.filter(i=>i.resolved).length}/{r.items.length} items resolved</div>
+                  <div style={{fontSize:11,color:T.textSub}}>{r.items.filter(i=>i.resolved||resolvedItems[i.id]).length}/{r.items.length} items resolved</div>
                 </div>
-                {r.notes&&<div style={{marginTop:10,fontSize:11,color:T.textSub,lineHeight:1.6}}>{r.notes}</div>}
+                {r.notes&&<div style={{marginTop:8,fontSize:11,color:T.textSub,lineHeight:1.6,borderTop:`1px solid ${T.border}`,paddingTop:8}}>{r.notes}</div>}
+                {r.items.length>0&&(
+                  <div style={{marginTop:8,display:"flex",flexDirection:"column",gap:4}}>
+                    {r.items.map((it,i)=>{
+                      const IIcon=typeIcon(it.type);
+                      const isRes=it.resolved||resolvedItems[it.id];
+                      return(
+                        <div key={i} style={{display:"flex",gap:8,alignItems:"center",opacity:isRes?0.5:1}}>
+                          <IIcon size={11} color={priorityColor(it.priority)} strokeWidth={2} style={{flexShrink:0}}/>
+                          <span style={{fontSize:11,color:isRes?T.textDim:T.textSub,textDecoration:isRes?"line-through":"none"}}>{it.text}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CB>
             </Card>
           ))}
@@ -3946,17 +4272,22 @@ function AuditLogModule({showToast,isMobile}){
             <div style={{textAlign:"center",padding:24,color:T.textSub,fontSize:13}}>No audit events recorded yet. Actions taken in the platform are logged here.</div>
           ):(
             <div style={{display:"flex",flexDirection:"column",gap:5}}>
-              {filtered.slice(0,100).map(e=>(
+              {filtered.slice(0,200).map(e=>(
                 <div key={e.id} style={{display:"flex",gap:10,alignItems:"flex-start",padding:"9px 10px",background:T.raised,borderRadius:8}}>
                   <div style={{width:8,height:8,borderRadius:"50%",background:actionColor(e.action),flexShrink:0,marginTop:3}}/>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                       <span style={{fontSize:11,fontWeight:700,color:actionColor(e.action)}}>{e.action}</span>
-                      <span style={{fontSize:10,color:T.textSub}}>{e.user} · {e.role}</span>
+                      <span style={{fontSize:10,color:T.textSub}}>{e.user} · {e.badge} · {e.role}</span>
                     </div>
                     {e.detail&&<div style={{fontSize:10,color:T.textDim,marginTop:2}}>{e.detail}</div>}
+                    {(e.prevValue!==null&&e.prevValue!==undefined)||(e.newValue!==null&&e.newValue!==undefined)?
+                      <div style={{display:"flex",gap:8,marginTop:3,flexWrap:"wrap"}}>
+                        {e.prevValue!=null&&<span style={{fontSize:9,color:T.red,fontFamily:"monospace",background:T.redGlow,padding:"1px 5px",borderRadius:3}}>before: {String(e.prevValue)}</span>}
+                        {e.newValue!=null&&<span style={{fontSize:9,color:T.green,fontFamily:"monospace",background:T.greenGlow,padding:"1px 5px",borderRadius:3}}>after: {String(e.newValue)}</span>}
+                      </div>:null}
                   </div>
-                  <div style={{fontSize:9,color:T.textDim,fontFamily:"monospace",flexShrink:0}}>{fmt(e.ts)}</div>
+                  <div style={{fontSize:9,color:T.textDim,fontFamily:"monospace",flexShrink:0,whiteSpace:"nowrap"}}>{fmt(e.ts)}</div>
                 </div>
               ))}
             </div>
@@ -5906,7 +6237,9 @@ export default function App(){
   if(mfaPending)return <MFAScreen user={mfaPending} onVerify={handleMfaVerify} onCancel={()=>{clearSession();setMfaPending(null);}}/>;
   if(!user)return <AuthScreen onLogin={handleLogin} onRegister={handleRegister}/>;
 
+  const perms=ROLE_PERMS[role]||[];
   const renderMod=()=>{
+    if(!perms.includes(mod))return <Dashboard openModal={openModal} showToast={showToast} isMobile={isMobile}/>;
     switch(mod){
       case "dashboard": return <Dashboard openModal={openModal} showToast={showToast} isMobile={isMobile}/>;
       case "myshift":   return <MyShift user={user} showToast={showToast} isMobile={isMobile}/>;
