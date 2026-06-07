@@ -735,7 +735,7 @@ function AuthScreen({onLogin,onRegister}){
                 </div>
                 <div style={{position:"relative"}}>
                   <input type={showPw?"text":"password"} value={pw} onChange={e=>{setPw(e.target.value);setErr("");}} onKeyDown={e=>e.key==="Enter"&&attempt()} placeholder="••••••••••" autoComplete="current-password" style={inp({paddingRight:44})}/>
-                  <button onClick={()=>setShowPw(p=>!p)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:T.textSub,cursor:"pointer",fontSize:15,padding:4}}>{showPw?"●":"○"}</button>
+                  <button onClick={()=>setShowPw(p=>!p)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:T.textSub,cursor:"pointer",padding:4,display:"flex",alignItems:"center"}}>{showPw?<EyeOff size={16} strokeWidth={1.8}/>:<Eye size={16} strokeWidth={1.8}/>}</button>
                 </div>
               </div>
               <button onClick={attempt} disabled={pending}
@@ -1342,7 +1342,7 @@ const LIVE_TICKER=[
   {t:119000,msg:"Ava Simmons — Started patrol route, Eastside Mall",type:"info"},
 ];
 
-function Dashboard({openModal,showToast}){
+function Dashboard({openModal,showToast,isMobile}){
   const[feed,setFeed]=useState([]);
   const[positions,setPositions]=useState(
     OFFICERS.filter(o=>o.status!=="Off Duty").map(o=>({...o,cx:o.x,cy:o.y}))
@@ -1388,7 +1388,7 @@ function Dashboard({openModal,showToast}){
       )}
 
       {/* 2 — METRICS STRIP */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:8}}>
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?3:6},1fr)`,gap:isMobile?6:8}}>
         {KPI_DATA.map(k=>{
           const Ic=k.icon;
           return(
@@ -1405,7 +1405,7 @@ function Dashboard({openModal,showToast}){
       </div>
 
       {/* 3 — ACTIVE OPERATIONS: map + live feed */}
-      <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.6fr) minmax(0,1fr)",gap:12}}>
+      <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"minmax(0,1.6fr) minmax(0,1fr)",gap:12}}>
         <Card>
           <CB>
             <SH title="Active Operations" icon={Navigation} sub={`${activeOfficers.length} units deployed · ${SITES.length} sites`}/>
@@ -1519,7 +1519,7 @@ function Dashboard({openModal,showToast}){
   );
 }
 
-function Workforce(){
+function Workforce({isMobile}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(265px,1fr))",gap:12}}>
@@ -1575,7 +1575,7 @@ function Workforce(){
   );
 }
 
-function Patrol({user,showToast,openModal}){
+function Patrol({user,showToast,openModal,isMobile}){
   const[scanLog,setScanLog]=useLS("ss_scans",SCAN_LOG_INIT);
   const[scanning,setScanning]=useState(false);
   const[scanTarget,setScanTarget]=useState(null);
@@ -1724,7 +1724,7 @@ function Patrol({user,showToast,openModal}){
   );
 }
 
-function Fleet({openModal}){
+function Fleet({openModal,isMobile}){
   const[tab,setTab]=useState("vehicles");
   const totalCost=FLEET_COSTS.reduce((s,v)=>s+v.total,0);
   const totalMiles=FLEET_COSTS.reduce((s,v)=>s+v.miles,0);
@@ -1769,7 +1769,7 @@ function Fleet({openModal}){
 
       {tab==="costs"&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+          <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(3,1fr)",gap:10}}>
             {[
               {label:"Total Monthly Cost",value:`$${totalCost.toLocaleString()}`,color:T.accent},
               {label:"Total Miles (MTD)",value:totalMiles.toLocaleString(),color:T.gold},
@@ -1796,7 +1796,7 @@ function Fleet({openModal}){
                       </div>
                       <div style={{fontSize:18,fontWeight:900,color:T.accent}}>${v.total.toLocaleString()}</div>
                     </div>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6}}>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:isMobile?4:6}}>
                       {[["Fuel",v.fuel,T.amber],["Maint.",v.maintenance,T.gold],["Insurance",v.insurance,T.accent],["Deprec.",v.depreciation,T.purple]].map(([l,val,c])=>(
                         <div key={l} style={{textAlign:"center",background:T.bg,borderRadius:7,padding:"8px 6px"}}>
                           <div style={{fontSize:11,fontWeight:700,color:c}}>${val}</div>
@@ -1818,7 +1818,7 @@ function Fleet({openModal}){
   );
 }
 
-function Visitors({openModal,user,showToast}){
+function Visitors({openModal,user,showToast,isMobile}){
   const[visitors,setVisitors]=useLS("ss_visitors",VISITORS_DATA);
   const active=visitors.filter(v=>v.status==="Active").length;
   const out=visitors.filter(v=>v.status==="Checked Out").length;
@@ -1840,8 +1840,8 @@ function Visitors({openModal,user,showToast}){
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-        {[["Active",active,T.green],["Out Today",out,T.textSub],["Watchlist","0",T.red]].map(([l,v,c])=>(
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:isMobile?6:10}}>
+        {[["Active",active,T.green],["Checked Out",out,T.textSub],["Watchlist","0",T.red]].map(([l,v,c])=>(
           <Card key={l} glow={c}>
             <CB style={{textAlign:"center"}}>
               <div style={{fontSize:30,fontWeight:900,color:c}}>{v}</div>
@@ -1897,7 +1897,7 @@ function Visitors({openModal,user,showToast}){
   );
 }
 
-function Reports(){
+function Reports({isMobile}){
   const[rtype,setRtype]=useState(REPORT_TYPES[0]);
   const[loading,setLoading]=useState(false);
   const[report,setReport]=useState("");
@@ -1955,7 +1955,7 @@ function Reports(){
   );
 }
 
-function Dispatch({showToast,user}){
+function Dispatch({showToast,user,isMobile}){
   const[dispatched,setDispatched]=useState({});
   const[radioState,setRadioState]=useState("idle");
   const[notifPerm,setNotifPerm]=useState(typeof Notification!=="undefined"?Notification.permission:"denied");
@@ -2056,7 +2056,7 @@ function Dispatch({showToast,user}){
 // ─────────────────────────────────────────────────────────────────
 // MY SHIFT
 // ─────────────────────────────────────────────────────────────────
-function MyShift({user,showToast}){
+function MyShift({user,showToast,isMobile}){
   const[clocked,setClocked]=useState(false);
   const[clockInTime,setClockInTime]=useState(null);
   const[elapsed,setElapsed]=useState(0);
@@ -2212,7 +2212,7 @@ function MyShift({user,showToast}){
           )}
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             {!clocked
-              ?<button onClick={clockIn} style={{flex:1,background:`linear-gradient(135deg,${T.green},#00a84e)`,border:"none",color:"#000",padding:"14px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:15}}>⏱ Clock In</button>
+              ?<button onClick={clockIn} style={{flex:1,background:`linear-gradient(135deg,${T.green},#00a84e)`,border:"none",color:"#000",padding:"14px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:15,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><Timer size={16} strokeWidth={2}/>Clock In</button>
               :<>
                 {["On Patrol","On Site","Break"].map(s=>(
                   <button key={s} onClick={()=>{setShiftStatus(s);addActivity(`Status changed to ${s}`);}} style={{flex:1,background:shiftStatus===s?`${SM(s).c}20`:T.raised,border:`1px solid ${shiftStatus===s?SM(s).c:T.border}`,color:shiftStatus===s?SM(s).c:T.textSub,padding:"9px 8px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:11}}>{s}</button>
@@ -2279,7 +2279,7 @@ function MyShift({user,showToast}){
 
       {/* Today stats */}
       {clocked&&(
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:isMobile?6:10}}>
           {[["Checkpoints","8",T.accent,CheckCircle2],["Incidents","0",T.green,Activity],["Hours",fmt(elapsed),T.gold,Timer]].map(([l,v,c,Ic])=>(
             <Card key={l} glow={c}>
               <CB style={{textAlign:"center",padding:"14px 10px"}}>
@@ -2354,7 +2354,7 @@ function MyShift({user,showToast}){
 // ─────────────────────────────────────────────────────────────────
 // EQUIPMENT TRACKING
 // ─────────────────────────────────────────────────────────────────
-function EquipmentModule({user,showToast}){
+function EquipmentModule({user,showToast,isMobile}){
   const[items,setItems]=useState(EQUIPMENT);
   const[checkOutModal,setCheckOutModal]=useState(null);
   const[checkInModal,setCheckInModal]=useState(null);
@@ -2479,7 +2479,7 @@ function CheckInModalEq({item,onClose,onConfirm}){
 // ─────────────────────────────────────────────────────────────────
 // LEAVE / PTO
 // ─────────────────────────────────────────────────────────────────
-function LeaveModule({user,showToast}){
+function LeaveModule({user,showToast,isMobile}){
   const[requests,setRequests]=useState(LEAVE_REQUESTS);
   const[showForm,setShowForm]=useState(false);
   const[form,setForm]=useState({type:"Annual",from:"",to:"",notes:""});
@@ -2594,7 +2594,7 @@ function LeaveModule({user,showToast}){
 // ─────────────────────────────────────────────────────────────────
 // TRAINING TRACKER
 // ─────────────────────────────────────────────────────────────────
-function TrainingModule(){
+function TrainingModule({isMobile}){
   const[filter,setFilter]=useState("All");
   const statuses=["All","Valid","Expiring Soon","Expired"];
   const filtered=filter==="All"?TRAINING_DATA:TRAINING_DATA.filter(t=>t.status===filter);
@@ -2612,7 +2612,7 @@ function TrainingModule(){
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:isMobile?6:10}}>
         {[["Total Certs",TRAINING_DATA.length,T.accent],["Expiring Soon",expiring,T.amber],["Expired",expired,T.red]].map(([l,v,c])=>(
           <Card key={l} glow={c}>
             <CB style={{textAlign:"center",padding:"14px 10px"}}>
@@ -2679,7 +2679,7 @@ function TrainingModule(){
 // ─────────────────────────────────────────────────────────────────
 // AUDIT LOG
 // ─────────────────────────────────────────────────────────────────
-function AuditLogModule({showToast}){
+function AuditLogModule({showToast,isMobile}){
   const[log,setLog]=useState(()=>getAuditLog());
   const[filter,setFilter]=useState("");
 
@@ -2696,7 +2696,7 @@ function AuditLogModule({showToast}){
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:isMobile?6:10}}>
         {[["Total Events",log.length,T.accent],["This Session",log.filter(e=>e.ts>new Date(Date.now()-SS_TTL).toISOString()).length,T.green],["Users",new Set(log.map(e=>e.user)).size,T.gold]].map(([l,v,c])=>(
           <Card key={l} glow={c}>
             <CB style={{textAlign:"center",padding:"14px 10px"}}>
@@ -2741,7 +2741,7 @@ function AuditLogModule({showToast}){
 // ─────────────────────────────────────────────────────────────────
 // EXECUTIVE COMMAND CENTER
 // ─────────────────────────────────────────────────────────────────
-function ExecutiveCommand({showToast}){
+function ExecutiveCommand({showToast,isMobile}){
   const[tab,setTab]=useState("overview");
   const[briefing,setBriefing]=useState("");
   const[loadBrief,setLoadBrief]=useState(false);
@@ -2770,7 +2770,7 @@ function ExecutiveCommand({showToast}){
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10}}>
+      <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(5,1fr)",gap:isMobile?8:10}}>
         {[
           ["Monthly Revenue",`$${(totalRev/1000).toFixed(0)}k`,T.green,"↑ +8% QoQ"],
           ["Labor Cost",`$${(totalCost/1000).toFixed(0)}k`,T.amber,`${Math.round(totalCost/totalRev*100)}% of rev`],
@@ -2813,7 +2813,7 @@ function ExecutiveCommand({showToast}){
               }
             </CB>
           </Card>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+          <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:14}}>
             <Card>
               <CB>
                 <SH title="Revenue by Contract"/>
@@ -2843,7 +2843,7 @@ function ExecutiveCommand({showToast}){
               </CB>
             </Card>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+          <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:4},1fr)`,gap:10}}>
             {[
               ["Officers Active",`${OFFICERS.filter(o=>o.status!=="Off Duty").length}/6`,T.accent],
               ["Open Incidents",INCIDENTS.filter(i=>i.status==="Active"||i.status==="Under Review").length,T.red],
@@ -2875,7 +2875,7 @@ function ExecutiveCommand({showToast}){
                 </div>
                 {c.status==="Active"&&(
                   <>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6,marginBottom:10}}>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:isMobile?4:6,marginBottom:10}}>
                       {[["Revenue",`$${c.monthly.toLocaleString()}`,T.text],["Cost",`$${c.cost.toLocaleString()}`,T.amber],["Profit",`$${c.profit.toLocaleString()}`,T.green],["Margin",`${c.margin}%`,hc(c.margin*2+50)]].map(([l,v,col])=>(
                         <div key={l} style={{background:T.raised,borderRadius:7,padding:"8px 10px",textAlign:"center"}}>
                           <div style={{fontSize:13,fontWeight:800,color:col}}>{v}</div>
@@ -2900,7 +2900,7 @@ function ExecutiveCommand({showToast}){
 
       {tab==="labor"&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:isMobile?6:10}}>
             {[["Weekly Labor Est.",`$${Math.round(totalCost/4.3).toLocaleString()}`,T.amber],["OT Hours (Week)",`${TIMESHEETS.reduce((a,t)=>a+t.otHrs,0).toFixed(1)}h`,T.red],["Avg Hourly Rate","$24.50",T.accent]].map(([l,v,c])=>(
               <Card key={l} glow={c}>
                 <CB style={{textAlign:"center",padding:"14px 10px"}}>
@@ -2957,7 +2957,7 @@ function ExecutiveCommand({showToast}){
 
       {tab==="compliance"&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+          <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:4},1fr)`,gap:10}}>
             {[
               ["Overdue",COMPLIANCE_ITEMS.filter(c=>c.status==="Overdue").length,T.red],
               ["Due Soon",COMPLIANCE_ITEMS.filter(c=>c.status==="Due Soon").length,T.amber],
@@ -3072,7 +3072,7 @@ function ExecutiveCommand({showToast}){
                   <div style={{marginTop:9,display:"flex",flexDirection:"column",gap:4}}>
                     {r.factors.map((f,i)=>(
                       <div key={i} style={{fontSize:11,color:T.textSub,display:"flex",alignItems:"center",gap:6}}>
-                        <span style={{color:r.color,fontSize:8}}>●</span>{f}
+                        <div style={{width:5,height:5,borderRadius:"50%",background:r.color,flexShrink:0}}/>  {f}
                       </div>
                     ))}
                   </div>
@@ -3110,7 +3110,7 @@ function ExecutiveCommand({showToast}){
 // ─────────────────────────────────────────────────────────────────
 // TIMEKEEPING MODULE
 // ─────────────────────────────────────────────────────────────────
-function TimekeepingModule({user,showToast}){
+function TimekeepingModule({user,showToast,isMobile}){
   const[tab,setTab]=useState("timesheets");
   const[sheets,setSheets]=useState(TIMESHEETS);
   const[expanded,setExpanded]=useState(null);
@@ -3211,7 +3211,7 @@ function TimekeepingModule({user,showToast}){
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:4},1fr)`,gap:10}}>
         {[
           ["Total Hours (Week)",totalHrs.toFixed(1),T.accent],
           ["Overtime Hours",totalOT.toFixed(2),T.red],
@@ -3319,7 +3319,7 @@ function TimekeepingModule({user,showToast}){
                 </div>
               )}
               <button onClick={clockedIn?clockOut:clockIn} style={{background:clockedIn?T.red:`linear-gradient(135deg,${T.green},${T.accentH})`,border:"none",color:clockedIn?"#fff":"#000",padding:"15px 32px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:15,width:"100%"}}>
-                {clockedIn?"⏹ Clock Out":"⏱ GPS Clock In →"}
+                <span style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>{clockedIn?<><X size={16} strokeWidth={2.5}/>Clock Out</>:<><Timer size={16} strokeWidth={2}/>GPS Clock In</>}</span>
               </button>
             </CB>
           </Card>
@@ -3424,7 +3424,7 @@ const ADVISORS={
   },
 };
 
-function AICommandCenter(){
+function AICommandCenter({isMobile}){
   const[adv,setAdv]=useState("operations");
   const cfg=ADVISORS[adv];
   const[allMsgs,setAllMsgs]=useState({operations:[],workforce:[],compliance:[],risk:[],executive:[]});
@@ -3453,7 +3453,7 @@ function AICommandCenter(){
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?3:5},1fr)`,gap:isMobile?6:8}}>
         {Object.entries(ADVISORS).map(([key,c])=>(
           <button key={key} onClick={()=>{setAdv(key);setInp("");}} style={{background:adv===key?`${c.color}15`:T.raised,border:`1px solid ${adv===key?c.color+"45":T.border}`,borderRadius:10,padding:"12px 6px",cursor:"pointer",textAlign:"center",transition:"all 0.15s"}}>
             <div style={{marginBottom:4,display:"flex",justifyContent:"center"}}><c.icon size={20} color={adv===key?c.color:T.textSub} strokeWidth={1.8}/></div>
@@ -3532,7 +3532,7 @@ function AICommandCenter(){
 // ─────────────────────────────────────────────────────────────────
 // PROCUREMENT MODULE
 // ─────────────────────────────────────────────────────────────────
-function ProcurementModule({user,showToast}){
+function ProcurementModule({user,showToast,isMobile}){
   const[tab,setTab]=useState("requests");
   const[reqs,setReqs]=useState(PURCHASE_REQUESTS);
   const[showForm,setShowForm]=useState(false);
@@ -3561,7 +3561,7 @@ function ProcurementModule({user,showToast}){
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:4},1fr)`,gap:10}}>
         {[
           ["Active Vendors",VENDORS.filter(v=>v.status==="Active").length,T.accent],
           ["Pending Requests",reqs.filter(r=>r.status==="Pending").length,T.amber],
@@ -3996,7 +3996,7 @@ function OnboardingWizard({user,onComplete}){
 // ─────────────────────────────────────────────────────────────────
 // USER MANAGEMENT MODULE
 // ─────────────────────────────────────────────────────────────────
-function UserManagement({user,showToast}){
+function UserManagement({user,showToast,isMobile}){
   const[users,setUsers]=useState(()=>getUsers());
   const[tab,setTab]=useState("users");
   const[search,setSearch]=useState("");
@@ -4041,9 +4041,9 @@ function UserManagement({user,showToast}){
   const stats={total:users.length,active:users.filter(u=>u.active!==false).length,admins:users.filter(u=>u.role==="Company Admin").length,mfa:users.filter(u=>u.mfaEnabled).length};
 
   return(
-    <div style={{padding:20,maxWidth:1040,margin:"0 auto"}}>
+    <div style={{padding:isMobile?0:20,maxWidth:1040,margin:"0 auto"}}>
       <SH icon={Users} title="User Management" sub="Manage access, roles, and permissions across your organization"/>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:24}}>
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:4},1fr)`,gap:isMobile?8:12,marginBottom:24}}>
         {[["Total Users",stats.total,Users,T.accent],["Active",stats.active,CheckCircle2,T.green],["Admins",stats.admins,Crown,T.purple],["MFA Enabled",stats.mfa,Fingerprint,T.amber]].map(([lb,v,Ic,c])=>(
           <Card key={lb}><CB style={{padding:"14px 16px",display:"flex",alignItems:"center",gap:12}}>
             <div style={{width:36,height:36,borderRadius:9,background:`${c}12`,border:`1px solid ${c}30`,display:"flex",alignItems:"center",justifyContent:"center"}}><Ic size={17} color={c} strokeWidth={2}/></div><div><div style={{fontSize:22,fontWeight:900,color:c}}>{v}</div><div style={{fontSize:11,color:T.textSub,marginTop:1}}>{lb}</div></div>
@@ -4188,7 +4188,7 @@ function UserManagement({user,showToast}){
 // ─────────────────────────────────────────────────────────────────
 // COMPANY SETTINGS MODULE
 // ─────────────────────────────────────────────────────────────────
-function CompanySettings({user,showToast}){
+function CompanySettings({user,showToast,isMobile}){
   const[tab,setTab]=useState("company");
   const[s,setS]=useState(()=>LS.get("ss_co_settings_v1",{name:"ShieldSync Demo Co.",industry:"Security Services",size:"11-50",website:"",address:"",city:"",state:"",zip:"",phone:"",timezone:"America/New_York",mfaRequired:false,sessionTTL:"8",passwordMinLength:"8",logRetention:"90",n_sos:true,n_cp:true,n_inc:true,n_clock:false,n_fuel:true,n_cert:true,n_daily:false}));
   const upd=(k,v)=>setS(p=>({...p,[k]:v}));
@@ -4329,7 +4329,7 @@ function CompanySettings({user,showToast}){
 // ─────────────────────────────────────────────────────────────────
 // CLIENT PORTAL
 // ─────────────────────────────────────────────────────────────────
-function ClientPortal({user,showToast}){
+function ClientPortal({user,showToast,isMobile}){
   const[tab,setTab]=useState("overview");
   const sla=user?.role==="Client"?CLIENT_SLA.filter(s=>s.client.toLowerCase().includes("northgate")):CLIENT_SLA;
 
@@ -4356,7 +4356,7 @@ function ClientPortal({user,showToast}){
 
       {tab==="overview"&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+          <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:4},1fr)`,gap:10}}>
             {[
               {label:"Sites Under Contract",value:"4",color:T.accent},
               {label:"Avg SLA Score",value:"90%",color:T.green},
@@ -4410,7 +4410,7 @@ function ClientPortal({user,showToast}){
                     </div>
                     <Pill label={s.status} color={sc}/>
                   </div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:12}}>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:isMobile?5:8,marginBottom:12}}>
                     {[
                       {l:"Patrol Rate",v:`${s.patrols}%`,c:s.patrols>=90?T.green:T.amber},
                       {l:"Response Time",v:`${s.responseTime}m`,c:s.responseTime<=4?T.green:T.amber},
@@ -4468,7 +4468,7 @@ function ClientPortal({user,showToast}){
 
       {tab==="billing"&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:isMobile?6:10}}>
             {[
               {label:"Current Month",value:"$96,750",sub:"Due Jun 30",color:T.accent},
               {label:"Last Month",value:"$94,200",sub:"Paid May 31",color:T.green},
@@ -4514,7 +4514,7 @@ function ClientPortal({user,showToast}){
 // ─────────────────────────────────────────────────────────────────
 // IT / CYBER COMMAND
 // ─────────────────────────────────────────────────────────────────
-function ITCyberCommand({user,showToast}){
+function ITCyberCommand({user,showToast,isMobile}){
   const[tab,setTab]=useState("threats");
 
   const resolve=(id)=>{
@@ -4679,27 +4679,27 @@ export default function App(){
 
   const renderMod=()=>{
     switch(mod){
-      case "dashboard": return <Dashboard openModal={openModal} showToast={showToast}/>;
-      case "myshift":   return <MyShift user={user} showToast={showToast}/>;
-      case "workforce": return <Workforce/>;
-      case "patrol":    return <Patrol user={user} showToast={showToast} openModal={openModal}/>;
-      case "fleet":     return <Fleet openModal={openModal}/>;
-      case "visitors":  return <Visitors openModal={openModal} user={user} showToast={showToast}/>;
-      case "reports":   return <Reports/>;
-      case "dispatch":  return <Dispatch showToast={showToast} user={user}/>;
-      case "equipment": return <EquipmentModule user={user} showToast={showToast}/>;
-      case "leave":     return <LeaveModule user={user} showToast={showToast}/>;
-      case "training":  return <TrainingModule/>;
-      case "auditlog":  return <AuditLogModule showToast={showToast}/>;
-      case "executive": return <ExecutiveCommand showToast={showToast}/>;
-      case "timekeeping":return <TimekeepingModule user={user} showToast={showToast}/>;
-      case "aicommand": return <AICommandCenter/>;
-      case "procurement":return <ProcurementModule user={user} showToast={showToast}/>;
-      case "users":       return <UserManagement user={user} showToast={showToast}/>;
-      case "settings":    return <CompanySettings user={user} showToast={showToast}/>;
-      case "clientportal":return <ClientPortal user={user} showToast={showToast}/>;
-      case "itcommand":   return <ITCyberCommand user={user} showToast={showToast}/>;
-      default:            return <Dashboard openModal={openModal} showToast={showToast}/>;
+      case "dashboard": return <Dashboard openModal={openModal} showToast={showToast} isMobile={isMobile}/>;
+      case "myshift":   return <MyShift user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "workforce": return <Workforce isMobile={isMobile}/>;
+      case "patrol":    return <Patrol user={user} showToast={showToast} openModal={openModal} isMobile={isMobile}/>;
+      case "fleet":     return <Fleet openModal={openModal} isMobile={isMobile}/>;
+      case "visitors":  return <Visitors openModal={openModal} user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "reports":   return <Reports isMobile={isMobile}/>;
+      case "dispatch":  return <Dispatch showToast={showToast} user={user} isMobile={isMobile}/>;
+      case "equipment": return <EquipmentModule user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "leave":     return <LeaveModule user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "training":  return <TrainingModule isMobile={isMobile}/>;
+      case "auditlog":  return <AuditLogModule showToast={showToast} isMobile={isMobile}/>;
+      case "executive": return <ExecutiveCommand showToast={showToast} isMobile={isMobile}/>;
+      case "timekeeping":return <TimekeepingModule user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "aicommand": return <AICommandCenter isMobile={isMobile}/>;
+      case "procurement":return <ProcurementModule user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "users":       return <UserManagement user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "settings":    return <CompanySettings user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "clientportal":return <ClientPortal user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "itcommand":   return <ITCyberCommand user={user} showToast={showToast} isMobile={isMobile}/>;
+      default:            return <Dashboard openModal={openModal} showToast={showToast} isMobile={isMobile}/>;
     }
   };
 
@@ -4710,6 +4710,7 @@ export default function App(){
         *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
         html,body,#root{font-family:'DM Sans',system-ui,sans-serif;background:${T.bg};overflow-x:hidden;-webkit-text-size-adjust:100%;height:100%;}
         input,textarea,select,button{font-family:inherit;}
+        @media(max-width:768px){button,select,input{min-height:44px;}input[type="range"],input[type="checkbox"]{min-height:unset;}.ss-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}}
         ::-webkit-scrollbar{width:4px;height:4px;}
         ::-webkit-scrollbar-track{background:transparent;}
         ::-webkit-scrollbar-thumb{background:${T.border};border-radius:2px;}
