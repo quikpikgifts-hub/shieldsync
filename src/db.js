@@ -88,19 +88,21 @@ export const shifts     = makeTable("ss_db_shifts");
 // ─── Audit log (append-only) ──────────────────────────────────────
 const AUD_KEY = "ss_audit_v1";
 export const audit = {
-  log: (user, action, detail = "") => {
+  log: (user, action, detail = "", opts = {}) => {
     const entries = LS.get(AUD_KEY, []);
     const entry = {
-      id:     `A${Date.now()}`,
-      ts:     new Date().toISOString(),
-      user:   user?.name  ?? "System",
-      badge:  user?.badge ?? "—",
-      role:   user?.role  ?? "—",
+      id:        `A${Date.now()}`,
+      ts:        new Date().toISOString(),
+      user:      user?.name  ?? "System",
+      badge:     user?.badge ?? "—",
+      role:      user?.role  ?? "—",
       action,
       detail,
+      prevValue: opts.prevValue ?? null,
+      newValue:  opts.newValue  ?? null,
     };
     entries.unshift(entry);
-    LS.set(AUD_KEY, entries.slice(0, 1000));
+    LS.set(AUD_KEY, entries.slice(0, 2000));
     _emit(AUD_KEY, entries);
     return entry;
   },
