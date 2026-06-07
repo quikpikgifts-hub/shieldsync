@@ -1,11 +1,17 @@
 import React, { Component, useState, useEffect, useRef, useCallback, memo, useMemo, useTransition } from "react";
 import { audit, callAI, watchPosition, onlineStatus, HAS_SUPABASE } from "./db.js";
 import {
-  GUARDIAN_COMPANY, GUARDIAN_USERS, GUARDIAN_SITES_FULL, GUARDIAN_OFFICERS_ROSTER,
-  GUARDIAN_VEHICLES, GUARDIAN_CHECKPOINTS, GUARDIAN_INCIDENTS, GUARDIAN_PATROL_ROUTES,
-  GUARDIAN_EQUIPMENT, GUARDIAN_AI_ALERTS, GUARDIAN_KPI, GUARDIAN_SCHEDULE,
-  GUARDIAN_DAR_REPORTS, buildGuardianLiveEvents,
-} from "./guardian.js";
+  LayoutDashboard, BarChart3, Clock, Clock4, Users, Shield, ShieldAlert, ShieldCheck,
+  Car, IdCard, FileText, Radio, Wrench, CalendarDays, GraduationCap, Bot, Package,
+  ClipboardList, UserCog, Settings, Building2, MapPin, CheckCircle2, Timer, Activity,
+  AlertTriangle, TrendingUp, TrendingDown, Check, X, ChevronLeft, ChevronRight,
+  ArrowRight, ArrowLeft, ArrowDownToLine, RotateCcw, RotateCw, Lock, KeyRound,
+  Fingerprint, Bell, Mail, Phone, Camera, Fuel, Gauge, Zap, Printer, ChevronDown,
+  ChevronUp, Sparkles, Cpu, Database, Link2, BookOpen, Wind, Bandage, Eye, EyeOff,
+  LogOut, Plus, Minus, Wifi, WifiOff, CircleCheck, CircleAlert, ScanLine, MapPinned,
+  Briefcase, HandCoins, ShieldQuestion, Video, Network, Usb, ServerCog, Rocket, Hand,
+  HelpCircle, UserCircle2, Navigation, Siren, Star, Crown, Slash,
+} from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────
 // LOCAL STORAGE LAYER
@@ -43,58 +49,17 @@ function clearSession(){LS.del(SS_KEY);}
 // DESIGN TOKENS
 // ─────────────────────────────────────────────────────────────────
 const T={
-  bg:"#060910",surface:"#0C1018",raised:"#111822",card:"#131B28",
-  border:"#1A2840",borderLight:"#223354",
-  accent:"#00C8F0",accentH:"#00A8CC",accentGlow:"rgba(0,200,240,0.10)",accentB:"rgba(0,200,240,0.25)",
-  gold:"#F0A020",goldGlow:"rgba(240,160,32,0.10)",
-  red:"#F04444",redGlow:"rgba(240,68,68,0.10)",redB:"rgba(240,68,68,0.25)",
-  green:"#00D464",greenGlow:"rgba(0,212,100,0.10)",greenB:"rgba(0,212,100,0.25)",
-  amber:"#F0A800",purple:"#9B59F0",purpleGlow:"rgba(155,89,240,0.10)",
-  text:"#E2EAF4",textSub:"#8A9BBC",textDim:"#384D6A",
-  overlay:"rgba(6,9,16,0.93)",
+  bg:"#0A0A0A",surface:"#111111",raised:"#171717",card:"#1A1A1A",
+  border:"#262626",borderLight:"#333333",
+  accent:"#3B82F6",accentH:"#2563EB",accentGlow:"rgba(59,130,246,0.08)",accentB:"rgba(59,130,246,0.20)",
+  gold:"#F59E0B",goldGlow:"rgba(245,158,11,0.08)",
+  red:"#EF4444",redGlow:"rgba(239,68,68,0.08)",redB:"rgba(239,68,68,0.20)",
+  green:"#22C55E",greenGlow:"rgba(34,197,94,0.08)",greenB:"rgba(34,197,94,0.20)",
+  amber:"#F59E0B",amberGlow:"rgba(245,158,11,0.08)",amberB:"rgba(245,158,11,0.20)",
+  purple:"#8B5CF6",purpleGlow:"rgba(139,92,246,0.08)",
+  text:"#FFFFFF",textSub:"#A3A3A3",textDim:"#525252",
+  overlay:"rgba(10,10,10,0.92)",
 };
-
-// ─────────────────────────────────────────────────────────────────
-// I18N — English / Spanish toggle (ss_lang in localStorage)
-// ─────────────────────────────────────────────────────────────────
-const LangCtx=React.createContext("en");
-const LANG={
-  en:{
-    Command:"Command",Executive:"Executive","My Shift":"My Shift",Workforce:"Workforce",
-    Timekeeping:"Timekeeping",Patrol:"Patrol",Fleet:"Fleet",Visitors:"Visitors",
-    Reports:"Reports",Dispatch:"Dispatch",Equipment:"Equipment",Leave:"Leave",
-    Training:"Training","Post Orders":"Post Orders",Compliance:"Compliance",
-    "Ops Map":"Ops Map","Shift Market":"Shift Market","AI Command":"AI Command",
-    Procurement:"Procurement","Audit Log":"Audit Log",Users:"Users",Settings:"Settings",
-    "Client Portal":"Client Portal","IT/Cyber":"IT/Cyber",
-    "Sign Out":"Sign Out","Collapse":"Collapse",
-    "Clock In":"Clock In","Clock Out":"Clock Out",
-    "Report Incident":"Report Incident","Emergency SOS":"Emergency SOS",
-    "Start Patrol":"Start Patrol","Scan Checkpoint":"Scan Checkpoint",
-    "Acknowledge Post Orders":"Acknowledge Post Orders",
-    "Claim This Shift":"Claim This Shift","Inspect & Capture Photos":"Inspect & Capture Photos",
-    Submit:"Submit",Cancel:"Cancel",Done:"Done",Save:"Save",Close:"Close",
-    "View Details":"View Details","Export CSV":"Export CSV",
-  },
-  es:{
-    Command:"Comando",Executive:"Ejecutivo","My Shift":"Mi Turno",Workforce:"Personal",
-    Timekeeping:"Control Horario",Patrol:"Patrulla",Fleet:"Flota",Visitors:"Visitantes",
-    Reports:"Informes",Dispatch:"Despacho",Equipment:"Equipamiento",Leave:"Permisos",
-    Training:"Capacitación","Post Orders":"Órdenes de Puesto",Compliance:"Cumplimiento",
-    "Ops Map":"Mapa Ops","Shift Market":"Mercado Turnos","AI Command":"IA Comando",
-    Procurement:"Adquisiciones","Audit Log":"Registro Auditoría",Users:"Usuarios",Settings:"Configuración",
-    "Client Portal":"Portal Cliente","IT/Cyber":"TI/Ciberseguridad",
-    "Sign Out":"Cerrar Sesión","Collapse":"Contraer",
-    "Clock In":"Entrada","Clock Out":"Salida",
-    "Report Incident":"Reportar Incidente","Emergency SOS":"SOS Emergencia",
-    "Start Patrol":"Iniciar Patrulla","Scan Checkpoint":"Escanear Punto",
-    "Acknowledge Post Orders":"Confirmar Órdenes de Puesto",
-    "Claim This Shift":"Tomar Este Turno","Inspect & Capture Photos":"Inspeccionar y Capturar Fotos",
-    Submit:"Enviar",Cancel:"Cancelar",Done:"Hecho",Save:"Guardar",Close:"Cerrar",
-    "View Details":"Ver Detalles","Export CSV":"Exportar CSV",
-  },
-};
-function useT(){const lang=React.useContext(LangCtx);return(key)=>(LANG[lang]?.[key]??LANG.en[key]??key);}
 
 const SM=(s)=>({
   "On Patrol":{c:T.accent,p:true},"On Site":{c:T.green,p:true},
@@ -115,10 +80,8 @@ const AUTH_USERS=[
   {id:"U-002",email:"supervisor@shieldsync.com", password:"Sentinel2025!",name:"Sarah Chen",    role:"Supervisor",   badge:"SUP-001", av:"SC"},
   {id:"U-003",email:"officer@shieldsync.com",   password:"Sentinel2025!",name:"Marcus Webb",   role:"Officer",      badge:"S-0041",  av:"MW"},
   {id:"U-004",email:"client@shieldsync.com",    password:"Sentinel2025!",name:"James Holloway",role:"Client",       badge:"CLT-001", av:"JH"},
-  // Guardian Strategic Security demo tenant
-  ...GUARDIAN_USERS,
 ];
-const ROLES=["Company Admin","Executive","Operations Manager","Dispatcher","Supervisor","Officer","Client"];
+const ROLES=["Company Admin","Supervisor","Officer","Client"];
 const PERM_LABELS={
   dashboard:"Command Center",executive:"Executive Dashboard",workforce:"Workforce",
   timekeeping:"Timekeeping",patrol:"Patrol",fleet:"Fleet",visitors:"Visitors",
@@ -126,39 +89,14 @@ const PERM_LABELS={
   training:"Training",aicommand:"AI Command",procurement:"Procurement",
   auditlog:"Audit Log",users:"User Management",settings:"Company Settings",myshift:"My Shift",
   clientportal:"Client Portal",itcommand:"IT/Cyber",
-  postorders:"Post Orders",compliance:"Compliance",opmap:"Operations Map",shiftmarket:"Shift Market",
 };
 const ROLE_PERMS={
-  "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings","clientportal","itcommand","postorders","compliance","opmap","shiftmarket"],
-  "Executive":["executive","reports","compliance","clientportal"],
-  "Operations Manager":["dashboard","executive","workforce","timekeeping","patrol","fleet","reports","dispatch","equipment","leave","training","compliance","opmap","aicommand"],
-  "Dispatcher":["dashboard","dispatch","opmap","patrol","reports"],
-  "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","itcommand","postorders","compliance","opmap"],
-  "Officer":["myshift","patrol","visitors","equipment","leave","postorders","shiftmarket"],
+  "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings","clientportal","itcommand"],
+  "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","itcommand"],
+  "Officer":["dashboard","myshift","patrol","visitors","equipment","leave"],
   "Client":["clientportal","reports"],
 };
-function getUsers(){
-  const s=LS.get("ss_users_v1",null);
-  if(s){
-    // Re-merge Guardian users if they're missing (e.g. after clearing storage)
-    const guardianIds=GUARDIAN_USERS.map(u=>u.id);
-    const hasGuardian=s.some(u=>guardianIds.includes(u.id));
-    if(!hasGuardian){
-      const merged=[...s,...GUARDIAN_USERS.map(u=>({...u,active:true,createdAt:u.createdAt||"2024-01-01"}))];
-      LS.set("ss_users_v1",merged);
-      return merged;
-    }
-    return s;
-  }
-  const init=AUTH_USERS.map(u=>({
-    ...u,active:true,
-    createdAt:u.createdAt||"2024-01-01",
-    mfaEnabled:u.mfaEnabled||false,
-    company:u.company||(GUARDIAN_USERS.find(g=>g.id===u.id)?GUARDIAN_COMPANY.name:"ShieldSync Demo"),
-  }));
-  LS.set("ss_users_v1",init);
-  return init;
-}
+function getUsers(){const s=LS.get("ss_users_v1",null);if(s)return s;const init=AUTH_USERS.map(u=>({...u,active:true,createdAt:"2024-01-01",mfaEnabled:false,company:"ShieldSync Protect"}));LS.set("ss_users_v1",init);return init;}
 function saveUsers(list){LS.set("ss_users_v1",list);}
 function authUser(email,pw){return getUsers().find(u=>u.email.toLowerCase()===email.toLowerCase().trim()&&u.password===pw&&u.active!==false)||null;}
 
@@ -258,38 +196,35 @@ const AI_INSIGHTS=[
 ];
 const REPORT_TYPES=["Daily Operations Summary","Incident Report","Patrol Analysis","Workforce Performance","Risk Assessment"];
 const NAV=[
-  {id:"dashboard",label:"Command",icon:"⚡",roles:["Company Admin","Supervisor","Operations Manager","Dispatcher"]},
-  {id:"executive",label:"Executive",icon:"📊",roles:["Company Admin","Executive","Operations Manager"]},
-  {id:"myshift",label:"My Shift",icon:"⏱️",roles:["Officer"]},
-  {id:"workforce",label:"Workforce",icon:"👮",roles:["Company Admin","Supervisor","Operations Manager"]},
-  {id:"timekeeping",label:"Timekeeping",icon:"🕐",roles:["Company Admin","Supervisor","Operations Manager"]},
-  {id:"patrol",label:"Patrol",icon:"🛡️",roles:["Company Admin","Supervisor","Officer","Operations Manager","Dispatcher"]},
-  {id:"fleet",label:"Fleet",icon:"🚗",roles:["Company Admin","Supervisor","Operations Manager"]},
-  {id:"visitors",label:"Visitors",icon:"🪪",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"reports",label:"Reports",icon:"📄",roles:["Company Admin","Supervisor","Client","Executive","Operations Manager","Dispatcher"]},
-  {id:"dispatch",label:"Dispatch",icon:"📡",roles:["Company Admin","Supervisor","Dispatcher"]},
-  {id:"equipment",label:"Equipment",icon:"🔧",roles:["Company Admin","Supervisor","Officer","Operations Manager"]},
-  {id:"leave",label:"Leave",icon:"📅",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"training",label:"Training",icon:"🎓",roles:["Company Admin","Supervisor","Operations Manager"]},
-  {id:"postorders",label:"Post Orders",icon:"📋",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"compliance",label:"Compliance",icon:"🪪",roles:["Company Admin","Supervisor","Executive","Operations Manager"]},
-  {id:"opmap",label:"Ops Map",icon:"🗺️",roles:["Company Admin","Supervisor","Operations Manager","Dispatcher"]},
-  {id:"shiftmarket",label:"Shift Market",icon:"🔄",roles:["Company Admin","Supervisor","Officer"]},
-  {id:"aicommand",label:"AI Command",icon:"🤖",roles:["Company Admin","Supervisor","Operations Manager"]},
-  {id:"procurement",label:"Procurement",icon:"📦",roles:["Company Admin"]},
-  {id:"auditlog",label:"Audit Log",icon:"📋",roles:["Company Admin"]},
-  {id:"users",label:"Users",icon:"👥",roles:["Company Admin"]},
-  {id:"settings",label:"Settings",icon:"⚙️",roles:["Company Admin"]},
-  {id:"clientportal",label:"Client Portal",icon:"🏢",roles:["Company Admin","Client","Executive"]},
-  {id:"itcommand",label:"IT/Cyber",icon:"🔒",roles:["Company Admin","Supervisor","Operations Manager"]},
+  {id:"dashboard",label:"Command",icon:LayoutDashboard,roles:["Company Admin","Supervisor","Officer"],group:"ops"},
+  {id:"executive",label:"Executive",icon:BarChart3,roles:["Company Admin"],group:"ops"},
+  {id:"myshift",label:"My Shift",icon:Clock,roles:["Officer"],group:"ops"},
+  {id:"patrol",label:"Patrol",icon:Shield,roles:["Company Admin","Supervisor","Officer"],group:"field"},
+  {id:"dispatch",label:"Dispatch",icon:Radio,roles:["Company Admin","Supervisor"],group:"field"},
+  {id:"fleet",label:"Fleet",icon:Car,roles:["Company Admin","Supervisor"],group:"field"},
+  {id:"visitors",label:"Visitors",icon:IdCard,roles:["Company Admin","Supervisor","Officer"],group:"field"},
+  {id:"equipment",label:"Equipment",icon:Wrench,roles:["Company Admin","Supervisor","Officer"],group:"field"},
+  {id:"workforce",label:"Workforce",icon:Users,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"timekeeping",label:"Timekeeping",icon:Clock4,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"leave",label:"Leave",icon:CalendarDays,roles:["Company Admin","Supervisor","Officer"],group:"people"},
+  {id:"training",label:"Training",icon:GraduationCap,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"aicommand",label:"Intelligence",icon:Sparkles,roles:["Company Admin","Supervisor"],group:"intel"},
+  {id:"reports",label:"Reports",icon:FileText,roles:["Company Admin","Supervisor","Client"],group:"intel"},
+  {id:"procurement",label:"Procurement",icon:Package,roles:["Company Admin"],group:"admin"},
+  {id:"auditlog",label:"Audit Log",icon:ClipboardList,roles:["Company Admin"],group:"admin"},
+  {id:"users",label:"Users",icon:UserCog,roles:["Company Admin"],group:"admin"},
+  {id:"settings",label:"Settings",icon:Settings,roles:["Company Admin"],group:"admin"},
+  {id:"clientportal",label:"Client Portal",icon:Building2,roles:["Company Admin","Client"],group:"admin"},
+  {id:"itcommand",label:"IT / Cyber",icon:ShieldAlert,roles:["Company Admin","Supervisor"],group:"admin"},
 ];
+const NAV_GROUP_LABELS={ops:"OPERATIONS",field:"FIELD OPS",people:"WORKFORCE",intel:"INTELLIGENCE",admin:"ADMIN"};
 const KPI_DATA=[
-  {label:"Active Officers",value:"5",sub:"1 off duty",icon:"👮",color:T.accent,trend:"+2"},
-  {label:"Open Incidents",value:"2",sub:"1 critical",icon:"⚡",color:T.red,trend:"-1"},
-  {label:"Patrols Today",value:"38",sub:"94% complete",icon:"🛡️",color:T.green,trend:"+4"},
-  {label:"Sites Active",value:"4",sub:"All nominal",icon:"📍",color:T.gold,trend:"0"},
-  {label:"Checkpoints",value:"38/42",sub:"4 missed",icon:"✅",color:T.purple,trend:"-2"},
-  {label:"Avg Response",value:"4.2m",sub:"↓12% today",icon:"⏱️",color:T.amber,trend:"↓"},
+  {label:"Active Officers",value:"5",sub:"1 off duty",icon:Users,color:T.accent,trend:"+2"},
+  {label:"Open Incidents",value:"2",sub:"1 critical",icon:AlertTriangle,color:T.red,trend:"-1"},
+  {label:"Patrol Rate",value:"94%",sub:"38 of 42 CPs",icon:Shield,color:T.green,trend:"+4"},
+  {label:"Sites Active",value:"4",sub:"All nominal",icon:MapPin,color:T.textSub,trend:"0"},
+  {label:"Avg Response",value:"4.2m",sub:"Down 12% today",icon:Timer,color:T.textSub,trend:"-"},
+  {label:"Open Alerts",value:"3",sub:"1 critical",icon:Bell,color:T.amber,trend:"down"},
 ];
 const PHOTO_SLOTS=[
   {key:"front",label:"Front"},{key:"rear",label:"Rear"},
@@ -409,67 +344,6 @@ const CYBER_ACCESS_LOG=[
   {time:"07:42",user:"officer@shieldsync.com",action:"Login",ip:"10.0.0.4",result:"Success",device:"Android / Chrome"},
   {time:"07:21",user:"unknown@external.io",action:"Login",ip:"45.33.32.156",result:"Failed",device:"curl/7.88"},
   {time:"06:55",user:"client@shieldsync.com",action:"Report View",ip:"172.16.0.8",result:"Success",device:"Firefox / Windows"},
-];
-const POST_ORDERS=[
-  {id:"PO-001",site:"Northgate Tower",version:3,updated:"2026-06-01",author:"Sarah Chen",status:"Active",
-   content:`NORTHGATE TOWER — POST ORDERS v3\nEffective: June 1, 2026\n\n1. GENERAL RESPONSIBILITIES\n- Report for duty 15 minutes before shift start\n- Uniform must be clean, pressed, and complete at all times\n- Maintain visitor log at all times\n\n2. ACCESS CONTROL\n- All visitors must sign in and receive a temp badge\n- Contractor access limited to 06:00–18:00 Mon–Fri\n- No tailgating — challenge any unknown person at entry\n\n3. PATROL REQUIREMENTS\n- Complete patrol rounds every 90 minutes minimum\n- Scan all 8 checkpoints during each round\n- Document any anomalies immediately\n\n4. EMERGENCY PROCEDURES\n- Fire: Initiate evacuation per floor warden plan\n- Medical: Call 911, then notify supervisor\n- Active threat: Lockdown, call 911, shelter-in-place\n\n5. REPORTING\n- Complete DAR before shift end\n- All incidents require immediate report submission\n- Escalate to supervisor within 5 minutes of any critical event`,
-   acks:["Marcus Webb","Jordan Park"],pending:["Ava Simmons"]},
-  {id:"PO-002",site:"Harbor Logistics",version:2,updated:"2026-05-15",author:"Admin",status:"Active",
-   content:`HARBOR LOGISTICS — POST ORDERS v2\nEffective: May 15, 2026\n\n1. ACCESS CONTROL\n- Truck drivers must present BOL and valid ID\n- All vehicles logged in yard management system\n- Gate code changes every Monday — obtain from supervisor\n\n2. PATROL\n- Perimeter patrol every 60 minutes\n- Check all loading docks and lock seals\n- Verify container seals match manifest\n\n3. INCIDENTS\n- Any cargo discrepancy — notify shift supervisor immediately\n- Damage to property — photograph and report\n- Unauthorized individuals — detain and notify law enforcement if necessary`,
-   acks:["Diana Reyes"],pending:[]},
-  {id:"PO-003",site:"Plaza West",version:1,updated:"2026-04-10",author:"Admin",status:"Active",
-   content:`PLAZA WEST — POST ORDERS v1\nEffective: April 10, 2026\n\n1. RETAIL ENVIRONMENT\n- Visible deterrence is primary role — maintain visible presence\n- Assist retail associates with loss prevention observations only\n- Never physically detain shoppers — observe and report\n\n2. PATROL\n- Internal mall patrol every 45 minutes\n- Parking lot patrol every 90 minutes\n- Focus on high-theft areas (electronics, cosmetics)\n\n3. CUSTOMER SERVICE\n- Assist lost shoppers, medical situations\n- Coordinate with tenant security teams\n- Escort closing staff to vehicles on request`,
-   acks:[],pending:["Theo Okafor"]},
-  {id:"PO-004",site:"Eastside Mall",version:2,updated:"2026-05-28",author:"Sarah Chen",status:"Active",
-   content:`EASTSIDE MALL — POST ORDERS v2\nEffective: May 28, 2026\n\n1. GENERAL\n- Two-officer coverage during peak hours (12:00–20:00)\n- Maintain radio contact with partner at all times\n- Off-duty personnel not permitted on site in uniform\n\n2. PATROL & COVERAGE\n- Entry points monitored during all operating hours\n- Food court patrol every 30 minutes during peak\n- Parking structure sweep at 22:00 before close\n\n3. CLOSING PROCEDURE\n- Verify all tenant spaces secured by 22:30\n- Final patrol log signed and submitted by 23:00\n- Handover to overnight officer by 23:00`,
-   acks:["Ava Simmons"],pending:[]},
-];
-const GUARD_CERTS=[
-  {id:"GC-001",officer:"Marcus Webb",badge:"S-0041",state:"CA",cardNo:"BSIS-44201",type:"Guard Card",expires:"2026-08-15",training:"Unarmed",status:"Active",daysLeft:71},
-  {id:"GC-002",officer:"Marcus Webb",badge:"S-0041",state:"CA",cardNo:"CPRO-2891",type:"CPR/First Aid",expires:"2026-07-01",training:"Medical",status:"Expiring",daysLeft:26},
-  {id:"GC-003",officer:"Diana Reyes",badge:"S-0067",state:"CA",cardNo:"BSIS-38847",type:"Guard Card",expires:"2027-01-20",training:"Unarmed",status:"Active",daysLeft:229},
-  {id:"GC-004",officer:"Diana Reyes",badge:"S-0067",state:"CA",cardNo:"ARMS-1204",type:"Armed Permit",expires:"2026-06-20",training:"Armed",status:"Critical",daysLeft:15},
-  {id:"GC-005",officer:"Theo Okafor",badge:"S-0083",state:"CA",cardNo:"BSIS-51023",type:"Guard Card",expires:"2026-06-12",training:"Unarmed",status:"Critical",daysLeft:7},
-  {id:"GC-006",officer:"Ava Simmons",badge:"S-0092",state:"CA",cardNo:"BSIS-62914",type:"Guard Card",expires:"2027-03-10",training:"Unarmed",status:"Active",daysLeft:278},
-  {id:"GC-007",officer:"Jordan Park",badge:"S-0105",state:"CA",cardNo:"BSIS-47382",type:"Guard Card",expires:"2026-09-30",training:"Unarmed",status:"Active",daysLeft:117},
-  {id:"GC-008",officer:"Jordan Park",badge:"S-0105",state:"CA",cardNo:"CPRO-3312",type:"CPR/First Aid",expires:"2026-06-25",training:"Medical",status:"Expiring",daysLeft:20},
-  {id:"GC-009",officer:"Elena Voss",badge:"S-0118",state:"CA",cardNo:"BSIS-55901",type:"Guard Card",expires:"2026-06-08",training:"Unarmed",status:"Critical",daysLeft:3},
-  {id:"GC-010",officer:"Elena Voss",badge:"S-0118",state:"CA",cardNo:"ARMS-2201",type:"Armed Permit",expires:"2026-07-15",training:"Armed",status:"Expiring",daysLeft:40},
-];
-const OPEN_SHIFTS=[
-  {id:"OS-001",site:"Northgate Tower",date:"2026-06-06",start:"06:00",end:"18:00",type:"Day",urgency:"Normal",rate:22,posted:"2h ago",requirements:"Guard Card CA",claimed:null},
-  {id:"OS-002",site:"Harbor Logistics",date:"2026-06-06",start:"18:00",end:"06:00",type:"Night",urgency:"Urgent",rate:25,posted:"30min ago",requirements:"Guard Card CA",claimed:null},
-  {id:"OS-003",site:"Plaza West",date:"2026-06-07",start:"12:00",end:"00:00",type:"Evening",urgency:"Normal",rate:22,posted:"4h ago",requirements:"Guard Card CA",claimed:null},
-  {id:"OS-004",site:"Eastside Mall",date:"2026-06-07",start:"06:00",end:"14:00",type:"Day",urgency:"Normal",rate:22,posted:"1h ago",requirements:"Guard Card CA",claimed:null},
-  {id:"OS-005",site:"Harbor Logistics",date:"2026-06-08",start:"06:00",end:"18:00",type:"Day",urgency:"Normal",rate:22,posted:"6h ago",requirements:"Guard Card CA",claimed:null},
-];
-const VISITOR_WATCHLIST=[
-  {id:"WL-001",name:"Robert Henley",dob:"1978-04-22",reason:"Trespassing — Eastside Mall (2025-11-14)",addedBy:"Sarah Chen",photo:"RH",severity:"High"},
-  {id:"WL-002",name:"Tamara Osei",dob:"1991-07-03",reason:"Theft — Northgate Tower (2026-01-08)",addedBy:"Admin",photo:"TO",severity:"Medium"},
-  {id:"WL-003",name:"Unknown Male",dob:"—",reason:"Attempted tailgating — Harbor Logistics (2026-03-21)",addedBy:"Diana Reyes",photo:"??",severity:"High"},
-  {id:"WL-004",name:"Gary Mitch",dob:"1965-09-18",reason:"Harassment — Plaza West (2026-02-14)",addedBy:"Theo Okafor",photo:"GM",severity:"Low"},
-];
-const FATIGUE_DATA=[
-  {officer:"Marcus Webb",badge:"S-0041",av:"MW",hoursLast7:60.38,consecutiveNight:0,missedCPs:0,incidentRate:2,score:28,risk:"Low"},
-  {officer:"Diana Reyes",badge:"S-0067",av:"DR",hoursLast7:60.5,consecutiveNight:0,missedCPs:1,incidentRate:0,score:41,risk:"Low"},
-  {officer:"Theo Okafor",badge:"S-0083",av:"TO",hoursLast7:60,consecutiveNight:0,missedCPs:3,incidentRate:1,score:62,risk:"Moderate"},
-  {officer:"Ava Simmons",badge:"S-0092",av:"AS",hoursLast7:60,consecutiveNight:0,missedCPs:2,incidentRate:0,score:48,risk:"Low"},
-  {officer:"Jordan Park",badge:"S-0105",av:"JP",hoursLast7:62.25,consecutiveNight:0,missedCPs:0,incidentRate:0,score:55,risk:"Moderate"},
-  {officer:"Elena Voss",badge:"S-0118",av:"EV",hoursLast7:60,consecutiveNight:5,missedCPs:4,incidentRate:0,score:78,risk:"High"},
-];
-const PERF_SCORES=[
-  {officer:"Marcus Webb",av:"MW",badge:"S-0041",patrol:94,cps:8,incidents:2,fatigue:28,onTime:100,grade:"B+",score:84},
-  {officer:"Diana Reyes",av:"DR",badge:"S-0067",patrol:100,cps:5,incidents:0,fatigue:41,onTime:100,grade:"A-",score:91},
-  {officer:"Theo Okafor",av:"TO",badge:"S-0083",patrol:72,cps:3,incidents:1,fatigue:62,onTime:95,grade:"C+",score:67},
-  {officer:"Ava Simmons",av:"AS",badge:"S-0092",patrol:78,cps:0,incidents:0,fatigue:48,onTime:98,grade:"B-",score:72},
-  {officer:"Jordan Park",av:"JP",badge:"S-0105",patrol:88,cps:6,incidents:0,fatigue:55,onTime:100,grade:"B",score:80},
-  {officer:"Elena Voss",av:"EV",badge:"S-0118",patrol:60,cps:0,incidents:0,fatigue:78,onTime:92,grade:"D",score:42},
-];
-const CONTRACT_RISK=[
-  {id:"CTR-001",client:"Northgate Properties",end:"2026-12-31",daysLeft:209,health:92,margin:25,risk:"Low",score:12,lastContact:"2 days ago"},
-  {id:"CTR-002",client:"Harbor Logistics Group",end:"2027-02-28",daysLeft:268,health:74,margin:15,risk:"Medium",score:45,lastContact:"8 days ago"},
-  {id:"CTR-003",client:"Plaza West REIT",end:"2026-05-31",daysLeft:-5,health:61,margin:30,risk:"Critical",score:92,lastContact:"14 days ago"},
-  {id:"CTR-004",client:"Eastside Mall Corp",end:"2027-12-31",daysLeft:574,health:88,margin:25,risk:"Low",score:18,lastContact:"1 day ago"},
 ];
 
 // ─────────────────────────────────────────────────────────────────
@@ -600,10 +474,10 @@ class ErrorBoundary extends Component{
   render(){
     if(this.state.err)return(
       <div style={{padding:48,textAlign:"center"}}>
-        <div style={{fontSize:40,marginBottom:14}}>⚠️</div>
-        <div style={{fontSize:16,fontWeight:800,color:T.red,marginBottom:8}}>Module Error</div>
+        <div style={{display:"flex",justifyContent:"center",marginBottom:14}}><AlertTriangle size={32} color={T.red} strokeWidth={1.5}/></div>
+        <div style={{fontSize:16,fontWeight:700,color:T.text,marginBottom:8}}>Module Error</div>
         <div style={{fontSize:13,color:T.textSub,marginBottom:24,maxWidth:340,margin:"0 auto 24px",lineHeight:1.6}}>{this.state.err.message}</div>
-        <button onClick={()=>this.setState({err:null})} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px 24px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:13}}>↺ Retry Module</button>
+        <button onClick={()=>this.setState({err:null})} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px 24px",borderRadius:8,cursor:"pointer",fontWeight:600,fontSize:13,display:"inline-flex",alignItems:"center",gap:7}}><RotateCcw size={13} strokeWidth={2}/>Retry</button>
       </div>
     );
     return this.props.children;
@@ -639,16 +513,18 @@ function Card({children,glow,style={},onClick}){
 }
 function CB({children,style={}}){return<div style={{padding:"18px 20px",...style}}>{children}</div>;}
 function SH({title,action,icon,sub}){
+  const Icon=icon&&typeof icon!=="string"?icon:null;
+  const ActionIco=action?.icon||null;
   return(
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}}>
       <div>
         <div style={{display:"flex",alignItems:"center",gap:6}}>
-          {icon&&<span style={{fontSize:14}}>{icon}</span>}
-          <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",color:T.textSub}}>{title}</span>
+          {Icon?<Icon size={13} color={T.textDim} strokeWidth={2}/>:icon?<span style={{fontSize:13}}>{icon}</span>:null}
+          <span style={{fontSize:10,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",color:T.textDim}}>{title}</span>
         </div>
         {sub&&<div style={{fontSize:11,color:T.textDim,marginTop:3,lineHeight:1.4}}>{sub}</div>}
       </div>
-      {action&&<button onClick={action.fn} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,fontSize:11,fontWeight:700,padding:"9px 14px",borderRadius:8,cursor:"pointer",WebkitTapHighlightColor:"transparent",minHeight:38,display:"flex",alignItems:"center",flexShrink:0}}>{action.label}</button>}
+      {action&&<button onClick={action.fn} className="ss-ghost-btn" style={{background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,fontSize:11,fontWeight:500,padding:"6px 12px",borderRadius:6,cursor:"pointer",WebkitTapHighlightColor:"transparent",display:"inline-flex",alignItems:"center",gap:5,flexShrink:0,transition:"all 0.12s"}}>{ActionIco&&<ActionIco size={11} strokeWidth={2}/>}{action.label}</button>}
     </div>
   );
 }
@@ -697,431 +573,7 @@ function ModalWrap({children}){
 // ─────────────────────────────────────────────────────────────────
 // AUTH SCREEN
 // ─────────────────────────────────────────────────────────────────
-// ─────────────────────────────────────────────────────────────────
-// DEMO ENGINE — Personalized prospect environment
-// ─────────────────────────────────────────────────────────────────
-const DemoCtx=React.createContext(null);
-
-const DEMO_PAIN_POINTS=[
-  {id:"visibility",label:"Clients demanding real-time visibility",icon:"📡"},
-  {id:"checkpoints",label:"Officers missing checkpoints",icon:"🛡️"},
-  {id:"incidents",label:"Incident reports taking too long",icon:"⚡"},
-  {id:"scheduling",label:"Scheduling and shift coverage gaps",icon:"📅"},
-  {id:"compliance",label:"Compliance and certification tracking",icon:"🪪"},
-  {id:"paper",label:"Replacing paper-based processes",icon:"📄"},
-];
-const DEMO_ROLES=[
-  {id:"ceo",label:"CEO / Owner",icon:"👑",mod:"executive",tagline:"Revenue, client health & contract ROI"},
-  {id:"ops",label:"Operations Director",icon:"🎯",mod:"dashboard",tagline:"Incidents, dispatch & situational awareness"},
-  {id:"supervisor",label:"Site Supervisor",icon:"🔍",mod:"patrol",tagline:"Patrol compliance & officer performance"},
-  {id:"compliance",label:"Compliance / HR Director",icon:"🪪",mod:"compliance",tagline:"Certifications, audits & regulatory readiness"},
-  {id:"client",label:"Security Client",icon:"🏢",mod:"clientportal",tagline:"Real-time visibility into your sites"},
-];
-const DEMO_IND={
-  contract:{label:"Contract Security",icon:"🛡️",
-    sites:["Corporate Campus","Industrial Complex","Downtown Tower","Retail Complex","Logistics Depot"],
-    incidents:["Trespassing","Unauthorized Access","Suspicious Vehicle","Property Damage","Medical Assist"]},
-  corporate:{label:"Corporate Security",icon:"🏢",
-    sites:["HQ Main Campus","Data Center","Executive Suite","Parking Structure","Campus North"],
-    incidents:["Tailgating — Secured Zone","After-Hours Access","Visitor Policy Violation","Attempted Breach","Medical Emergency"]},
-  retail:{label:"Retail / Loss Prevention",icon:"🛍️",
-    sites:["Flagship Store","Distribution Center","Mall Location A","Mall Location B","Outlet Center"],
-    incidents:["Shoplifting","Aggressive Customer","Employee Incident","LP Assist","Medical Assist"]},
-  healthcare:{label:"Healthcare Security",icon:"🏥",
-    sites:["Main Hospital","Emergency Department","Medical Office Bldg","Parking Garage","Research Wing"],
-    incidents:["Combative Patient","Unauthorized Entry — ICU","Visitor Overstay","Parking Dispute","Code Gray — Behavioral"]},
-  government:{label:"Government / Municipal",icon:"🏛️",
-    sites:["Administration Building","Public Records Office","Municipal Courts","Maintenance Depot","Transit Hub"],
-    incidents:["Unauthorized Access","Public Disturbance","Suspicious Package","Threatening Behavior","Vandalism"]},
-};
-const DEMO_STEPS=[
-  {id:"command",icon:"⚡",title:"Command Center",desc:"Live KPIs — officers, incidents, and site health in one view.",mod:"dashboard"},
-  {id:"patrol",icon:"🛡️",title:"Patrol Compliance",desc:"GPS-verified checkpoints with auto-alerts on missed rounds.",mod:"patrol"},
-  {id:"incident",icon:"🚨",title:"Incident Response",desc:"Field report to documented case in under 60 seconds.",mod:"dashboard"},
-  {id:"client",icon:"🏢",title:"Client Portal",desc:"Live patrol visibility for clients — no more status calls.",mod:"clientportal"},
-  {id:"reports",icon:"📄",title:"AI Reports",desc:"Branded, client-ready PDFs generated in one click.",mod:"reports"},
-  {id:"workforce",icon:"👮",title:"Workforce Intelligence",desc:"Fatigue scores, certifications, and performance grades.",mod:"workforce"},
-  {id:"map",icon:"🗺️",title:"Live Operations Map",desc:"Every officer, every site, every incident — live.",mod:"opmap"},
-];
-const PAIN_STEP_MAP={visibility:3,checkpoints:1,incidents:2,scheduling:5,compliance:5,paper:0};
-
-function buildDemoEvents(cfg){
-  const s=cfg.sites||["Site A","Site B","Site C"];
-  const o=cfg.officerNames||["Officer Webb","Officer Reyes","Officer Okafor"];
-  const inc=(cfg.incidents||["Unauthorized Access"])[0];
-  return[
-    {t:9000, msg:`📡 ${o[0]} clocked in at ${s[0]} — on time`,type:"success"},
-    {t:23000,msg:`🛡️ Checkpoint scan: ${s[0]} Main Entrance — verified`,type:"info"},
-    {t:39000,msg:`⚡ NEW INCIDENT: ${inc} @ ${s[1]} — ${o[1]} assigned`,type:"error"},
-    {t:56000,msg:`📊 AI Alert: ${s[2]} patrol at 68% — below 95% threshold. Supervisor notified.`,type:"info"},
-    {t:74000,msg:`📡 ${cfg.companyName||"Client"} portal accessed — viewing live dashboard`,type:"info"},
-    {t:92000,msg:`✅ Incident closed — AI report drafted and ready for sign-off`,type:"success"},
-    {t:110000,msg:`🪪 Compliance: ${o[2]||o[0]}'s certification expires in 14 days — renewal triggered`,type:"info"},
-    {t:128000,msg:`📅 Night shift handover briefing auto-generated`,type:"success"},
-  ];
-}
-// GuardianCtx — available everywhere when a guardian.demo user is active
-const GuardianCtx=React.createContext(null);
-
-function useDemoEngine(cfg,showToast){
-  const ref=React.useRef([]);
-  React.useEffect(()=>{
-    ref.current.forEach(clearTimeout);ref.current=[];
-    if(!cfg?.active)return;
-    const evs=cfg.isGuardian?buildGuardianLiveEvents():buildDemoEvents(cfg);
-    evs.forEach(ev=>{ref.current.push(setTimeout(()=>showToast(ev.msg,ev.type),ev.t));});
-    return()=>ref.current.forEach(clearTimeout);
-  },[cfg?.active,cfg?.companyName,cfg?.isGuardian]);
-}
-
-// Continuous live-refresh ticker for Guardian demo (new activity every ~12s)
-function useGuardianTicker(isGuardian,showToast){
-  const ref=React.useRef(null);
-  const idx=React.useRef(0);
-  React.useEffect(()=>{
-    if(!isGuardian)return;
-    const pool=[
-      ()=>showToast("🛡️ Checkpoint scan completed: Main Terminal Entry (Metro Transit)","info"),
-      ()=>showToast("📡 Officer G-0312 (Thomas) location updated — Lake Nona Corporate Campus","info"),
-      ()=>showToast("✅ Patrol route completed: Hospital Alpha — 100% checkpoints cleared","success"),
-      ()=>showToast("⚡ Incident update: GINC-1040 investigating — Davis awaiting supervisor sign-off","info"),
-      ()=>showToast("🛡️ Checkpoint scan: Dock Gate 1 verified — Winter Garden DC","info"),
-      ()=>showToast("📊 AI: Orlando Regional patrol compliance trending up — 94% this hour","success"),
-      ()=>showToast("📡 Client portal accessed: LYNX Central Florida — viewing live Metro Hub status","info"),
-      ()=>showToast("🚨 Escalation: Pool Deck B overdue — Dispatcher Brown notified","error"),
-      ()=>showToast("✅ Officer G-0278 (Johnson) check-in: Winter Garden DC all clear","success"),
-      ()=>showToast("🪪 Certification verified: G-0241 Williams — FL Class D/G current","info"),
-    ];
-    ref.current=setInterval(()=>{
-      pool[idx.current%pool.length]();
-      idx.current++;
-    },14000);
-    return()=>clearInterval(ref.current);
-  },[isGuardian]);
-}
-
-const GUARDIAN_DEMO_ROLES=[
-  {id:"ceo",email:"ceo@guardian.demo",label:"Robert Martinez — CEO",icon:"👑",mod:"executive",tagline:"Revenue, client retention & contract performance"},
-  {id:"coo",email:"coo@guardian.demo",label:"Sarah Jenkins — COO",icon:"⚙️",mod:"dashboard",tagline:"Full operational command & KPI overview"},
-  {id:"ops",email:"operations@guardian.demo",label:"Michael Thompson — Dir. Operations",icon:"🎯",mod:"dashboard",tagline:"Multi-site ops, staffing metrics & incident trends"},
-  {id:"dispatch",email:"dispatch@guardian.demo",label:"Lisa Brown — Dispatch Supervisor",icon:"📡",mod:"dispatch",tagline:"Active incidents, officer locations & response queue"},
-  {id:"supervisor",email:"supervisor@guardian.demo",label:"David Wilson — Field Supervisor",icon:"🔍",mod:"patrol",tagline:"Officer accountability & patrol compliance"},
-  {id:"officer",email:"mw@guardian.demo",label:"Michael Williams — Officer",icon:"👮",mod:"myshift",tagline:"My shift, my checkpoints & my reports"},
-];
-
-function DemoSetupWizard({onLaunch,onCancel,onGuardianLogin}){
-  const[mode,setMode]=useState(null); // null=choose, "guardian"=guardian setup, "custom"=custom setup
-  const[step,setStep]=useState(1);
-  const[cfg,setCfg]=useState({companyName:"",industry:"",officers:"",sites:"",currentPlatform:"",patrolFreq:"",reportingReq:"",painPoint:"",role:""});
-  const[guardianRole,setGuardianRole]=useState(null);
-  const set=(k,v)=>setCfg(p=>({...p,[k]:v}));
-
-  const canNextCustom=step===1?(cfg.companyName.trim().length>1&&!!cfg.industry):step===2?(!!cfg.officers&&!!cfg.sites):step===3?!!cfg.painPoint:!!cfg.role;
-
-  const launchCustom=()=>{
-    const ind=DEMO_IND[cfg.industry]||DEMO_IND.contract;
-    const roleData=DEMO_ROLES.find(r=>r.id===cfg.role)||DEMO_ROLES[1];
-    onLaunch({...cfg,active:true,launchedAt:Date.now(),
-      sites:ind.sites,incidents:ind.incidents,
-      officerNames:["Marcus Webb","Diana Reyes","Theo Okafor","Elena Voss","Jordan Park","Ava Simmons"],
-      clientName:cfg.companyName,
-      startMod:roleData.mod,startScenario:PAIN_STEP_MAP[cfg.painPoint]??0,
-      roleLabel:roleData.label,indLabel:ind.label,
-    });
-  };
-
-  const sel=(active)=>({background:active?T.accentGlow:T.raised,border:`1px solid ${active?T.accentB:T.border}`,borderRadius:12,cursor:"pointer",transition:"all 0.15s"});
-  const btn=(dis)=>({border:"none",borderRadius:12,padding:"13px 28px",cursor:dis?"not-allowed":"pointer",fontWeight:800,fontSize:13,transition:"all 0.15s",
-    background:dis?T.border:`linear-gradient(135deg,${T.accent},${T.accentH})`,color:dis?T.textDim:"#000"});
-
-  // ── Mode selection ────────────────────────────────────────────
-  if(!mode){
-    return(
-      <div style={{background:T.bg,position:"fixed",inset:0,zIndex:500,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20,overflow:"auto"}}>
-        <style>{`@keyframes dUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}`}</style>
-        <div style={{width:"100%",maxWidth:680,animation:"dUp 0.3s ease"}}>
-          {/* Header */}
-          <div style={{textAlign:"center",marginBottom:28}}>
-            <div style={{width:52,height:52,borderRadius:16,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,margin:"0 auto 14px",boxShadow:`0 0 60px ${T.accent}40`}}>⚡</div>
-            <div style={{fontSize:26,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>ShieldSync Live Demo</div>
-            <div style={{fontSize:13,color:T.textSub,marginTop:6}}>Choose how you'd like to experience the platform</div>
-          </div>
-
-          {/* Guardian pre-loaded card */}
-          <div style={{background:T.surface,border:`2px solid ${T.accentB}`,borderRadius:20,padding:28,marginBottom:14,boxShadow:`0 0 60px ${T.accent}14`}}>
-            <div style={{display:"flex",gap:16,alignItems:"flex-start",marginBottom:18}}>
-              <div style={{width:48,height:48,borderRadius:14,background:"linear-gradient(135deg,#1A4F8A,#C4A227)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0,boxShadow:"0 4px 20px rgba(26,79,138,0.4)"}}>🛡️</div>
-              <div style={{flex:1}}>
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
-                  <div style={{fontSize:16,fontWeight:900,color:T.text}}>Guardian Strategic Security, LLC</div>
-                  <span style={{background:`linear-gradient(135deg,${T.accent},${T.purple})`,color:"#000",fontSize:9,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",padding:"3px 9px",borderRadius:99}}>Pre-loaded</span>
-                </div>
-                <div style={{fontSize:12,color:T.textSub,lineHeight:1.65}}>Orlando, FL · 325 Officers · 47 Clients · 63 Sites · Contract Security</div>
-                <div style={{display:"flex",gap:12,marginTop:10,flexWrap:"wrap"}}>
-                  {["5 Active Sites","38 Vehicles","Live Incidents","Real Patrol Data","AI Alerts"].map(tag=>(
-                    <span key={tag} style={{fontSize:10,color:T.accent,background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:6,padding:"3px 8px",fontWeight:600}}>{tag}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div style={{marginBottom:18}}>
-              <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:10,textTransform:"uppercase",letterSpacing:"0.08em"}}>Log in as:</div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                {GUARDIAN_DEMO_ROLES.map(r=>{
-                  const a=guardianRole===r.id;
-                  return(
-                    <button key={r.id} onClick={()=>setGuardianRole(r.id)} style={{...sel(a),padding:"11px 12px",textAlign:"left",display:"flex",alignItems:"center",gap:8}}>
-                      <span style={{fontSize:16,flexShrink:0}}>{r.icon}</span>
-                      <div style={{minWidth:0}}>
-                        <div style={{fontSize:11,fontWeight:700,color:a?T.accent:T.text,lineHeight:1.2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{r.label}</div>
-                        <div style={{fontSize:10,color:T.textDim,lineHeight:1.3,marginTop:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{r.tagline}</div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            <button
-              onClick={()=>{if(guardianRole&&onGuardianLogin){const r=GUARDIAN_DEMO_ROLES.find(x=>x.id===guardianRole);if(r)onGuardianLogin(r.email,"Guardian2026!",r.mod);}}}
-              disabled={!guardianRole}
-              style={{width:"100%",padding:"14px",borderRadius:12,border:"none",fontWeight:900,fontSize:14,cursor:guardianRole?"pointer":"not-allowed",
-                background:guardianRole?`linear-gradient(135deg,#1A4F8A,${T.accent})`:"rgba(255,255,255,0.05)",
-                color:guardianRole?"#fff":T.textDim,transition:"all .2s",letterSpacing:"0.01em"}}>
-              {guardianRole?"🚀 Enter Guardian Demo →":"Select a role to continue"}
-            </button>
-          </div>
-
-          {/* Custom tenant card */}
-          <div style={{background:T.surface,border:`1px solid ${T.border}`,borderRadius:20,padding:24}}>
-            <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:14}}>
-              <div style={{width:44,height:44,borderRadius:12,background:`linear-gradient(135deg,${T.purple},${T.accent})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>🎯</div>
-              <div>
-                <div style={{fontSize:14,fontWeight:800,color:T.text}}>Personalize to Your Company</div>
-                <div style={{fontSize:12,color:T.textSub,marginTop:2}}>Configure the demo for your specific operations in 4 steps</div>
-              </div>
-            </div>
-            <button onClick={()=>setMode("custom")}
-              style={{width:"100%",padding:"12px",borderRadius:10,border:`1px solid ${T.border}`,fontWeight:700,fontSize:13,cursor:"pointer",
-                background:"transparent",color:T.text,transition:"all .15s"}}>
-              Customize for My Company →
-            </button>
-          </div>
-
-          <button onClick={onCancel} style={{display:"block",margin:"20px auto 0",background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer"}}>← Back to Login</button>
-        </div>
-      </div>
-    );
-  }
-
-  // ── Custom 4-step wizard ──────────────────────────────────────
-  return(
-    <div style={{background:T.bg,position:"fixed",inset:0,zIndex:500,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20,overflow:"auto"}}>
-      <style>{`@keyframes dUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}`}</style>
-      <div style={{background:T.surface,border:`1px solid ${T.borderLight}`,borderRadius:22,padding:"36px 40px",width:"100%",maxWidth:620,animation:"dUp 0.3s ease"}}>
-
-        {/* Progress */}
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:28}}>
-          <div style={{width:32,height:32,borderRadius:9,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>⚡</div>
-          <div style={{flex:1}}>
-            <div style={{fontWeight:800,fontSize:13,color:T.text}}>Custom Demo Setup</div>
-            <div style={{fontSize:10,color:T.textDim,textTransform:"uppercase",letterSpacing:"0.1em"}}>Step {step} of 4</div>
-          </div>
-          <div style={{display:"flex",gap:5}}>
-            {[1,2,3,4].map(n=><div key={n} style={{width:n===step?24:7,height:7,borderRadius:4,background:n<step?T.green:n===step?T.accent:T.border,transition:"all .25s"}}/>)}
-          </div>
-        </div>
-
-        {/* Step 1: Company + Industry */}
-        {step===1&&(
-          <div>
-            <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:4}}>Your company details</div>
-            <div style={{fontSize:12,color:T.textSub,marginBottom:22}}>Takes 60 seconds — we build the demo around your operations.</div>
-            <div style={{marginBottom:16}}>
-              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Company Name</label>
-              <input value={cfg.companyName} onChange={e=>set("companyName",e.target.value)} placeholder="e.g. Apex Security Group" autoFocus
-                style={{width:"100%",background:T.raised,border:`1px solid ${cfg.companyName.length>1?T.accentB:T.border}`,borderRadius:10,color:T.text,padding:"12px 14px",fontSize:14,fontWeight:600,outline:"none",boxSizing:"border-box"}}/>
-            </div>
-            <div>
-              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:10}}>Industry</label>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                {Object.entries(DEMO_IND).map(([k,v])=>{
-                  const a=cfg.industry===k;
-                  return(
-                    <button key={k} onClick={()=>set("industry",k)} style={{...sel(a),padding:"13px 14px",textAlign:"left",display:"flex",alignItems:"center",gap:9}}>
-                      <span style={{fontSize:20}}>{v.icon}</span>
-                      <span style={{fontSize:12,fontWeight:700,color:a?T.accent:T.text}}>{v.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Officers, Sites, Platform, Frequency */}
-        {step===2&&(
-          <div>
-            <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:4}}>Operations profile</div>
-            <div style={{fontSize:12,color:T.textSub,marginBottom:22}}>Tell us about your scale so we populate realistic data.</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:14}}>
-              {[
-                {label:"Number of Officers",k:"officers",ph:"e.g. 45"},
-                {label:"Number of Sites",k:"sites",ph:"e.g. 8"},
-              ].map(({label,k,ph})=>(
-                <div key={k}>
-                  <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>{label}</label>
-                  <input type="number" min="1" value={cfg[k]} onChange={e=>set(k,e.target.value)} placeholder={ph}
-                    style={{width:"100%",background:T.raised,border:`1px solid ${cfg[k]?T.accentB:T.border}`,borderRadius:10,color:T.text,padding:"12px 14px",fontSize:14,fontWeight:600,outline:"none",boxSizing:"border-box"}}/>
-                </div>
-              ))}
-            </div>
-            <div style={{marginBottom:14}}>
-              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Current Platform (if any)</label>
-              <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
-                {["Paper / Manual","TrackTik","Silvertrac","Trackforce","Ranger","ServiceMax","Other"].map(p=>{
-                  const a=cfg.currentPlatform===p;
-                  return<button key={p} onClick={()=>set("currentPlatform",p)} style={{...sel(a),padding:"8px 12px",fontSize:12,fontWeight:600,color:a?T.accent:T.textSub}}>{p}</button>;
-                })}
-              </div>
-            </div>
-            <div>
-              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Patrol Frequency</label>
-              <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
-                {["15 min","30 min","45 min","60 min","Custom"].map(f=>{
-                  const a=cfg.patrolFreq===f;
-                  return<button key={f} onClick={()=>set("patrolFreq",f)} style={{...sel(a),padding:"8px 14px",fontSize:12,fontWeight:600,color:a?T.accent:T.textSub}}>{f}</button>;
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Pain Point */}
-        {step===3&&(
-          <div>
-            <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:4}}>Biggest challenge right now?</div>
-            <div style={{fontSize:12,color:T.textSub,marginBottom:22}}>We'll open the demo at the exact feature that solves it.</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-              {DEMO_PAIN_POINTS.map(pp=>{
-                const a=cfg.painPoint===pp.id;
-                return(
-                  <button key={pp.id} onClick={()=>set("painPoint",pp.id)} style={{...sel(a),padding:"16px",textAlign:"left",display:"flex",flexDirection:"column",gap:9}}>
-                    <span style={{fontSize:24}}>{pp.icon}</span>
-                    <span style={{fontSize:12,fontWeight:700,color:a?T.accent:T.text,lineHeight:1.35}}>{pp.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Role + Reporting */}
-        {step===4&&(
-          <div>
-            <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:4}}>Your role & reporting needs</div>
-            <div style={{fontSize:12,color:T.textSub,marginBottom:16}}>The demo opens to the view most relevant to your work.</div>
-            <div style={{display:"flex",flexDirection:"column",gap:7,marginBottom:18}}>
-              {DEMO_ROLES.map(r=>{
-                const a=cfg.role===r.id;
-                return(
-                  <button key={r.id} onClick={()=>set("role",r.id)} style={{...sel(a),padding:"13px 16px",textAlign:"left",display:"flex",alignItems:"center",gap:12}}>
-                    <span style={{fontSize:20,flexShrink:0}}>{r.icon}</span>
-                    <div style={{flex:1}}>
-                      <div style={{fontSize:13,fontWeight:700,color:a?T.accent:T.text}}>{r.label}</div>
-                      <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{r.tagline}</div>
-                    </div>
-                    {a&&<span style={{color:T.accent,fontSize:16}}>✓</span>}
-                  </button>
-                );
-              })}
-            </div>
-            <div>
-              <label style={{fontSize:10,fontWeight:700,color:T.textSub,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:8}}>Reporting requirements</label>
-              <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
-                {["Daily Activity Reports","Incident Summaries","Client Billing Reports","Compliance Audits","Executive KPIs","Custom Reports"].map(r=>{
-                  const a=(cfg.reportingReq||"").split(",").includes(r);
-                  return<button key={r} onClick={()=>{const cur=(cfg.reportingReq||"").split(",").filter(Boolean);set("reportingReq",a?cur.filter(x=>x!==r).join(","):[...cur,r].join(","));}} style={{...sel(a),padding:"7px 11px",fontSize:11,fontWeight:600,color:a?T.accent:T.textSub}}>{r}</button>;
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Navigation */}
-        <div style={{display:"flex",alignItems:"center",gap:10,marginTop:28}}>
-          <button onClick={step===1?()=>setMode(null):()=>setStep(s=>s-1)}
-            style={{background:"none",border:`1px solid ${T.border}`,borderRadius:10,color:T.textSub,padding:"11px 18px",cursor:"pointer",fontWeight:700,fontSize:12}}>
-            ← Back
-          </button>
-          <div style={{flex:1}}/>
-          {step<4
-            ?<button onClick={()=>canNextCustom&&setStep(s=>s+1)} disabled={!canNextCustom} style={btn(!canNextCustom)}>Continue →</button>
-            :<button onClick={()=>canNextCustom&&launchCustom()} disabled={!canNextCustom}
-              style={{border:"none",borderRadius:12,padding:"13px 28px",cursor:canNextCustom?"pointer":"not-allowed",fontWeight:900,fontSize:14,
-                background:canNextCustom?`linear-gradient(135deg,${T.accent},${T.purple})`:T.border,color:canNextCustom?"#fff":T.textDim}}>
-              🚀 Launch {cfg.companyName||"Your"} Demo
-            </button>
-          }
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DemoBanner({cfg,scenario,setScenario,onExit,onChangeMod}){
-  const sc=DEMO_STEPS[scenario]||DEMO_STEPS[0];
-  const total=DEMO_STEPS.length;
-  const go=(n)=>{setScenario(n);onChangeMod(DEMO_STEPS[n].mod);};
-  const prev=()=>go(Math.max(0,scenario-1));
-  const next=()=>go(Math.min(total-1,scenario+1));
-  return(
-    <div style={{background:`linear-gradient(90deg,${T.accentGlow},${T.surface})`,borderBottom:`1px solid ${T.accentB}`,padding:"0 16px",display:"flex",alignItems:"center",gap:12,height:44,flexShrink:0,zIndex:35,overflowX:"auto"}}>
-      {/* Brand */}
-      <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
-        <span style={{fontSize:11}}>🎯</span>
-        <span style={{fontSize:10,fontWeight:900,color:T.accent,letterSpacing:"0.08em",textTransform:"uppercase"}}>DEMO</span>
-        <span style={{width:1,height:14,background:T.border,margin:"0 2px",display:"inline-block"}}/>
-        <span style={{fontSize:12,fontWeight:700,color:T.text,maxWidth:140,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{cfg.companyName||"Your Company"}</span>
-        {cfg.indLabel&&<span style={{fontSize:9,color:T.textDim,background:T.raised,border:`1px solid ${T.border}`,borderRadius:4,padding:"2px 6px",whiteSpace:"nowrap"}}>{cfg.indLabel}</span>}
-      </div>
-
-      <div style={{width:1,height:20,background:T.border,flexShrink:0}}/>
-
-      {/* Step dots */}
-      <div style={{display:"flex",gap:4,flexShrink:0}}>
-        {DEMO_STEPS.map((s,i)=>(
-          <button key={s.id} title={s.title} onClick={()=>go(i)}
-            style={{width:i===scenario?22:7,height:7,borderRadius:4,border:"none",cursor:"pointer",padding:0,
-              background:i===scenario?T.accent:i<scenario?`${T.accent}55`:T.border,transition:"all 0.2s"}}/>
-        ))}
-      </div>
-
-      {/* Current scenario */}
-      <div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:120,overflow:"hidden"}}>
-        <span style={{fontSize:16,flexShrink:0}}>{sc.icon}</span>
-        <div style={{minWidth:0}}>
-          <div style={{fontSize:11,fontWeight:800,color:T.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{sc.title}</div>
-          <div style={{fontSize:9,color:T.textSub,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{sc.desc}</div>
-        </div>
-      </div>
-
-      {/* Nav controls */}
-      <div style={{display:"flex",gap:5,alignItems:"center",flexShrink:0}}>
-        <button onClick={prev} disabled={scenario===0}
-          style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,color:scenario===0?T.textDim:T.textSub,padding:"3px 10px",cursor:scenario===0?"not-allowed":"pointer",fontSize:14,fontWeight:700,lineHeight:1}}>‹</button>
-        <span style={{fontSize:9,color:T.textDim,fontWeight:600,minWidth:32,textAlign:"center"}}>{scenario+1}/{total}</span>
-        <button onClick={next} disabled={scenario===total-1}
-          style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,color:scenario===total-1?T.textDim:T.textSub,padding:"3px 10px",cursor:scenario===total-1?"not-allowed":"pointer",fontSize:14,fontWeight:700,lineHeight:1}}>›</button>
-      </div>
-      <button onClick={onExit}
-        style={{background:"none",border:`1px solid ${T.border}`,borderRadius:6,color:T.textDim,padding:"4px 10px",cursor:"pointer",fontSize:9,fontWeight:700,letterSpacing:"0.06em",textTransform:"uppercase",flexShrink:0}}>
-        Exit Demo
-      </button>
-    </div>
-  );
-}
-
-function AuthScreen({onLogin,onRegister,onTryDemo}){
+function AuthScreen({onLogin,onRegister}){
   const[tab,setTab]=useState("login");
   const[email,setEmail]=useState("");
   const[pw,setPw]=useState("");
@@ -1198,7 +650,7 @@ function AuthScreen({onLogin,onRegister,onTryDemo}){
       <div style={{position:"absolute",top:"5%",left:"50%",transform:"translateX(-50%)",width:"90vw",maxWidth:800,height:"55vh",background:`radial-gradient(ellipse at center,${T.accentGlow} 0%,transparent 65%)`,pointerEvents:"none",animation:"glow 4s ease-in-out infinite"}}/>
 
       <div style={{textAlign:"center",marginBottom:24,animation:"ssUp .35s ease",position:"relative",zIndex:1}}>
-        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,margin:"0 auto 14px",boxShadow:`0 0 60px ${T.accent}38,0 0 120px ${T.accent}12`}}>⚡</div>
+        <div style={{width:66,height:66,borderRadius:20,background:T.accent,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 14px",boxShadow:`0 0 40px ${T.accent}30`}}><Shield size={30} color="#fff" strokeWidth={2}/></div>
         <div style={{fontSize:32,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>ShieldSync</div>
         <div style={{fontSize:9,color:T.textDim,letterSpacing:"0.24em",textTransform:"uppercase",marginTop:5}}>SENTINEL · ENTERPRISE SECURITY PLATFORM</div>
       </div>
@@ -1270,7 +722,7 @@ function AuthScreen({onLogin,onRegister,onTryDemo}){
               <div style={{fontSize:19,fontWeight:800,color:T.text}}>Secure Access</div>
               <div style={{fontSize:12,color:T.textSub,marginTop:4,lineHeight:1.6}}>Authorized personnel only. All sessions are monitored and logged.</div>
             </div>
-            {err&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"11px 14px",marginBottom:16,fontSize:13,color:T.red,display:"flex",gap:9,alignItems:"center"}}><span>⚠</span><span>{err}</span></div>}
+            {err&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"11px 14px",marginBottom:16,fontSize:13,color:T.red,display:"flex",gap:9,alignItems:"center"}}><AlertTriangle size={14} strokeWidth={2}/><span>{err}</span></div>}
             <div style={{display:"flex",flexDirection:"column",gap:14}}>
               <div>
                 <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Email Address</label>
@@ -1291,21 +743,14 @@ function AuthScreen({onLogin,onRegister,onTryDemo}){
                 {pending?"Verifying credentials…":"Sign In →"}
               </button>
             </div>
-            {onTryDemo&&(
-              <button onClick={onTryDemo} style={{width:"100%",marginTop:10,background:`linear-gradient(135deg,${T.purple}22,${T.accentGlow})`,border:`1px solid ${T.accentB}`,borderRadius:12,padding:"12px",color:T.accent,fontWeight:800,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:9,WebkitTapHighlightColor:"transparent"}}>
-                <span style={{fontSize:16}}>🎯</span>
-                <span>Try Live Demo — Personalized to Your Company</span>
-                <span style={{fontSize:11,opacity:0.7}}>→</span>
-              </button>
-            )}
             <div style={{display:"flex",justifyContent:"center",gap:22,marginTop:20,paddingTop:16,borderTop:`1px solid ${T.border}`}}>
-              {[["🔒","TLS 1.3"],["🛡","SOC 2 Ready"],["✓","ISO 27001"]].map(([ic,lb])=>(
-                <div key={lb} style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:T.textDim}}><span style={{color:T.textSub}}>{ic}</span><span>{lb}</span></div>
+              {[[Lock,"TLS 1.3"],[ShieldCheck,"SOC 2 Ready"],[CheckCircle2,"ISO 27001"]].map(([Ic,lb])=>(
+                <div key={lb} style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:T.textDim}}><Ic size={11} color={T.textDim} strokeWidth={2}/><span>{lb}</span></div>
               ))}
             </div>
             <div style={{marginTop:14}}>
               <button onClick={()=>setShowDemo(p=>!p)} style={{width:"100%",background:"none",border:"none",color:T.textDim,fontSize:11,cursor:"pointer",padding:"6px 0",letterSpacing:"0.03em"}}>
-                {showDemo?"▲ Hide demo access":"▼ Demo access · Sales & Procurement"}
+                {showDemo?"Hide demo access":"Demo access · Sales & Procurement"}
               </button>
               {showDemo&&(
                 <div style={{marginTop:10,display:"flex",flexDirection:"column",gap:6}}>
@@ -1330,7 +775,7 @@ function AuthScreen({onLogin,onRegister,onTryDemo}){
         {forgotStep===0&&tab==="register"&&(
           regDone?(
             <div style={{textAlign:"center",padding:"24px 0"}}>
-              <div style={{fontSize:48,marginBottom:14}}>🏢</div>
+              <div style={{marginBottom:14,display:"flex",justifyContent:"center"}}><Building2 size={44} color={T.green} strokeWidth={1.5}/></div>
               <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:10}}>Company Registered!</div>
               <div style={{fontSize:13,color:T.textSub,lineHeight:1.7,marginBottom:22}}>
                 <strong style={{color:T.text}}>{reg.company}</strong> is set up. Sign in to start your onboarding.
@@ -1410,7 +855,7 @@ function CheckInModal({onClose,showToast}){
     <ModalWrap>
       <Card style={{width:"min(400px,92vw)",textAlign:"center"}}>
         <CB style={{padding:"44px 32px"}}>
-          <div style={{fontSize:48,marginBottom:14}}>🪪</div>
+          <div style={{marginBottom:14,display:"flex",justifyContent:"center"}}><IdCard size={48} color={T.green} strokeWidth={1.5}/></div>
           <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:10}}>Check-In Complete</div>
           <div style={{fontSize:13,color:T.textSub,lineHeight:1.65}}>
             <strong style={{color:T.text}}>{form.name}</strong> is now checked in at {form.site}.<br/>Badge <span style={{color:T.accent,fontFamily:"monospace"}}>{badge}</span> issued · Host notified.
@@ -1571,7 +1016,7 @@ function AICopilot(){
       <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:10,paddingBottom:4}}>
         {msgs.map((m,i)=>(
           <div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
-            {m.role==="ai"&&<div style={{width:26,height:26,borderRadius:8,flexShrink:0,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⚡</div>}
+            {m.role==="ai"&&<div style={{width:26,height:26,borderRadius:8,flexShrink:0,background:T.accent,display:"flex",alignItems:"center",justifyContent:"center"}}><Cpu size={13} color="#fff" strokeWidth={2}/></div>}
             <div style={{maxWidth:"82%",padding:"9px 13px",borderRadius:m.role==="user"?"12px 12px 3px 12px":"12px 12px 12px 3px",background:m.role==="user"?`linear-gradient(135deg,${T.accent}20,${T.purple}15)`:T.raised,border:`1px solid ${m.role==="user"?T.accentB:T.border}`,fontSize:13,lineHeight:1.6,color:T.text}}>
               {m.text}
             </div>
@@ -1579,7 +1024,7 @@ function AICopilot(){
         ))}
         {loading&&(
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
-            <div style={{width:26,height:26,borderRadius:8,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>⚡</div>
+            <div style={{width:26,height:26,borderRadius:8,background:T.accent,display:"flex",alignItems:"center",justifyContent:"center"}}><Cpu size={13} color="#fff" strokeWidth={2}/></div>
             <div style={{background:T.raised,borderRadius:12,border:`1px solid ${T.border}`}}><Dots/></div>
           </div>
         )}
@@ -1638,7 +1083,7 @@ function InspModal({vehicle,onClose}){
     <ModalWrap>
       <Card style={{width:"min(440px,92vw)",textAlign:"center"}}>
         <CB style={{padding:"48px 32px"}}>
-          <div style={{fontSize:52,marginBottom:16}}>✅</div>
+          <div style={{marginBottom:16,display:"flex",justifyContent:"center"}}><CheckCircle2 size={52} color={T.green} strokeWidth={1.5}/></div>
           <div style={{fontSize:20,fontWeight:800,color:T.green,marginBottom:8}}>Inspection Submitted</div>
           <div style={{fontSize:13,color:T.textSub,lineHeight:1.6}}>Vehicle {vehicle.plate} inspection logged.<br/>Sent to supervisor for review.</div>
           <div style={{marginTop:16,fontSize:11,color:T.textDim}}>{pc} photo{pc!==1?"s":""} captured · Mileage: {mileage} · Fuel: {fuel}%</div>
@@ -1696,8 +1141,8 @@ function InspModal({vehicle,onClose}){
                   <span style={{fontSize:13,color:T.text,fontWeight:700,textAlign:"right"}}>{v}</span>
                 </div>
               ))}
-              <div style={{marginTop:4,padding:"10px 14px",background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:9,fontSize:12,color:T.accent}}>
-                📍 GPS tagged · {new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})} · Inspector logged
+              <div style={{marginTop:4,padding:"10px 14px",background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:9,fontSize:12,color:T.accent,display:"flex",alignItems:"center",gap:6}}>
+                <MapPin size={11} strokeWidth={2}/>GPS tagged · {new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})} · Inspector logged
               </div>
             </div>
           )}
@@ -1714,14 +1159,14 @@ function InspModal({vehicle,onClose}){
                       </>
                     ):(
                       <>
-                        <span style={{fontSize:22,marginBottom:4}}>📷</span>
+                        <Camera size={22} color={T.textDim} strokeWidth={1.5} style={{marginBottom:4}}/>
                         <span style={{fontSize:10,color:T.textSub,textAlign:"center",padding:"0 4px"}}>{sl.label}</span>
                       </>
                     )}
                   </div>
                 ))}
               </div>
-              <div style={{marginTop:12,fontSize:11,color:T.textSub,textAlign:"center"}}>{pc}/6 photos{pc===6&&" · ✅ All areas captured"}</div>
+              <div style={{marginTop:12,fontSize:11,color:T.textSub,textAlign:"center"}}>{pc}/6 photos{pc===6&&" · All areas captured"}</div>
             </div>
           )}
           {step===2&&(
@@ -1749,10 +1194,10 @@ function InspModal({vehicle,onClose}){
               </div>
               <div style={{padding:"12px 14px",background:T.raised,borderRadius:9,display:"flex",flexDirection:"column",gap:5}}>
                 <div style={{fontSize:11,color:T.textSub,fontWeight:700,letterSpacing:"0.06em",textTransform:"uppercase",marginBottom:4}}>Summary</div>
-                <div style={{fontSize:12,color:T.text}}>📷 {pc}/6 photos</div>
-                <div style={{fontSize:12,color:T.text}}>📊 Mileage: {mileage} mi</div>
-                <div style={{fontSize:12,color:T.text}}>⛽ Fuel: {fuel}%</div>
-                {dmg&&<div style={{fontSize:12,color:T.amber}}>⚠️ Damage notes recorded</div>}
+                <div style={{fontSize:12,color:T.text,display:"flex",alignItems:"center",gap:5}}><Camera size={11} strokeWidth={2}/>{pc}/6 photos</div>
+                <div style={{fontSize:12,color:T.text,display:"flex",alignItems:"center",gap:5}}><Gauge size={11} strokeWidth={2}/>Mileage: {mileage} mi</div>
+                <div style={{fontSize:12,color:T.text,display:"flex",alignItems:"center",gap:5}}><Fuel size={11} strokeWidth={2}/>Fuel: {fuel}%</div>
+                {dmg&&<div style={{fontSize:12,color:T.amber,display:"flex",alignItems:"center",gap:5}}><AlertTriangle size={11} strokeWidth={2}/>Damage notes recorded</div>}
               </div>
             </div>
           )}
@@ -1819,15 +1264,11 @@ function IncModal({onClose,showToast}){
   if(done)return(
     <ModalWrap>
       <Card style={{width:"min(440px,92vw)",textAlign:"center"}}>
-        <CB style={{padding:"40px 28px"}}>
-          <div style={{fontSize:52,marginBottom:16}}>📋</div>
+        <CB style={{padding:"48px 32px"}}>
+          <div style={{marginBottom:16,display:"flex",justifyContent:"center"}}><ClipboardList size={52} color={T.green} strokeWidth={1.5}/></div>
           <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:8}}>Incident Logged</div>
-          <div style={{fontSize:13,color:T.textSub,marginBottom:20}}>INC-2848 created and submitted for supervisor review.</div>
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
-            <button onClick={onClose} style={{background:T.green,border:"none",color:"#000",padding:"13px 36px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14,width:"100%"}}>Done →</button>
-            <button onClick={()=>{showToast("⚖️ Legal hold placed on INC-2848 — evidence preserved","success");}} style={{background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"11px",borderRadius:12,fontWeight:700,cursor:"pointer",fontSize:13,width:"100%"}}>⚖️ Place Legal Hold &amp; Preserve Evidence</button>
-          </div>
-          <div style={{marginTop:12,fontSize:10,color:T.textDim}}>Legal hold prevents deletion and flags for counsel review</div>
+          <div style={{fontSize:13,color:T.textSub}}>INC-2848 created and submitted for supervisor review.</div>
+          <button onClick={onClose} style={{marginTop:24,background:T.green,border:"none",color:"#000",padding:"13px 36px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14,width:"100%"}}>Done →</button>
         </CB>
       </Card>
     </ModalWrap>
@@ -1870,7 +1311,7 @@ function IncModal({onClose,showToast}){
               <textarea value={form.desc} onChange={e=>upd("desc",e.target.value)} placeholder="Describe what happened, persons involved, actions taken…" rows={5} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px",color:T.text,fontSize:13,resize:"none",outline:"none",boxSizing:"border-box",lineHeight:1.6}}/>
             </div>
             <button onClick={genNarrative} disabled={gen||!form.desc} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:10,cursor:form.desc?"pointer":"not-allowed",fontWeight:700,fontSize:13,opacity:!form.desc?.5:1}}>
-              {gen?"⚡ Generating…":"⚡ Generate AI Narrative"}
+              <span style={{display:"flex",alignItems:"center",gap:6,justifyContent:"center"}}><Cpu size={13} strokeWidth={2}/>{gen?"Generating…":"Generate AI Narrative"}</span>
             </button>
             {ai&&(
               <div style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:10,padding:"14px 16px"}}>
@@ -1907,7 +1348,6 @@ function Dashboard({openModal,showToast}){
     OFFICERS.filter(o=>o.status!=="Off Duty").map(o=>({...o,cx:o.x,cy:o.y}))
   );
 
-  // Live event feed
   useEffect(()=>{
     const timers=LIVE_TICKER.map(e=>setTimeout(()=>{
       setFeed(f=>[{...e,id:Date.now(),time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})},...f.slice(0,19)]);
@@ -1917,7 +1357,6 @@ function Dashboard({openModal,showToast}){
     return()=>timers.forEach(clearTimeout);
   },[]);
 
-  // Animated officer positions — smooth drift simulating real GPS movement
   useEffect(()=>{
     const t=setInterval(()=>{
       setPositions(prev=>prev.map(p=>({
@@ -1929,76 +1368,107 @@ function Dashboard({openModal,showToast}){
     return()=>clearInterval(t);
   },[]);
 
+  const criticalAlerts=AI_INSIGHTS.filter(a=>a.priority==="critical");
+  const activeOfficers=OFFICERS.filter(o=>o.status!=="Off Duty");
+
   return(
-    <div style={{display:"flex",flexDirection:"column",gap:18}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(148px,1fr))",gap:10}}>
-        {KPI_DATA.map(k=>(
-          <Card key={k.label} glow={k.color}>
-            <CB style={{padding:"16px 18px"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
-                <span style={{fontSize:22}}>{k.icon}</span>
-                <span style={{fontSize:10,fontWeight:800,color:k.color,background:`${k.color}18`,padding:"2px 7px",borderRadius:4}}>{k.trend}</span>
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+
+      {/* 1 — CRITICAL ALERTS */}
+      {criticalAlerts.length>0&&(
+        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+          {criticalAlerts.map((a,i)=>(
+            <div key={i} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 16px",background:`${T.red}0a`,border:`1px solid ${T.red}30`,borderRadius:10}}>
+              <div style={{width:7,height:7,borderRadius:"50%",background:T.red,flexShrink:0,animation:"ssB 1s infinite"}}/>
+              <span style={{flex:1,fontSize:13,color:T.text,lineHeight:1.5}}>{a.text}</span>
+              <Pill label="CRITICAL" color={T.red}/>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 2 — METRICS STRIP */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:8}}>
+        {KPI_DATA.map(k=>{
+          const Ic=k.icon;
+          return(
+            <div key={k.label} style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"14px 14px 12px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                <Ic size={14} color={k.color} strokeWidth={2}/>
+                <span style={{fontSize:10,fontWeight:700,color:k.color,opacity:0.85}}>{k.trend}</span>
               </div>
-              <div style={{fontSize:26,fontWeight:900,color:k.color,lineHeight:1}}>{k.value}</div>
-              <div style={{fontSize:12,fontWeight:700,color:T.text,marginTop:5}}>{k.label}</div>
-              <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{k.sub}</div>
+              <div style={{fontSize:22,fontWeight:900,color:T.text,lineHeight:1,letterSpacing:"-0.02em"}}>{k.value}</div>
+              <div style={{fontSize:11,fontWeight:600,color:T.textSub,marginTop:4,lineHeight:1.3}}>{k.label}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 3 — ACTIVE OPERATIONS: map + live feed */}
+      <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.6fr) minmax(0,1fr)",gap:12}}>
+        <Card>
+          <CB>
+            <SH title="Active Operations" icon={Navigation} sub={`${activeOfficers.length} units deployed · ${SITES.length} sites`}/>
+            <LiveMap officers={OFFICERS} positions={positions}/>
+          </CB>
+        </Card>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {/* Officer status */}
+          <Card style={{flex:1}}>
+            <CB style={{height:"100%"}}>
+              <SH title="Field Units" icon={Shield} sub={`${activeOfficers.filter(o=>o.status==="On Patrol").length} on patrol`}/>
+              <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                {OFFICERS.map(o=>{
+                  const c=SM(o.status).c;
+                  const pulse=SM(o.status).p;
+                  return(
+                    <div key={o.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",background:T.raised,borderRadius:8}}>
+                      <Av initials={o.av} color={c} size={28}/>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:12,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{o.name}</div>
+                        <div style={{fontSize:10,color:T.textSub,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{o.site}</div>
+                      </div>
+                      <div style={{display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
+                        <div style={{width:6,height:6,borderRadius:"50%",background:c,animation:pulse?"ssB 1.2s infinite":"none"}}/>
+                        <span style={{fontSize:10,color:c,fontWeight:700,whiteSpace:"nowrap"}}>{o.status}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </CB>
           </Card>
-        ))}
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.5fr) minmax(0,1fr)",gap:16}}>
-        <Card><CB><SH title="Live Operations Map"/><LiveMap officers={OFFICERS} positions={positions}/></CB></Card>
-        <Card style={{display:"flex",flexDirection:"column"}}>
-          <CB style={{flex:1,display:"flex",flexDirection:"column"}}>
-            <SH title="ShieldSync AI Copilot"/>
-            <div style={{flex:1}}><AICopilot/></div>
-          </CB>
-        </Card>
-      </div>
-      {/* Live ops feed */}
-      {feed.length>0&&(
-        <Card glow={T.accent}>
-          <CB>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-              <div style={{width:7,height:7,borderRadius:"50%",background:T.green,boxShadow:`0 0 6px ${T.green}`,animation:"ssB 1s infinite"}}/>
-              <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:T.textSub}}>Live Ops Feed</span>
-              <span style={{fontSize:10,color:T.textDim,marginLeft:"auto"}}>{feed.length} events</span>
-            </div>
-            <div style={{display:"flex",flexDirection:"column",gap:5}}>
-              {feed.slice(0,6).map((e,i)=>{
-                const c=e.type==="success"?T.green:e.type==="warning"?T.red:e.type==="dispatch"?T.gold:e.type==="scan"?T.accent:T.textSub;
-                return(
-                  <div key={e.id} style={{display:"flex",gap:10,alignItems:"center",padding:"7px 10px",background:T.raised,borderRadius:7,animation:i===0?"ssUp 0.2s ease":"none"}}>
-                    <div style={{width:6,height:6,borderRadius:"50%",background:c,flexShrink:0}}/>
-                    <span style={{flex:1,fontSize:12,color:T.text}}>{e.msg}</span>
-                    <span style={{fontSize:10,color:T.textDim,fontFamily:"monospace",flexShrink:0}}>{e.time}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </CB>
-        </Card>
-      )}
-      <Card>
-        <CB>
-          <SH title="AI Risk Intelligence"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {AI_INSIGHTS.map((ins,i)=>{
-              const c={critical:T.red,high:T.amber,medium:T.gold,info:T.accent}[ins.priority]||T.textSub;
-              return(
-                <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start",padding:"11px 14px",background:`${c}08`,border:`1px solid ${c}22`,borderRadius:10}}>
-                  <div style={{width:7,height:7,borderRadius:"50%",background:c,marginTop:5,flexShrink:0}}/>
-                  <p style={{margin:0,fontSize:13,color:T.text,lineHeight:1.55,flex:1}}>{ins.text}</p>
-                  <Pill label={ins.priority} color={c}/>
+          {/* Live feed */}
+          {feed.length>0&&(
+            <Card>
+              <CB>
+                <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:10}}>
+                  <div style={{width:6,height:6,borderRadius:"50%",background:T.green,animation:"ssB 1s infinite"}}/>
+                  <span style={{fontSize:10,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:T.textSub}}>Live Feed</span>
+                  <span style={{fontSize:10,color:T.textDim,marginLeft:"auto"}}>{feed.length} events</span>
                 </div>
-              );
-            })}
-          </div>
-        </CB>
-      </Card>
+                <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                  {feed.slice(0,4).map((e,i)=>{
+                    const c=e.type==="success"?T.green:e.type==="warning"?T.red:e.type==="dispatch"?T.gold:e.type==="scan"?T.accent:T.textSub;
+                    return(
+                      <div key={e.id} style={{display:"flex",gap:8,alignItems:"center",padding:"6px 8px",background:T.raised,borderRadius:6,animation:i===0?"ssUp 0.2s ease":"none"}}>
+                        <div style={{width:5,height:5,borderRadius:"50%",background:c,flexShrink:0}}/>
+                        <span style={{flex:1,fontSize:11,color:T.text,lineHeight:1.4}}>{e.msg}</span>
+                        <span style={{fontSize:10,color:T.textDim,fontFamily:"monospace",flexShrink:0}}>{e.time}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CB>
+            </Card>
+          )}
+        </div>
+      </div>
+
+      {/* 4 — RECENT INCIDENTS */}
       <Card>
         <CB>
-          <SH title="Recent Incidents" action={{label:"+ New Incident",fn:()=>openModal({type:"incident"})}}/>
+          <SH title="Incidents" icon={ShieldAlert} action={{icon:Plus,label:"New Incident",fn:()=>openModal({type:"incident"})}}/>
           <div style={{overflowX:"auto"}}>
             <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,minWidth:540}}>
               <thead>
@@ -2009,15 +1479,15 @@ function Dashboard({openModal,showToast}){
                 </tr>
               </thead>
               <tbody>
-                {INCIDENTS.map(inc=>(
-                  <tr key={inc.id} style={{borderBottom:`1px solid ${T.border}20`}}>
-                    <td style={{padding:"11px 10px",color:T.accent,fontWeight:800,fontFamily:"monospace",whiteSpace:"nowrap"}}>{inc.id}</td>
-                    <td style={{padding:"11px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.type}</td>
-                    <td style={{padding:"11px 10px",color:T.textSub,whiteSpace:"nowrap"}}>{inc.site}</td>
-                    <td style={{padding:"11px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.officer}</td>
-                    <td style={{padding:"11px 10px",color:T.textSub}}>{inc.time}</td>
-                    <td style={{padding:"11px 10px"}}><Pill label={inc.sev} color={inc.sev==="High"?T.red:inc.sev==="Medium"?T.amber:T.textSub}/></td>
-                    <td style={{padding:"11px 10px"}}><Pill label={inc.status}/></td>
+                {INCIDENTS.map((inc,i)=>(
+                  <tr key={inc.id} className="ss-row" style={{borderBottom:i<INCIDENTS.length-1?`1px solid ${T.border}20`:"none"}}>
+                    <td style={{padding:"10px 10px",color:T.accent,fontWeight:700,fontFamily:"monospace",whiteSpace:"nowrap",fontSize:12}}>{inc.id}</td>
+                    <td style={{padding:"10px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.type}</td>
+                    <td style={{padding:"10px 10px",color:T.textSub,whiteSpace:"nowrap"}}>{inc.site}</td>
+                    <td style={{padding:"10px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.officer}</td>
+                    <td style={{padding:"10px 10px",color:T.textSub,fontFamily:"monospace",fontSize:12}}>{inc.time}</td>
+                    <td style={{padding:"10px 10px"}}><Pill label={inc.sev} color={inc.sev==="High"?T.red:inc.sev==="Medium"?T.amber:T.textSub}/></td>
+                    <td style={{padding:"10px 10px"}}><Pill label={inc.status}/></td>
                   </tr>
                 ))}
               </tbody>
@@ -2025,6 +1495,26 @@ function Dashboard({openModal,showToast}){
           </div>
         </CB>
       </Card>
+
+      {/* 5 — OPERATIONAL INTELLIGENCE */}
+      <Card>
+        <CB>
+          <SH title="Operational Intelligence" icon={Sparkles} sub="AI-generated risk signals — updated continuously"/>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:8}}>
+            {AI_INSIGHTS.map((ins,i)=>{
+              const c={critical:T.red,high:T.amber,medium:T.gold,info:T.accent}[ins.priority]||T.textSub;
+              return(
+                <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",padding:"11px 14px",background:T.raised,border:`1px solid ${c}20`,borderRadius:9}}>
+                  <div style={{width:6,height:6,borderRadius:"50%",background:c,marginTop:4,flexShrink:0,animation:ins.priority==="critical"?"ssB 1s infinite":"none"}}/>
+                  <p style={{margin:0,fontSize:12,color:T.text,lineHeight:1.55,flex:1}}>{ins.text}</p>
+                  <Pill label={ins.priority} color={c}/>
+                </div>
+              );
+            })}
+          </div>
+        </CB>
+      </Card>
+
     </div>
   );
 }
@@ -2056,7 +1546,7 @@ function Workforce(){
                     <div style={{fontSize:12,color:T.accent,fontWeight:800}}>{o.cps} hit</div>
                   </div>
                 </div>
-                {o.incidents>0&&<div style={{marginTop:10,padding:"9px 12px",background:T.redGlow,borderRadius:8,border:`1px solid ${T.redB}`,fontSize:12,color:T.red,fontWeight:700}}>⚡ {o.incidents} active incident{o.incidents>1?"s":""}</div>}
+                {o.incidents>0&&<div style={{marginTop:10,padding:"9px 12px",background:T.redGlow,borderRadius:8,border:`1px solid ${T.redB}`,fontSize:12,color:T.red,fontWeight:700,display:"flex",alignItems:"center",gap:6}}><AlertTriangle size={12} strokeWidth={2}/>{o.incidents} active incident{o.incidents>1?"s":""}</div>}
               </CB>
             </Card>
           );
@@ -2078,60 +1568,6 @@ function Workforce(){
                 <Pill label={s.status} color={s.status==="active"?T.green:T.amber}/>
               </div>
             ))}
-          </div>
-        </CB>
-      </Card>
-      <Card>
-        <CB>
-          <SH title="Officer Fatigue Monitor" icon="⚠️" sub="Based on hours worked, consecutive nights, missed checkpoints, and incident rate"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {FATIGUE_DATA.map(f=>{
-              const col=f.risk==="High"?T.red:f.risk==="Moderate"?T.amber:T.green;
-              return(
-                <div key={f.badge} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.raised,borderRadius:10,border:`1px solid ${f.risk==="High"?T.redB:T.border}`}}>
-                  <Av initials={f.av} color={col} size={36}/>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{f.officer}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{f.badge} · {f.hoursLast7}h / 7 days · {f.consecutiveNight} night shifts</div>
-                  </div>
-                  <div style={{width:80}}>
-                    <div style={{fontSize:10,color:T.textSub,marginBottom:4,textAlign:"right"}}>Fatigue Score</div>
-                    <div style={{height:6,background:T.bg,borderRadius:3,overflow:"hidden"}}>
-                      <div style={{height:"100%",width:`${f.score}%`,background:`linear-gradient(90deg,${T.green},${f.score>70?T.red:f.score>50?T.amber:T.green})`,borderRadius:3}}/>
-                    </div>
-                    <div style={{fontSize:11,fontWeight:800,color:col,textAlign:"right",marginTop:3}}>{f.score}/100</div>
-                  </div>
-                  <Pill label={f.risk} color={col}/>
-                </div>
-              );
-            })}
-          </div>
-        </CB>
-      </Card>
-
-      <Card>
-        <CB>
-          <SH title="Officer Performance Scorecard" icon="🏆" sub="Weekly composite score: patrol %, checkpoint hits, incidents, fatigue, on-time arrival"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {PERF_SCORES.map(p=>{
-              const gc=p.score>=85?T.green:p.score>=70?T.accent:p.score>=55?T.amber:T.red;
-              return(
-                <div key={p.badge} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.raised,borderRadius:10}}>
-                  <Av initials={p.av} color={gc} size={36}/>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{p.officer}</div>
-                    <div style={{fontSize:10,color:T.textSub,marginTop:2}}>Patrol {p.patrol}% · {p.cps} CPs · {p.incidents} incidents · On-time {p.onTime}%</div>
-                  </div>
-                  <div style={{width:72}}>
-                    <div style={{height:5,background:T.bg,borderRadius:3,overflow:"hidden",marginBottom:4}}>
-                      <div style={{height:"100%",width:`${p.score}%`,background:`linear-gradient(90deg,${gc},${p.score>80?T.green:gc})`,borderRadius:3}}/>
-                    </div>
-                    <div style={{fontSize:10,color:T.textSub,textAlign:"center"}}>{p.score}/100</div>
-                  </div>
-                  <div style={{width:36,height:36,borderRadius:8,background:`${gc}20`,border:`1px solid ${gc}40`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:900,color:gc,flexShrink:0}}>{p.grade}</div>
-                </div>
-              );
-            })}
           </div>
         </CB>
       </Card>
@@ -2169,11 +1605,11 @@ function Patrol({user,showToast,openModal}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(138px,1fr))",gap:10}}>
-        {[["38","Total Patrols",T.accent,"🛡️"],["36","Completed",T.green,"✅"],["4","Missed CPs",T.red,"⚠️"],["42m","Avg Duration",T.gold,"⏱️"]].map(([v,l,c,icon])=>(
-          <Card key={l} glow={c}>
+        {[["38","Total Patrols",T.accent,Shield],["36","Completed",T.green,CheckCircle2],["4","Missed CPs",T.red,AlertTriangle],["42m","Avg Duration",T.gold,Timer]].map(([v,l,c,Ic])=>(
+          <Card key={l}>
             <CB style={{textAlign:"center",padding:"16px 12px"}}>
-              <div style={{fontSize:22,marginBottom:8}}>{icon}</div>
-              <div style={{fontSize:28,fontWeight:900,color:c}}>{v}</div>
+              <div style={{display:"flex",justifyContent:"center",marginBottom:8}}><Ic size={18} color={c} strokeWidth={1.8}/></div>
+              <div style={{fontSize:26,fontWeight:700,color:c}}>{v}</div>
               <div style={{fontSize:11,color:T.textSub,marginTop:4}}>{l}</div>
             </CB>
           </Card>
@@ -2190,7 +1626,7 @@ function Patrol({user,showToast,openModal}){
               {["tl","tr","bl","br"].map(c=>(
                 <div key={c} style={{position:"absolute",...(c==="tl"?{top:8,left:8}:c==="tr"?{top:8,right:8}:c==="bl"?{bottom:8,left:8}:{bottom:8,right:8}),width:20,height:20,borderTop:c.startsWith("t")?`3px solid ${T.accent}`:"none",borderBottom:c.startsWith("b")?`3px solid ${T.accent}`:"none",borderLeft:c.endsWith("l")?`3px solid ${T.accent}`:"none",borderRight:c.endsWith("r")?`3px solid ${T.accent}`:"none"}}/>
               ))}
-              <div style={{fontSize:28}}>📷</div>
+              <Camera size={28} color={T.accent} strokeWidth={1.5}/>
             </div>
             <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:4}}>{scanTarget.name}</div>
             <div style={{fontSize:11,color:T.textSub,marginBottom:16}}>{scanTarget.site}</div>
@@ -2252,7 +1688,7 @@ function Patrol({user,showToast,openModal}){
 
       <Card>
         <CB>
-          <SH title="Pre-Patrol Vehicle Inspection" icon="🚗" sub="Tap Inspect to photograph and log vehicle condition before departure"/>
+          <SH title="Pre-Patrol Vehicle Inspection" icon={Car} sub="Tap Inspect to photograph and log vehicle condition before departure"/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:12}}>
             {VEHICLES.map(v=>{
               const c=SM(v.status).c;
@@ -2276,8 +1712,8 @@ function Patrol({user,showToast,openModal}){
                   <FuelBar pct={v.fuel}/>
                   <button
                     onClick={()=>openModal&&openModal({type:"inspection",vehicle:v})}
-                    style={{width:"100%",marginTop:12,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}
-                  >📷 Inspect &amp; Capture Photos</button>
+                    style={{width:"100%",marginTop:12,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}
+                  ><Camera size={12} strokeWidth={2}/>Inspect &amp; Capture Photos</button>
                 </div>
               );
             })}
@@ -2295,8 +1731,8 @@ function Fleet({openModal}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
       <div style={{display:"flex",gap:6}}>
-        {[["vehicles","🚗 Vehicles"],["costs","💰 Cost Analytics"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
+        {[["vehicles",Car,"Vehicles"],["costs",TrendingUp,"Cost Analytics"]].map(([t,Ic,l])=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:5}}><Ic size={12} strokeWidth={2}/>{l}</button>
         ))}
       </div>
 
@@ -2323,7 +1759,7 @@ function Fleet({openModal}){
                     ))}
                   </div>
                   <FuelBar pct={v.fuel}/>
-                  <button onClick={()=>openModal({type:"inspection",vehicle:v})} style={{width:"100%",marginTop:14,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:13}}>📋 Start Inspection</button>
+                  <button onClick={()=>openModal({type:"inspection",vehicle:v})} style={{width:"100%",marginTop:14,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:10,cursor:"pointer",fontWeight:700,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><ClipboardList size={13} strokeWidth={2}/>Start Inspection</button>
                 </CB>
               </Card>
             );
@@ -2361,7 +1797,7 @@ function Fleet({openModal}){
                       <div style={{fontSize:18,fontWeight:900,color:T.accent}}>${v.total.toLocaleString()}</div>
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:6}}>
-                      {[["⛽ Fuel",v.fuel,T.amber],["🔧 Maint.",v.maintenance,T.gold],["🛡 Insurance",v.insurance,T.accent],["📉 Deprec.",v.depreciation,T.purple]].map(([l,val,c])=>(
+                      {[["Fuel",v.fuel,T.amber],["Maint.",v.maintenance,T.gold],["Insurance",v.insurance,T.accent],["Deprec.",v.depreciation,T.purple]].map(([l,val,c])=>(
                         <div key={l} style={{textAlign:"center",background:T.bg,borderRadius:7,padding:"8px 6px"}}>
                           <div style={{fontSize:11,fontWeight:700,color:c}}>${val}</div>
                           <div style={{fontSize:9,color:T.textDim,marginTop:2}}>{l}</div>
@@ -2384,7 +1820,6 @@ function Fleet({openModal}){
 
 function Visitors({openModal,user,showToast}){
   const[visitors,setVisitors]=useLS("ss_visitors",VISITORS_DATA);
-  const[tab,setTab]=useState("log");
   const active=visitors.filter(v=>v.status==="Active").length;
   const out=visitors.filter(v=>v.status==="Checked Out").length;
 
@@ -2406,7 +1841,7 @@ function Visitors({openModal,user,showToast}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-        {[["Active",active,T.green],["Out Today",out,T.textSub],["Watchlist",VISITOR_WATCHLIST.length,T.red]].map(([l,v,c])=>(
+        {[["Active",active,T.green],["Out Today",out,T.textSub],["Watchlist","0",T.red]].map(([l,v,c])=>(
           <Card key={l} glow={c}>
             <CB style={{textAlign:"center"}}>
               <div style={{fontSize:30,fontWeight:900,color:c}}>{v}</div>
@@ -2416,249 +1851,53 @@ function Visitors({openModal,user,showToast}){
         ))}
       </div>
 
-      <div style={{display:"flex",gap:6}}>
-        {[["log","📋 Visitor Log"],["watchlist","🚫 Watchlist"]].map(([t,l])=>(
-          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
-        ))}
-      </div>
-
-      {tab==="log"&&(
-        <>
-          {PRE_REGISTERED.length>0&&(
-            <Card glow={T.purple}>
-              <CB>
-                <SH title="Expected Arrivals"/>
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {PRE_REGISTERED.map(pr=>(
-                    <div key={pr.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:13,fontWeight:700,color:T.text}}>{pr.name}</div>
-                        <div style={{fontSize:11,color:T.textSub}}>{pr.host} · {pr.site} · {pr.purpose}</div>
-                      </div>
-                      <div style={{fontSize:11,color:T.purple,fontWeight:700,flexShrink:0}}>{pr.expected}</div>
-                      <button onClick={()=>checkInPreReg(pr)} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"7px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11,flexShrink:0}}>Check In</button>
-                    </div>
-                  ))}
-                </div>
-              </CB>
-            </Card>
-          )}
-
-          <Card>
-            <CB>
-              <SH title="Visitor Log" action={{label:"+ Check In",fn:()=>openModal({type:"checkin"})}}/>
-              <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                {visitors.map(v=>(
-                  <div key={v.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
-                    <div style={{width:36,height:36,borderRadius:10,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>👤</div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:13,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{v.name}</div>
-                      <div style={{fontSize:11,color:T.textSub}}>Host: {v.host} · {v.site}</div>
-                    </div>
-                    <div style={{textAlign:"right",fontSize:11,color:T.textSub,flexShrink:0}}><div>In: {v.in}</div><div>Out: {v.out}</div></div>
-                    <div style={{textAlign:"right",flexShrink:0,display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
-                      <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace"}}>{v.badge}</div>
-                      <Pill label={v.status} color={v.status==="Active"?T.green:T.textSub}/>
-                      {v.status==="Active"&&<button onClick={()=>checkOut(v.id)} style={{fontSize:10,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"3px 8px",borderRadius:5,cursor:"pointer",fontWeight:700}}>Check Out</button>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CB>
-          </Card>
-        </>
-      )}
-
-      {tab==="watchlist"&&(
-        <Card>
+      {PRE_REGISTERED.length>0&&(
+        <Card glow={T.purple}>
           <CB>
-            <SH title="Security Watchlist" icon="🚫" sub="Individuals flagged for access denial or enhanced scrutiny"/>
-            <div style={{display:"flex",flexDirection:"column",gap:10}}>
-              {VISITOR_WATCHLIST.map(w=>{
-                const col=w.severity==="High"?T.red:w.severity==="Medium"?T.amber:T.textSub;
-                return(
-                  <div key={w.id} style={{display:"flex",gap:14,alignItems:"center",padding:"14px 16px",background:T.raised,borderRadius:12,border:`1px solid ${w.severity==="High"?T.redB:T.border}`}}>
-                    <div style={{width:44,height:44,borderRadius:"50%",background:`${col}20`,border:`2px solid ${col}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,color:col,flexShrink:0}}>{w.photo}</div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:14,fontWeight:800,color:T.text}}>{w.name}</div>
-                      <div style={{fontSize:11,color:T.textSub,marginTop:2}}>DOB: {w.dob} · Added by {w.addedBy}</div>
-                      <div style={{fontSize:11,color:T.textSub,marginTop:3,fontStyle:"italic"}}>{w.reason}</div>
-                    </div>
-                    <Pill label={w.severity} color={col}/>
+            <SH title="Expected Arrivals"/>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {PRE_REGISTERED.map(pr=>(
+                <div key={pr.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 12px",background:T.raised,borderRadius:9}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{pr.name}</div>
+                    <div style={{fontSize:11,color:T.textSub}}>{pr.host} · {pr.site} · {pr.purpose}</div>
                   </div>
-                );
-              })}
+                  <div style={{fontSize:11,color:T.purple,fontWeight:700,flexShrink:0}}>{pr.expected}</div>
+                  <button onClick={()=>checkInPreReg(pr)} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"7px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11,flexShrink:0}}>Check In</button>
+                </div>
+              ))}
             </div>
           </CB>
         </Card>
       )}
+
+      <Card>
+        <CB>
+          <SH title="Visitor Log" action={{label:"+ Check In",fn:()=>openModal({type:"checkin"})}}/>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {visitors.map(v=>(
+              <div key={v.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
+                <div style={{width:36,height:36,borderRadius:10,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><UserCircle2 size={18} color={T.accent} strokeWidth={1.8}/></div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:13,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{v.name}</div>
+                  <div style={{fontSize:11,color:T.textSub}}>Host: {v.host} · {v.site}</div>
+                </div>
+                <div style={{textAlign:"right",fontSize:11,color:T.textSub,flexShrink:0}}><div>In: {v.in}</div><div>Out: {v.out}</div></div>
+                <div style={{textAlign:"right",flexShrink:0,display:"flex",flexDirection:"column",alignItems:"flex-end",gap:5}}>
+                  <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace"}}>{v.badge}</div>
+                  <Pill label={v.status} color={v.status==="Active"?T.green:T.textSub}/>
+                  {v.status==="Active"&&<button onClick={()=>checkOut(v.id)} style={{fontSize:10,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"3px 8px",borderRadius:5,cursor:"pointer",fontWeight:700}}>Check Out</button>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </CB>
+      </Card>
     </div>
   );
 }
 
-function buildPDFHTML(reportText,reportType,companyName){
-  const now=new Date();
-  const dateStr=now.toLocaleDateString([],{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-  const timeStr=now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-
-  // Parse report lines into typed blocks
-  const lines=reportText.split("\n");
-  let bodyHTML="";
-  let i=0;
-  while(i<lines.length){
-    const ln=lines[i];
-    const trimmed=ln.trim();
-    if(!trimmed){bodyHTML+="<div class='gap'></div>";i++;continue;}
-    // ALL-CAPS line = section header (at least 3 chars, mostly uppercase, no trailing punct that would indicate a sentence)
-    const upper=trimmed.replace(/[^A-Za-z]/g,"");
-    const isHeader=upper.length>2&&upper===upper.toUpperCase()&&!/[a-z]/.test(trimmed)&&!trimmed.startsWith("•")&&!trimmed.startsWith("-");
-    if(isHeader){
-      bodyHTML+=`<div class='sec-hdr'>${trimmed}</div>`;
-      i++;continue;
-    }
-    // Bullet lines
-    if(trimmed.startsWith("•")||trimmed.startsWith("-")){
-      let bullets="<ul class='blist'>";
-      while(i<lines.length&&(lines[i].trim().startsWith("•")||lines[i].trim().startsWith("-"))){
-        const bt=lines[i].trim().replace(/^[•\-]\s*/,"");
-        bullets+=`<li>${bt}</li>`;i++;
-      }
-      bullets+="</ul>";
-      bodyHTML+=bullets;
-      continue;
-    }
-    // Numbered list
-    if(/^\d+\./.test(trimmed)){
-      let items="<ol class='nlist'>";
-      while(i<lines.length&&/^\d+\./.test(lines[i].trim())){
-        const nt=lines[i].trim().replace(/^\d+\.\s*/,"");
-        items+=`<li>${nt}</li>`;i++;
-      }
-      items+="</ol>";
-      bodyHTML+=items;
-      continue;
-    }
-    // Inline data rows (contain multiple | separators — format as a data line)
-    if((trimmed.match(/\|/g)||[]).length>=2){
-      const cells=trimmed.split("|").map(c=>c.trim()).filter(Boolean);
-      bodyHTML+=`<div class='data-row'>${cells.map(c=>`<span>${c}</span>`).join("")}</div>`;
-      i++;continue;
-    }
-    bodyHTML+=`<p>${trimmed}</p>`;i++;
-  }
-
-  const kpis=[
-    {icon:"👮",label:"Officers Active",value:"5/6"},
-    {icon:"⚡",label:"Open Incidents",value:"2"},
-    {icon:"🛡️",label:"Patrol Rate",value:"94%"},
-    {icon:"⏱️",label:"Avg Response",value:"4.2 min"},
-    {icon:"📍",label:"Sites",value:"4/4"},
-  ];
-  const kpiHTML=kpis.map(k=>`<div class='kpi'><div class='kpi-icon'>${k.icon}</div><div class='kpi-val'>${k.value}</div><div class='kpi-lbl'>${k.label}</div></div>`).join("");
-
-  return`<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';">
-<title>ShieldSync — ${reportType}</title>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#fff;color:#0e1f35;font-size:12px;line-height:1.65;}
-  @page{margin:18mm 16mm 18mm 16mm;size:A4;}
-  @media print{
-    body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .no-print{display:none;}
-    .page-wrap{padding:0;}
-  }
-  .page-wrap{max-width:780px;margin:0 auto;padding:28px 32px;}
-
-  /* HEADER */
-  .hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:2.5px solid #00C8F0;margin-bottom:18px;}
-  .brand{display:flex;align-items:center;gap:12px;}
-  .brand-mark{width:36px;height:36px;background:linear-gradient(135deg,#00C8F0,#9B59F0);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;font-weight:900;flex-shrink:0;}
-  .brand-name{font-size:17px;font-weight:900;color:#00C8F0;letter-spacing:-0.02em;line-height:1.1;}
-  .brand-sub{font-size:8px;color:#6a8aaa;letter-spacing:0.22em;text-transform:uppercase;margin-top:2px;}
-  .hdr-right{text-align:right;}
-  .conf-badge{display:inline-block;background:#fff0f0;border:1px solid #f04444;color:#c0202020;color:#c02020;font-size:8px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-bottom:6px;}
-  .hdr-date{font-size:10px;color:#6a8aaa;}
-
-  /* TITLE BLOCK */
-  .title-block{margin-bottom:18px;}
-  .report-type{font-size:21px;font-weight:900;color:#0e1f35;letter-spacing:-0.025em;line-height:1.1;}
-  .report-meta{font-size:10px;color:#6a8aaa;margin-top:5px;letter-spacing:0.04em;}
-
-  /* KPI STRIP */
-  .kpi-strip{display:flex;gap:10px;margin-bottom:22px;}
-  .kpi{flex:1;background:#f5f9ff;border:1px solid #d0e4f5;border-radius:9px;padding:10px 10px 9px;text-align:center;}
-  .kpi-icon{font-size:16px;line-height:1;margin-bottom:4px;}
-  .kpi-val{font-size:15px;font-weight:900;color:#0e1f35;line-height:1.1;}
-  .kpi-lbl{font-size:8px;color:#6a8aaa;text-transform:uppercase;letter-spacing:0.1em;margin-top:3px;}
-
-  /* BODY */
-  .body{background:#fff;border:1px solid #deeaf5;border-radius:11px;padding:20px 22px;}
-  .sec-hdr{font-size:10px;font-weight:800;letter-spacing:0.13em;text-transform:uppercase;color:#00C8F0;border-left:3px solid #00C8F0;padding-left:10px;margin:16px 0 8px;line-height:1;}
-  .sec-hdr:first-child{margin-top:0;}
-  p{margin:4px 0;color:#0e1f35;font-size:12px;}
-  .gap{height:7px;}
-  .blist,.nlist{padding-left:18px;margin:4px 0 6px;}
-  .blist li,.nlist li{margin-bottom:3px;color:#0e1f35;font-size:12px;}
-  .data-row{display:flex;flex-wrap:wrap;gap:6px;margin:5px 0;background:#f5f9ff;border-radius:6px;padding:7px 10px;}
-  .data-row span{font-size:11px;color:#2a4a6a;font-weight:600;white-space:nowrap;}
-  .data-row span::after{content:' ·';color:#9ab;margin-left:6px;}
-  .data-row span:last-child::after{content:'';}
-
-  /* FOOTER */
-  .ftr{margin-top:20px;padding-top:12px;border-top:1px solid #d0e4f5;display:flex;justify-content:space-between;align-items:center;}
-  .ftr-left{font-size:9px;color:#6a8aaa;line-height:1.5;}
-  .ftr-right{font-size:9px;color:#aac;text-align:right;line-height:1.5;}
-  .ftr-conf{font-size:8px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c02020;margin-top:3px;}
-
-  /* Print button (screen only) */
-  .print-btn{display:block;margin:0 auto 22px;background:#00C8F0;border:none;color:#000;font-weight:800;font-size:13px;padding:12px 32px;border-radius:9px;cursor:pointer;letter-spacing:0.02em;}
-  @media print{.print-btn{display:none;}}
-</style>
-</head>
-<body>
-<div class="page-wrap">
-  <button class="print-btn no-print" onclick="window.print()">⬇ Download / Print PDF</button>
-  <div class="hdr">
-    <div class="brand">
-      <div class="brand-mark">⚡</div>
-      <div><div class="brand-name">ShieldSync</div><div class="brand-sub">Sentinel Platform</div></div>
-    </div>
-    <div class="hdr-right">
-      <div class="conf-badge">Confidential</div>
-      <div class="hdr-date">Generated ${dateStr} at ${timeStr}</div>
-    </div>
-  </div>
-
-  <div class="title-block">
-    <div class="report-type">${reportType}</div>
-    <div class="report-meta">Shift 06:00–18:00 &nbsp;·&nbsp; ${companyName||"ShieldSync Security Services"} &nbsp;·&nbsp; 4 Active Sites</div>
-  </div>
-
-  <div class="kpi-strip">${kpiHTML}</div>
-
-  <div class="body">${bodyHTML}</div>
-
-  <div class="ftr">
-    <div class="ftr-left">
-      <div>Generated by ShieldSync AI &nbsp;·&nbsp; ${dateStr}</div>
-      <div class="ftr-conf">Confidential — Authorized Personnel Only</div>
-    </div>
-    <div class="ftr-right">
-      <div>ShieldSync Sentinel v2.0</div>
-      <div>shieldsync-app.vercel.app</div>
-    </div>
-  </div>
-</div>
-</body>
-</html>`;
-}
-
 function Reports(){
-  const demo=React.useContext(DemoCtx);
   const[rtype,setRtype]=useState(REPORT_TYPES[0]);
   const[loading,setLoading]=useState(false);
   const[report,setReport]=useState("");
@@ -2687,26 +1926,23 @@ function Reports(){
             ))}
           </div>
           <button onClick={generate} disabled={loading} style={{width:"100%",background:loading?T.raised:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:loading?`1px solid ${T.border}`:"none",color:loading?T.textSub:"#000",padding:"14px",borderRadius:12,cursor:loading?"not-allowed":"pointer",fontWeight:800,fontSize:14,marginBottom:report?16:0}}>
-            {loading?"⚡ Generating Report…":`Generate ${rtype}`}
+            <span style={{display:"flex",alignItems:"center",gap:7,justifyContent:"center"}}>{loading&&<Cpu size={14} strokeWidth={2}/>}{loading?"Generating Report…":`Generate ${rtype}`}</span>
           </button>
           {report&&(
             <div>
-              <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap"}}>
+              <div style={{display:"flex",gap:8,marginBottom:12}}>
                 <button onClick={()=>{
-                  const html=buildPDFHTML(report,rtype,demo?.companyName);
+                  const safe=report.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+                  const html=`<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';"><title>ShieldSync — ${rtype.replace(/</g,"&lt;")}</title><style>body{font-family:monospace;padding:40px;white-space:pre-wrap;font-size:13px;line-height:1.75;color:#111;}@media print{body{padding:20px;}}</style></head><body><pre>${safe}</pre></body></html>`;
                   const url=URL.createObjectURL(new Blob([html],{type:"text/html"}));
                   const w=window.open(url,"_blank");
-                  if(w)setTimeout(()=>URL.revokeObjectURL(url),30000);
-                }} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 16px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:6}}>
-                  <span>⬇</span><span>Export PDF</span>
-                </button>
+                  w?.addEventListener("load",()=>{w.print();URL.revokeObjectURL(url);},{once:true});
+                }} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:5}}><Printer size={12} strokeWidth={2}/>Print / PDF</button>
                 <button onClick={()=>{
                   const url=URL.createObjectURL(new Blob([report],{type:"text/plain"}));
-                  const a=document.createElement("a");a.href=url;a.download=`${rtype.replace(/ /g,"_")}_${new Date().toISOString().slice(0,10)}.txt`;a.click();
+                  const a=document.createElement("a");a.href=url;a.download=`${rtype.replace(/ /g,"_")}.txt`;a.click();
                   setTimeout(()=>URL.revokeObjectURL(url),150);
-                }} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:6}}>
-                  <span>📄</span><span>Export TXT</span>
-                </button>
+                }} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:5}}><ArrowDownToLine size={12} strokeWidth={2}/>Export</button>
               </div>
               <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:12,padding:"20px 22px"}}>
                 <pre style={{margin:0,fontSize:13,color:T.text,whiteSpace:"pre-wrap",lineHeight:1.75,fontFamily:"inherit"}}>{report}</pre>
@@ -2771,7 +2007,7 @@ function Dispatch({showToast,user}){
             </button>
             <button onClick={radioAll} disabled={radioState!=="idle"}
               style={{background:radioState==="sent"?T.greenGlow:radioState==="broadcasting"?T.accentGlow:T.raised,border:`1px solid ${radioState==="sent"?T.greenB:radioState==="broadcasting"?T.accentB:T.border}`,color:radioState==="sent"?T.green:radioState==="broadcasting"?T.accent:T.textSub,padding:"11px 16px",borderRadius:10,cursor:radioState==="idle"?"pointer":"default",fontWeight:700,fontSize:13,transition:"all .2s"}}>
-              {radioState==="broadcasting"?"📡 Broadcasting…":radioState==="sent"?"✓ All Units Notified · CH-4":"📡 Radio All Units"}
+              <span style={{display:"flex",alignItems:"center",gap:5,justifyContent:"center"}}><Radio size={13} strokeWidth={2}/>{radioState==="broadcasting"?"Broadcasting…":radioState==="sent"?"All Units Notified · CH-4":"Radio All Units"}</span>
             </button>
           </div>
         </CB>
@@ -2861,7 +2097,7 @@ function MyShift({user,showToast}){
         setLoneWorker(t=>{
           if(t<=1){
             clearInterval(lwRef.current);
-            showToast("⚠️ Lone worker check-in MISSED — supervisor alerted","error");
+            showToast("Lone worker check-in MISSED — supervisor alerted","error");
             logAction(user,"LONE_WORKER_MISSED","Automatic alert triggered");
             return 30*60;
           }
@@ -2944,8 +2180,8 @@ function MyShift({user,showToast}){
     setEnRouteDest("");
   };
   const sos=()=>{
-    addActivity("🚨 SOS ACTIVATED — Supervisor notified");
-    showToast("🚨 SOS sent — supervisor and dispatch alerted","error");
+    addActivity("SOS ACTIVATED — Supervisor notified");
+    showToast("SOS sent — supervisor and dispatch alerted","error");
   };
 
   const SHIFT_DURATION=12*3600;
@@ -3022,7 +2258,7 @@ function MyShift({user,showToast}){
         <Card glow={gps?T.green:undefined}>
           <CB style={{padding:"12px 16px"}}>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
-              <span style={{fontSize:18}}>📍</span>
+              <MapPin size={18} color={gps?T.green:T.textSub} strokeWidth={1.8}/>
               <div style={{flex:1,minWidth:0}}>
                 {gps?(
                   <>
@@ -3044,11 +2280,11 @@ function MyShift({user,showToast}){
       {/* Today stats */}
       {clocked&&(
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-          {[["Checkpoints","8",T.accent,"✅"],["Incidents","0",T.green,"⚡"],["Hours",fmt(elapsed),T.gold,"⏱️"]].map(([l,v,c,icon])=>(
+          {[["Checkpoints","8",T.accent,CheckCircle2],["Incidents","0",T.green,Activity],["Hours",fmt(elapsed),T.gold,Timer]].map(([l,v,c,Ic])=>(
             <Card key={l} glow={c}>
               <CB style={{textAlign:"center",padding:"14px 10px"}}>
-                <div style={{fontSize:18,marginBottom:6}}>{icon}</div>
-                <div style={{fontSize:20,fontWeight:900,color:c}}>{v}</div>
+                <div style={{display:"flex",justifyContent:"center",marginBottom:6}}><Ic size={16} color={c} strokeWidth={1.8}/></div>
+                <div style={{fontSize:20,fontWeight:700,color:c}}>{v}</div>
                 <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{l}</div>
               </CB>
             </Card>
@@ -3077,20 +2313,7 @@ function MyShift({user,showToast}){
 
       {/* SOS */}
       {clocked&&(
-        <Card glow={T.red}>
-          <CB>
-            <SH title="Emergency SOS" icon="🆘" sub="Tap only in a genuine emergency — alerts all supervisors and dispatch with your GPS location"/>
-            <button
-              onClick={()=>{
-                const ts=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-                logAction(user,"SOS_ALERT",`Emergency SOS triggered by ${user?.name} at ${ts}`);
-                showToast("🆘 SOS SENT — Supervisors and dispatch alerted with your location","success");
-              }}
-              style={{width:"100%",background:"rgba(240,68,68,0.15)",border:`2px solid ${T.red}`,color:T.red,padding:"18px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:18,letterSpacing:"0.08em"}}
-            >🆘 SEND EMERGENCY ALERT</button>
-            <div style={{marginTop:10,fontSize:11,color:T.textDim,textAlign:"center"}}>Your GPS location will be shared with supervisors and dispatch</div>
-          </CB>
-        </Card>
+        <button onClick={sos} style={{width:"100%",background:"rgba(240,68,68,0.12)",border:`2px solid ${T.red}`,color:T.red,padding:"16px",borderRadius:12,cursor:"pointer",fontWeight:900,fontSize:16,letterSpacing:"0.08em",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}><Siren size={18} strokeWidth={2}/>SOS — Emergency Alert</button>
       )}
 
       {/* Shift Handover */}
@@ -3177,7 +2400,7 @@ function EquipmentModule({user,showToast}){
             {(isOfficer?myItems:items).map(e=>(
               <div key={e.id} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 14px",background:T.raised,borderRadius:10}}>
                 <div style={{width:36,height:36,borderRadius:9,background:`${statusColor(e.status)}18`,border:`1px solid ${statusColor(e.status)}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>
-                  {e.type==="Radio"?"📻":e.type==="Camera"?"📷":e.type==="CEW"?"⚡":e.type==="OC Spray"?"💨":e.type==="Medical"?"🩹":"🔧"}
+                  {e.type==="Radio"?<Radio size={16} color={statusColor(e.status)} strokeWidth={1.8}/>:e.type==="Camera"?<Camera size={16} color={statusColor(e.status)} strokeWidth={1.8}/>:e.type==="CEW"?<Zap size={16} color={statusColor(e.status)} strokeWidth={1.8}/>:e.type==="OC Spray"?<Wind size={16} color={statusColor(e.status)} strokeWidth={1.8}/>:e.type==="Medical"?<Bandage size={16} color={statusColor(e.status)} strokeWidth={1.8}/>:<Wrench size={16} color={statusColor(e.status)} strokeWidth={1.8}/>}
                 </div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.name}</div>
@@ -3401,7 +2624,7 @@ function TrainingModule(){
       </div>
       {expired>0&&(
         <div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",gap:10,alignItems:"center"}}>
-          <span style={{fontSize:18}}>⚠️</span>
+          <AlertTriangle size={18} color={T.red} strokeWidth={2}/>
           <div style={{fontSize:12,color:T.red,fontWeight:700}}>Action Required: {expired} expired certificate{expired!==1?"s":" "} — officers may not be legally compliant for deployment. Escalate to HR.</div>
         </div>
       )}
@@ -3446,37 +2669,6 @@ function TrainingModule(){
                 </div>
               </div>
             ))}
-          </div>
-        </CB>
-      </Card>
-
-      <Card>
-        <CB>
-          <SH title="Upcoming Training Deadlines" icon="📅" sub="Required recertifications and training renewals — 90 day window"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {[
-              {officer:"Elena Voss",badge:"S-0118",cert:"Annual Firearms Qualification",due:"2026-06-15",days:10,priority:"Critical"},
-              {officer:"Theo Okafor",badge:"S-0083",cert:"Use of Force Refresher",due:"2026-06-20",days:15,priority:"Critical"},
-              {officer:"Marcus Webb",badge:"S-0041",cert:"De-escalation Training",due:"2026-07-01",days:26,priority:"High"},
-              {officer:"Jordan Park",badge:"S-0105",cert:"First Aid / CPR Recert",due:"2026-07-10",days:35,priority:"High"},
-              {officer:"Diana Reyes",badge:"S-0067",cert:"Active Threat Response",due:"2026-07-25",days:50,priority:"Medium"},
-              {officer:"Ava Simmons",badge:"S-0092",cert:"Customer Service & Report Writing",due:"2026-08-15",days:71,priority:"Low"},
-            ].map((d,i)=>{
-              const col=d.priority==="Critical"?T.red:d.priority==="High"?T.amber:d.priority==="Medium"?T.gold:T.green;
-              return(
-                <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10,border:`1px solid ${d.priority==="Critical"?T.redB:T.border}`}}>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{d.officer}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{d.cert}</div>
-                  </div>
-                  <div style={{textAlign:"right",marginRight:8,flexShrink:0}}>
-                    <div style={{fontSize:11,color:col,fontWeight:700}}>{d.days}d</div>
-                    <div style={{fontSize:10,color:T.textDim}}>{d.due}</div>
-                  </div>
-                  <Pill label={d.priority} color={col}/>
-                </div>
-              );
-            })}
           </div>
         </CB>
       </Card>
@@ -3597,7 +2789,7 @@ function ExecutiveCommand({showToast}){
       </div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {[["overview","📊 Overview"],["contracts","📋 Contracts"],["labor","💰 Labor"],["compliance","✅ Compliance"],["predictive","🧠 Predictive"],["renewals","🔄 Renewals"]].map(([t,l])=>(
+        {[["overview","Overview"],["contracts","Contracts"],["labor","Labor"],["compliance","Compliance"],["predictive","Predictive"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
         ))}
       </div>
@@ -3612,7 +2804,7 @@ function ExecutiveCommand({showToast}){
                   <div style={{fontSize:14,fontWeight:800,color:T.text,marginTop:3}}>Today's Intelligence Summary</div>
                 </div>
                 <button onClick={genBrief} disabled={loadBrief} style={{background:T.purpleGlow,border:`1px solid ${T.purple}40`,color:T.purple,padding:"9px 14px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,opacity:loadBrief?.6:1}}>
-                  {loadBrief?"Generating…":"⚡ Generate"}
+                  <span style={{display:"flex",alignItems:"center",gap:5}}>{loadBrief&&<Cpu size={12} strokeWidth={2}/>}{loadBrief?"Generating…":"Generate"}</span>
                 </button>
               </div>
               {briefing
@@ -3911,61 +3103,6 @@ function ExecutiveCommand({showToast}){
           </Card>
         </div>
       )}
-
-      {tab==="renewals"&&(
-        <div style={{display:"flex",flexDirection:"column",gap:14}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-            {[["🔴 Critical",CONTRACT_RISK.filter(c=>c.risk==="Critical").length,"Immediate action required",T.red],
-              ["🟡 At Risk",CONTRACT_RISK.filter(c=>c.risk==="Medium").length,"Review within 30 days",T.amber],
-              ["✅ Secure",CONTRACT_RISK.filter(c=>c.risk==="Low").length,"No immediate action needed",T.green],
-            ].map(([l,v,s,c])=>(
-              <Card key={l} glow={c}><CB style={{textAlign:"center",padding:"16px 8px"}}>
-                <div style={{fontSize:24,fontWeight:900,color:c}}>{v}</div>
-                <div style={{fontSize:11,fontWeight:700,color:T.text,marginTop:4}}>{l}</div>
-                <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{s}</div>
-              </CB></Card>
-            ))}
-          </div>
-          <Card>
-            <CB>
-              <SH title="Contract Renewal Risk Analysis" icon="🔄" sub="Risk score based on health, margin, days to renewal, and client engagement"/>
-              <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                {CONTRACT_RISK.sort((a,b)=>b.score-a.score).map(c=>{
-                  const rc=c.risk==="Critical"?T.red:c.risk==="Medium"?T.amber:T.green;
-                  return(
-                    <div key={c.id} style={{padding:"14px 16px",background:T.raised,borderRadius:12,border:`1px solid ${c.risk==="Critical"?T.redB:T.border}`}}>
-                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
-                        <div>
-                          <div style={{fontSize:14,fontWeight:800,color:T.text}}>{c.client}</div>
-                          <div style={{fontSize:11,color:T.textSub,marginTop:2}}>
-                            {c.daysLeft<0?`⚠️ Expired ${Math.abs(c.daysLeft)} days ago`:`Renews in ${c.daysLeft} days — ${c.end}`}
-                          </div>
-                        </div>
-                        <Pill label={c.risk} color={rc}/>
-                      </div>
-                      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:10}}>
-                        {[["Health",`${c.health}%`,c.health>=80?T.green:c.health>=60?T.amber:T.red],
-                          ["Margin",`${c.margin}%`,c.margin>=25?T.green:c.margin>=15?T.amber:T.red],
-                          ["Risk Score",`${c.score}/100`,rc],
-                          ["Last Contact",c.lastContact,T.textSub],
-                        ].map(([l,v,col])=>(
-                          <div key={l} style={{background:T.bg,borderRadius:8,padding:"8px 10px"}}>
-                            <div style={{fontSize:9,color:T.textSub,textTransform:"uppercase",letterSpacing:"0.08em"}}>{l}</div>
-                            <div style={{fontSize:12,fontWeight:800,color:col,marginTop:3}}>{v}</div>
-                          </div>
-                        ))}
-                      </div>
-                      <div style={{height:5,background:T.bg,borderRadius:3,overflow:"hidden"}}>
-                        <div style={{height:"100%",width:`${c.score}%`,background:`linear-gradient(90deg,${T.green},${c.score>70?T.red:c.score>40?T.amber:T.green})`,borderRadius:3}}/>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CB>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }
@@ -4092,7 +3229,7 @@ function TimekeepingModule({user,showToast}){
 
       <div style={{display:"flex",gap:6,justifyContent:"space-between",flexWrap:"wrap",alignItems:"center"}}>
         <div style={{display:"flex",gap:5}}>
-          {[["timesheets","📋 Timesheets"],["clockin","⏱ GPS Clock In"],["overtime","⚠ Overtime"]].map(([t,l])=>(
+          {[["timesheets","Timesheets"],["clockin","GPS Clock In"],["overtime","Overtime"]].map(([t,l])=>(
             <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
           ))}
         </div>
@@ -4116,7 +3253,7 @@ function TimekeepingModule({user,showToast}){
                       <PBar value={ts.totalHrs} max={65} color={ts.otHrs>0?T.amber:T.accent}/>
                     </div>
                     <Pill label={ts.status} color={ts.status==="Approved"?T.green:ts.status==="Pending"?T.amber:T.accent}/>
-                    <span style={{color:T.textDim,fontSize:12,flexShrink:0}}>{expanded===ts.id?"▲":"▼"}</span>
+                    <span style={{color:T.textDim,flexShrink:0}}>{expanded===ts.id?<ChevronUp size={13} strokeWidth={2}/>:<ChevronDown size={13} strokeWidth={2}/>}</span>
                   </div>
                   {expanded===ts.id&&(
                     <div style={{background:T.card,border:`1px solid ${T.border}`,borderTop:"none",borderRadius:"0 0 10px 10px",padding:"12px 14px"}}>
@@ -4160,13 +3297,13 @@ function TimekeepingModule({user,showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <Card glow={clockedIn?T.green:T.accent}>
             <CB style={{textAlign:"center",padding:"28px 24px"}}>
-              <div style={{fontSize:44,marginBottom:12}}>{clockedIn?"🟢":"⏱️"}</div>
+              <div style={{marginBottom:12,display:"flex",justifyContent:"center"}}>{clockedIn?<CheckCircle2 size={44} color={T.green} strokeWidth={1.5}/>:<Clock size={44} color={T.accent} strokeWidth={1.5}/>}</div>
               <div style={{fontSize:20,fontWeight:900,color:clockedIn?T.green:T.text,marginBottom:6}}>
                 {clockedIn?`On Duty — ${site}`:"Ready to Clock In"}
               </div>
               {clockedIn&&<div style={{fontSize:36,fontWeight:900,color:T.green,fontFamily:"monospace",marginBottom:6,letterSpacing:"-0.02em"}}>{fmtHM(elapsed)}</div>}
               {clockedIn&&clockTime&&<div style={{fontSize:12,color:T.textSub,marginBottom:10}}>Since {clockTime.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}</div>}
-              {gps&&<div style={{fontSize:11,color:T.accent,marginBottom:4}}>📍 {gps.lat}, {gps.lng}{gps.dist!==undefined?` · ${gps.dist}m from site`:""}</div>}
+              {gps&&<div style={{fontSize:11,color:T.accent,marginBottom:4,display:"flex",alignItems:"center",gap:4,justifyContent:"center"}}><MapPin size={10} strokeWidth={2}/>{gps.lat}, {gps.lng}{gps.dist!==undefined?` · ${gps.dist}m from site`:""}</div>}
               {gps&&gps.dist!==undefined&&(
                 <div style={{fontSize:11,fontWeight:700,color:gps.dist<=gps.radius?T.green:T.red,marginBottom:8,background:gps.dist<=gps.radius?T.greenB:T.redGlow,border:`1px solid ${gps.dist<=gps.radius?T.greenB:T.redB}`,borderRadius:8,padding:"4px 10px",display:"inline-block"}}>
                   {gps.dist<=gps.radius?`✓ Inside ${site} geofence (${gps.radius}m radius)`:`⚠ Outside geofence — ${gps.dist}m (max ${gps.radius}m)`}
@@ -4214,11 +3351,11 @@ function TimekeepingModule({user,showToast}){
       {tab==="overtime"&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           {totalOT===0?(
-            <Card><CB style={{textAlign:"center",padding:"32px",color:T.textSub,fontSize:13}}><div style={{fontSize:36,marginBottom:12}}>✅</div>No overtime this week. All officers within standard hours.</CB></Card>
+            <Card><CB style={{textAlign:"center",padding:"32px",color:T.textSub,fontSize:13}}><div style={{marginBottom:12,display:"flex",justifyContent:"center"}}><CheckCircle2 size={36} color={T.green} strokeWidth={1.5}/></div>No overtime this week. All officers within standard hours.</CB></Card>
           ):(
             <>
               <div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",gap:10,alignItems:"center"}}>
-                <span style={{fontSize:18}}>⚠️</span>
+                <AlertTriangle size={18} color={T.red} strokeWidth={2}/>
                 <div style={{fontSize:12,color:T.red,fontWeight:700}}>
                   {sheets.filter(t=>t.otHrs>0).length} officer{sheets.filter(t=>t.otHrs>0).length!==1?"s":""} with overtime this week · Total: {totalOT.toFixed(2)}h OT · Premium est. ${(totalOT*12.25).toFixed(2)}
                 </div>
@@ -4260,27 +3397,27 @@ function TimekeepingModule({user,showToast}){
 // AI COMMAND CENTER
 // ─────────────────────────────────────────────────────────────────
 const ADVISORS={
-  operations:{label:"Operations",icon:"⚡",color:T.accent,
+  operations:{label:"Operations",icon:Zap,color:T.accent,
     system:"You are ShieldSync AI Operations Advisor. Analyze patrol completion, incident response, checkpoint compliance, and dispatch efficiency. Context: 5 officers, 4 sites, 94% patrol rate, 2 open incidents, 4.2min avg response. Be tactical and data-driven. Max 4 sentences.",
     quick:["What needs immediate attention?","Analyze patrol gaps","Dispatch priority","Site risk ranking"],
     alerts:AI_INSIGHTS.filter(a=>a.priority==="critical"||a.priority==="high"),
   },
-  workforce:{label:"Workforce",icon:"👮",color:T.gold,
+  workforce:{label:"Workforce",icon:Users,color:T.gold,
     system:"You are ShieldSync AI Workforce Advisor. Analyze officer performance, scheduling, fatigue risk, and training compliance. Context: 6 officers, 1 expired cert, 2.68 OT hours, 2 pending leave requests. Be direct.",
     quick:["Flag fatigue risks","Scheduling gaps","Top performer analysis","Cert compliance status"],
     alerts:TRAINING_DATA.filter(t=>t.status==="Expired").map(t=>({text:`Expired certification: ${t.cert} — ${t.officer}. Requires immediate renewal.`,priority:"critical"})),
   },
-  compliance:{label:"Compliance",icon:"✅",color:T.green,
+  compliance:{label:"Compliance",icon:CheckCircle2,color:T.green,
     system:"You are ShieldSync AI Compliance Advisor. Track cert expiry, contract renewals, policy acknowledgments, and audit schedules. Focus on risk mitigation and legal compliance. 2 overdue certs, 1 expired contract, Q2 audit pending.",
     quick:["What's overdue?","Audit readiness check","Renewal priorities","Policy acknowledgment status"],
     alerts:COMPLIANCE_ITEMS.filter(c=>c.status==="Overdue").map(c=>({text:c.title+": "+c.notes,priority:"critical"})),
   },
-  risk:{label:"Risk",icon:"🔴",color:T.red,
+  risk:{label:"Risk",icon:ShieldAlert,color:T.red,
     system:"You are ShieldSync AI Risk Advisor. Identify operational, personnel, financial, and compliance risks. Provide risk scores and mitigation strategies. Current risk score: 6.2/10 (elevated). Be concise and prioritized.",
     quick:["Current risk score?","Top 3 risk factors","Mitigation priorities","Financial exposure"],
     alerts:AI_INSIGHTS.filter(a=>a.priority==="critical").slice(0,2),
   },
-  executive:{label:"Executive",icon:"📊",color:T.purple,
+  executive:{label:"Executive",icon:BarChart3,color:T.purple,
     system:"You are ShieldSync AI Executive Advisor. Provide strategic insights on financial performance, business development, and contract health. Monthly revenue $96,750, margin 27%, 4 active contracts. Be executive-level strategic.",
     quick:["Executive summary","Revenue growth opportunities","Contract renewal risks","Strategic priorities"],
     alerts:[{text:"Q2 revenue tracking 8% above prior quarter driven by Northgate contract optimization.",priority:"info"},{text:"CTR-003 Plaza West REIT expired June 1 — client relationship requires immediate executive outreach.",priority:"critical"}],
@@ -4319,14 +3456,14 @@ function AICommandCenter(){
       <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
         {Object.entries(ADVISORS).map(([key,c])=>(
           <button key={key} onClick={()=>{setAdv(key);setInp("");}} style={{background:adv===key?`${c.color}15`:T.raised,border:`1px solid ${adv===key?c.color+"45":T.border}`,borderRadius:10,padding:"12px 6px",cursor:"pointer",textAlign:"center",transition:"all 0.15s"}}>
-            <div style={{fontSize:22,marginBottom:4}}>{c.icon}</div>
+            <div style={{marginBottom:4,display:"flex",justifyContent:"center"}}><c.icon size={20} color={adv===key?c.color:T.textSub} strokeWidth={1.8}/></div>
             <div style={{fontSize:9,color:adv===key?c.color:T.textSub,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.04em",lineHeight:1.3}}>{c.label}</div>
           </button>
         ))}
       </div>
 
       <div style={{background:`linear-gradient(135deg,${cfg.color}12,${cfg.color}05)`,border:`1px solid ${cfg.color}28`,borderRadius:12,padding:"14px 18px",display:"flex",alignItems:"center",gap:12}}>
-        <div style={{width:44,height:44,borderRadius:12,background:`linear-gradient(135deg,${cfg.color}30,${cfg.color}10)`,border:`1px solid ${cfg.color}45`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>{cfg.icon}</div>
+        <div style={{width:44,height:44,borderRadius:12,background:`${cfg.color}12`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><cfg.icon size={22} color={cfg.color} strokeWidth={1.8}/></div>
         <div style={{flex:1}}>
           <div style={{fontSize:15,fontWeight:800,color:T.text}}>{cfg.label} Advisor</div>
           <div style={{fontSize:11,color:T.textSub,marginTop:2}}>AI-powered · Real-time intelligence · Security operations specialist</div>
@@ -4357,19 +3494,19 @@ function AICommandCenter(){
           <div style={{display:"flex",flexDirection:"column",gap:10,minHeight:240,maxHeight:340,overflowY:"auto",marginBottom:10,paddingRight:2}}>
             {curMsgs.length===0&&(
               <div style={{padding:"24px 0",textAlign:"center"}}>
-                <div style={{fontSize:36,marginBottom:8}}>{cfg.icon}</div>
+                <div style={{marginBottom:10,display:"flex",justifyContent:"center"}}><cfg.icon size={36} color={cfg.color} strokeWidth={1.5}/></div>
                 <div style={{fontSize:13,color:T.textSub,lineHeight:1.6}}>The {cfg.label} Advisor is ready.<br/>Select a quick action or type your question below.</div>
               </div>
             )}
             {curMsgs.map((m,i)=>(
               <div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
-                {m.role==="ai"&&<div style={{width:28,height:28,borderRadius:8,flexShrink:0,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{cfg.icon}</div>}
+                {m.role==="ai"&&<div style={{width:28,height:28,borderRadius:8,flexShrink:0,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center"}}><cfg.icon size={14} color={cfg.color} strokeWidth={2}/></div>}
                 <div style={{maxWidth:"85%",padding:"9px 13px",borderRadius:m.role==="user"?"12px 12px 3px 12px":"12px 12px 12px 3px",background:m.role==="user"?`${cfg.color}15`:T.raised,border:`1px solid ${m.role==="user"?cfg.color+"35":T.border}`,fontSize:13,lineHeight:1.6,color:T.text,whiteSpace:"pre-wrap"}}>{m.text}</div>
               </div>
             ))}
             {loading&&(
               <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                <div style={{width:28,height:28,borderRadius:8,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{cfg.icon}</div>
+                <div style={{width:28,height:28,borderRadius:8,background:`${cfg.color}18`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center"}}><cfg.icon size={14} color={cfg.color} strokeWidth={2}/></div>
                 <div style={{background:T.raised,borderRadius:12,border:`1px solid ${T.border}`}}><Dots/></div>
               </div>
             )}
@@ -4442,7 +3579,7 @@ function ProcurementModule({user,showToast}){
 
       <div style={{display:"flex",gap:6,justifyContent:"space-between",flexWrap:"wrap",alignItems:"center"}}>
         <div style={{display:"flex",gap:5}}>
-          {[["requests","📋 Requests"],["vendors","🏢 Vendors"],["assets","📦 Assets"]].map(([t,l])=>(
+          {[["requests","Requests"],["vendors","Vendors"],["assets","Assets"]].map(([t,l])=>(
             <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
           ))}
         </div>
@@ -4534,10 +3671,10 @@ function ProcurementModule({user,showToast}){
                     </div>
                   </div>
                   <div style={{display:"flex",gap:14,fontSize:11,color:T.textSub,flexWrap:"wrap"}}>
-                    <span>📋 {v.contracts} contract{v.contracts!==1?"s":""}</span>
-                    <span>⭐ {v.rating}/5.0</span>
-                    <span>📧 {v.contact}</span>
-                    <span>📞 {v.phone}</span>
+                    <span style={{display:"flex",alignItems:"center",gap:3}}><FileText size={10} strokeWidth={2}/>{v.contracts} contract{v.contracts!==1?"s":""}</span>
+                    <span style={{display:"flex",alignItems:"center",gap:3}}><Star size={10} strokeWidth={2}/>{v.rating}/5.0</span>
+                    <span style={{display:"flex",alignItems:"center",gap:3}}><Mail size={10} strokeWidth={2}/>{v.contact}</span>
+                    <span style={{display:"flex",alignItems:"center",gap:3}}><Phone size={10} strokeWidth={2}/>{v.phone}</span>
                   </div>
                 </div>
               ))}
@@ -4553,8 +3690,8 @@ function ProcurementModule({user,showToast}){
             <div style={{display:"flex",flexDirection:"column",gap:6}}>
               {ASSET_REGISTER.map(a=>(
                 <div key={a.id} style={{display:"flex",gap:12,alignItems:"center",background:T.raised,borderRadius:9,padding:"10px 13px"}}>
-                  <div style={{width:32,height:32,borderRadius:8,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,flexShrink:0}}>
-                    {a.type==="Vehicle"?"🚗":a.type==="Radio"?"📻":a.type==="Camera"?"📷":a.type==="CEW"?"⚡":a.type==="Medical"?"🏥":"🔧"}
+                  <div style={{width:32,height:32,borderRadius:8,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    {(()=>{const Ic=a.type==="Vehicle"?Car:a.type==="Radio"?Radio:a.type==="Camera"?Camera:a.type==="CEW"?Zap:a.type==="Medical"?Bandage:Wrench;return <Ic size={14} color={T.accent} strokeWidth={2}/>;})()}
                   </div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:12,fontWeight:700,color:T.text}}>{a.name}</div>
@@ -4577,48 +3714,54 @@ function ProcurementModule({user,showToast}){
 // ─────────────────────────────────────────────────────────────────
 // LAYOUT
 // ─────────────────────────────────────────────────────────────────
-function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed,lang,setLang}){
-  const t=useT();
-  const demo=React.useContext(DemoCtx);
-  const brandName=demo?.active&&demo.companyName?demo.companyName:"ShieldSync";
-  const brandSub=demo?.active&&demo.companyName?"Powered by ShieldSync":"SENTINEL";
+function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
+  const groups=Object.keys(NAV_GROUP_LABELS);
   return(
-    <aside style={{width:collapsed?58:210,background:T.surface,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",transition:"width 0.2s ease",flexShrink:0,position:"sticky",top:0,height:"100vh",overflowX:"hidden"}}>
-      <div style={{padding:collapsed?"14px 11px":"16px 18px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",gap:12}}>
-        <div style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>⚡</div>
-        {!collapsed&&<div><div style={{fontWeight:900,fontSize:14,color:T.text,letterSpacing:"-0.02em",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:140}}>{brandName}</div><div style={{fontSize:9,color:T.textDim,letterSpacing:"0.12em",textTransform:"uppercase"}}>{brandSub}</div></div>}
+    <aside style={{width:collapsed?56:220,background:T.surface,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",transition:"width 0.18s ease",flexShrink:0,position:"sticky",top:0,height:"100vh",overflowX:"hidden"}}>
+      {/* Logo */}
+      <div style={{padding:collapsed?"14px 12px":"14px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
+        <div style={{width:30,height:30,borderRadius:8,background:T.accent,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Shield size={16} color="#fff" strokeWidth={2.5}/></div>
+        {!collapsed&&<div><div style={{fontWeight:700,fontSize:13,color:T.text,letterSpacing:"-0.01em"}}>ShieldSync</div><div style={{fontSize:9,color:T.textDim,letterSpacing:"0.16em",textTransform:"uppercase",marginTop:1}}>SENTINEL</div></div>}
       </div>
-      <nav style={{flex:1,padding:"10px 7px",display:"flex",flexDirection:"column",gap:2,overflowY:"auto"}}>
-        {items.map(n=>{
-          const a=active===n.id;
+      {/* Nav */}
+      <nav style={{flex:1,padding:"8px 6px",display:"flex",flexDirection:"column",gap:0,overflowY:"auto"}}>
+        {groups.map(g=>{
+          const gItems=items.filter(n=>n.group===g);
+          if(!gItems.length)return null;
           return(
-            <button key={n.id} onClick={()=>onChange(n.id)} title={collapsed?n.label:""} style={{display:"flex",alignItems:"center",gap:10,padding:collapsed?"11px 11px":"10px 12px",background:a?T.accentGlow:"none",border:`1px solid ${a?T.accentB:"transparent"}`,borderRadius:10,cursor:"pointer",color:a?T.accent:T.textSub,fontWeight:a?700:500,fontSize:13,textAlign:"left",width:"100%",transition:"all 0.15s",WebkitTapHighlightColor:"transparent"}}>
-              <span style={{fontSize:16,flexShrink:0}}>{n.icon}</span>
-              {!collapsed&&<span style={{whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{t(n.label)}</span>}
-            </button>
+            <div key={g}>
+              {!collapsed&&<div style={{fontSize:9,fontWeight:700,letterSpacing:"0.14em",color:T.textDim,padding:"10px 8px 4px",textTransform:"uppercase"}}>{NAV_GROUP_LABELS[g]}</div>}
+              {collapsed&&<div style={{height:1,background:T.border,margin:"6px 4px"}}/>}
+              {gItems.map(n=>{
+                const a=active===n.id;
+                const Icon=n.icon;
+                return(
+                  <button key={n.id} onClick={()=>onChange(n.id)} title={collapsed?n.label:""} className="ss-nav-btn" style={{display:"flex",alignItems:"center",gap:9,padding:collapsed?"10px 13px":"8px 10px",background:a?T.accentGlow:"transparent",border:`1px solid ${a?T.accentB:"transparent"}`,borderRadius:7,cursor:"pointer",color:a?T.accent:T.textSub,fontSize:12,textAlign:"left",width:"100%",transition:"all 0.12s",WebkitTapHighlightColor:"transparent",marginBottom:1}}>
+                    <Icon size={15} strokeWidth={a?2.2:1.8} style={{flexShrink:0}}/>
+                    {!collapsed&&<span style={{whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",fontWeight:a?600:400}}>{n.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
           );
         })}
       </nav>
-      <div style={{padding:"10px 7px",borderTop:`1px solid ${T.border}`,display:"flex",flexDirection:"column",gap:6}}>
+      {/* User card */}
+      <div style={{padding:"8px 6px",borderTop:`1px solid ${T.border}`,flexShrink:0}}>
         {!collapsed&&(
-          <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"11px 12px",display:"flex",gap:10,alignItems:"center"}}>
-            <div style={{width:30,height:30,borderRadius:8,background:`linear-gradient(135deg,${T.accent}35,${T.purple}25)`,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:900,color:T.accent,flexShrink:0}}>{user.av}</div>
+          <div style={{padding:"10px 11px",display:"flex",gap:9,alignItems:"center",marginBottom:4}}>
+            <div style={{width:28,height:28,borderRadius:7,background:T.raised,border:`1px solid ${T.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:T.textSub,flexShrink:0}}>{user.av}</div>
             <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:12,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{user.name}</div>
-              <div style={{fontSize:9,color:T.textDim,letterSpacing:"0.08em",textTransform:"uppercase",marginTop:1}}>{user.role}</div>
+              <div style={{fontSize:12,fontWeight:600,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{user.name}</div>
+              <div style={{fontSize:9,color:T.textDim,textTransform:"uppercase",letterSpacing:"0.08em"}}>{user.role}</div>
             </div>
           </div>
         )}
-        {!collapsed&&(
-          <button onClick={()=>setLang(l=>l==="en"?"es":"en")} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,color:T.textSub,padding:"8px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:600,display:"flex",alignItems:"center",justifyContent:"center",gap:6,WebkitTapHighlightColor:"transparent"}}>
-            <span>{lang==="en"?"🇲🇽":"🇺🇸"}</span><span>{lang==="en"?"Español":"English"}</span>
-          </button>
-        )}
-        <button onClick={onLogout} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,color:T.textSub,padding:"9px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:6,WebkitTapHighlightColor:"transparent"}}>
-          {collapsed?"×":<><span style={{fontSize:13}}>↩</span><span>{t("Sign Out")}</span></>}
+        <button onClick={onLogout} style={{background:"transparent",border:`1px solid ${T.border}`,borderRadius:7,color:T.textSub,padding:collapsed?"10px 13px":"8px 10px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:500,display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-start",gap:7,WebkitTapHighlightColor:"transparent",transition:"all 0.12s"}}>
+          <LogOut size={14} strokeWidth={1.8}/>{!collapsed&&"Sign Out"}
         </button>
-        <button onClick={()=>setCollapsed(c=>!c)} style={{background:"none",border:`1px solid ${T.border}`,borderRadius:8,color:T.textDim,padding:"7px",cursor:"pointer",fontSize:11,width:"100%",fontWeight:600}}>
-          {collapsed?"→":`← ${t("Collapse")}`}
+        <button onClick={()=>setCollapsed(c=>!c)} style={{background:"transparent",border:"none",color:T.textDim,padding:collapsed?"10px 13px":"6px 10px",cursor:"pointer",width:"100%",display:"flex",alignItems:"center",justifyContent:collapsed?"center":"flex-end",gap:5,marginTop:2,WebkitTapHighlightColor:"transparent"}}>
+          {collapsed?<ChevronRight size={13} strokeWidth={2}/>:<><span style={{fontSize:10,color:T.textDim}}>Collapse</span><ChevronLeft size={12} strokeWidth={2}/></>}
         </button>
       </div>
     </aside>
@@ -4627,32 +3770,38 @@ function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed,lan
 
 function TopBar({modId,now,user,onLogout,isMobile}){
   const m=NAV.find(n=>n.id===modId);
+  const ModIcon=m?.icon||null;
+  const grpLabel=m?.group?NAV_GROUP_LABELS[m.group]:null;
   return(
-    <header style={{background:T.surface,borderBottom:`1px solid ${T.border}`,padding:"12px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:40,flexShrink:0,gap:10}}>
-      <div style={{minWidth:0}}>
-        <div style={{fontSize:17,fontWeight:900,color:T.text,whiteSpace:"nowrap"}}>{m?.label}</div>
-        <div style={{fontSize:10,color:T.textSub,marginTop:1}}>
-          {now.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"})} · {now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
+    <header style={{background:T.surface,borderBottom:`1px solid ${T.border}`,padding:"0 20px",height:52,display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:40,flexShrink:0,gap:10}}>
+      <div style={{display:"flex",alignItems:"center",gap:10,minWidth:0}}>
+        {ModIcon&&<ModIcon size={16} color={T.textDim} strokeWidth={1.8}/>}
+        <div style={{minWidth:0}}>
+          {grpLabel&&<div style={{fontSize:9,fontWeight:700,letterSpacing:"0.14em",color:T.textDim,textTransform:"uppercase",lineHeight:1}}>{grpLabel}</div>}
+          <div style={{fontSize:14,fontWeight:600,color:T.text,whiteSpace:"nowrap",lineHeight:grpLabel?1.3:1}}>{m?.label}</div>
         </div>
       </div>
-      <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-        {!isMobile&&<div style={{display:"flex",alignItems:"center",gap:5,background:`${T.green}10`,border:`1px solid ${T.green}28`,borderRadius:8,padding:"5px 10px"}}>
-          <span style={{fontSize:11}}>🔒</span>
-          <span style={{fontSize:10,color:T.green,fontWeight:700}}>Secure</span>
-        </div>}
-        <div style={{display:"flex",alignItems:"center",gap:6,background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:8,padding:isMobile?"6px 8px":"6px 11px"}}>
-          <div style={{width:6,height:6,borderRadius:"50%",background:T.red,animation:"ssB 1s infinite"}}/>
-          {!isMobile&&<span style={{fontSize:11,color:T.red,fontWeight:700,whiteSpace:"nowrap"}}>2 Active</span>}
+      <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
+        <div style={{fontSize:10,color:T.textDim,whiteSpace:"nowrap"}}>
+          {now.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"})} · {now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}
         </div>
-        <div style={{display:"flex",alignItems:"center",gap:8,background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"7px 12px"}}>
-          <div style={{width:26,height:26,borderRadius:7,background:`linear-gradient(135deg,${T.accent}35,${T.purple}25)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:900,color:T.accent}}>{user.av}</div>
+        {!isMobile&&<div style={{display:"flex",alignItems:"center",gap:5,background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"4px 9px"}}>
+          <Lock size={10} color={T.green} strokeWidth={2.5}/>
+          <span style={{fontSize:10,color:T.textSub}}>Secure</span>
+        </div>}
+        <div style={{position:"relative"}}>
+          <button style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",color:T.textSub,padding:0}}>
+            <Bell size={13} strokeWidth={1.8}/>
+          </button>
+          <span style={{position:"absolute",top:-3,right:-3,width:14,height:14,borderRadius:7,background:T.red,color:"#fff",fontSize:8,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",border:`2px solid ${T.bg}`}}>3</span>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:8,background:T.raised,border:`1px solid ${T.border}`,borderRadius:7,padding:"5px 10px"}}>
+          <div style={{width:24,height:24,borderRadius:6,background:T.border,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:T.textSub}}>{user.av}</div>
           {!isMobile&&<div style={{fontSize:11,color:T.text}}>
-            <div style={{fontWeight:700,whiteSpace:"nowrap"}}>{user.name}</div>
+            <div style={{fontWeight:600,whiteSpace:"nowrap",lineHeight:1.2}}>{user.name}</div>
             <div style={{color:T.textDim,fontSize:9,textTransform:"uppercase",letterSpacing:"0.06em"}}>{user.role}</div>
           </div>}
-          {isMobile&&(
-            <button onClick={onLogout} title="Sign out" style={{background:"none",border:"none",color:T.textSub,cursor:"pointer",fontSize:14,padding:"4px 6px",WebkitTapHighlightColor:"transparent",minWidth:32,minHeight:32,display:"flex",alignItems:"center",justifyContent:"center"}}>↩</button>
-          )}
+          {isMobile&&<button onClick={onLogout} title="Sign out" style={{background:"none",border:"none",color:T.textSub,cursor:"pointer",padding:0,display:"flex",alignItems:"center",WebkitTapHighlightColor:"transparent"}}><LogOut size={13} strokeWidth={1.8}/></button>}
         </div>
       </div>
     </header>
@@ -4660,17 +3809,19 @@ function TopBar({modId,now,user,onLogout,isMobile}){
 }
 
 function MobileNav({items,active,onChange}){
-  const scroll=items.length>5;
-  const t=useT();
+  const top5=items.slice(0,5);
   return(
-    <nav style={{position:"fixed",bottom:0,left:0,right:0,zIndex:50,background:T.surface,borderTop:`1px solid ${T.border}`,display:"flex",alignItems:"stretch",overflowX:scroll?"auto":"visible",WebkitOverflowScrolling:"touch",paddingBottom:"env(safe-area-inset-bottom,0px)"}}>
-      {items.map(n=>(
-        <button key={n.id} onClick={()=>onChange(n.id)} style={{flex:scroll?0:items.length<=3?0:1,flexShrink:0,minWidth:scroll?72:items.length<=3?100:0,background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"12px 6px 10px",cursor:"pointer",gap:4,WebkitTapHighlightColor:"transparent",position:"relative"}}>
-          <span style={{fontSize:20,lineHeight:1}}>{n.icon}</span>
-          <span style={{fontSize:9,fontWeight:700,letterSpacing:"0.04em",color:active===n.id?T.accent:T.textDim,transition:"color 0.15s",whiteSpace:"nowrap"}}>{t(n.label)}</span>
-          {active===n.id&&<div style={{position:"absolute",top:0,left:"20%",right:"20%",height:2,background:T.accent,borderRadius:"0 0 2px 2px"}}/>}
-        </button>
-      ))}
+    <nav style={{position:"fixed",bottom:0,left:0,right:0,zIndex:50,background:T.surface,borderTop:`1px solid ${T.border}`,display:"flex",alignItems:"stretch",paddingBottom:"env(safe-area-inset-bottom,0px)"}}>
+      {top5.map(n=>{
+        const Icon=n.icon;const a=active===n.id;
+        return(
+          <button key={n.id} onClick={()=>onChange(n.id)} style={{flex:1,background:"none",border:"none",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"10px 4px 8px",cursor:"pointer",gap:4,WebkitTapHighlightColor:"transparent",position:"relative"}}>
+            <Icon size={18} strokeWidth={a?2.2:1.6} color={a?T.accent:T.textDim}/>
+            <span style={{fontSize:9,fontWeight:a?600:400,color:a?T.accent:T.textDim,whiteSpace:"nowrap"}}>{n.label}</span>
+            {a&&<div style={{position:"absolute",top:0,left:"25%",right:"25%",height:1.5,background:T.accent}}/>}
+          </button>
+        );
+      })}
     </nav>
   );
 }
@@ -4691,7 +3842,7 @@ function MFAScreen({user,onVerify,onCancel}){
     <div style={{minHeight:"100vh",background:T.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:20,position:"relative",overflow:"hidden"}}>
       <style>{`*{box-sizing:border-box;margin:0;padding:0;}html,body{font-family:'DM Sans',system-ui,sans-serif;background:${T.bg};}@keyframes ssUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}input:focus{border-color:${T.accentB}!important;outline:none;}`}</style>
       <div style={{textAlign:"center",marginBottom:28,animation:"ssUp .35s ease",position:"relative",zIndex:1}}>
-        <div style={{width:66,height:66,borderRadius:20,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:32,margin:"0 auto 16px",boxShadow:`0 0 60px ${T.accent}38`}}>🔐</div>
+        <div style={{width:56,height:56,borderRadius:16,background:T.raised,border:`1px solid ${T.border}`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}><Fingerprint size={26} color={T.accent} strokeWidth={1.5}/></div>
         <div style={{fontSize:26,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>Two-Factor Auth</div>
         <div style={{fontSize:12,color:T.textSub,marginTop:6}}>Signed in as <strong style={{color:T.text}}>{user.name}</strong></div>
       </div>
@@ -4721,7 +3872,7 @@ function MFAScreen({user,onVerify,onCancel}){
 // ─────────────────────────────────────────────────────────────────
 function OnboardingWizard({user,onComplete}){
   const STEPS=["Welcome","Add Site","Add Officer","Configure Alerts","You're Live"];
-  const ICONS=["👋","🏢","👮","🔔","🚀"];
+  const ICONS=[Hand,Building2,Users,Bell,Rocket];
   const[step,setStep]=useState(0);
   const[form,setForm]=useState({site:"",address:"",officer:"",email:"",badge:"",alertEmail:true,alertSMS:false,alertPush:true});
   const upd=(k,v)=>setForm(f=>({...f,[k]:v}));
@@ -4749,7 +3900,7 @@ function OnboardingWizard({user,onComplete}){
         <div style={{display:"flex",borderBottom:`1px solid ${T.border}`,padding:"14px 24px 0"}}>
           {STEPS.map((s,i)=>(
             <div key={s} style={{flex:1,textAlign:"center",paddingBottom:12,borderBottom:`2px solid ${i<=step?T.accent:"transparent"}`,transition:"border-color .3s"}}>
-              <div style={{fontSize:16,marginBottom:3}}>{ICONS[i]}</div>
+              <div style={{marginBottom:3,display:"flex",justifyContent:"center"}}>{(()=>{const I=ICONS[i];return <I size={16} color={i<=step?T.accent:T.textDim} strokeWidth={1.8}/>;})()}</div>
               <div style={{fontSize:9,color:i===step?T.accent:i<step?T.green:T.textDim,fontWeight:700,letterSpacing:"0.06em",textTransform:"uppercase"}}>{s}</div>
             </div>
           ))}
@@ -4757,13 +3908,13 @@ function OnboardingWizard({user,onComplete}){
         <div style={{padding:32}}>
           {step===0&&(
             <div style={{textAlign:"center"}}>
-              <div style={{fontSize:36,marginBottom:14}}>👋</div>
+              <div style={{marginBottom:14,display:"flex",justifyContent:"center"}}><Hand size={36} color={T.accent} strokeWidth={1.5}/></div>
               <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:10}}>Welcome to ShieldSync, {user.name.split(" ")[0]}!</div>
               <div style={{fontSize:13,color:T.textSub,lineHeight:1.75,marginBottom:24}}>Your account is ready. Let's set up your first site, add an officer, and configure alerts in under 2 minutes.</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
-                {[["📍","Add Site","Set patrol locations"],["👮","Add Officer","Invite your team"],["🔔","Alerts","Real-time notifications"]].map(([ic,t,s])=>(
+                {[[MapPin,"Add Site","Set patrol locations"],[Users,"Add Officer","Invite your team"],[Bell,"Alerts","Real-time notifications"]].map(([Ic,t,s])=>(
                   <div key={t} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:14,padding:16}}>
-                    <div style={{fontSize:22,marginBottom:8}}>{ic}</div>
+                    <div style={{marginBottom:8,display:"flex",justifyContent:"center"}}><Ic size={22} color={T.accent} strokeWidth={1.8}/></div>
                     <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:3}}>{t}</div>
                     <div style={{fontSize:11,color:T.textSub,lineHeight:1.5}}>{s}</div>
                   </div>
@@ -4804,12 +3955,12 @@ function OnboardingWizard({user,onComplete}){
               <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Configure Alert Channels</div>
               <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>Choose how your team gets notified for SOS, missed checkpoints, and incidents.</div>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                {[{k:"alertEmail",label:"Email Alerts",sub:"Incident reports and daily summaries",icon:"📧"},{k:"alertSMS",label:"SMS / Text Alerts",sub:"SOS and critical incidents only",icon:"📱"},{k:"alertPush",label:"Push Notifications",sub:"Real-time browser and mobile alerts",icon:"🔔"}].map(({k,label,sub,icon})=>(
+                {[{k:"alertEmail",label:"Email Alerts",sub:"Incident reports and daily summaries",icon:Mail},{k:"alertSMS",label:"SMS / Text Alerts",sub:"SOS and critical incidents only",icon:Phone},{k:"alertPush",label:"Push Notifications",sub:"Real-time browser and mobile alerts",icon:Bell}].map(({k,label,sub,icon:Ic})=>(
                   <div key={k} onClick={()=>upd(k,!form[k])} style={{display:"flex",alignItems:"center",gap:14,background:form[k]?T.accentGlow:T.raised,border:`1px solid ${form[k]?T.accentB:T.border}`,borderRadius:14,padding:"14px 16px",cursor:"pointer",transition:"all .2s"}}>
-                    <span style={{fontSize:20}}>{icon}</span>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"center",width:28,height:28,borderRadius:8,background:T.bg,border:`1px solid ${T.border}`}}><Ic size={15} color={form[k]?T.accent:T.textSub} strokeWidth={2}/></div>
                     <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:T.text}}>{label}</div><div style={{fontSize:11,color:T.textSub,marginTop:2}}>{sub}</div></div>
                     <div style={{width:22,height:22,borderRadius:6,background:form[k]?T.accent:T.raised,border:`2px solid ${form[k]?T.accent:T.borderLight}`,display:"flex",alignItems:"center",justifyContent:"center",transition:"all .2s",flexShrink:0}}>
-                      {form[k]&&<span style={{color:"#000",fontSize:13,fontWeight:900}}>✓</span>}
+                      {form[k]&&<Check size={12} color="#000" strokeWidth={3}/>}
                     </div>
                   </div>
                 ))}
@@ -4818,22 +3969,22 @@ function OnboardingWizard({user,onComplete}){
           )}
           {step===4&&(
             <div style={{textAlign:"center"}}>
-              <div style={{fontSize:48,marginBottom:14}}>🚀</div>
+              <div style={{marginBottom:14,display:"flex",justifyContent:"center"}}><Rocket size={44} color={T.accent} strokeWidth={1.5}/></div>
               <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:10}}>You're All Set!</div>
               <div style={{fontSize:13,color:T.textSub,lineHeight:1.75,marginBottom:22}}>Your ShieldSync workspace is live with demo data. AI features work immediately, and all modules are ready to explore.</div>
               <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:14,padding:18,textAlign:"left",marginBottom:22}}>
                 <div style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:10}}>Configured</div>
-                {[["✅","Site",form.site||"Demo sites pre-loaded"],["✅","Officer",form.officer||"Demo team pre-loaded"],["✅","Alerts",`Email ${form.alertEmail?"on":"off"} · SMS ${form.alertSMS?"on":"off"} · Push ${form.alertPush?"on":"off"}`],["✅","AI Command","5 specialist advisors ready"],["✅","Access control","4-tier RBAC configured"]].map(([ic,lb,v])=>(
-                  <div key={lb} style={{display:"flex",gap:10,fontSize:13,marginBottom:6}}><span>{ic}</span><span style={{color:T.textSub,minWidth:100}}>{lb}</span><span style={{color:T.text,fontWeight:600}}>{v}</span></div>
+                {[["Site",form.site||"Demo sites pre-loaded"],["Officer",form.officer||"Demo team pre-loaded"],["Alerts",`Email ${form.alertEmail?"on":"off"} · SMS ${form.alertSMS?"on":"off"} · Push ${form.alertPush?"on":"off"}`],["AI Command","5 specialist advisors ready"],["Access control","4-tier RBAC configured"]].map(([lb,v])=>(
+                  <div key={lb} style={{display:"flex",gap:10,fontSize:13,marginBottom:6,alignItems:"center"}}><CheckCircle2 size={13} color={T.green} strokeWidth={2}/><span style={{color:T.textSub,minWidth:100}}>{lb}</span><span style={{color:T.text,fontWeight:600}}>{v}</span></div>
                 ))}
               </div>
             </div>
           )}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:24}}>
-            {step>0?<button onClick={()=>setStep(s=>s-1)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px 20px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:600}}>← Back</button>:<div/>}
+            {step>0?<button onClick={()=>setStep(s=>s-1)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px 20px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:600,display:"flex",alignItems:"center",gap:6}}><ChevronLeft size={14} strokeWidth={2}/>Back</button>:<div/>}
             {step<STEPS.length-1
-              ?<button onClick={()=>setStep(s=>s+1)} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",color:"#000",padding:"12px 28px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800}}>{step===0?"Let's Go →":"Continue →"}</button>
-              :<button onClick={handleComplete} style={{background:`linear-gradient(135deg,${T.green},${T.accent})`,border:"none",color:"#000",padding:"13px 32px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800}}>Enter Dashboard →</button>
+              ?<button onClick={()=>setStep(s=>s+1)} style={{background:T.accent,border:"none",color:"#fff",padding:"12px 28px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:700,display:"flex",alignItems:"center",gap:6}}>{step===0?"Let's Go":"Continue"}<ChevronRight size={15} strokeWidth={2.5}/></button>
+              :<button onClick={handleComplete} style={{background:T.green,border:"none",color:"#000",padding:"13px 32px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:6}}>Enter Dashboard<ArrowRight size={15} strokeWidth={2.5}/></button>
             }
           </div>
         </div>
@@ -4891,11 +4042,11 @@ function UserManagement({user,showToast}){
 
   return(
     <div style={{padding:20,maxWidth:1040,margin:"0 auto"}}>
-      <SH icon="👥" title="User Management" sub="Manage access, roles, and permissions across your organization"/>
+      <SH icon={Users} title="User Management" sub="Manage access, roles, and permissions across your organization"/>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:24}}>
-        {[["Total Users",stats.total,"👥",T.accent],["Active",stats.active,"✅",T.green],["Admins",stats.admins,"👑",T.purple],["MFA Enabled",stats.mfa,"🔐",T.amber]].map(([lb,v,ic,c])=>(
+        {[["Total Users",stats.total,Users,T.accent],["Active",stats.active,CheckCircle2,T.green],["Admins",stats.admins,Crown,T.purple],["MFA Enabled",stats.mfa,Fingerprint,T.amber]].map(([lb,v,Ic,c])=>(
           <Card key={lb}><CB style={{padding:"14px 16px",display:"flex",alignItems:"center",gap:12}}>
-            <div style={{fontSize:22}}>{ic}</div><div><div style={{fontSize:22,fontWeight:900,color:c}}>{v}</div><div style={{fontSize:11,color:T.textSub,marginTop:1}}>{lb}</div></div>
+            <div style={{width:36,height:36,borderRadius:9,background:`${c}12`,border:`1px solid ${c}30`,display:"flex",alignItems:"center",justifyContent:"center"}}><Ic size={17} color={c} strokeWidth={2}/></div><div><div style={{fontSize:22,fontWeight:900,color:c}}>{v}</div><div style={{fontSize:11,color:T.textSub,marginTop:1}}>{lb}</div></div>
           </CB></Card>
         ))}
       </div>
@@ -4947,7 +4098,7 @@ function UserManagement({user,showToast}){
                         }
                       </td>
                       <td style={{padding:"12px 14px"}}><Pill label={u.active!==false?"Active":"Inactive"} color={u.active!==false?T.green:T.textDim}/></td>
-                      <td style={{padding:"12px 14px",fontSize:16}}>{u.mfaEnabled?"🔐":"—"}</td>
+                      <td style={{padding:"12px 14px"}}>{u.mfaEnabled?<Fingerprint size={16} color={T.green} strokeWidth={2}/>:<span style={{color:T.textDim}}>—</span>}</td>
                       <td style={{padding:"12px 14px"}}>
                         <div style={{display:"flex",gap:6}}>
                           <button onClick={()=>setEditingId(editingId===u.id?null:u.id)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:600}}>{editingId===u.id?"✕":"Edit"}</button>
@@ -4967,7 +4118,7 @@ function UserManagement({user,showToast}){
       {tab==="roles"&&(
         <Card>
           <CB>
-            <SH icon="🔑" title="Permission Matrix" sub="Module access by role — read-only in demo"/>
+            <SH icon={KeyRound} title="Permission Matrix" sub="Module access by role — read-only in demo"/>
             <div style={{overflowX:"auto"}}>
               <table style={{width:"100%",borderCollapse:"collapse",minWidth:500}}>
                 <thead><tr style={{borderBottom:`1px solid ${T.border}`}}>
@@ -5054,7 +4205,7 @@ function CompanySettings({user,showToast}){
 
   return(
     <div style={{padding:20,maxWidth:900,margin:"0 auto"}}>
-      <SH icon="⚙️" title="Company Settings" sub="Organization profile, security policies, and notification preferences"/>
+      <SH icon={Settings} title="Company Settings" sub="Organization profile, security policies, and notification preferences"/>
       <div style={{display:"flex",gap:2,background:T.surface,border:`1px solid ${T.border}`,borderRadius:12,padding:3,marginBottom:20,width:"fit-content"}}>
         {[["company","Company"],["security","Security"],["notifications","Notifications"],["integrations","Integrations"]].map(([k,lb])=>(
           <button key={k} onClick={()=>setTab(k)} style={{padding:"8px 18px",borderRadius:9,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,background:tab===k?T.accent:"transparent",color:tab===k?"#000":T.textSub,transition:"all .15s"}}>{lb}</button>
@@ -5063,7 +4214,7 @@ function CompanySettings({user,showToast}){
 
       {tab==="company"&&(
         <Card><CB>
-          <SH icon="🏢" title="Company Profile" sub="Basic organization information"/>
+          <SH icon={Building2} title="Company Profile" sub="Basic organization information"/>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
             {[{label:"Company Name",k:"name"},{label:"Website",k:"website"},{label:"Phone",k:"phone"},{label:"Address",k:"address",full:true},{label:"City",k:"city"},{label:"State",k:"state"},{label:"ZIP Code",k:"zip"}].map(({label,k,full})=>(
               <div key={k} style={{gridColumn:full?"1 / -1":undefined}}>
@@ -5090,7 +4241,7 @@ function CompanySettings({user,showToast}){
 
       {tab==="security"&&(
         <Card><CB>
-          <SH icon="🔐" title="Authentication Policy" sub="Control how users sign in and manage sessions"/>
+          <SH icon={Lock} title="Authentication Policy" sub="Control how users sign in and manage sessions"/>
           <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:18}}>
             <Toggle k="mfaRequired" label="Require MFA for All Users" sub="Users must configure two-factor authentication before accessing the platform."/>
           </div>
@@ -5108,7 +4259,7 @@ function CompanySettings({user,showToast}){
 
       {tab==="notifications"&&(
         <Card><CB>
-          <SH icon="🔔" title="Notification Preferences" sub="Configure when and how alerts are delivered"/>
+          <SH icon={Bell} title="Notification Preferences" sub="Configure when and how alerts are delivered"/>
           <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:18}}>
             <Toggle k="n_sos" label="SOS / Emergency Alerts" sub="Immediately notify all supervisors on SOS activation"/>
             <Toggle k="n_cp" label="Missed Checkpoint Alert" sub="Alert when patrol checkpoint is not scanned on schedule"/>
@@ -5126,7 +4277,7 @@ function CompanySettings({user,showToast}){
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <Card>
             <CB>
-              <SH icon="🔗" title="UKG Pro (Kronos)" sub="REST API integration for workforce management and payroll sync"/>
+              <SH icon={Link2} title="UKG Pro (Kronos)" sub="REST API integration for workforce management and payroll sync"/>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
                 {[
                   {label:"API Base URL",k:"ukg_url",ph:"https://api.ultipro.com"},
@@ -5149,17 +4300,17 @@ function CompanySettings({user,showToast}){
 
           <Card>
             <CB>
-              <SH icon="🔧" title="Other Integrations" sub="Platform connection status"/>
+              <SH icon={Wrench} title="Other Integrations" sub="Platform connection status"/>
               {[
-                {name:"Anthropic AI (Claude)",desc:"Powers AI copilot, reports, and executive briefing",status:"Connected",color:T.green,icon:"🤖"},
-                {name:"Vercel Edge Network",desc:"Global deployment and edge function hosting",status:"Connected",color:T.green,icon:"▲"},
-                {name:"ADP Workforce Now",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:"📊"},
-                {name:"Paylocity",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:"📊"},
-                {name:"QuickBooks Payroll",desc:"Accounting sync — available in v2.0",status:"Planned",color:T.textDim,icon:"📒"},
-                {name:"Supabase",desc:"Set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY to activate",status:"Not Configured",color:T.textSub,icon:"🛢"},
+                {name:"Anthropic AI (Claude)",desc:"Powers AI copilot, reports, and executive briefing",status:"Connected",color:T.green,icon:Cpu},
+                {name:"Vercel Edge Network",desc:"Global deployment and edge function hosting",status:"Connected",color:T.green,icon:Network},
+                {name:"ADP Workforce Now",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:BarChart3},
+                {name:"Paylocity",desc:"CSV export — no live API configured",status:"CSV Only",color:T.amber,icon:BarChart3},
+                {name:"QuickBooks Payroll",desc:"Accounting sync — available in v2.0",status:"Planned",color:T.textDim,icon:BookOpen},
+                {name:"Supabase",desc:"Set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY to activate",status:"Not Configured",color:T.textSub,icon:Database},
               ].map(int=>(
                 <div key={int.name} style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:9,padding:"11px 14px",marginBottom:6}}>
-                  <div style={{fontSize:20,width:28,textAlign:"center",flexShrink:0}}>{int.icon}</div>
+                  <div style={{width:28,height:28,borderRadius:7,background:`${int.color}10`,border:`1px solid ${int.color}25`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><int.icon size={14} color={int.color} strokeWidth={2}/></div>
                   <div style={{flex:1}}>
                     <div style={{fontSize:12,fontWeight:700,color:T.text}}>{int.name}</div>
                     <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{int.desc}</div>
@@ -5170,458 +4321,6 @@ function CompanySettings({user,showToast}){
             </CB>
           </Card>
         </div>
-      )}
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
-// POST ORDERS MODULE
-// ─────────────────────────────────────────────────────────────────
-function PostOrdersModule({user,showToast}){
-  const[orders,setOrders]=useLS("ss_postorders",POST_ORDERS);
-  const[selected,setSelected]=useState(orders[0]||null);
-  const[editing,setEditing]=useState(false);
-  const[editContent,setEditContent]=useState("");
-  const isAdmin=user?.role==="Company Admin"||user?.role==="Supervisor";
-
-  const acknowledge=(orderId)=>{
-    setOrders(os=>os.map(o=>{
-      if(o.id!==orderId)return o;
-      if(o.acks.includes(user?.name))return o;
-      return{...o,acks:[...o.acks,user?.name],pending:o.pending.filter(n=>n!==user?.name)};
-    }));
-    logAction(user,"POST_ORDER_ACK",`Acknowledged: ${selected?.site} v${selected?.version}`);
-    showToast("Post orders acknowledged","success");
-  };
-
-  const saveEdit=()=>{
-    setOrders(os=>os.map(o=>o.id===selected?.id?{...o,content:editContent,version:o.version+1,updated:new Date().toISOString().slice(0,10),author:user?.name}:o));
-    setEditing(false);
-    showToast("Post orders updated — officers notified","success");
-    logAction(user,"POST_ORDER_UPDATE",`Updated: ${selected?.site}`);
-  };
-
-  const selOrder=orders.find(o=>o.id===selected?.id)||orders[0];
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
-        <div>
-          <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Post Orders</div>
-          <div style={{fontSize:20,fontWeight:900,color:T.text}}>Site Instructions & Procedures</div>
-        </div>
-        {isAdmin&&<div style={{display:"flex",gap:8}}>
-          <button onClick={()=>{setEditContent(selOrder?.content||"");setEditing(true);}} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}>✏️ Edit Orders</button>
-        </div>}
-      </div>
-
-      <div style={{display:"grid",gridTemplateColumns:"240px 1fr",gap:14,alignItems:"start"}}>
-        <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {orders.map(o=>{
-            const pendingMe=o.pending.includes(user?.name);
-            const ackMe=o.acks.includes(user?.name);
-            return(
-              <div key={o.id} onClick={()=>setSelected(o)} style={{background:selected?.id===o.id?T.accentGlow:T.raised,border:`1px solid ${selected?.id===o.id?T.accentB:T.border}`,borderRadius:10,padding:"12px 14px",cursor:"pointer"}}>
-                <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:4}}>{o.site}</div>
-                <div style={{fontSize:11,color:T.textSub}}>v{o.version} · {o.updated}</div>
-                <div style={{marginTop:6,display:"flex",gap:6,flexWrap:"wrap"}}>
-                  {pendingMe&&<Pill label="⚠ Pending Ack" color={T.amber}/>}
-                  {ackMe&&<Pill label="✓ Acknowledged" color={T.green}/>}
-                  {o.pending.length>0&&isAdmin&&<Pill label={`${o.pending.length} pending`} color={T.amber}/>}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <Card>
-          <CB>
-            {selOrder&&(
-              <>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
-                  <div>
-                    <div style={{fontSize:16,fontWeight:900,color:T.text}}>{selOrder.site}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:3}}>Version {selOrder.version} · Updated {selOrder.updated} by {selOrder.author}</div>
-                  </div>
-                  <Pill label={selOrder.status} color={T.green}/>
-                </div>
-
-                {editing?(
-                  <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                    <textarea value={editContent} onChange={e=>setEditContent(e.target.value)} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,color:T.text,fontSize:12,padding:"12px",fontFamily:"monospace",lineHeight:1.7,minHeight:320,width:"100%",resize:"vertical"}}/>
-                    <div style={{display:"flex",gap:8}}>
-                      <button onClick={saveEdit} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>Save & Notify Officers</button>
-                      <button onClick={()=>setEditing(false)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"9px 16px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>Cancel</button>
-                    </div>
-                  </div>
-                ):(
-                  <>
-                    <pre style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"16px",fontSize:12,color:T.text,lineHeight:1.8,fontFamily:"'DM Sans',sans-serif",whiteSpace:"pre-wrap",wordBreak:"break-word",marginBottom:16}}>{selOrder.content}</pre>
-                    {isAdmin&&(
-                      <div style={{marginBottom:16}}>
-                        <div style={{fontSize:11,fontWeight:700,color:T.textSub,marginBottom:8}}>ACKNOWLEDGMENTS</div>
-                        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                          {selOrder.acks.map(n=><span key={n} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,borderRadius:6,padding:"4px 9px",fontSize:11,fontWeight:700}}>✓ {n}</span>)}
-                          {selOrder.pending.map(n=><span key={n} style={{background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,borderRadius:6,padding:"4px 9px",fontSize:11,fontWeight:700}}>⏳ {n}</span>)}
-                        </div>
-                      </div>
-                    )}
-                    {!isAdmin&&!selOrder.acks.includes(user?.name)&&(
-                      <button onClick={()=>acknowledge(selOrder.id)} style={{width:"100%",background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"13px",borderRadius:10,cursor:"pointer",fontWeight:800,fontSize:14}}>✓ Acknowledge Post Orders</button>
-                    )}
-                    {!isAdmin&&selOrder.acks.includes(user?.name)&&(
-                      <div style={{textAlign:"center",padding:"12px",background:T.greenGlow,border:`1px solid ${T.greenB}`,borderRadius:10,color:T.green,fontWeight:700,fontSize:13}}>✓ You have acknowledged these post orders</div>
-                    )}
-                  </>
-                )}
-              </>
-            )}
-          </CB>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
-// COMPLIANCE MODULE — Guard Card & Certification Expiry Tracker
-// ─────────────────────────────────────────────────────────────────
-function ComplianceModule({user,showToast}){
-  const[certs]=useLS("ss_guard_certs",GUARD_CERTS);
-  const[filter,setFilter]=useState("All");
-  const critical=certs.filter(c=>c.status==="Critical");
-  const expiring=certs.filter(c=>c.status==="Expiring");
-
-  const statusColor=(s)=>s==="Critical"?T.red:s==="Expiring"?T.amber:T.green;
-  const filtered=filter==="All"?certs:certs.filter(c=>c.status===filter);
-
-  const exportCompliance=()=>{
-    dlCSV(
-      [["Officer","Badge","State","Card #","Type","Expires","Days Left","Status"],
-       ...certs.map(c=>[c.officer,c.badge,c.state,c.cardNo,c.type,c.expires,c.daysLeft,c.status])],
-      `compliance_${new Date().toISOString().slice(0,10)}.csv`
-    );
-    showToast("Compliance report exported","success");
-    logAction(user,"COMPLIANCE_EXPORT",`${certs.length} certifications`);
-  };
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
-        <div>
-          <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Compliance Tracker</div>
-          <div style={{fontSize:20,fontWeight:900,color:T.text}}>Guard Cards & Certifications</div>
-        </div>
-        <button onClick={exportCompliance} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}>⬇ Export CSV</button>
-      </div>
-
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-        {[["🔴 Critical",critical.length,"Expire within 14 days",T.red],
-          ["🟡 Expiring Soon",expiring.length,"Expire within 30 days",T.amber],
-          ["✅ Active",certs.filter(c=>c.status==="Active").length,"No action needed",T.green]
-        ].map(([l,v,s,c])=>(
-          <Card key={l} glow={c}>
-            <CB style={{textAlign:"center",padding:"16px 12px"}}>
-              <div style={{fontSize:24,fontWeight:900,color:c,marginBottom:4}}>{v}</div>
-              <div style={{fontSize:12,fontWeight:700,color:T.text}}>{l}</div>
-              <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{s}</div>
-            </CB>
-          </Card>
-        ))}
-      </div>
-
-      {critical.length>0&&(
-        <Card>
-          <CB>
-            <SH title="🚨 Immediate Action Required" icon="🔴"/>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {critical.map(c=>(
-                <div key={c.id} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10}}>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{c.officer} — {c.type}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{c.cardNo} · {c.state} · Expires {c.expires}</div>
-                  </div>
-                  <div style={{textAlign:"right"}}>
-                    <div style={{fontSize:20,fontWeight:900,color:T.red}}>{c.daysLeft}d</div>
-                    <div style={{fontSize:9,color:T.red}}>remaining</div>
-                  </div>
-                  <Pill label="CRITICAL" color={T.red}/>
-                </div>
-              ))}
-            </div>
-          </CB>
-        </Card>
-      )}
-
-      <Card>
-        <CB>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-            <SH title="All Certifications"/>
-            <div style={{display:"flex",gap:6}}>
-              {["All","Critical","Expiring","Active"].map(f=>(
-                <button key={f} onClick={()=>setFilter(f)} style={{background:filter===f?T.accentGlow:T.raised,border:`1px solid ${filter===f?T.accentB:T.border}`,color:filter===f?T.accent:T.textSub,padding:"6px 10px",borderRadius:7,cursor:"pointer",fontWeight:700,fontSize:11}}>{f}</button>
-              ))}
-            </div>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {filtered.map(c=>{
-              const col=statusColor(c.status);
-              return(
-                <div key={c.id} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10,border:`1px solid ${c.status==="Critical"?T.redB:c.status==="Expiring"?T.border:T.border}`}}>
-                  <div style={{width:10,height:10,borderRadius:"50%",background:col,flexShrink:0}}/>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{c.officer}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{c.type} · {c.cardNo} · {c.state}</div>
-                  </div>
-                  <div style={{textAlign:"right",marginRight:8}}>
-                    <div style={{fontSize:12,color:T.textSub}}>Expires {c.expires}</div>
-                    <div style={{fontSize:11,fontWeight:700,color:col}}>{c.daysLeft} days left</div>
-                  </div>
-                  <Pill label={c.status} color={col}/>
-                </div>
-              );
-            })}
-          </div>
-        </CB>
-      </Card>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
-// OPERATIONS MAP MODULE — Live Dispatch View
-// ─────────────────────────────────────────────────────────────────
-const OPS_MAP_OFFICERS=[
-  {name:"Marcus Webb",badge:"S-0041",av:"MW",status:"On Patrol",site:"Northgate Tower",x:38,y:28,color:"#00C8F0"},
-  {name:"Diana Reyes",badge:"S-0067",av:"DR",status:"On Site",site:"Harbor Logistics",x:72,y:62,color:"#00D464"},
-  {name:"Theo Okafor",badge:"S-0083",av:"TO",status:"Incident Active",site:"Plaza West",x:24,y:71,color:"#F04444"},
-  {name:"Ava Simmons",badge:"S-0092",av:"AS",status:"Clocked In",site:"Eastside Mall",x:61,y:34,color:"#F0A800"},
-  {name:"Jordan Park",badge:"S-0105",av:"JP",status:"On Patrol",site:"Northgate Tower",x:42,y:31,color:"#00C8F0"},
-  {name:"Elena Voss",badge:"S-0118",av:"EV",status:"Off Duty",site:"—",x:55,y:80,color:"#384D6A"},
-];
-const OPS_MAP_INCIDENTS=[
-  {id:"INC-001",site:"Plaza West",type:"Disturbance",severity:"High",x:24,y:71,status:"Active"},
-  {id:"INC-002",site:"Northgate Tower",type:"Suspicious Activity",severity:"Medium",x:40,y:28,status:"Active"},
-];
-const OPS_MAP_SITES=[
-  {name:"Northgate Tower",x:40,y:28,officers:2},{name:"Harbor Logistics",x:72,y:62,officers:1},
-  {name:"Plaza West",x:24,y:71,officers:1},{name:"Eastside Mall",x:61,y:34,officers:1},
-];
-function OperationsMapModule({user,showToast}){
-  const[selected,setSelected]=useState(null);
-  const[filter,setFilter]=useState("All");
-  const visible=filter==="All"?OPS_MAP_OFFICERS:OPS_MAP_OFFICERS.filter(o=>SM(o.status).c!==T.textDim);
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
-        <div>
-          <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Operations Map</div>
-          <div style={{fontSize:20,fontWeight:900,color:T.text}}>Live Officer & Incident Positions</div>
-        </div>
-        <div style={{display:"flex",gap:6,alignItems:"center"}}>
-          <div style={{width:8,height:8,borderRadius:"50%",background:T.green,boxShadow:`0 0 6px ${T.green}`}}/>
-          <span style={{fontSize:11,color:T.green,fontWeight:700}}>LIVE</span>
-        </div>
-      </div>
-
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
-        {[["Active Officers",OPS_MAP_OFFICERS.filter(o=>o.status!=="Off Duty").length,T.accent,"👮"],
-          ["On Patrol",OPS_MAP_OFFICERS.filter(o=>o.status==="On Patrol").length,T.green,"🛡️"],
-          ["Active Incidents",OPS_MAP_INCIDENTS.length,T.red,"⚡"],
-          ["Sites Covered",OPS_MAP_SITES.length,T.gold,"📍"]
-        ].map(([l,v,c,ic])=>(
-          <Card key={l} glow={c}><CB style={{textAlign:"center",padding:"14px 10px"}}>
-            <div style={{fontSize:20}}>{ic}</div>
-            <div style={{fontSize:24,fontWeight:900,color:c,margin:"6px 0"}}>{v}</div>
-            <div style={{fontSize:10,color:T.textSub}}>{l}</div>
-          </CB></Card>
-        ))}
-      </div>
-
-      <div style={{display:"grid",gridTemplateColumns:"1fr 300px",gap:14,alignItems:"start"}}>
-        <Card>
-          <CB style={{padding:"20px"}}>
-            <div style={{position:"relative",width:"100%",paddingBottom:"60%",background:"#0a1520",borderRadius:12,overflow:"hidden",border:`1px solid ${T.border}`}}>
-              <div style={{position:"absolute",inset:0,backgroundImage:"radial-gradient(circle at 50% 50%, rgba(0,200,240,0.03) 0%, transparent 70%),repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(26,40,64,0.4) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(26,40,64,0.4) 40px)"}}>
-                {OPS_MAP_SITES.map(s=>(
-                  <div key={s.name} style={{position:"absolute",left:`${s.x}%`,top:`${s.y}%`,transform:"translate(-50%,-50%)"}}>
-                    <div style={{background:"rgba(0,200,240,0.08)",border:`1px solid rgba(0,200,240,0.2)`,borderRadius:8,padding:"6px 10px",fontSize:9,color:T.accent,fontWeight:700,whiteSpace:"nowrap"}}>{s.name}</div>
-                  </div>
-                ))}
-                {OPS_MAP_INCIDENTS.map(inc=>(
-                  <div key={inc.id} style={{position:"absolute",left:`${inc.x}%`,top:`${inc.y}%`,transform:"translate(-50%,-50%)"}}>
-                    <div style={{width:22,height:22,borderRadius:"50%",background:T.red,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,boxShadow:`0 0 12px ${T.red}`,animation:"ssB 1s ease-in-out infinite",cursor:"pointer",zIndex:2}}>⚡</div>
-                  </div>
-                ))}
-                {visible.map(o=>{
-                  const c=SM(o.status).c;
-                  return(
-                    <div key={o.badge} onClick={()=>setSelected(selected?.badge===o.badge?null:o)} style={{position:"absolute",left:`${o.x}%`,top:`${o.y}%`,transform:"translate(-50%,-50%)",cursor:"pointer",zIndex:3}}>
-                      <div style={{width:28,height:28,borderRadius:"50%",background:c,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:T.bg,border:`2px solid ${selected?.badge===o.badge?"white":T.bg}`,boxShadow:selected?.badge===o.badge?`0 0 12px ${c}`:"none",transition:"all 0.15s"}}>
-                        {o.av}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            <div style={{display:"flex",gap:12,marginTop:12,flexWrap:"wrap"}}>
-              {[["🔵 On Patrol",T.accent],["🟢 On Site",T.green],["🔴 Incident",T.red],["🟡 Clocked In",T.amber],["⚫ Off Duty",T.textDim]].map(([l,c])=>(
-                <div key={l} style={{display:"flex",alignItems:"center",gap:5}}>
-                  <div style={{width:8,height:8,borderRadius:"50%",background:c}}/>
-                  <span style={{fontSize:10,color:T.textSub}}>{l}</span>
-                </div>
-              ))}
-            </div>
-          </CB>
-        </Card>
-
-        <div style={{display:"flex",flexDirection:"column",gap:10}}>
-          {selected&&(
-            <Card glow={SM(selected.status).c}>
-              <CB>
-                <div style={{display:"flex",gap:12,alignItems:"center",marginBottom:12}}>
-                  <Av initials={selected.av} color={SM(selected.status).c} size={40}/>
-                  <div>
-                    <div style={{fontSize:14,fontWeight:800,color:T.text}}>{selected.name}</div>
-                    <div style={{fontSize:11,color:T.textSub}}>{selected.badge}</div>
-                  </div>
-                </div>
-                <Pill label={selected.status}/>
-                <div style={{marginTop:10,fontSize:12,color:T.textSub}}>{selected.site}</div>
-                <div style={{display:"flex",gap:8,marginTop:12}}>
-                  <button onClick={()=>{showToast(`Dispatching ${selected.name}...`,"success");logAction(user,"DISPATCH_OFFICER",selected.name);}} style={{flex:1,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11}}>📡 Dispatch</button>
-                  <button onClick={()=>showToast(`Contacting ${selected.name}...`)} style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"9px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11}}>📞 Contact</button>
-                </div>
-              </CB>
-            </Card>
-          )}
-
-          <Card>
-            <CB>
-              <SH title="Active Incidents" icon="⚡"/>
-              {OPS_MAP_INCIDENTS.map(inc=>(
-                <div key={inc.id} style={{padding:"10px 12px",background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:9,marginBottom:8}}>
-                  <div style={{fontSize:12,fontWeight:700,color:T.red}}>{inc.type}</div>
-                  <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{inc.site}</div>
-                  <div style={{marginTop:6}}><Pill label={inc.severity} color={inc.severity==="High"?T.red:T.amber}/></div>
-                </div>
-              ))}
-            </CB>
-          </Card>
-
-          <Card>
-            <CB>
-              <SH title="Officer Roster" icon="👮"/>
-              {OPS_MAP_OFFICERS.map(o=>(
-                <div key={o.badge} onClick={()=>setSelected(selected?.badge===o.badge?null:o)} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0",borderBottom:`1px solid ${T.border}`,cursor:"pointer"}}>
-                  <div style={{width:8,height:8,borderRadius:"50%",background:SM(o.status).c,flexShrink:0}}/>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{o.name}</div>
-                    <div style={{fontSize:10,color:T.textSub}}>{o.site}</div>
-                  </div>
-                  <Pill label={o.status}/>
-                </div>
-              ))}
-            </CB>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
-// SHIFT MARKETPLACE MODULE
-// ─────────────────────────────────────────────────────────────────
-function ShiftMarketplaceModule({user,showToast}){
-  const[shifts,setShifts]=useLS("ss_open_shifts",OPEN_SHIFTS);
-  const[claimed,setClaimed]=useLS("ss_my_claims",[]);
-  const isAdmin=user?.role==="Company Admin"||user?.role==="Supervisor";
-
-  const claimShift=(id)=>{
-    setShifts(ss=>ss.map(s=>s.id===id?{...s,claimed:user?.name}:s));
-    setClaimed(c=>[...c,id]);
-    showToast("Shift claimed! Supervisor will confirm shortly","success");
-    logAction(user,"SHIFT_CLAIMED",`Shift ${id} claimed by ${user?.name}`);
-  };
-  const releaseShift=(id)=>{
-    setShifts(ss=>ss.map(s=>s.id===id?{...s,claimed:null}:s));
-    setClaimed(c=>c.filter(x=>x!==id));
-    showToast("Shift released","success");
-  };
-
-  const open=shifts.filter(s=>!s.claimed);
-  const filled=shifts.filter(s=>s.claimed);
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
-        <div>
-          <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Shift Marketplace</div>
-          <div style={{fontSize:20,fontWeight:900,color:T.text}}>Open Shifts Available</div>
-        </div>
-        <div style={{display:"flex",gap:10}}>
-          <div style={{background:T.raised,borderRadius:8,padding:"8px 14px",fontSize:12,color:T.text,fontWeight:700}}>{open.length} open · {filled.length} filled</div>
-        </div>
-      </div>
-
-      {open.length===0&&<Card><CB><div style={{textAlign:"center",padding:"32px 0",color:T.textSub,fontSize:13}}>✅ All shifts are currently filled</div></CB></Card>}
-
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:12}}>
-        {open.map(s=>{
-          const isClaimed=claimed.includes(s.id);
-          return(
-            <Card key={s.id} glow={s.urgency==="Urgent"?T.red:T.accent}>
-              <CB>
-                {s.urgency==="Urgent"&&<div style={{marginBottom:10,padding:"6px 10px",background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:7,fontSize:11,fontWeight:700,color:T.red}}>🚨 URGENT — Immediate fill needed</div>}
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
-                  <div>
-                    <div style={{fontSize:14,fontWeight:800,color:T.text}}>{s.site}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{s.date}</div>
-                  </div>
-                  <Pill label={s.type} color={s.type==="Night"?T.purple:s.type==="Evening"?T.amber:T.gold}/>
-                </div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:14}}>
-                  {[["Time",`${s.start}–${s.end}`],["Rate",`$${s.rate}/hr`],["Posted",s.posted]].map(([l,v])=>(
-                    <div key={l} style={{background:T.raised,borderRadius:8,padding:"8px 10px"}}>
-                      <div style={{fontSize:10,color:T.textSub}}>{l}</div>
-                      <div style={{fontSize:12,fontWeight:700,color:T.text,marginTop:1}}>{v}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{fontSize:11,color:T.textSub,marginBottom:12}}>Requirement: {s.requirements}</div>
-                {!isAdmin&&(
-                  isClaimed
-                    ?<button onClick={()=>releaseShift(s.id)} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:13}}>✕ Release Shift</button>
-                    :<button onClick={()=>claimShift(s.id)} style={{width:"100%",background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"11px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:13}}>✋ Claim This Shift</button>
-                )}
-                {isAdmin&&<div style={{textAlign:"center",fontSize:11,color:T.textSub}}>Posted {s.posted}</div>}
-              </CB>
-            </Card>
-          );
-        })}
-      </div>
-
-      {filled.length>0&&(
-        <Card>
-          <CB>
-            <SH title="Filled Shifts" icon="✅"/>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {filled.map(s=>(
-                <div key={s.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",background:T.raised,borderRadius:10}}>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{s.site} — {s.date}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{s.start}–{s.end} · {s.type}</div>
-                  </div>
-                  <div style={{fontSize:12,color:T.green,fontWeight:700}}>{s.claimed}</div>
-                  <Pill label="Filled" color={T.green}/>
-                </div>
-              ))}
-            </div>
-          </CB>
-        </Card>
       )}
     </div>
   );
@@ -5650,7 +4349,7 @@ function ClientPortal({user,showToast}){
       </div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {[["overview","📊 Overview"],["sla","✅ SLA"],["incidents","⚡ Incidents"],["billing","💳 Billing"],["report","📊 Report"]].map(([t,l])=>(
+        {[["overview","Overview"],["sla","SLA"],["incidents","Incidents"],["billing","Billing"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
         ))}
       </div>
@@ -5808,49 +4507,6 @@ function ClientPortal({user,showToast}){
           </Card>
         </div>
       )}
-
-      {tab==="report"&&(
-        <Card>
-          <CB>
-            <SH title="Auto-Generate Monthly Report" icon="📊" sub="Download a complete operations summary for all sites as a CSV file"/>
-            <div style={{display:"flex",flexDirection:"column",gap:16}}>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10}}>
-                {sla.map(s=>(
-                  <div key={s.client} style={{background:T.raised,borderRadius:10,padding:"14px 16px"}}>
-                    <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:6}}>{s.site}</div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-                      {[["Patrol Rate",s.patrols+"%",s.patrols>=90?T.green:T.amber],
-                        ["Response",s.responseTime+"m",s.responseTime<=4?T.green:T.amber],
-                        ["Satisfaction",s.satisfaction+"%",s.satisfaction>=85?T.green:T.red],
-                        ["Status",s.status,s.status==="Healthy"?T.green:T.red]
-                      ].map(([l,v,c])=>(
-                        <div key={l} style={{background:T.bg,borderRadius:7,padding:"8px 10px"}}>
-                          <div style={{fontSize:9,color:T.textSub}}>{l}</div>
-                          <div style={{fontSize:12,fontWeight:700,color:c,marginTop:1}}>{v}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={()=>{
-                  dlCSV([
-                    ["ShieldSync — Monthly Operations Report"],
-                    ["Generated",new Date().toISOString().slice(0,10)],
-                    [""],
-                    ["SITE","PATROL RATE","RESPONSE TIME","SATISFACTION","INCIDENTS"],
-                    ...CLIENT_SLA.map(s=>[s.client,s.patrol+"%",s.response+"min",s.satisfaction+"%","—"]),
-                  ],`shieldsync_report_${new Date().toISOString().slice(0,10)}.csv`);
-                  showToast("Monthly report generated and downloaded","success");
-                  logAction(user,"AUTO_REPORT_GENERATED","Monthly operations report");
-                }}
-                style={{width:"100%",background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",color:"#000",padding:"14px",borderRadius:12,cursor:"pointer",fontWeight:800,fontSize:14}}
-              >⬇ Generate & Download Monthly Report</button>
-            </div>
-          </CB>
-        </Card>
-      )}
     </div>
   );
 }
@@ -5888,7 +4544,7 @@ function ITCyberCommand({user,showToast}){
       </div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-        {[["threats","🚨 Threat Alerts"],["devices","💻 Devices"],["access","🔑 Access Log"]].map(([t,l])=>(
+        {[["threats","Threat Alerts"],["devices","Devices"],["access","Access Log"]].map(([t,l])=>(
           <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?`${T.red}22`:T.raised,border:`1px solid ${tab===t?T.red+"66":T.border}`,color:tab===t?T.red:T.textSub,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
         ))}
       </div>
@@ -5929,7 +4585,7 @@ function ITCyberCommand({user,showToast}){
               <Card key={d.id}>
                 <CB>
                   <div style={{display:"flex",alignItems:"center",gap:12}}>
-                    <div style={{width:36,height:36,borderRadius:9,background:`${rc}22`,border:`1px solid ${rc}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{d.type.includes("NVR")?"📷":d.type.includes("Access")?"🔑":d.type.includes("Switch")?"🔀":d.type.includes("Camera")?"📹":d.type.includes("VPN")||d.type.includes("Firewall")?"🛡️":d.type.includes("Biometric")?"🫆":d.type.includes("LPR")?"🚗":"💻"}</div>
+                    <div style={{width:36,height:36,borderRadius:9,background:`${rc}22`,border:`1px solid ${rc}44`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{(()=>{const Ic=d.type.includes("NVR")||d.type.includes("Camera")?Camera:d.type.includes("Access")||d.type.includes("Biometric")?ScanLine:d.type.includes("Switch")||d.type.includes("VPN")||d.type.includes("Firewall")?Network:d.type.includes("LPR")?Car:ServerCog;return <Ic size={17} color={rc} strokeWidth={2}/>;})()}</div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}}>
                         <span style={{fontSize:12,fontWeight:700,color:T.text}}>{d.name}</span>
@@ -5976,325 +4632,6 @@ function ITCyberCommand({user,showToast}){
 }
 
 // ─────────────────────────────────────────────────────────────────
-// GUARDIAN COMMAND CENTER — full operational view for Guardian tenant
-// ─────────────────────────────────────────────────────────────────
-function GuardianCommandCenter({user,showToast,openModal}){
-  const[liveAlerts,setLiveAlerts]=useState(GUARDIAN_AI_ALERTS);
-  const[incidents,setIncidents]=useState(GUARDIAN_INCIDENTS);
-  const[dismissedAlert,setDismissedAlert]=useState(null);
-  const kpiMap={accent:T.accent,red:T.red,amber:T.amber,gold:T.gold,green:T.green,purple:T.purple};
-
-  const dismissAlert=(id)=>{
-    setDismissedAlert(id);
-    setTimeout(()=>{setLiveAlerts(a=>a.filter(x=>x.id!==id));setDismissedAlert(null);},400);
-  };
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:18}}>
-      {/* Company header */}
-      <div style={{background:`linear-gradient(135deg,${T.raised},${T.card})`,border:`1px solid ${T.border}`,borderRadius:16,padding:"16px 20px",display:"flex",alignItems:"center",gap:14}}>
-        <div style={{width:44,height:44,borderRadius:12,background:"linear-gradient(135deg,#1A4F8A,#C4A227)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,flexShrink:0}}>🛡️</div>
-        <div style={{flex:1}}>
-          <div style={{fontSize:17,fontWeight:900,color:T.text,letterSpacing:"-0.01em"}}>{GUARDIAN_COMPANY.name}</div>
-          <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{GUARDIAN_COMPANY.hq} · {GUARDIAN_COMPANY.license}</div>
-        </div>
-        <div style={{display:"flex",gap:16,flexShrink:0}}>
-          {[
-            {v:GUARDIAN_COMPANY.employees.officers,l:"Officers",c:T.accent},
-            {v:GUARDIAN_COMPANY.activeSites,l:"Sites",c:T.green},
-            {v:GUARDIAN_COMPANY.clients,l:"Clients",c:T.purple},
-            {v:GUARDIAN_COMPANY.vehicles,l:"Vehicles",c:T.gold},
-          ].map(({v,l,c})=>(
-            <div key={l} style={{textAlign:"center"}}>
-              <div style={{fontSize:20,fontWeight:900,color:c}}>{v}</div>
-              <div style={{fontSize:10,color:T.textDim,fontWeight:600}}>{l}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* KPI tiles */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(150px,1fr))",gap:10}}>
-        {Object.entries(GUARDIAN_KPI).map(([key,d])=>(
-          <Card key={key} glow={kpiMap[d.color]||T.accent}>
-            <CB style={{padding:"14px 14px"}}>
-              <div style={{fontSize:26,fontWeight:900,color:kpiMap[d.color]||T.accent,marginBottom:3}}>{d.value}</div>
-              <div style={{fontSize:11,color:T.text,fontWeight:700,textTransform:"capitalize"}}>{key.replace(/([A-Z])/g," $1").trim()}</div>
-              <div style={{fontSize:10,color:T.textDim,marginTop:2}}>{d.sub}</div>
-            </CB>
-          </Card>
-        ))}
-      </div>
-
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
-        {/* Site status */}
-        <Card>
-          <CB>
-            <SH icon="📍" title="Site Status" sub="5 active sites — real-time health"/>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {GUARDIAN_SITES_FULL.map(s=>{
-                const c=s.health>=90?T.green:s.health>=75?T.amber:T.red;
-                return(
-                  <div key={s.id} style={{padding:"10px 12px",background:T.raised,borderRadius:10,display:"flex",alignItems:"center",gap:10}}>
-                    <div style={{width:8,height:8,borderRadius:"50%",background:c,flexShrink:0,boxShadow:s.status==="Alert"?`0 0 8px ${c}`:"none"}}/>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:12,fontWeight:700,color:T.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.name}</div>
-                      <div style={{fontSize:10,color:T.textDim,marginTop:1}}>{s.type} · {s.officers} officers · Last patrol: {s.lastPatrol}</div>
-                    </div>
-                    <div style={{textAlign:"right",flexShrink:0}}>
-                      <div style={{fontSize:13,fontWeight:900,color:c}}>{s.health}%</div>
-                      <div style={{fontSize:9,color:T.textDim}}>{s.incidents} inc.</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CB>
-        </Card>
-
-        {/* Active incidents */}
-        <Card>
-          <CB>
-            <SH icon="⚡" title="Live Incidents" sub="Active & investigating"/>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {incidents.filter(i=>["Active","Investigating"].includes(i.status)).map(inc=>{
-                const sc={Critical:T.red,High:T.amber,Medium:T.gold,Low:T.textSub}[inc.sev]||T.textSub;
-                return(
-                  <div key={inc.id} style={{padding:"10px 12px",background:T.raised,borderRadius:10,borderLeft:`3px solid ${sc}`}}>
-                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:4}}>
-                      <div style={{fontSize:12,fontWeight:700,color:T.text}}>{inc.type}</div>
-                      <Pill label={inc.sev} color={sc}/>
-                    </div>
-                    <div style={{fontSize:11,color:T.textDim}}>{inc.site} · {inc.time} · {inc.assigned}</div>
-                    <div style={{fontSize:10,color:T.textSub,marginTop:4,lineHeight:1.5}}>{inc.narrative.slice(0,90)}…</div>
-                  </div>
-                );
-              })}
-              {incidents.filter(i=>["Active","Investigating"].includes(i.status)).length===0&&(
-                <div style={{textAlign:"center",padding:"24px 0",color:T.textDim,fontSize:13}}>✓ No active incidents</div>
-              )}
-            </div>
-          </CB>
-        </Card>
-      </div>
-
-      {/* AI Alerts */}
-      <Card>
-        <CB>
-          <SH icon="🤖" title="AI Operational Alerts" sub="Guardian Intelligence Engine · auto-generated insights"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {liveAlerts.map(a=>{
-              const c={Critical:T.red,Warning:T.amber,Info:T.accent}[a.severity]||T.textSub;
-              const isDismissing=dismissedAlert===a.id;
-              return(
-                <div key={a.id} style={{padding:"12px 14px",background:T.raised,borderRadius:10,borderLeft:`3px solid ${c}`,
-                  opacity:isDismissing?0:1,transform:isDismissing?"translateX(20px)":"none",transition:"opacity .35s ease,transform .35s ease",
-                  display:"flex",gap:12,alignItems:"flex-start"}}>
-                  <span style={{fontSize:18,flexShrink:0}}>{a.icon}</span>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:12,color:T.text,fontWeight:600,lineHeight:1.55}}>{a.msg}</div>
-                    <div style={{fontSize:10,color:T.textDim,marginTop:4}}>{a.site} · {a.time}</div>
-                  </div>
-                  <div style={{display:"flex",gap:6,flexShrink:0}}>
-                    <button onClick={()=>showToast(`Action triggered: ${a.action}`,"success")}
-                      style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:10,fontWeight:700,whiteSpace:"nowrap"}}>{a.action}</button>
-                    <button onClick={()=>dismissAlert(a.id)}
-                      style={{background:"none",border:"none",color:T.textDim,fontSize:14,cursor:"pointer",padding:"0 4px"}}>✕</button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CB>
-      </Card>
-
-      {/* Patrol compliance */}
-      <Card>
-        <CB>
-          <SH icon="🛡️" title="Patrol Compliance — Today" sub="By route across all active sites"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {GUARDIAN_PATROL_ROUTES.map(r=>{
-              const c=r.compliance>=90?T.green:r.compliance>=75?T.amber:T.red;
-              return(
-                <div key={r.id} style={{display:"flex",alignItems:"center",gap:12,padding:"9px 12px",background:T.raised,borderRadius:10}}>
-                  <div style={{minWidth:0,flex:1}}>
-                    <div style={{fontSize:12,fontWeight:700,color:T.text}}>{r.name}</div>
-                    <div style={{fontSize:10,color:T.textDim,marginTop:1}}>{r.site} · {r.officer} · Next due: {r.nextDue}</div>
-                  </div>
-                  <div style={{width:80,flexShrink:0}}>
-                    <div style={{height:5,background:T.border,borderRadius:3,overflow:"hidden"}}>
-                      <div style={{height:"100%",width:`${r.compliance}%`,background:c,borderRadius:3,transition:"width .6s ease"}}/>
-                    </div>
-                    <div style={{fontSize:10,fontWeight:700,color:c,marginTop:3,textAlign:"right"}}>{r.compliance}%</div>
-                  </div>
-                  <Pill label={r.status} color={r.status==="Active"?T.green:T.amber}/>
-                </div>
-              );
-            })}
-          </div>
-        </CB>
-      </Card>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
-// GUARDIAN DISPATCH VIEW — for Dispatcher role
-// ─────────────────────────────────────────────────────────────────
-function GuardianDispatchView({user,showToast}){
-  const[queue,setQueue]=useState(GUARDIAN_INCIDENTS.filter(i=>["Active","Investigating"].includes(i.status)));
-  const[dispatched,setDispatched]=useState({});
-
-  const dispatch=(incId,officerName)=>{
-    setDispatched(d=>({...d,[incId]:officerName}));
-    showToast(`${officerName} dispatched → ${queue.find(i=>i.id===incId)?.site}`,"success");
-  };
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <SH icon="📡" title="Dispatch Command Center" sub="Guardian Strategic Security — Active incidents & officer assignment"/>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
-        {[
-          {label:"Active Incidents",v:queue.length,c:T.red},
-          {label:"Officers On Duty",v:"41",c:T.green},
-          {label:"Available Units",v:"7",c:T.accent},
-          {label:"Avg Response",v:"3.8m",c:T.amber},
-        ].map(({label,v,c})=>(
-          <Card key={label}><CB style={{padding:"12px 14px",textAlign:"center"}}>
-            <div style={{fontSize:24,fontWeight:900,color:c}}>{v}</div>
-            <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{label}</div>
-          </CB></Card>
-        ))}
-      </div>
-      <Card>
-        <CB>
-          <SH title="Dispatch Queue" icon="⚡"/>
-          {queue.map(inc=>{
-            const sc={Critical:T.red,High:T.amber,Medium:T.gold}[inc.sev]||T.textSub;
-            const isDisp=!!dispatched[inc.id];
-            return(
-              <div key={inc.id} style={{padding:"14px",background:T.raised,borderRadius:10,marginBottom:8,borderLeft:`3px solid ${sc}`}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
-                  <div>
-                    <span style={{fontSize:13,fontWeight:800,color:T.text}}>{inc.id}</span>
-                    <span style={{fontSize:12,color:T.textSub,marginLeft:10}}>{inc.type}</span>
-                  </div>
-                  <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                    <Pill label={inc.sev} color={sc}/>
-                    <Pill label={isDisp?"Dispatched":inc.status} color={isDisp?T.green:T.amber}/>
-                  </div>
-                </div>
-                <div style={{fontSize:11,color:T.textDim,marginBottom:8}}>{inc.site} · {inc.time} · {inc.narrative.slice(0,80)}…</div>
-                {!isDisp?(
-                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                    {GUARDIAN_OFFICERS_ROSTER.filter(o=>o.status==="On Site"||o.status==="On Patrol").slice(0,4).map(o=>(
-                      <button key={o.id} onClick={()=>dispatch(inc.id,o.name)}
-                        style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"5px 12px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:700}}>
-                        Dispatch {o.name.split(" ")[1]}
-                      </button>
-                    ))}
-                  </div>
-                ):(
-                  <div style={{fontSize:11,color:T.green,fontWeight:700}}>✓ {dispatched[inc.id]} en route</div>
-                )}
-              </div>
-            );
-          })}
-        </CB>
-      </Card>
-      <Card>
-        <CB>
-          <SH title="Officer Status Map" icon="👮" sub="Active units — all sites"/>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:8}}>
-            {GUARDIAN_OFFICERS_ROSTER.slice(0,10).map(o=>{
-              const {c,p}=SM(o.status);
-              return(
-                <div key={o.id} style={{display:"flex",gap:10,alignItems:"center",padding:"9px 11px",background:T.raised,borderRadius:9}}>
-                  <Av name={o.av} size={30} color={c} pulse={p}/>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:11,fontWeight:700,color:T.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{o.name}</div>
-                    <div style={{fontSize:10,color:T.textDim,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{o.site}</div>
-                  </div>
-                  <Pill label={o.status} color={c} style={{fontSize:9}}/>
-                </div>
-              );
-            })}
-          </div>
-        </CB>
-      </Card>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
-// GUARDIAN PATROL VIEW — checkpoint compliance for Supervisor role
-// ─────────────────────────────────────────────────────────────────
-function GuardianPatrolView({user,showToast}){
-  const[filter,setFilter]=useState("All");
-  const statuses=["All","Current","Overdue","Missed","Critical"];
-  const filtered=filter==="All"?GUARDIAN_CHECKPOINTS:GUARDIAN_CHECKPOINTS.filter(c=>c.status===filter);
-  const statColor={Current:T.green,Overdue:T.amber,Missed:T.red,Critical:T.red};
-  const counts=statuses.slice(1).reduce((a,s)=>({...a,[s]:GUARDIAN_CHECKPOINTS.filter(c=>c.status===s).length}),{});
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <SH icon="🛡️" title="Patrol Compliance" sub="Guardian Strategic Security — 5 sites · 26 checkpoints"/>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
-        {[
-          {label:"Total CPs",v:GUARDIAN_CHECKPOINTS.length,c:T.accent},
-          {label:"Current",v:counts.Current||0,c:T.green},
-          {label:"Overdue",v:counts.Overdue||0,c:T.amber},
-          {label:"Missed",v:counts.Missed||0,c:T.red},
-          {label:"Critical",v:counts.Critical||0,c:T.red},
-        ].map(({label,v,c})=>(
-          <Card key={label}><CB style={{textAlign:"center",padding:"12px 8px"}}>
-            <div style={{fontSize:24,fontWeight:900,color:c}}>{v}</div>
-            <div style={{fontSize:10,color:T.textSub,marginTop:2}}>{label}</div>
-          </CB></Card>
-        ))}
-      </div>
-      <div style={{display:"flex",gap:6}}>
-        {statuses.map(s=><button key={s} onClick={()=>setFilter(s)}
-          style={{background:filter===s?T.accentGlow:T.raised,border:`1px solid ${filter===s?T.accentB:T.border}`,color:filter===s?T.accent:T.textSub,padding:"7px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{s}</button>)}
-      </div>
-      <Card>
-        <CB>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {filtered.map(cp=>{
-              const c=statColor[cp.status]||T.textSub;
-              const total=cp.scans+cp.missed;
-              return(
-                <div key={cp.id} style={{padding:"12px 14px",background:T.raised,borderRadius:10,borderLeft:`3px solid ${c}`}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
-                    <div>
-                      <div style={{fontSize:13,fontWeight:700,color:T.text}}>{cp.name}</div>
-                      <div style={{fontSize:11,color:T.textDim,marginTop:2}}>{cp.site} · Every {cp.freq}m · Last: {cp.last}</div>
-                    </div>
-                    <div style={{textAlign:"right"}}>
-                      <div style={{fontSize:15,fontWeight:900,color:c}}>{cp.scans}/{total}</div>
-                      <Pill label={cp.status} color={c}/>
-                    </div>
-                  </div>
-                  <div style={{height:4,background:T.border,borderRadius:2,overflow:"hidden"}}>
-                    <div style={{height:"100%",width:`${total?Math.round(cp.scans/total*100):0}%`,background:c,borderRadius:2}}/>
-                  </div>
-                  {cp.status!=="Current"&&(
-                    <button onClick={()=>showToast(`Dispatch triggered: ${cp.name} — ${cp.site}`,"success")}
-                      style={{marginTop:8,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"5px 12px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:700}}>
-                      Dispatch Officer →
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </CB>
-      </Card>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────
 // ROOT
 // ─────────────────────────────────────────────────────────────────
 export default function App(){
@@ -6306,14 +4643,18 @@ export default function App(){
   const[isMobile,setIsMobile]=useState(false);
   const[toasts,setToasts]=useState([]);
 
-  const[lang,setLang]=useLS("ss_lang","en");
-  const[demoConfig,setDemoConfig]=useLS("ss_demo_v1",null);
-  const[showDemoWizard,setShowDemoWizard]=useState(false);
-  const[demoScenario,setDemoScenario]=useState(()=>demoConfig?.startScenario??0);
   const[online,setOnline]=useState(navigator.onLine);
   useEffect(()=>{const c=()=>setIsMobile(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c);},[]);
   useEffect(()=>{const t=setInterval(()=>setNow(new Date()),30000);return()=>clearInterval(t);},[]);
   useEffect(()=>onlineStatus(setOnline),[]);
+
+  const role=user?.role||"Company Admin";
+  const visNav=useMemo(()=>NAV.filter(n=>n.roles.includes(role)),[role]);
+
+  useEffect(()=>{if(user&&!visNav.find(n=>n.id===mod))setMod(visNav[0]?.id||"dashboard");},[visNav]);
+
+  const openModal=useCallback(m=>setModal(m),[]);
+  const closeModal=useCallback(()=>setModal(null),[]);
 
   const showToast=useCallback((msg,type="info")=>{
     const id=Date.now();
@@ -6321,36 +4662,7 @@ export default function App(){
     setTimeout(()=>setToasts(t=>t.filter(x=>x.id!==id)),4500);
   },[]);
 
-  // Guardian tenant detection
-  const isGuardian=useMemo(()=>GUARDIAN_USERS.some(g=>g.id===user?.id),[user?.id]);
-  useDemoEngine(demoConfig,showToast);
-  useGuardianTicker(isGuardian,showToast);
-
-  const guardianCtxValue=useMemo(()=>isGuardian?{
-    company:GUARDIAN_COMPANY,sites:GUARDIAN_SITES_FULL,officers:GUARDIAN_OFFICERS_ROSTER,
-    vehicles:GUARDIAN_VEHICLES,checkpoints:GUARDIAN_CHECKPOINTS,incidents:GUARDIAN_INCIDENTS,
-    patrols:GUARDIAN_PATROL_ROUTES,equipment:GUARDIAN_EQUIPMENT,aiAlerts:GUARDIAN_AI_ALERTS,
-    kpi:GUARDIAN_KPI,schedule:GUARDIAN_SCHEDULE,dar:GUARDIAN_DAR_REPORTS,
-  }:null,[isGuardian]);
-
-  const role=user?.role||"Company Admin";
-  const visNav=useMemo(()=>NAV.filter(n=>n.roles.includes(role)),[role]);
-  useEffect(()=>{if(user&&!visNav.find(n=>n.id===mod))setMod(visNav[0]?.id||"dashboard");},[visNav]);
-
-  const openModal=useCallback(m=>setModal(m),[]);
-  const closeModal=useCallback(()=>setModal(null),[]);
   const logout=useCallback(()=>{logAction(user,"LOGOUT","Session ended");clearSession();setUser(null);setMod("dashboard");setModal(null);},[user]);
-
-  const handleDemoLaunch=useCallback(cfg=>{
-    const demoUser=AUTH_USERS[0];
-    setDemoConfig(cfg);
-    setDemoScenario(cfg.startScenario||0);
-    setUser(demoUser);
-    setMod(cfg.startMod||"dashboard");
-    saveSession(demoUser);
-    setShowDemoWizard(false);
-  },[]);
-  const handleExitDemo=useCallback(()=>{setDemoConfig(null);setDemoScenario(0);LS.del("ss_demo_v1");},[]);
 
   const[mfaPending,setMfaPending]=useState(null);
   const[onboarding,setOnboarding]=useState(false);
@@ -6362,30 +4674,10 @@ export default function App(){
   const handleMfaVerify=useCallback(()=>{if(mfaPending){setUser(mfaPending);if(mfaPending.isNewCompany)setOnboarding(true);setMfaPending(null);};},[mfaPending]);
   const handleRegister=useCallback(()=>{},[]);
 
-  // Guardian demo direct login (from wizard role picker)
-  const handleGuardianLogin=useCallback((email,password,startMod)=>{
-    const u=authUser(email,password);
-    if(u){
-      saveSession(u);
-      setUser(u);
-      setMod(startMod||"dashboard");
-      setShowDemoWizard(false);
-      // Arm guardian live demo config
-      setDemoConfig({active:true,isGuardian:true,companyName:GUARDIAN_COMPANY.name,launchedAt:Date.now(),startMod});
-    }
-  },[]);
-
   if(mfaPending)return <MFAScreen user={mfaPending} onVerify={handleMfaVerify} onCancel={()=>{clearSession();setMfaPending(null);}}/>;
-  if(showDemoWizard)return <DemoSetupWizard onLaunch={handleDemoLaunch} onCancel={()=>setShowDemoWizard(false)} onGuardianLogin={handleGuardianLogin}/>;
-  if(!user)return <AuthScreen onLogin={handleLogin} onRegister={handleRegister} onTryDemo={()=>setShowDemoWizard(true)}/>;
+  if(!user)return <AuthScreen onLogin={handleLogin} onRegister={handleRegister}/>;
 
   const renderMod=()=>{
-    // Guardian-specific module overrides
-    if(isGuardian){
-      if(mod==="dashboard")return <GuardianCommandCenter user={user} showToast={showToast} openModal={openModal}/>;
-      if(mod==="patrol")return <GuardianPatrolView user={user} showToast={showToast}/>;
-      if(mod==="dispatch")return <GuardianDispatchView user={user} showToast={showToast}/>;
-    }
     switch(mod){
       case "dashboard": return <Dashboard openModal={openModal} showToast={showToast}/>;
       case "myshift":   return <MyShift user={user} showToast={showToast}/>;
@@ -6407,18 +4699,11 @@ export default function App(){
       case "settings":    return <CompanySettings user={user} showToast={showToast}/>;
       case "clientportal":return <ClientPortal user={user} showToast={showToast}/>;
       case "itcommand":   return <ITCyberCommand user={user} showToast={showToast}/>;
-      case "postorders":  return <PostOrdersModule user={user} showToast={showToast}/>;
-      case "compliance":  return <ComplianceModule user={user} showToast={showToast}/>;
-      case "opmap":       return <OperationsMapModule user={user} showToast={showToast}/>;
-      case "shiftmarket": return <ShiftMarketplaceModule user={user} showToast={showToast}/>;
       default:            return <Dashboard openModal={openModal} showToast={showToast}/>;
     }
   };
 
   return(
-    <GuardianCtx.Provider value={guardianCtxValue}>
-    <DemoCtx.Provider value={demoConfig}>
-    <LangCtx.Provider value={lang}>
     <div style={{height:"100%",background:T.bg,color:T.text,display:"flex",flexDirection:"column"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
@@ -6438,30 +4723,22 @@ export default function App(){
         @keyframes ssQR{0%{top:0;opacity:1}50%{top:calc(100% - 3px);opacity:.7}100%{top:0;opacity:1}}
       `}</style>
 
-      {/* Guardian tenant banner */}
-      {isGuardian&&(
-        <div style={{background:"linear-gradient(90deg,#1A4F8A,#0D3260)",color:"#fff",padding:"7px 16px",fontSize:11,fontWeight:700,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
-          <span>🛡️ <strong>Guardian Strategic Security, LLC</strong> — Demo Tenant · Orlando, FL · {GUARDIAN_COMPANY.employees.officers} Officers · {GUARDIAN_COMPANY.activeSites} Sites</span>
-          <button onClick={logout} style={{background:"rgba(255,255,255,0.15)",border:"none",color:"#fff",padding:"3px 10px",borderRadius:5,cursor:"pointer",fontSize:10,fontWeight:700}}>Exit Demo</button>
-        </div>
-      )}
-
       {/* Offline banner */}
       {!online&&(
         <div style={{background:T.amber,color:"#000",padding:"8px 16px",fontSize:12,fontWeight:700,textAlign:"center",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-          <span>⚡</span> Offline mode — actions are queued and will sync when connection is restored
+          <WifiOff size={14} strokeWidth={2}/> Offline mode — actions are queued and will sync when connection is restored
         </div>
       )}
 
-      {/* Onboarding wizard */}
+      {/* Onboarding wizard — shown once for new company registrations */}
       {onboarding&&<OnboardingWizard user={user} onComplete={()=>{setOnboarding(false);const updated=getUsers().map(u=>u.id===user.id?{...u,isNewCompany:false}:u);saveUsers(updated);}}/>}
 
       {/* Toast notifications */}
       {toasts.length>0&&(
-        <div style={{position:"fixed",top:16,right:16,zIndex:300,display:"flex",flexDirection:"column",gap:8,pointerEvents:"none",maxWidth:360}}>
+        <div style={{position:"fixed",top:16,right:16,zIndex:300,display:"flex",flexDirection:"column",gap:8,pointerEvents:"none",maxWidth:340}}>
           {toasts.map(t=>(
             <div key={t.id} style={{background:t.type==="success"?T.green:t.type==="error"?T.red:T.surface,border:`1px solid ${t.type==="success"?T.green:t.type==="error"?T.redB:T.borderLight}`,borderRadius:12,padding:"13px 16px",color:t.type==="success"||t.type==="error"?"#000":T.text,fontSize:13,fontWeight:600,boxShadow:"0 8px 32px rgba(0,0,0,0.55)",animation:"ssToast 0.2s ease"}}>
-              {t.type==="success"?"✓ ":t.type==="error"?"⚠ ":""}{t.msg}
+              <span style={{display:"flex",alignItems:"center",gap:6}}>{t.type==="success"?<Check size={13} strokeWidth={3}/>:t.type==="error"?<AlertTriangle size={13} strokeWidth={2}/>:null}{t.msg}</span>
             </div>
           ))}
         </div>
@@ -6469,11 +4746,10 @@ export default function App(){
 
       <div style={{display:"flex",flex:1,position:"relative"}}>
         {!isMobile&&(
-          <Sidebar items={visNav} active={mod} onChange={setMod} user={user} onLogout={logout} collapsed={collapsed} setCollapsed={setCollapsed} lang={lang} setLang={setLang}/>
+          <Sidebar items={visNav} active={mod} onChange={setMod} user={user} onLogout={logout} collapsed={collapsed} setCollapsed={setCollapsed}/>
         )}
         <div style={{flex:1,display:"flex",flexDirection:"column",minWidth:0,minHeight:0}}>
           <TopBar modId={mod} now={now} user={user} onLogout={logout} isMobile={isMobile}/>
-          {demoConfig?.active&&!isGuardian&&<DemoBanner cfg={demoConfig} scenario={demoScenario} setScenario={setDemoScenario} onExit={handleExitDemo} onChangeMod={setMod}/>}
           <main style={{flex:1,overflowY:"auto",padding:isMobile?"14px 14px 84px":"20px 24px",animation:isMobile?"none":"ssUp 0.22s ease",WebkitOverflowScrolling:"touch"}}>
             <ErrorBoundary key={mod}>
               {renderMod()}
@@ -6488,8 +4764,5 @@ export default function App(){
       {modal?.type==="incident"&&<IncModal onClose={closeModal} showToast={showToast}/>}
       {modal?.type==="checkin"&&<CheckInModal onClose={closeModal} showToast={showToast}/>}
     </div>
-    </LangCtx.Provider>
-    </DemoCtx.Provider>
-    </GuardianCtx.Provider>
   );
 }
