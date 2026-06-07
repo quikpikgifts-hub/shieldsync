@@ -1348,7 +1348,6 @@ function Dashboard({openModal,showToast}){
     OFFICERS.filter(o=>o.status!=="Off Duty").map(o=>({...o,cx:o.x,cy:o.y}))
   );
 
-  // Live event feed
   useEffect(()=>{
     const timers=LIVE_TICKER.map(e=>setTimeout(()=>{
       setFeed(f=>[{...e,id:Date.now(),time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})},...f.slice(0,19)]);
@@ -1358,7 +1357,6 @@ function Dashboard({openModal,showToast}){
     return()=>timers.forEach(clearTimeout);
   },[]);
 
-  // Animated officer positions — smooth drift simulating real GPS movement
   useEffect(()=>{
     const t=setInterval(()=>{
       setPositions(prev=>prev.map(p=>({
@@ -1370,76 +1368,107 @@ function Dashboard({openModal,showToast}){
     return()=>clearInterval(t);
   },[]);
 
+  const criticalAlerts=AI_INSIGHTS.filter(a=>a.priority==="critical");
+  const activeOfficers=OFFICERS.filter(o=>o.status!=="Off Duty");
+
   return(
-    <div style={{display:"flex",flexDirection:"column",gap:18}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(148px,1fr))",gap:10}}>
-        {KPI_DATA.map(k=>(
-          <Card key={k.label} glow={k.color}>
-            <CB style={{padding:"16px 18px"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
-                <span style={{fontSize:22}}>{k.icon}</span>
-                <span style={{fontSize:10,fontWeight:800,color:k.color,background:`${k.color}18`,padding:"2px 7px",borderRadius:4}}>{k.trend}</span>
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+
+      {/* 1 — CRITICAL ALERTS */}
+      {criticalAlerts.length>0&&(
+        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+          {criticalAlerts.map((a,i)=>(
+            <div key={i} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 16px",background:`${T.red}0a`,border:`1px solid ${T.red}30`,borderRadius:10}}>
+              <div style={{width:7,height:7,borderRadius:"50%",background:T.red,flexShrink:0,animation:"ssB 1s infinite"}}/>
+              <span style={{flex:1,fontSize:13,color:T.text,lineHeight:1.5}}>{a.text}</span>
+              <Pill label="CRITICAL" color={T.red}/>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 2 — METRICS STRIP */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:8}}>
+        {KPI_DATA.map(k=>{
+          const Ic=k.icon;
+          return(
+            <div key={k.label} style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:10,padding:"14px 14px 12px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                <Ic size={14} color={k.color} strokeWidth={2}/>
+                <span style={{fontSize:10,fontWeight:700,color:k.color,opacity:0.85}}>{k.trend}</span>
               </div>
-              <div style={{fontSize:26,fontWeight:900,color:k.color,lineHeight:1}}>{k.value}</div>
-              <div style={{fontSize:12,fontWeight:700,color:T.text,marginTop:5}}>{k.label}</div>
-              <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{k.sub}</div>
+              <div style={{fontSize:22,fontWeight:900,color:T.text,lineHeight:1,letterSpacing:"-0.02em"}}>{k.value}</div>
+              <div style={{fontSize:11,fontWeight:600,color:T.textSub,marginTop:4,lineHeight:1.3}}>{k.label}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 3 — ACTIVE OPERATIONS: map + live feed */}
+      <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.6fr) minmax(0,1fr)",gap:12}}>
+        <Card>
+          <CB>
+            <SH title="Active Operations" icon={Navigation} sub={`${activeOfficers.length} units deployed · ${SITES.length} sites`}/>
+            <LiveMap officers={OFFICERS} positions={positions}/>
+          </CB>
+        </Card>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {/* Officer status */}
+          <Card style={{flex:1}}>
+            <CB style={{height:"100%"}}>
+              <SH title="Field Units" icon={Shield} sub={`${activeOfficers.filter(o=>o.status==="On Patrol").length} on patrol`}/>
+              <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                {OFFICERS.map(o=>{
+                  const c=SM(o.status).c;
+                  const pulse=SM(o.status).p;
+                  return(
+                    <div key={o.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 10px",background:T.raised,borderRadius:8}}>
+                      <Av initials={o.av} color={c} size={28}/>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:12,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{o.name}</div>
+                        <div style={{fontSize:10,color:T.textSub,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{o.site}</div>
+                      </div>
+                      <div style={{display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
+                        <div style={{width:6,height:6,borderRadius:"50%",background:c,animation:pulse?"ssB 1.2s infinite":"none"}}/>
+                        <span style={{fontSize:10,color:c,fontWeight:700,whiteSpace:"nowrap"}}>{o.status}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </CB>
           </Card>
-        ))}
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"minmax(0,1.5fr) minmax(0,1fr)",gap:16}}>
-        <Card><CB><SH title="Live Operations Map"/><LiveMap officers={OFFICERS} positions={positions}/></CB></Card>
-        <Card style={{display:"flex",flexDirection:"column"}}>
-          <CB style={{flex:1,display:"flex",flexDirection:"column"}}>
-            <SH title="ShieldSync AI Copilot"/>
-            <div style={{flex:1}}><AICopilot/></div>
-          </CB>
-        </Card>
-      </div>
-      {/* Live ops feed */}
-      {feed.length>0&&(
-        <Card glow={T.accent}>
-          <CB>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-              <div style={{width:7,height:7,borderRadius:"50%",background:T.green,boxShadow:`0 0 6px ${T.green}`,animation:"ssB 1s infinite"}}/>
-              <span style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:T.textSub}}>Live Ops Feed</span>
-              <span style={{fontSize:10,color:T.textDim,marginLeft:"auto"}}>{feed.length} events</span>
-            </div>
-            <div style={{display:"flex",flexDirection:"column",gap:5}}>
-              {feed.slice(0,6).map((e,i)=>{
-                const c=e.type==="success"?T.green:e.type==="warning"?T.red:e.type==="dispatch"?T.gold:e.type==="scan"?T.accent:T.textSub;
-                return(
-                  <div key={e.id} style={{display:"flex",gap:10,alignItems:"center",padding:"7px 10px",background:T.raised,borderRadius:7,animation:i===0?"ssUp 0.2s ease":"none"}}>
-                    <div style={{width:6,height:6,borderRadius:"50%",background:c,flexShrink:0}}/>
-                    <span style={{flex:1,fontSize:12,color:T.text}}>{e.msg}</span>
-                    <span style={{fontSize:10,color:T.textDim,fontFamily:"monospace",flexShrink:0}}>{e.time}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </CB>
-        </Card>
-      )}
-      <Card>
-        <CB>
-          <SH title="AI Risk Intelligence"/>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {AI_INSIGHTS.map((ins,i)=>{
-              const c={critical:T.red,high:T.amber,medium:T.gold,info:T.accent}[ins.priority]||T.textSub;
-              return(
-                <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start",padding:"11px 14px",background:`${c}08`,border:`1px solid ${c}22`,borderRadius:10}}>
-                  <div style={{width:7,height:7,borderRadius:"50%",background:c,marginTop:5,flexShrink:0}}/>
-                  <p style={{margin:0,fontSize:13,color:T.text,lineHeight:1.55,flex:1}}>{ins.text}</p>
-                  <Pill label={ins.priority} color={c}/>
+          {/* Live feed */}
+          {feed.length>0&&(
+            <Card>
+              <CB>
+                <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:10}}>
+                  <div style={{width:6,height:6,borderRadius:"50%",background:T.green,animation:"ssB 1s infinite"}}/>
+                  <span style={{fontSize:10,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:T.textSub}}>Live Feed</span>
+                  <span style={{fontSize:10,color:T.textDim,marginLeft:"auto"}}>{feed.length} events</span>
                 </div>
-              );
-            })}
-          </div>
-        </CB>
-      </Card>
+                <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                  {feed.slice(0,4).map((e,i)=>{
+                    const c=e.type==="success"?T.green:e.type==="warning"?T.red:e.type==="dispatch"?T.gold:e.type==="scan"?T.accent:T.textSub;
+                    return(
+                      <div key={e.id} style={{display:"flex",gap:8,alignItems:"center",padding:"6px 8px",background:T.raised,borderRadius:6,animation:i===0?"ssUp 0.2s ease":"none"}}>
+                        <div style={{width:5,height:5,borderRadius:"50%",background:c,flexShrink:0}}/>
+                        <span style={{flex:1,fontSize:11,color:T.text,lineHeight:1.4}}>{e.msg}</span>
+                        <span style={{fontSize:10,color:T.textDim,fontFamily:"monospace",flexShrink:0}}>{e.time}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CB>
+            </Card>
+          )}
+        </div>
+      </div>
+
+      {/* 4 — RECENT INCIDENTS */}
       <Card>
         <CB>
-          <SH title="Recent Incidents" action={{label:"+ New Incident",fn:()=>openModal({type:"incident"})}}/>
+          <SH title="Incidents" icon={ShieldAlert} action={{icon:Plus,label:"New Incident",fn:()=>openModal({type:"incident"})}}/>
           <div style={{overflowX:"auto"}}>
             <table style={{width:"100%",borderCollapse:"collapse",fontSize:13,minWidth:540}}>
               <thead>
@@ -1450,15 +1479,15 @@ function Dashboard({openModal,showToast}){
                 </tr>
               </thead>
               <tbody>
-                {INCIDENTS.map(inc=>(
-                  <tr key={inc.id} style={{borderBottom:`1px solid ${T.border}20`}}>
-                    <td style={{padding:"11px 10px",color:T.accent,fontWeight:800,fontFamily:"monospace",whiteSpace:"nowrap"}}>{inc.id}</td>
-                    <td style={{padding:"11px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.type}</td>
-                    <td style={{padding:"11px 10px",color:T.textSub,whiteSpace:"nowrap"}}>{inc.site}</td>
-                    <td style={{padding:"11px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.officer}</td>
-                    <td style={{padding:"11px 10px",color:T.textSub}}>{inc.time}</td>
-                    <td style={{padding:"11px 10px"}}><Pill label={inc.sev} color={inc.sev==="High"?T.red:inc.sev==="Medium"?T.amber:T.textSub}/></td>
-                    <td style={{padding:"11px 10px"}}><Pill label={inc.status}/></td>
+                {INCIDENTS.map((inc,i)=>(
+                  <tr key={inc.id} className="ss-row" style={{borderBottom:i<INCIDENTS.length-1?`1px solid ${T.border}20`:"none"}}>
+                    <td style={{padding:"10px 10px",color:T.accent,fontWeight:700,fontFamily:"monospace",whiteSpace:"nowrap",fontSize:12}}>{inc.id}</td>
+                    <td style={{padding:"10px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.type}</td>
+                    <td style={{padding:"10px 10px",color:T.textSub,whiteSpace:"nowrap"}}>{inc.site}</td>
+                    <td style={{padding:"10px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.officer}</td>
+                    <td style={{padding:"10px 10px",color:T.textSub,fontFamily:"monospace",fontSize:12}}>{inc.time}</td>
+                    <td style={{padding:"10px 10px"}}><Pill label={inc.sev} color={inc.sev==="High"?T.red:inc.sev==="Medium"?T.amber:T.textSub}/></td>
+                    <td style={{padding:"10px 10px"}}><Pill label={inc.status}/></td>
                   </tr>
                 ))}
               </tbody>
@@ -1466,6 +1495,26 @@ function Dashboard({openModal,showToast}){
           </div>
         </CB>
       </Card>
+
+      {/* 5 — OPERATIONAL INTELLIGENCE */}
+      <Card>
+        <CB>
+          <SH title="Operational Intelligence" icon={Sparkles} sub="AI-generated risk signals — updated continuously"/>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:8}}>
+            {AI_INSIGHTS.map((ins,i)=>{
+              const c={critical:T.red,high:T.amber,medium:T.gold,info:T.accent}[ins.priority]||T.textSub;
+              return(
+                <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",padding:"11px 14px",background:T.raised,border:`1px solid ${c}20`,borderRadius:9}}>
+                  <div style={{width:6,height:6,borderRadius:"50%",background:c,marginTop:4,flexShrink:0,animation:ins.priority==="critical"?"ssB 1s infinite":"none"}}/>
+                  <p style={{margin:0,fontSize:12,color:T.text,lineHeight:1.55,flex:1}}>{ins.text}</p>
+                  <Pill label={ins.priority} color={c}/>
+                </div>
+              );
+            })}
+          </div>
+        </CB>
+      </Card>
+
     </div>
   );
 }
