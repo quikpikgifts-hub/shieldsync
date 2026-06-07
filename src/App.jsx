@@ -11,6 +11,7 @@ import {
   LogOut, Plus, Minus, Wifi, WifiOff, CircleCheck, CircleAlert, ScanLine, MapPinned,
   Briefcase, HandCoins, ShieldQuestion, Video, Network, Usb, ServerCog, Rocket, Hand,
   HelpCircle, UserCircle2, Navigation, Siren, Star, Crown, Slash,
+  Calendar, Key, ClipboardCheck, UserX, ArrowLeftRight, ListTodo,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────
@@ -89,11 +90,13 @@ const PERM_LABELS={
   training:"Training",aicommand:"AI Command",procurement:"Procurement",
   auditlog:"Audit Log",users:"User Management",settings:"Company Settings",myshift:"My Shift",
   clientportal:"Client Portal",itcommand:"IT/Cyber",
+  scheduling:"Scheduling",postorders:"Post Orders",keymanagement:"Key Management",
+  corrective:"Corrective Actions",handover:"Shift Handover",
 };
 const ROLE_PERMS={
-  "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings","clientportal","itcommand"],
-  "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","itcommand"],
-  "Officer":["dashboard","myshift","patrol","visitors","equipment","leave"],
+  "Company Admin":["dashboard","executive","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","procurement","auditlog","users","settings","clientportal","itcommand","scheduling","postorders","keymanagement","corrective","handover"],
+  "Supervisor":["dashboard","workforce","timekeeping","patrol","fleet","visitors","reports","dispatch","equipment","leave","training","aicommand","itcommand","scheduling","postorders","keymanagement","corrective","handover"],
+  "Officer":["dashboard","myshift","patrol","visitors","equipment","leave","postorders"],
   "Client":["clientportal","reports"],
 };
 function getUsers(){const s=LS.get("ss_users_v1",null);if(s)return s;const init=AUTH_USERS.map(u=>({...u,active:true,createdAt:"2024-01-01",mfaEnabled:false,company:"ShieldSync Protect"}));LS.set("ss_users_v1",init);return init;}
@@ -213,6 +216,125 @@ const REPORT_HISTORY=[
   {id:"RPT-0039",type:"Workforce Performance",date:"2026-06-04",time:"17:45",pages:5,status:"Delivered"},
 ];
 const LEAVE_TOTALS={Annual:25,Sick:14,Training:8,Emergency:5};
+const WEEKLY_SHIFTS=[
+  {id:"SH-001",officer:"Marcus Webb",badge:"S-0041",site:"Northgate Tower",day:"Mon",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-002",officer:"Diana Reyes",badge:"S-0067",site:"Harbor Logistics",day:"Mon",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-003",officer:"Theo Okafor",badge:"S-0083",site:"Plaza West",day:"Mon",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:false,certNote:"SIA expired Nov 2025"},
+  {id:"SH-004",officer:"Ava Simmons",badge:"S-0092",site:"Eastside Mall",day:"Mon",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-005",officer:"Jordan Park",badge:"S-0105",site:"Northgate Tower",day:"Mon",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-006",officer:"Elena Voss",badge:"S-0118",site:"Northgate Tower",day:"Mon",start:"18:00",end:"06:00",type:"Night",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-007",officer:"Marcus Webb",badge:"S-0041",site:"Northgate Tower",day:"Tue",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-008",officer:"Diana Reyes",badge:"S-0067",site:"Harbor Logistics",day:"Tue",start:"06:00",end:"18:30",type:"Day",status:"Confirmed",hours:12.5,ot:true,certOk:true},
+  {id:"SH-009",officer:"Theo Okafor",badge:"S-0083",site:"Plaza West",day:"Tue",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:false,certNote:"SIA expired"},
+  {id:"SH-010",officer:"Jordan Park",badge:"S-0105",site:"Northgate Tower",day:"Tue",start:"06:00",end:"20:15",type:"Day",status:"Confirmed",hours:14.25,ot:true,certOk:true},
+  {id:"SH-011",officer:"Elena Voss",badge:"S-0118",site:"Northgate Tower",day:"Tue",start:"18:00",end:"06:00",type:"Night",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-012",officer:"Marcus Webb",badge:"S-0041",site:"Northgate Tower",day:"Wed",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-013",officer:"Diana Reyes",badge:"S-0067",site:"Harbor Logistics",day:"Wed",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-014",officer:"Ava Simmons",badge:"S-0092",site:"Eastside Mall",day:"Wed",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-015",officer:"Jordan Park",badge:"S-0105",site:"Northgate Tower",day:"Wed",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-016",officer:"Elena Voss",badge:"S-0118",site:"Northgate Tower",day:"Wed",start:"18:00",end:"06:00",type:"Night",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-017",officer:"Marcus Webb",badge:"S-0041",site:"Northgate Tower",day:"Thu",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-018",officer:"Diana Reyes",badge:"S-0067",site:"Harbor Logistics",day:"Thu",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-019",officer:"Ava Simmons",badge:"S-0092",site:"Eastside Mall",day:"Fri",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:false,certOk:true},
+  {id:"SH-020",officer:"Marcus Webb",badge:"S-0041",site:"Northgate Tower",day:"Sat",start:"06:00",end:"18:00",type:"Day",status:"Confirmed",hours:12,ot:true,certOk:true},
+];
+const OPEN_SHIFTS=[
+  {id:"OS-001",site:"Plaza West",day:"Thu",date:"Jun 11",start:"18:00",end:"06:00",type:"Night",reason:"Elena Voss — annual leave approved",priority:"High"},
+  {id:"OS-002",site:"Harbor Logistics",day:"Sat",date:"Jun 13",start:"06:00",end:"18:00",type:"Day",reason:"Weekend coverage — no officer assigned",priority:"Medium"},
+  {id:"OS-003",site:"Eastside Mall",day:"Sun",date:"Jun 14",start:"06:00",end:"18:00",type:"Day",reason:"Weekend coverage — no officer assigned",priority:"Medium"},
+];
+const POST_ORDERS=[
+  {id:"PO-001",site:"Northgate Tower",version:"v3.2",updated:"2026-05-15",approvedBy:"Alex Morgan",
+   sections:[
+     {title:"Site Overview",body:"Northgate Tower is a 42-floor commercial office building operating 24/7. Primary tenants include financial services firms and corporate headquarters. Security coverage: 06:00–18:00 day shift, 18:00–06:00 night shift. Post orders are effective until superseded."},
+     {title:"Emergency Contacts",body:"Property Manager: Jane Smith · 555-0101\nBuilding Engineer: Tom Rivera · 555-0102\nFire Marshal: Lisa Chen · 555-0103\nPolice Non-Emergency: 555-0911\nBuilding Security Direct: 555-0199\nShieldSync Operations Centre: 555-0SYNC"},
+     {title:"Access Control Procedures",body:"All visitors sign in at reception via visitor management system.\nContractors require pre-authorization from tenant and valid photo ID.\nAfter-hours access requires written tenant approval on file.\nPackage deliveries accepted at Loading Dock only — Dock B.\nSuspicious packages: do not touch, clear 100m area, call emergency line immediately."},
+     {title:"Patrol Schedule",body:"Lobby: continuous coverage during business hours (07:00–19:00)\nParking Deck B: every 2 hours — 07:00, 09:00, 11:00, 13:00, 15:00, 17:00\nMain Entrance perimeter: every 3 hours\nRoof access door check: once per shift (log completion)\nServer Room Floor 12: visual check only — do not enter without IT escort. Log each check."},
+     {title:"Client Rules & Standards",body:"No photography of tenant floors without prior written approval.\nMaintain full professional uniform and presentation standards at all times.\nAll incidents must be reported in ShieldSync within 5 minutes of observation.\nDo not discuss security arrangements, staffing levels, or vulnerabilities with any non-authorized personnel.\nMinimum 15-minute shift overlap for verbal briefing before relief."},
+   ],
+   acknowledgments:[
+     {officer:"Marcus Webb",badge:"S-0041",date:"2026-06-01",version:"v3.2"},
+     {officer:"Jordan Park",badge:"S-0105",date:"2026-06-02",version:"v3.2"},
+     {officer:"Elena Voss",badge:"S-0118",date:"2026-06-01",version:"v3.2"},
+   ]},
+  {id:"PO-002",site:"Harbor Logistics",version:"v2.1",updated:"2026-04-20",approvedBy:"Alex Morgan",
+   sections:[
+     {title:"Site Overview",body:"Harbor Logistics is a 24-hour freight and distribution facility covering 120 acres. Access control of all entry and exit points is critical. The facility operates three shifts and receives commercial vehicles around the clock."},
+     {title:"Emergency Contacts",body:"Site Manager: Rob Patel · 555-0201\nSafety Officer: Maria Torres · 555-0202\nFire Department Direct: 555-0301\nPolice: 555-0911"},
+     {title:"Vehicle Access",body:"All vehicles must check in at Gate 1 with valid delivery manifest.\nPersonnel require active badge — no tailgating under any circumstances.\nRestricted Zone C (chemical storage) requires supervisor escort at all times.\nOvernight vehicle access: verified personnel list only — no exceptions."},
+     {title:"Patrol Schedule",body:"Gate 1 (main entry): continuous\nPerimeter fence: every 90 minutes\nLoading bay area: every 60 minutes\nRestricted Zone C: every 2 hours (mandatory log entry)"},
+   ],
+   acknowledgments:[
+     {officer:"Diana Reyes",badge:"S-0067",date:"2026-05-01",version:"v2.1"},
+   ]},
+  {id:"PO-003",site:"Plaza West",version:"v1.8",updated:"2026-03-10",approvedBy:"Alex Morgan",
+   sections:[
+     {title:"Site Overview",body:"Plaza West is a mixed-use retail and commercial complex with high public footfall. Security coverage focuses on access control, incident response, and patrol visibility. Day shift operates alongside peak public hours."},
+     {title:"Emergency Contacts",body:"Property Manager: Susan Holt · 555-0301\nMall Security Office: 555-0302\nPolice: 555-0911"},
+     {title:"Patrol Requirements",body:"Perimeter Gate 3: every 60 minutes minimum — this is a high-risk point.\nMain concourse: continuous visibility required 09:00–21:00.\nLoading entrance (rear): check every 2 hours.\nPhoto evidence of any suspicious activity required before report."},
+   ],
+   acknowledgments:[
+     {officer:"Theo Okafor",badge:"S-0083",date:"2026-04-01",version:"v1.8"},
+   ]},
+  {id:"PO-004",site:"Eastside Mall",version:"v2.4",updated:"2026-05-01",approvedBy:"Alex Morgan",
+   sections:[
+     {title:"Site Overview",body:"Eastside Mall is a regional shopping centre with approximately 180 retail units and a food court. Peak hours are 10:00–20:00. Security presence must remain visible and professional at all times."},
+     {title:"Emergency Contacts",body:"Mall Manager: David Park · 555-0401\nOperations: 555-0402\nPolice: 555-0911\nAmbulance: 555-0111"},
+     {title:"Patrol Areas",body:"Main entrances (4): checked every 30 minutes during trading hours.\nCar park (3 levels): full sweep every 90 minutes.\nFood court: visible presence required during lunch and dinner peaks.\nServer Room (Level -1): visual check once per shift."},
+   ],
+   acknowledgments:[
+     {officer:"Ava Simmons",badge:"S-0092",date:"2026-05-05",version:"v2.4"},
+   ]},
+];
+const KEYS_DATA=[
+  {id:"KEY-001",name:"Main Lobby Master Key",site:"Northgate Tower",keyNum:"NT-M01",type:"Master",status:"Checked Out",assignedTo:"Marcus Webb",badge:"S-0041",issuedAt:"06:00",dueBack:"18:00",condition:"Good"},
+  {id:"KEY-002",name:"Server Room — Floor 12",site:"Northgate Tower",keyNum:"NT-SR12",type:"Restricted",status:"In Cabinet",assignedTo:null,badge:null,issuedAt:null,dueBack:null,condition:"Good"},
+  {id:"KEY-003",name:"Parking Deck B Master",site:"Northgate Tower",keyNum:"NT-PDB",type:"Physical",status:"Checked Out",assignedTo:"Jordan Park",badge:"S-0105",issuedAt:"06:02",dueBack:"18:00",condition:"Good"},
+  {id:"KEY-004",name:"Loading Dock Gate Key",site:"Harbor Logistics",keyNum:"HL-LD01",type:"Physical",status:"Checked Out",assignedTo:"Diana Reyes",badge:"S-0067",issuedAt:"05:58",dueBack:"18:00",condition:"Good"},
+  {id:"KEY-005",name:"Restricted Zone C Access",site:"Harbor Logistics",keyNum:"HL-ZC01",type:"Restricted",status:"In Cabinet",assignedTo:null,badge:null,issuedAt:null,dueBack:null,condition:"Good"},
+  {id:"KEY-006",name:"Mall Security Office",site:"Eastside Mall",keyNum:"EM-SO01",type:"Physical",status:"Checked Out",assignedTo:"Ava Simmons",badge:"S-0092",issuedAt:"06:05",dueBack:"18:00",condition:"Good"},
+  {id:"KEY-007",name:"Plaza West — Perimeter Gate 3",site:"Plaza West",keyNum:"PW-PG3",type:"Physical",status:"Checked Out",assignedTo:"Theo Okafor",badge:"S-0083",issuedAt:"06:00",dueBack:"18:00",condition:"Fair"},
+  {id:"KEY-008",name:"Northgate Roof Access",site:"Northgate Tower",keyNum:"NT-RA01",type:"Restricted",status:"In Cabinet",assignedTo:null,badge:null,issuedAt:null,dueBack:null,condition:"Good"},
+  {id:"KEY-009",name:"V-01 Spare Vehicle Key",site:"Fleet",keyNum:"FL-V01S",type:"Vehicle",status:"Overdue",assignedTo:"Marcus Webb",badge:"S-0041",issuedAt:"Yesterday 06:00",dueBack:"Yesterday 18:00",condition:"Good"},
+  {id:"KEY-010",name:"Electrical Room — Basement",site:"Eastside Mall",keyNum:"EM-ER01",type:"Restricted",status:"In Cabinet",assignedTo:null,badge:null,issuedAt:null,dueBack:null,condition:"Good"},
+];
+const KEY_LOG=[
+  {keyId:"KEY-001",action:"Issued",officer:"Marcus Webb",badge:"S-0041",ts:"06:00",supervisor:"Sarah Chen"},
+  {keyId:"KEY-003",action:"Issued",officer:"Jordan Park",badge:"S-0105",ts:"06:02",supervisor:"Sarah Chen"},
+  {keyId:"KEY-004",action:"Issued",officer:"Diana Reyes",badge:"S-0067",ts:"05:58",supervisor:"Sarah Chen"},
+  {keyId:"KEY-006",action:"Issued",officer:"Ava Simmons",badge:"S-0092",ts:"06:05",supervisor:"Sarah Chen"},
+  {keyId:"KEY-007",action:"Issued",officer:"Theo Okafor",badge:"S-0083",ts:"06:00",supervisor:"Sarah Chen"},
+  {keyId:"KEY-009",action:"Issued",officer:"Marcus Webb",badge:"S-0041",ts:"Yesterday 06:00",supervisor:"Sarah Chen"},
+];
+const CORRECTIVE_ACTIONS_DATA=[
+  {id:"CA-001",officer:"Theo Okafor",badge:"S-0083",type:"Written Warning",category:"Certification Non-Compliance",date:"2026-06-07",description:"Officer deployed with expired SIA Door Supervisor certification (expired November 2025). Non-compliant deployment identified during shift audit. Officer must complete SIA renewal before next operational deployment.",linkedIncident:null,supervisor:"Sarah Chen",hrReview:"Required",status:"Pending Acknowledgment",escalation:null},
+  {id:"CA-002",officer:"Jordan Park",badge:"S-0105",type:"Verbal Warning",category:"Break Compliance",date:"2026-06-07",description:"Officer worked 3.5 hours without logging a mandatory break in violation of SOP-07 fatigue management policy. Second occurrence in 30 days. Verbal warning issued on shift. Written warning to follow on next occurrence.",linkedIncident:null,supervisor:"Sarah Chen",hrReview:"Not Required",status:"Pending Acknowledgment",escalation:null},
+  {id:"CA-003",officer:"Marcus Webb",badge:"S-0041",type:"Coaching Note",category:"Overtime Management",date:"2026-06-03",description:"Officer incurred 0.43 hours of unplanned overtime Monday shift without prior authorisation. Officer reminded that all overtime requires pre-authorisation from supervisor unless responding to an active incident.",linkedIncident:null,supervisor:"Sarah Chen",hrReview:"Not Required",status:"Acknowledged",acknowledgedAt:"2026-06-04",escalation:null},
+  {id:"CA-004",officer:"Elena Voss",badge:"S-0118",type:"Coaching Note",category:"Policy Compliance",date:"2026-06-01",description:"Annual Policy Acknowledgment remains outstanding. Two previous reminders sent via ShieldSync. Final reminder issued. Non-completion by 2026-06-30 will result in formal written warning and potential schedule restriction.",linkedIncident:null,supervisor:"Alex Morgan",hrReview:"Not Required",status:"Acknowledged",acknowledgedAt:"2026-06-02",escalation:null},
+];
+const CA_TYPES=["Coaching Note","Verbal Warning","Written Warning","Final Written Warning","Suspension","Termination"];
+const CA_CATEGORIES=["Certification Non-Compliance","Break Compliance","Attendance","Conduct","Performance","Use of Force","Overtime Management","Policy Compliance","Equipment Responsibility","Incident Response"];
+const HANDOVER_RECORDS=[
+  {id:"HO-001",date:"2026-06-07",outgoing:{shift:"Day 06:00–18:00",supervisor:"Sarah Chen",signedAt:"17:55"},incoming:{shift:"Night 18:00–06:00",supervisor:"Night Lead",acknowledgedAt:null},status:"Pending Incoming Sign-Off",
+   items:[
+     {id:"HI-1",type:"incident",text:"INC-2847 OPEN — Trespass at Plaza West. Officer Okafor on scene 27+ min. Night shift must monitor and escalate if not resolved by 19:00.",priority:"critical",resolved:false},
+     {id:"HI-2",type:"incident",text:"INC-2846 UNDER REVIEW — Theft report Northgate Tower. Documentation with Marcus Webb. Expected closure within 48 hrs.",priority:"high",resolved:false},
+     {id:"HI-3",type:"patrol",text:"Perimeter Gate 3 (Plaza West): 2 missed checkpoints this shift. Increase to 30-minute intervals during night.",priority:"high",resolved:false},
+     {id:"HI-4",type:"compliance",text:"Theo Okafor: SIA cert expired. Do NOT redeploy until renewal confirmed. Night supervisor notify morning team.",priority:"high",resolved:false},
+     {id:"HI-5",type:"fleet",text:"V-03 Tahoe in maintenance — only 2 vehicles operational. V-02 available for emergency dispatch.",priority:"medium",resolved:false},
+     {id:"HI-6",type:"key",text:"KEY-009 (V-01 spare) overdue return from Marcus Webb — follow up at start of night shift.",priority:"medium",resolved:false},
+     {id:"HI-7",type:"note",text:"Jordan Park completed full shift without incident after break enforced at 14:30. Performance noted.",priority:"low",resolved:true},
+   ],
+   notes:"Plaza West remains the primary risk site for this handover. Ensure Elena Voss is fully briefed on INC-2847 before deployment.",
+  },
+  {id:"HO-002",date:"2026-06-06",outgoing:{shift:"Day 06:00–18:00",supervisor:"Sarah Chen",signedAt:"17:58"},incoming:{shift:"Night 18:00–06:00",supervisor:"Night Lead",acknowledgedAt:"18:05"},status:"Complete",
+   items:[
+     {id:"HI-8",type:"incident",text:"INC-2844 Medical Assist (Eastside Mall) — resolved 14:22. Documentation complete, no follow-up required.",priority:"low",resolved:true},
+     {id:"HI-9",type:"fleet",text:"Fleet V-02 returned from service — full fleet operational for night shift.",priority:"low",resolved:true},
+   ],
+   notes:"Clean handover. All incidents resolved. Night shift to standard patrol schedule.",
+  },
+];
 const NAV=[
   {id:"dashboard",label:"Command",icon:LayoutDashboard,roles:["Company Admin","Supervisor","Officer"],group:"ops"},
   {id:"executive",label:"Executive",icon:BarChart3,roles:["Company Admin"],group:"ops"},
@@ -223,9 +345,14 @@ const NAV=[
   {id:"visitors",label:"Visitors",icon:IdCard,roles:["Company Admin","Supervisor","Officer"],group:"field"},
   {id:"equipment",label:"Equipment",icon:Wrench,roles:["Company Admin","Supervisor","Officer"],group:"field"},
   {id:"workforce",label:"Workforce",icon:Users,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"scheduling",label:"Scheduling",icon:Calendar,roles:["Company Admin","Supervisor"],group:"people"},
   {id:"timekeeping",label:"Timekeeping",icon:Clock4,roles:["Company Admin","Supervisor"],group:"people"},
   {id:"leave",label:"Leave",icon:CalendarDays,roles:["Company Admin","Supervisor","Officer"],group:"people"},
   {id:"training",label:"Training",icon:GraduationCap,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"postorders",label:"Post Orders",icon:ClipboardCheck,roles:["Company Admin","Supervisor","Officer"],group:"field"},
+  {id:"keymanagement",label:"Key Management",icon:Key,roles:["Company Admin","Supervisor"],group:"field"},
+  {id:"corrective",label:"Corrective Actions",icon:UserX,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"handover",label:"Shift Handover",icon:ArrowLeftRight,roles:["Company Admin","Supervisor"],group:"field"},
   {id:"aicommand",label:"Intelligence",icon:Sparkles,roles:["Company Admin","Supervisor"],group:"intel"},
   {id:"reports",label:"Reports",icon:FileText,roles:["Company Admin","Supervisor","Client"],group:"intel"},
   {id:"procurement",label:"Procurement",icon:Package,roles:["Company Admin"],group:"admin"},
@@ -2081,6 +2208,747 @@ function Visitors({openModal,user,showToast,isMobile}){
   );
 }
 
+// ─────────────────────────────────────────────────────────────────
+// SCHEDULING MODULE
+// ─────────────────────────────────────────────────────────────────
+function ScheduleModule({user,showToast,isMobile}){
+  const DAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const[dayFilter,setDayFilter]=useState("All");
+  const[siteFilter,setSiteFilter]=useState("All");
+  const[showCreate,setShowCreate]=useState(false);
+  const[shifts,setShifts]=useLS("ss_schedule_shifts",WEEKLY_SHIFTS);
+  const[openShifts,setOpenShifts]=useLS("ss_schedule_open",OPEN_SHIFTS);
+
+  const sites=[...new Set(WEEKLY_SHIFTS.map(s=>s.site))];
+  const filtered=shifts.filter(s=>(dayFilter==="All"||s.day===dayFilter)&&(siteFilter==="All"||s.site===siteFilter));
+  const otCount=shifts.filter(s=>s.ot).length;
+  const certWarn=shifts.filter(s=>!s.certOk).length;
+  const totalHours=shifts.reduce((a,s)=>a+s.hours,0);
+
+  const typeColor=(t)=>t==="Night"?T.purple:T.accent;
+  const statusColor=(s)=>s==="Confirmed"?T.green:s==="Pending"?T.amber:T.textDim;
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:16}}>
+      <SH icon={Calendar} title="Scheduling" sub="Week of Jun 9–15, 2026"/>
+
+      {certWarn>0&&(
+        <div style={{background:"rgba(239,68,68,0.08)",border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",alignItems:"center",gap:10}}>
+          <AlertTriangle size={15} color={T.red} strokeWidth={2}/>
+          <span style={{fontSize:13,color:T.red,fontWeight:600}}>{certWarn} shift{certWarn>1?"s":""}  assigned to officers with expired certifications — review before deployment</span>
+        </div>
+      )}
+
+      <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:12}}>
+        {[
+          {label:"Total Shifts",val:shifts.length,color:T.accent,icon:Calendar},
+          {label:"Scheduled Hours",val:`${totalHours.toFixed(0)}h`,color:T.green,icon:Clock4},
+          {label:"Overtime Shifts",val:otCount,color:otCount>0?T.amber:T.textDim,icon:AlertTriangle},
+          {label:"Cert Warnings",val:certWarn,color:certWarn>0?T.red:T.textDim,icon:ShieldAlert},
+        ].map(s=>(
+          <Card key={s.label} style={{padding:"14px 16px"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,textTransform:"uppercase",letterSpacing:".06em",marginBottom:4}}>{s.label}</div>
+                <div style={{fontSize:22,fontWeight:800,color:s.color}}>{s.val}</div>
+              </div>
+              <s.icon size={20} color={s.color} strokeWidth={1.5} style={{opacity:.6}}/>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {openShifts.length>0&&(
+        <Card>
+          <CB>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <AlertTriangle size={15} color={T.amber} strokeWidth={2}/>
+                <span style={{fontSize:13,fontWeight:700,color:T.text}}>Open Shifts Requiring Coverage</span>
+                <Pill c={T.amber}>{openShifts.length} open</Pill>
+              </div>
+              <button onClick={()=>showToast("Broadcast sent to available officers","success")} style={{fontSize:11,background:T.amber,color:"#000",border:"none",borderRadius:6,padding:"5px 12px",cursor:"pointer",fontWeight:700}}>
+                Broadcast All
+              </button>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {openShifts.map(s=>(
+                <div key={s.id} style={{background:T.raised,borderRadius:8,padding:"12px 14px",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+                  <Pill c={s.priority==="High"?T.red:T.amber}>{s.priority}</Pill>
+                  <div style={{flex:1,minWidth:120}}>
+                    <div style={{fontSize:13,fontWeight:700,color:T.text}}>{s.site}</div>
+                    <div style={{fontSize:11,color:T.textSub,marginTop:2}}>{s.day} {s.date} · {s.start}–{s.end} · {s.type} · {s.reason}</div>
+                  </div>
+                  <button onClick={()=>showToast(`Notifying available officers for ${s.site} ${s.day}`,"success")} style={{fontSize:11,background:T.accentB,color:T.accent,border:`1px solid ${T.accent}`,borderRadius:6,padding:"5px 12px",cursor:"pointer",fontWeight:700}}>
+                    Find Cover
+                  </button>
+                </div>
+              ))}
+            </div>
+          </CB>
+        </Card>
+      )}
+
+      <Card>
+        <CB>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14,flexWrap:"wrap"}}>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+              {["All",...DAYS].map(d=>(
+                <button key={d} onClick={()=>setDayFilter(d)} style={{fontSize:11,padding:"5px 10px",borderRadius:6,border:`1px solid ${dayFilter===d?T.accent:T.border}`,background:dayFilter===d?T.accentB:"transparent",color:dayFilter===d?T.accent:T.textSub,cursor:"pointer",fontWeight:600}}>
+                  {d}
+                </button>
+              ))}
+            </div>
+            <select value={siteFilter} onChange={e=>setSiteFilter(e.target.value)} style={{fontSize:12,background:T.raised,border:`1px solid ${T.border}`,color:T.text,borderRadius:6,padding:"5px 8px",marginLeft:"auto"}}>
+              <option>All</option>
+              {sites.map(s=><option key={s}>{s}</option>)}
+            </select>
+          </div>
+          <div className="ss-table-wrap">
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+              <thead>
+                <tr style={{borderBottom:`1px solid ${T.border}`}}>
+                  {["Officer","Badge","Site","Day","Shift","Hours","Type","Status","Flags"].map(h=>(
+                    <th key={h} style={{textAlign:"left",padding:"6px 10px",color:T.textSub,fontWeight:700,fontSize:10,textTransform:"uppercase",letterSpacing:".06em",whiteSpace:"nowrap"}}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((s,i)=>(
+                  <tr key={s.id} style={{borderBottom:`1px solid ${T.border}`,background:i%2===0?"transparent":T.raised}}>
+                    <td style={{padding:"9px 10px",color:T.text,fontWeight:600}}>{s.officer}</td>
+                    <td style={{padding:"9px 10px",color:T.textSub,fontFamily:"monospace"}}>{s.badge}</td>
+                    <td style={{padding:"9px 10px",color:T.textSub}}>{s.site}</td>
+                    <td style={{padding:"9px 10px",color:T.text,fontWeight:600}}>{s.day}</td>
+                    <td style={{padding:"9px 10px",color:T.textSub,whiteSpace:"nowrap"}}>{s.start}–{s.end}</td>
+                    <td style={{padding:"9px 10px",color:s.ot?T.amber:T.text,fontWeight:s.ot?700:400}}>{s.hours}h</td>
+                    <td style={{padding:"9px 10px"}}><Pill c={typeColor(s.type)}>{s.type}</Pill></td>
+                    <td style={{padding:"9px 10px"}}><Pill c={statusColor(s.status)}>{s.status}</Pill></td>
+                    <td style={{padding:"9px 10px"}}>
+                      <div style={{display:"flex",gap:4}}>
+                        {s.ot&&<Pill c={T.amber}>OT</Pill>}
+                        {!s.certOk&&<Pill c={T.red}>CERT</Pill>}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CB>
+      </Card>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// POST ORDERS MODULE
+// ─────────────────────────────────────────────────────────────────
+function PostOrdersModule({user,showToast,isMobile}){
+  const[selectedSite,setSelectedSite]=useState(POST_ORDERS[0].id);
+  const[openSection,setOpenSection]=useState(null);
+  const po=POST_ORDERS.find(p=>p.id===selectedSite)||POST_ORDERS[0];
+  const isOfficer=user?.role==="Officer";
+
+  const handleAck=()=>{
+    const alreadyAcked=po.acknowledgments.find(a=>a.badge===user?.badge&&a.version===po.version);
+    if(alreadyAcked){showToast("You have already acknowledged the current version","info");return;}
+    logAction(user,"POST_ORDER_ACK",`${po.site} ${po.version}`);
+    showToast(`Post order acknowledged for ${po.site} ${po.version}`,"success");
+  };
+
+  const userAcked=po.acknowledgments.find(a=>a.badge===user?.badge&&a.version===po.version);
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:16}}>
+      <SH icon={ClipboardCheck} title="Post Orders" sub="Site-specific operational instructions and standards"/>
+
+      <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+        {POST_ORDERS.map(p=>(
+          <button key={p.id} onClick={()=>{setSelectedSite(p.id);setOpenSection(null);}} style={{fontSize:12,padding:"7px 14px",borderRadius:7,border:`1px solid ${selectedSite===p.id?T.accent:T.border}`,background:selectedSite===p.id?T.accentB:"transparent",color:selectedSite===p.id?T.accent:T.textSub,cursor:"pointer",fontWeight:700}}>
+            {p.site}
+          </button>
+        ))}
+      </div>
+
+      <Card>
+        <CB>
+          <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:16}}>
+            <div>
+              <div style={{fontSize:16,fontWeight:800,color:T.text}}>{po.site}</div>
+              <div style={{fontSize:12,color:T.textSub,marginTop:3}}>Version {po.version} · Updated {po.updated} · Approved by {po.approvedBy}</div>
+            </div>
+            <div style={{display:"flex",gap:8,alignItems:"center"}}>
+              {userAcked?(
+                <div style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:T.green,fontWeight:700}}>
+                  <CheckCircle2 size={14} color={T.green} strokeWidth={2}/> Acknowledged {userAcked.date}
+                </div>
+              ):(
+                <button onClick={handleAck} style={{fontSize:12,background:T.green,color:"#000",border:"none",borderRadius:7,padding:"7px 16px",cursor:"pointer",fontWeight:800}}>
+                  Acknowledge {po.version}
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div style={{display:"flex",flexDirection:"column",gap:6}}>
+            {po.sections.map((sec,i)=>(
+              <div key={i} style={{border:`1px solid ${openSection===i?T.accent:T.border}`,borderRadius:8,overflow:"hidden"}}>
+                <button onClick={()=>setOpenSection(openSection===i?null:i)} style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 14px",background:openSection===i?T.accentB:T.raised,border:"none",cursor:"pointer",color:T.text}}>
+                  <span style={{fontSize:13,fontWeight:700}}>{sec.title}</span>
+                  {openSection===i?<ChevronUp size={14} color={T.textSub} strokeWidth={2}/>:<ChevronDown size={14} color={T.textSub} strokeWidth={2}/>}
+                </button>
+                {openSection===i&&(
+                  <div style={{padding:"14px 16px",background:T.surface,fontSize:13,color:T.textSub,lineHeight:1.65,whiteSpace:"pre-line"}}>
+                    {sec.body}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </CB>
+      </Card>
+
+      {!isOfficer&&(
+        <Card>
+          <CB>
+            <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
+              <Users size={14} strokeWidth={2}/> Officer Acknowledgments — {po.version}
+              <Pill c={po.acknowledgments.length>=2?T.green:T.amber}>{po.acknowledgments.length} acknowledged</Pill>
+            </div>
+            {po.acknowledgments.length===0?(
+              <div style={{fontSize:12,color:T.textSub,padding:"8px 0"}}>No acknowledgments yet for this version.</div>
+            ):(
+              <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                {po.acknowledgments.map((a,i)=>(
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",background:T.raised,borderRadius:7}}>
+                    <CheckCircle2 size={13} color={T.green} strokeWidth={2}/>
+                    <span style={{fontSize:13,fontWeight:600,color:T.text,flex:1}}>{a.officer}</span>
+                    <span style={{fontSize:11,color:T.textSub,fontFamily:"monospace"}}>{a.badge}</span>
+                    <span style={{fontSize:11,color:T.textSub}}>{a.date}</span>
+                    <Pill c={T.green}>{a.version}</Pill>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CB>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// KEY MANAGEMENT MODULE
+// ─────────────────────────────────────────────────────────────────
+function KeyManagement({user,showToast,isMobile}){
+  const[keys,setKeys]=useLS("ss_keys",KEYS_DATA);
+  const[log,setLog]=useLS("ss_key_log",KEY_LOG);
+  const[siteFilter,setSiteFilter]=useState("All");
+  const[activeKey,setActiveKey]=useState(null);
+  const[action,setAction]=useState(null);
+
+  const sites=["All",...new Set(KEYS_DATA.map(k=>k.site))];
+  const filtered=keys.filter(k=>siteFilter==="All"||k.site===siteFilter);
+  const overdue=keys.filter(k=>k.status==="Overdue");
+  const checkedOut=keys.filter(k=>k.status==="Checked Out");
+  const inCabinet=keys.filter(k=>k.status==="In Cabinet");
+
+  const statusColor=(s)=>s==="Overdue"?T.red:s==="Checked Out"?T.amber:T.green;
+  const typeColor=(t)=>t==="Restricted"?T.red:t==="Master"?T.purple:t==="Vehicle"?T.gold:T.accent;
+
+  const doReturn=(k)=>{
+    setKeys(prev=>prev.map(ki=>ki.id===k.id?{...ki,status:"In Cabinet",assignedTo:null,badge:null,issuedAt:null,dueBack:null}:ki));
+    setLog(prev=>[{keyId:k.id,action:"Returned",officer:k.assignedTo,badge:k.badge,ts:new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}),supervisor:user?.name||"Supervisor"},...prev]);
+    logAction(user,"KEY_RETURNED",`${k.name} returned by ${k.assignedTo}`);
+    showToast(`${k.name} marked as returned`,"success");
+    setActiveKey(null);
+  };
+
+  const doIssue=(k,officer,badge)=>{
+    const ts=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+    setKeys(prev=>prev.map(ki=>ki.id===k.id?{...ki,status:"Checked Out",assignedTo:officer,badge,issuedAt:ts,dueBack:"18:00"}:ki));
+    setLog(prev=>[{keyId:k.id,action:"Issued",officer,badge,ts,supervisor:user?.name||"Supervisor"},...prev]);
+    logAction(user,"KEY_ISSUED",`${k.name} issued to ${officer}`);
+    showToast(`${k.name} issued to ${officer}`,"success");
+    setActiveKey(null);setAction(null);
+  };
+
+  const OFFICERS_LIST=["Marcus Webb / S-0041","Diana Reyes / S-0067","Theo Okafor / S-0083","Ava Simmons / S-0092","Jordan Park / S-0105","Elena Voss / S-0118"];
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:16}}>
+      <SH icon={Key} title="Key Management" sub="Chain of custody tracking for all physical and restricted keys"/>
+
+      {overdue.length>0&&(
+        <div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",alignItems:"center",gap:10}}>
+          <AlertTriangle size={15} color={T.red} strokeWidth={2}/>
+          <span style={{fontSize:13,color:T.red,fontWeight:700}}>{overdue.length} key{overdue.length>1?"s":""} overdue: {overdue.map(k=>k.name).join(", ")} — immediate follow-up required</span>
+        </div>
+      )}
+
+      <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:12}}>
+        {[
+          {label:"Total Keys",val:keys.length,color:T.accent},
+          {label:"Checked Out",val:checkedOut.length,color:T.amber},
+          {label:"In Cabinet",val:inCabinet.length,color:T.green},
+          {label:"Overdue",val:overdue.length,color:overdue.length>0?T.red:T.textDim},
+        ].map(s=>(
+          <Card key={s.label} style={{padding:"14px 16px"}}>
+            <div style={{fontSize:11,color:T.textSub,fontWeight:600,textTransform:"uppercase",letterSpacing:".06em",marginBottom:4}}>{s.label}</div>
+            <div style={{fontSize:22,fontWeight:800,color:s.color}}>{s.val}</div>
+          </Card>
+        ))}
+      </div>
+
+      <Card>
+        <CB>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14,flexWrap:"wrap",gap:8}}>
+            <span style={{fontSize:13,fontWeight:700,color:T.text}}>Key Inventory</span>
+            <select value={siteFilter} onChange={e=>setSiteFilter(e.target.value)} style={{fontSize:12,background:T.raised,border:`1px solid ${T.border}`,color:T.text,borderRadius:6,padding:"5px 8px"}}>
+              {sites.map(s=><option key={s}>{s}</option>)}
+            </select>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:6}}>
+            {filtered.map(k=>(
+              <div key={k.id} style={{background:k.status==="Overdue"?T.redGlow:T.raised,border:`1px solid ${k.status==="Overdue"?T.redB:T.border}`,borderRadius:8,padding:"12px 14px"}}>
+                <div style={{display:"flex",alignItems:"flex-start",gap:10,flexWrap:"wrap"}}>
+                  <div style={{flex:1,minWidth:120}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                      <span style={{fontSize:13,fontWeight:700,color:T.text}}>{k.name}</span>
+                      <Pill c={typeColor(k.type)}>{k.type}</Pill>
+                      <Pill c={statusColor(k.status)}>{k.status}</Pill>
+                    </div>
+                    <div style={{fontSize:11,color:T.textSub}}>
+                      {k.keyNum} · {k.site}{k.assignedTo?` · ${k.assignedTo} (${k.badge}) · Issued ${k.issuedAt} · Due ${k.dueBack}`:" · Unassigned"} · Condition: {k.condition}
+                    </div>
+                  </div>
+                  <div style={{display:"flex",gap:6}}>
+                    {k.status!=="In Cabinet"&&(
+                      <button onClick={()=>doReturn(k)} style={{fontSize:11,background:T.greenB,color:T.green,border:`1px solid ${T.green}`,borderRadius:6,padding:"5px 10px",cursor:"pointer",fontWeight:700}}>Return</button>
+                    )}
+                    {k.status==="In Cabinet"&&(
+                      <button onClick={()=>{setActiveKey(k);setAction("issue");}} style={{fontSize:11,background:T.accentB,color:T.accent,border:`1px solid ${T.accent}`,borderRadius:6,padding:"5px 10px",cursor:"pointer",fontWeight:700}}>Issue</button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CB>
+      </Card>
+
+      {activeKey&&action==="issue"&&(
+        <ModalWrap onClose={()=>{setActiveKey(null);setAction(null);}}>
+          <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:14,padding:24,width:"100%",maxWidth:400}}>
+            <div style={{fontSize:15,fontWeight:800,marginBottom:4}}>Issue Key</div>
+            <div style={{fontSize:12,color:T.textSub,marginBottom:16}}>{activeKey.name} · {activeKey.keyNum}</div>
+            <div style={{fontSize:12,fontWeight:600,color:T.textSub,marginBottom:6}}>Select Officer</div>
+            <div style={{display:"flex",flexDirection:"column",gap:6}}>
+              {OFFICERS_LIST.map(o=>{
+                const[name,badge]=o.split(" / ");
+                return(
+                  <button key={o} onClick={()=>doIssue(activeKey,name,badge)} style={{textAlign:"left",padding:"10px 12px",background:T.raised,border:`1px solid ${T.border}`,borderRadius:7,cursor:"pointer",color:T.text,fontSize:12,fontWeight:600}}>
+                    {name} <span style={{color:T.textSub,fontFamily:"monospace",fontSize:11}}>{badge}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <button onClick={()=>{setActiveKey(null);setAction(null);}} style={{width:"100%",marginTop:14,padding:"9px",background:"transparent",border:`1px solid ${T.border}`,borderRadius:7,color:T.textSub,cursor:"pointer",fontSize:12}}>Cancel</button>
+          </div>
+        </ModalWrap>
+      )}
+
+      <Card>
+        <CB>
+          <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:12}}>Chain of Custody Log</div>
+          <div className="ss-table-wrap">
+            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+              <thead>
+                <tr style={{borderBottom:`1px solid ${T.border}`}}>
+                  {["Key","Action","Officer","Badge","Time","Supervisor"].map(h=>(
+                    <th key={h} style={{textAlign:"left",padding:"6px 10px",color:T.textSub,fontWeight:700,fontSize:10,textTransform:"uppercase",letterSpacing:".06em",whiteSpace:"nowrap"}}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {log.slice(0,20).map((l,i)=>{
+                  const k=keys.find(ki=>ki.id===l.keyId);
+                  return(
+                    <tr key={i} style={{borderBottom:`1px solid ${T.border}`,background:i%2===0?"transparent":T.raised}}>
+                      <td style={{padding:"8px 10px",color:T.text,fontWeight:600,fontSize:11}}>{k?.name||l.keyId}</td>
+                      <td style={{padding:"8px 10px"}}><Pill c={l.action==="Returned"?T.green:l.action==="Issued"?T.amber:T.textDim}>{l.action}</Pill></td>
+                      <td style={{padding:"8px 10px",color:T.textSub}}>{l.officer}</td>
+                      <td style={{padding:"8px 10px",color:T.textSub,fontFamily:"monospace"}}>{l.badge}</td>
+                      <td style={{padding:"8px 10px",color:T.textSub,whiteSpace:"nowrap"}}>{l.ts}</td>
+                      <td style={{padding:"8px 10px",color:T.textSub}}>{l.supervisor}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </CB>
+      </Card>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// CORRECTIVE ACTIONS MODULE
+// ─────────────────────────────────────────────────────────────────
+function CorrectiveActions({user,showToast,isMobile}){
+  const[cas,setCas]=useLS("ss_corrective",CORRECTIVE_ACTIONS_DATA);
+  const[showForm,setShowForm]=useState(false);
+  const[expandedId,setExpandedId]=useState(null);
+  const[form,setForm]=useState({officer:"",badge:"",type:"Coaching Note",category:"Attendance",description:"",hrReview:"Not Required"});
+
+  const isOfficer=user?.role==="Officer";
+  const pending=cas.filter(c=>c.status==="Pending Acknowledgment");
+  const acked=cas.filter(c=>c.status==="Acknowledged");
+
+  const typeColor=(t)=>{
+    if(t==="Coaching Note")return T.accent;
+    if(t==="Verbal Warning")return T.amber;
+    if(t==="Written Warning")return T.red;
+    if(t==="Final Written Warning")return T.red;
+    if(t==="Suspension")return T.purple;
+    return T.red;
+  };
+
+  const handleAck=(ca)=>{
+    if(ca.officer!==user?.name&&!["Company Admin","Supervisor"].includes(user?.role)){
+      showToast("You can only acknowledge your own corrective actions","error");return;
+    }
+    setCas(prev=>prev.map(c=>c.id===ca.id?{...c,status:"Acknowledged",acknowledgedAt:new Date().toISOString().slice(0,10)}:c));
+    logAction(user,"CA_ACKNOWLEDGED",`${ca.id} — ${ca.type} for ${ca.officer}`);
+    showToast(`${ca.id} acknowledged`,"success");
+  };
+
+  const handleCreate=()=>{
+    if(!form.officer||!form.description){showToast("Officer and description are required","error");return;}
+    const id=`CA-${String(cas.length+1).padStart(3,"0")}`;
+    const entry={...form,id,date:new Date().toISOString().slice(0,10),supervisor:user?.name||"Supervisor",status:"Pending Acknowledgment",linkedIncident:null,escalation:null};
+    setCas(prev=>[entry,...prev]);
+    logAction(user,"CA_CREATED",`${id} — ${form.type} for ${form.officer}`);
+    showToast(`${id} created for ${form.officer}`,"success");
+    setShowForm(false);setForm({officer:"",badge:"",type:"Coaching Note",category:"Attendance",description:"",hrReview:"Not Required"});
+  };
+
+  const caList=isOfficer?cas.filter(c=>c.officer===user?.name):cas;
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:16}}>
+      <SH icon={UserX} title="Corrective Actions" sub="Performance management and disciplinary record"/>
+
+      {!isOfficer&&(
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:12}}>
+          {[
+            {label:"Total Records",val:cas.length,color:T.accent},
+            {label:"Pending Ack.",val:pending.length,color:pending.length>0?T.amber:T.textDim},
+            {label:"Acknowledged",val:acked.length,color:T.green},
+            {label:"HR Review Req.",val:cas.filter(c=>c.hrReview==="Required").length,color:T.red},
+          ].map(s=>(
+            <Card key={s.label} style={{padding:"14px 16px"}}>
+              <div style={{fontSize:11,color:T.textSub,fontWeight:600,textTransform:"uppercase",letterSpacing:".06em",marginBottom:4}}>{s.label}</div>
+              <div style={{fontSize:22,fontWeight:800,color:s.color}}>{s.val}</div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {!isOfficer&&(
+        <div style={{display:"flex",justifyContent:"flex-end"}}>
+          <button onClick={()=>setShowForm(!showForm)} style={{fontSize:12,background:showForm?T.raised:T.accent,color:showForm?T.textSub:"#fff",border:`1px solid ${showForm?T.border:T.accent}`,borderRadius:7,padding:"8px 16px",cursor:"pointer",fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
+            <Plus size={13} strokeWidth={2.5}/>{showForm?"Cancel":"New Corrective Action"}
+          </button>
+        </div>
+      )}
+
+      {showForm&&(
+        <Card>
+          <CB>
+            <div style={{fontSize:13,fontWeight:700,color:T.text,marginBottom:14}}>New Corrective Action</div>
+            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:12,marginBottom:12}}>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Officer Name</div>
+                <input value={form.officer} onChange={e=>setForm(p=>({...p,officer:e.target.value}))} placeholder="Full name" style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}/>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Badge Number</div>
+                <input value={form.badge} onChange={e=>setForm(p=>({...p,badge:e.target.value}))} placeholder="S-XXXX" style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}/>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Action Type</div>
+                <select value={form.type} onChange={e=>setForm(p=>({...p,type:e.target.value}))} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}>
+                  {CA_TYPES.map(t=><option key={t}>{t}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Category</div>
+                <select value={form.category} onChange={e=>setForm(p=>({...p,category:e.target.value}))} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}>
+                  {CA_CATEGORIES.map(c=><option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>HR Review</div>
+                <select value={form.hrReview} onChange={e=>setForm(p=>({...p,hrReview:e.target.value}))} style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12}}>
+                  <option>Not Required</option><option>Required</option>
+                </select>
+              </div>
+            </div>
+            <div style={{marginBottom:12}}>
+              <div style={{fontSize:11,color:T.textSub,fontWeight:600,marginBottom:5}}>Description</div>
+              <textarea value={form.description} onChange={e=>setForm(p=>({...p,description:e.target.value}))} rows={4} placeholder="Describe the corrective action in detail..." style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:6,padding:"8px 10px",color:T.text,fontSize:12,resize:"vertical"}}/>
+            </div>
+            <button onClick={handleCreate} style={{background:T.accent,color:"#fff",border:"none",borderRadius:7,padding:"9px 20px",cursor:"pointer",fontWeight:700,fontSize:12}}>
+              Create Corrective Action
+            </button>
+          </CB>
+        </Card>
+      )}
+
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {caList.length===0&&<div style={{fontSize:13,color:T.textSub,padding:"16px 0",textAlign:"center"}}>No corrective actions on record.</div>}
+        {caList.map(ca=>(
+          <Card key={ca.id} style={{border:`1px solid ${ca.status==="Pending Acknowledgment"?T.amberB:T.border}`}}>
+            <CB>
+              <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+                <div style={{flex:1,minWidth:180}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:5,flexWrap:"wrap"}}>
+                    <span style={{fontSize:11,color:T.textSub,fontFamily:"monospace",fontWeight:700}}>{ca.id}</span>
+                    <Pill c={typeColor(ca.type)}>{ca.type}</Pill>
+                    <Pill c={T.accent}>{ca.category}</Pill>
+                    <Pill c={ca.status==="Acknowledged"?T.green:T.amber}>{ca.status}</Pill>
+                    {ca.hrReview==="Required"&&<Pill c={T.red}>HR Review</Pill>}
+                  </div>
+                  <div style={{fontSize:13,fontWeight:700,color:T.text}}>{ca.officer} <span style={{color:T.textSub,fontFamily:"monospace",fontSize:11,fontWeight:400}}>{ca.badge}</span></div>
+                  <div style={{fontSize:11,color:T.textSub,marginTop:2}}>Issued {ca.date} by {ca.supervisor}</div>
+                  {expandedId===ca.id&&(
+                    <div style={{marginTop:10,fontSize:12,color:T.textSub,lineHeight:1.65,background:T.raised,borderRadius:7,padding:"10px 12px"}}>
+                      {ca.description}
+                      {ca.status==="Acknowledged"&&ca.acknowledgedAt&&(
+                        <div style={{marginTop:8,color:T.green,fontWeight:700,fontSize:11}}>Acknowledged: {ca.acknowledgedAt}</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div style={{display:"flex",gap:6,flexShrink:0}}>
+                  <button onClick={()=>setExpandedId(expandedId===ca.id?null:ca.id)} style={{fontSize:11,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,borderRadius:6,padding:"5px 10px",cursor:"pointer",fontWeight:600}}>
+                    {expandedId===ca.id?"Collapse":"View"}
+                  </button>
+                  {ca.status==="Pending Acknowledgment"&&(
+                    <button onClick={()=>handleAck(ca)} style={{fontSize:11,background:T.green,color:"#000",border:"none",borderRadius:6,padding:"5px 10px",cursor:"pointer",fontWeight:700}}>
+                      Acknowledge
+                    </button>
+                  )}
+                </div>
+              </div>
+            </CB>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SHIFT HANDOVER MODULE
+// ─────────────────────────────────────────────────────────────────
+function ShiftHandover({user,showToast,isMobile}){
+  const[records,setRecords]=useLS("ss_handover",HANDOVER_RECORDS);
+  const[activeId,setActiveId]=useState(records[0]?.id||null);
+  const[showHistory,setShowHistory]=useState(false);
+  const[additionalNote,setAdditionalNote]=useState("");
+  const[resolvedItems,setResolvedItems]=useState({});
+
+  const active=records.find(r=>r.id===activeId);
+  const history=records.filter(r=>r.status==="Complete");
+
+  const priorityColor=(p)=>p==="critical"?T.red:p==="high"?T.amber:p==="medium"?T.accent:T.textDim;
+  const typeIcon=(t)=>{
+    if(t==="incident")return ShieldAlert;
+    if(t==="patrol")return MapPin;
+    if(t==="compliance")return ClipboardCheck;
+    if(t==="fleet")return Car;
+    if(t==="key")return Key;
+    return FileText;
+  };
+
+  const handleSignOff=()=>{
+    const ts=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+    setRecords(prev=>prev.map(r=>r.id===activeId?{...r,incoming:{...r.incoming,acknowledgedAt:ts},status:"Complete"}:r));
+    logAction(user,"HANDOVER_SIGNED",`HO ${activeId} acknowledged by incoming supervisor`);
+    showToast("Shift handover signed off — all items transferred to incoming shift","success");
+  };
+
+  const toggleItemResolved=(itemId)=>{
+    setResolvedItems(prev=>({...prev,[itemId]:!prev[itemId]}));
+    logAction(user,"HANDOVER_ITEM_RESOLVED",`Item ${itemId} marked resolved`);
+  };
+
+  const criticalItems=active?.items.filter(i=>i.priority==="critical")||[];
+  const highItems=active?.items.filter(i=>i.priority==="high")||[];
+  const otherItems=active?.items.filter(i=>i.priority!=="critical"&&i.priority!=="high")||[];
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:16}}>
+      <SH icon={ArrowLeftRight} title="Shift Handover" sub="Digital pass-down — open items, status transfer, supervisor sign-off"/>
+
+      <div style={{display:"flex",gap:8,borderBottom:`1px solid ${T.border}`,paddingBottom:12}}>
+        <button onClick={()=>setShowHistory(false)} style={{fontSize:12,padding:"6px 14px",borderRadius:6,border:`1px solid ${!showHistory?T.accent:T.border}`,background:!showHistory?T.accentB:"transparent",color:!showHistory?T.accent:T.textSub,cursor:"pointer",fontWeight:700}}>
+          Active Handover
+        </button>
+        <button onClick={()=>setShowHistory(true)} style={{fontSize:12,padding:"6px 14px",borderRadius:6,border:`1px solid ${showHistory?T.accent:T.border}`,background:showHistory?T.accentB:"transparent",color:showHistory?T.accent:T.textSub,cursor:"pointer",fontWeight:700}}>
+          History ({history.length})
+        </button>
+      </div>
+
+      {!showHistory&&active&&(
+        <>
+          <Card style={{border:`1px solid ${active.status==="Pending Incoming Sign-Off"?T.amberB:T.border}`}}>
+            <CB>
+              <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
+                <div>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                    <span style={{fontSize:15,fontWeight:800,color:T.text}}>Handover — {active.date}</span>
+                    <Pill c={active.status==="Complete"?T.green:T.amber}>{active.status}</Pill>
+                  </div>
+                  <div style={{display:"flex",gap:20,flexWrap:"wrap"}}>
+                    <div>
+                      <div style={{fontSize:10,color:T.textSub,fontWeight:700,textTransform:"uppercase",letterSpacing:".06em",marginBottom:2}}>Outgoing</div>
+                      <div style={{fontSize:12,color:T.text,fontWeight:600}}>{active.outgoing.supervisor}</div>
+                      <div style={{fontSize:11,color:T.textSub}}>{active.outgoing.shift} · Signed {active.outgoing.signedAt}</div>
+                    </div>
+                    <div style={{color:T.border,fontSize:20,alignSelf:"center"}}>→</div>
+                    <div>
+                      <div style={{fontSize:10,color:T.textSub,fontWeight:700,textTransform:"uppercase",letterSpacing:".06em",marginBottom:2}}>Incoming</div>
+                      <div style={{fontSize:12,color:T.text,fontWeight:600}}>{active.incoming.supervisor}</div>
+                      <div style={{fontSize:11,color:active.incoming.acknowledgedAt?T.green:T.amber}}>
+                        {active.incoming.shift} · {active.incoming.acknowledgedAt?`Acknowledged ${active.incoming.acknowledgedAt}`:"Awaiting sign-off"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {active.status==="Pending Incoming Sign-Off"&&(
+                  <button onClick={handleSignOff} style={{background:T.green,color:"#000",border:"none",borderRadius:8,padding:"10px 20px",cursor:"pointer",fontWeight:800,fontSize:13,display:"flex",alignItems:"center",gap:7}}>
+                    <CheckCircle2 size={15} strokeWidth={2.5}/> Sign Off Handover
+                  </button>
+                )}
+              </div>
+              {active.notes&&(
+                <div style={{marginTop:14,background:T.raised,borderRadius:8,padding:"10px 14px",borderLeft:`3px solid ${T.amber}`}}>
+                  <div style={{fontSize:10,color:T.amber,fontWeight:700,textTransform:"uppercase",letterSpacing:".06em",marginBottom:4}}>Supervisor Notes</div>
+                  <div style={{fontSize:12,color:T.textSub,lineHeight:1.6}}>{active.notes}</div>
+                </div>
+              )}
+            </CB>
+          </Card>
+
+          {criticalItems.length>0&&(
+            <div>
+              <div style={{fontSize:11,color:T.red,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
+                <AlertTriangle size={13} strokeWidth={2}/> Critical Items ({criticalItems.length})
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                {criticalItems.map(item=>{
+                  const IIcon=typeIcon(item.type);
+                  const isRes=resolvedItems[item.id]||item.resolved;
+                  return(
+                    <div key={item.id} style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:8,padding:"12px 14px",display:"flex",gap:10,alignItems:"flex-start",opacity:isRes?.6:1}}>
+                      <IIcon size={14} color={T.red} strokeWidth={2} style={{marginTop:2,flexShrink:0}}/>
+                      <div style={{flex:1,fontSize:12,color:isRes?T.textSub:T.text,lineHeight:1.6,textDecoration:isRes?"line-through":"none"}}>{item.text}</div>
+                      {!item.resolved&&(
+                        <button onClick={()=>toggleItemResolved(item.id)} style={{fontSize:10,background:isRes?T.greenB:T.raised,color:isRes?T.green:T.textSub,border:`1px solid ${isRes?T.green:T.border}`,borderRadius:5,padding:"4px 8px",cursor:"pointer",fontWeight:700,flexShrink:0,whiteSpace:"nowrap"}}>
+                          {isRes?"Resolved":"Mark Resolved"}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {highItems.length>0&&(
+            <div>
+              <div style={{fontSize:11,color:T.amber,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
+                <AlertTriangle size={13} strokeWidth={2}/> High Priority ({highItems.length})
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                {highItems.map(item=>{
+                  const IIcon=typeIcon(item.type);
+                  const isRes=resolvedItems[item.id]||item.resolved;
+                  return(
+                    <div key={item.id} style={{background:T.amberGlow,border:`1px solid ${T.amberB}`,borderRadius:8,padding:"12px 14px",display:"flex",gap:10,alignItems:"flex-start",opacity:isRes?.6:1}}>
+                      <IIcon size={14} color={T.amber} strokeWidth={2} style={{marginTop:2,flexShrink:0}}/>
+                      <div style={{flex:1,fontSize:12,color:isRes?T.textSub:T.text,lineHeight:1.6,textDecoration:isRes?"line-through":"none"}}>{item.text}</div>
+                      {!item.resolved&&(
+                        <button onClick={()=>toggleItemResolved(item.id)} style={{fontSize:10,background:isRes?T.greenB:T.raised,color:isRes?T.green:T.textSub,border:`1px solid ${isRes?T.green:T.border}`,borderRadius:5,padding:"4px 8px",cursor:"pointer",fontWeight:700,flexShrink:0,whiteSpace:"nowrap"}}>
+                          {isRes?"Resolved":"Mark Resolved"}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {otherItems.length>0&&(
+            <div>
+              <div style={{fontSize:11,color:T.textSub,fontWeight:800,textTransform:"uppercase",letterSpacing:".06em",marginBottom:8}}>Other Items ({otherItems.length})</div>
+              <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                {otherItems.map(item=>{
+                  const IIcon=typeIcon(item.type);
+                  const isRes=resolvedItems[item.id]||item.resolved;
+                  return(
+                    <div key={item.id} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,padding:"12px 14px",display:"flex",gap:10,alignItems:"flex-start",opacity:isRes?.7:1}}>
+                      <IIcon size={14} color={priorityColor(item.priority)} strokeWidth={2} style={{marginTop:2,flexShrink:0}}/>
+                      <div style={{flex:1,fontSize:12,color:isRes?T.textSub:T.text,lineHeight:1.6,textDecoration:isRes?"line-through":"none"}}>{item.text}</div>
+                      {!item.resolved&&(
+                        <button onClick={()=>toggleItemResolved(item.id)} style={{fontSize:10,background:isRes?T.greenB:T.raised,color:isRes?T.green:T.textSub,border:`1px solid ${isRes?T.green:T.border}`,borderRadius:5,padding:"4px 8px",cursor:"pointer",fontWeight:700,flexShrink:0,whiteSpace:"nowrap"}}>
+                          {isRes?"Resolved":"Mark Resolved"}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {showHistory&&(
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {history.length===0&&<div style={{fontSize:13,color:T.textSub,textAlign:"center",padding:"16px 0"}}>No completed handovers in history.</div>}
+          {history.map(r=>(
+            <Card key={r.id}>
+              <CB>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+                  <div>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                      <span style={{fontSize:13,fontWeight:700,color:T.text}}>Handover — {r.date}</span>
+                      <Pill c={T.green}>Complete</Pill>
+                    </div>
+                    <div style={{fontSize:11,color:T.textSub}}>{r.outgoing.supervisor} → {r.incoming.supervisor} · Acknowledged {r.incoming.acknowledgedAt}</div>
+                  </div>
+                  <div style={{fontSize:11,color:T.textSub}}>{r.items.filter(i=>i.resolved).length}/{r.items.length} items resolved</div>
+                </div>
+                {r.notes&&<div style={{marginTop:10,fontSize:11,color:T.textSub,lineHeight:1.6}}>{r.notes}</div>}
+              </CB>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// REPORTS MODULE
+// ─────────────────────────────────────────────────────────────────
 function Reports({isMobile}){
   const[mode,setMode]=useState("rules");
   const[rtype,setRtype]=useState(REPORT_TYPES[0]);
@@ -5060,6 +5928,11 @@ export default function App(){
       case "settings":    return <CompanySettings user={user} showToast={showToast} isMobile={isMobile}/>;
       case "clientportal":return <ClientPortal user={user} showToast={showToast} isMobile={isMobile}/>;
       case "itcommand":   return <ITCyberCommand user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "scheduling":  return <ScheduleModule user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "postorders":  return <PostOrdersModule user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "keymanagement":return <KeyManagement user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "corrective":  return <CorrectiveActions user={user} showToast={showToast} isMobile={isMobile}/>;
+      case "handover":    return <ShiftHandover user={user} showToast={showToast} isMobile={isMobile}/>;
       default:            return <Dashboard openModal={openModal} showToast={showToast} isMobile={isMobile}/>;
     }
   };
