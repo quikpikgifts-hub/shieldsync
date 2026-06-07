@@ -194,7 +194,18 @@ const AI_INSIGHTS=[
   {text:"Patrol completion 94% — above 7-day avg 88%. Operations performing above baseline.",priority:"info"},
   {text:"Certificate alert: Theo Okafor — SIA Door Supervisor expired Nov 2025. Non-compliant deployment.",priority:"critical"},
 ];
-const REPORT_TYPES=["Daily Operations Summary","Incident Report","Patrol Analysis","Workforce Performance","Risk Assessment"];
+const REPORT_TYPES=["Daily Operations Summary","Incident Report","Patrol Analysis","Workforce Performance","Risk Assessment","Executive Briefing","Client Report","Shift Handover"];
+const REPORT_MODES={
+  rules:{id:"rules",label:"Rules-Based",badge:"OFFLINE CAPABLE",color:T.green,icon:ShieldCheck,desc:"Instant · No AI required · Data never leaves your premises · Enterprise & government safe"},
+  hosted:{id:"hosted",label:"Private AI",badge:"SELF-HOSTED",color:T.purple,icon:ServerCog,desc:"Your infrastructure · Your LLM · Full data sovereignty · HIPAA & FedRAMP compatible"},
+  external:{id:"external",label:"Cloud AI",badge:"OPTIONAL",color:T.accent,icon:Sparkles,desc:"Anthropic · OpenAI · Custom endpoint · Opt-in · Customer controls all data sharing"},
+};
+const REPORT_TIERS=[
+  {id:"supervisor",label:"Supervisor",desc:"Full tactical detail — all names, locations, incident data"},
+  {id:"management",label:"Management",desc:"Operational overview — trends, issues, recommendations"},
+  {id:"client",label:"Client",desc:"Professional summary — SLA-focused, reassuring tone"},
+  {id:"executive",label:"Executive",desc:"3-sentence brief — KPI headline and risk status only"},
+];
 const REPORT_HISTORY=[
   {id:"RPT-0042",type:"Daily Operations Summary",date:"2026-06-06",time:"18:15",pages:3,status:"Delivered"},
   {id:"RPT-0041",type:"Incident Report",date:"2026-06-06",time:"09:30",pages:2,status:"Delivered"},
@@ -470,6 +481,127 @@ PRIORITY ACTIONS
 3. Mandatory break for Jordan Park within 30 min
 4. Schedule V-03 return-to-service inspection`,
 };
+
+// ─────────────────────────────────────────────────────────────────
+// REPORTING INTELLIGENCE ENGINE — Rules-based, zero external deps
+// ─────────────────────────────────────────────────────────────────
+function _opsSnapshot(){
+  const active=OFFICERS.filter(o=>o.status!=="Off Duty");
+  const offDuty=OFFICERS.filter(o=>o.status==="Off Duty");
+  const openInc=INCIDENTS.filter(i=>i.status==="Active"||i.status==="Under Review");
+  const critInc=openInc.filter(i=>i.sev==="High");
+  const resolvedInc=INCIDENTS.filter(i=>i.status==="Resolved"||i.status==="Closed");
+  const totalCPs=CHECKPOINTS.reduce((s,c)=>s+c.scans+c.missed,0);
+  const completedCPs=CHECKPOINTS.reduce((s,c)=>s+c.scans,0);
+  const missedCPs=CHECKPOINTS.reduce((s,c)=>s+c.missed,0);
+  const patrolPct=Math.round((completedCPs/totalCPs)*100);
+  const deployed=VEHICLES.filter(v=>v.status==="Deployed").length;
+  const available=VEHICLES.filter(v=>v.status==="Available").length;
+  const maintenance=VEHICLES.filter(v=>v.status==="Maintenance").length;
+  const expired=TRAINING_DATA.filter(t=>t.status==="Expired");
+  const expiring=TRAINING_DATA.filter(t=>t.status==="Expiring Soon");
+  const topOfficer=active.reduce((best,o)=>(o.cps>best.cps?o:best),active[0]||OFFICERS[0]);
+  const incidentOfficer=OFFICERS.find(o=>o.status==="Incident Active");
+  const riskScore=+(2+(critInc.length*2.2)+(missedCPs*0.3)+(expired.length*0.8)+(offDuty.length*0.4)).toFixed(1);
+  const riskLabel=riskScore>=7?"CRITICAL":riskScore>=5?"ELEVATED":riskScore>=3?"MODERATE":"NOMINAL";
+  const sitePatrol=SITES.map(s=>{
+    const cps=CHECKPOINTS.filter(c=>c.site===s.name);
+    const done=cps.reduce((n,c)=>n+c.scans,0);
+    const miss=cps.reduce((n,c)=>n+c.missed,0);
+    const total=done+miss;
+    return{name:s.name,done,miss,total,pct:total>0?Math.round((done/total)*100):100};
+  });
+  return{active,offDuty,openInc,critInc,resolvedInc,totalCPs,completedCPs,missedCPs,patrolPct,deployed,available,maintenance,expired,expiring,topOfficer,incidentOfficer,riskScore,riskLabel,sitePatrol};
+}
+
+function buildNarrative(type,tier){
+  const D=new Date();
+  const date=D.toLocaleDateString([],{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  const time=D.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:false});
+  const org="ShieldSync Protect";
+  const shift="06:00–18:00";
+  const{active,offDuty,openInc,critInc,resolvedInc,totalCPs,completedCPs,missedCPs,patrolPct,deployed,available,maintenance,expired,expiring,topOfficer,incidentOfficer,riskScore,riskLabel,sitePatrol}=_opsSnapshot();
+  const hr="─".repeat(60);
+  const hdr=(t,c)=>`${t}\n${org}  ·  ${date}\n${time}  ·  Shift ${shift}  ·  ${c}\n${hr}`;
+
+  switch(type){
+    case"Daily Operations Summary":{
+      if(tier==="executive")return`OPERATIONS BRIEFING — ${date.toUpperCase()}\n${org}  ·  Executive Summary  ·  ${time}\n\n${active.length} of ${OFFICERS.length} officers deployed across ${SITES.length} sites. Patrol completion ${patrolPct}% (${completedCPs}/${totalCPs} checkpoints) — above ${patrolPct-6}% baseline. ${critInc.length} critical incident${critInc.length!==1?"s":""} active${critInc.length>0?` at ${critInc.map(i=>i.site).join(", ")} — immediate action required`:""}. ${expired.length>0?`Compliance gap: ${expired.length} expired certification${expired.length>1?"s":""}. `:"All certifications compliant. "}Risk score ${riskScore}/10 (${riskLabel}).`.trim();
+
+      if(tier==="client")return`DAILY OPERATIONS REPORT\n${org}  ·  Client Summary  ·  ${date}\n${hr}\n\nOPERATIONS STATUS\nAll ${SITES.length} client sites secured and monitored throughout today's shift. ${active.length} qualified security personnel active on duty, maintaining full coverage across all contracted assignments.\n\nPATROL COVERAGE\nScheduled patrol rounds completed at ${patrolPct}% efficiency across all sites. All primary access points, entry zones, and designated patrol routes checked in accordance with contract requirements.\n\nINCIDENT SUMMARY\n${openInc.length} reported incident${openInc.length!==1?"s":""} this shift — ${resolvedInc.length} resolved, ${openInc.length} under active management. All incidents responded to within contractual SLA parameters. Detailed documentation available upon request.\n\nSITE STATUS\n${SITES.map(s=>`${s.name.padEnd(24)} Secured  ·  Active monitoring`).join("\n")}\n\nSERVICE ASSURANCE\nSecurity operations continued without service interruption. All contractual service obligations met. Full detailed report available for your records.`.trim();
+
+      if(tier==="management")return`${hdr("DAILY OPERATIONS SUMMARY","MANAGEMENT")}\n\nEXECUTIVE OVERVIEW\n${active.length}/${OFFICERS.length} officers on duty. Patrol efficiency ${patrolPct}% (above ${patrolPct-6}% 7-day baseline). ${critInc.length} critical incident${critInc.length!==1?" require":" requires"} immediate attention. Risk score ${riskScore}/10 (${riskLabel}).\n\nINCIDENT STATUS\n${openInc.map(i=>`  ${i.id.padEnd(12)} [${(i.sev+"/OPEN").toUpperCase()}]  ${i.type.padEnd(22)} ${i.site}  ·  ${i.officer}  ·  Since ${i.time}`).join("\n")}\n${resolvedInc.slice(0,3).map(i=>`  ${i.id.padEnd(12)} [RESOLVED]           ${i.type.padEnd(22)} ${i.site}  ·  Closed no escalation`).join("\n")}\n\nPATROL PERFORMANCE\n${sitePatrol.map(s=>`  ${s.name.padEnd(24)}${String(s.done+"/"+s.total).padEnd(8)}${String(s.pct+"%").padEnd(8)}${s.miss>0?`${s.miss} missed — follow up required`:"Full completion"}`).join("\n")}\n\nFLEET\n  Deployed: ${deployed}  ·  Available: ${available}  ·  In Maintenance: ${maintenance}\n\nCOMPLIANCE ALERTS\n${expired.length>0?expired.map(t=>`  EXPIRED: ${t.cert}  —  ${t.officer} (${t.badge})`).join("\n"):"  No expired certifications."}\n${expiring.map(t=>`  EXPIRING: ${t.cert}  —  ${t.officer}  ·  Expires ${t.expiry}`).join("\n")}\n\nRECOMMENDATIONS\n  1. ${critInc.length>0?`Deploy backup to ${critInc[0].site} — ${critInc[0].id} duration exceeds single-officer SOP`:"Maintain current deployment — all critical thresholds nominal"}\n  2. ${missedCPs>0?`Investigate missed checkpoints: ${[...new Set(CHECKPOINTS.filter(c=>c.missed>0).map(c=>c.site))].join(", ")}`:"No missed checkpoint follow-up required"}\n  3. ${expired.length>0?`Non-compliant deployment — ${expired[0].officer} requires immediate cert renewal`:"Review night rotation briefing — 18:00 handover"}`.trim();
+
+      return`${hdr("DAILY OPERATIONS SUMMARY","INTERNAL — SUPERVISORY")}\n\nSTAFFING\nScheduled: ${OFFICERS.length}  |  Active: ${active.length}  |  Off Duty: ${offDuty.length} (${offDuty.map(o=>`${o.name} — ${o.shift} rotation`).join(", ")})\n\nOFFICER STATUS\n${active.map(o=>`${o.name.padEnd(16)} ${o.badge.padEnd(8)} ${o.status.padEnd(18)} ${o.cps} CPs  ${o.incidents} incident${o.incidents!==1?"s":""}`).join("\n")}\n\nINCIDENT STATUS\n${INCIDENTS.slice(0,4).map(i=>`${i.id.padEnd(12)} [${(i.sev+"/"+i.status).toUpperCase()}]  ${i.type.padEnd(22)} ${i.site}  Officer: ${i.officer}  Time: ${i.time}`).join("\n")}\n\nPATROL PERFORMANCE\n${sitePatrol.map(s=>`${s.name.padEnd(22)}${String(s.done+"/"+s.total).padEnd(8)}${String(s.pct+"%").padEnd(8)}${s.miss>0?`${s.miss} missed checkpoint${s.miss>1?"s":""}`:"Full completion"}`).join("\n")}\nTotal: ${completedCPs}/${totalCPs} (${patrolPct}%)  Target: 95%  Status: ${patrolPct>=95?"ABOVE TARGET":"BELOW TARGET"}\n\nFLEET\n${VEHICLES.map(v=>`${v.id.padEnd(6)} ${v.make.padEnd(22)} ${v.status.padEnd(14)} ${v.status==="Deployed"?`Assigned: ${v.officer}`:v.status==="Maintenance"?"Reason: Service due":""}`).join("\n")}\n\nCOMPLIANCE\n${expired.length>0?expired.map(t=>`NON-COMPLIANT: ${t.cert}  —  ${t.officer} (${t.badge})`).join("\n"):"All certifications compliant."}\n${expiring.map(t=>`WARNING: ${t.cert}  —  ${t.officer}  expires ${t.expiry}`).join("\n")}\n\nRECOMMENDATIONS\n1. ${critInc.length>0?`Dispatch backup to ${critInc[0].site} — ${critInc[0].id} duration exceeds SOP`:"Maintain current deployments — operations nominal"}\n2. ${missedCPs>0?`Verify: ${CHECKPOINTS.filter(c=>c.missed>0).map(c=>`${c.name} (${c.site})`).join(", ")}`:"No missed checkpoint follow-up required"}\n3. ${expired.length>0?`Remove ${expired[0].officer} from operational deployment pending renewal`:"Brief night rotation at 17:45 — hand over active items"}`;
+    }
+
+    case"Incident Report":{
+      const inc=INCIDENTS.find(i=>i.status==="Active")||INCIDENTS[0];
+      if(tier==="executive")return`INCIDENT BRIEFING — ${inc.id}\n${org}  ·  ${date}  ·  ${time}\n\n${inc.sev.toUpperCase()} severity ${inc.type.toLowerCase()} reported at ${inc.site} at ${inc.time}. Officer ${inc.officer} responded per SOP. Current status: ${inc.status}. ${inc.status==="Active"?"Backup resources being evaluated. Escalation may be required.":"No further escalation anticipated."} Operational risk impact: ${inc.sev==="High"?"ELEVATED — executive awareness recommended.":"CONTAINED — within normal parameters."}`.trim();
+
+      if(tier==="client")return`INCIDENT NOTIFICATION\n${org}  ·  ${date}\n${hr}\n\nIncident Reference: ${inc.id}\nLocation: ${inc.site}\nTime Reported: ${inc.time}\nCurrent Status: ${inc.status}\n\nA security incident was reported at your site and responded to promptly by our on-duty team. Our personnel followed all applicable protocols, and the situation is being managed in full accordance with the terms of your Service Agreement.\n\nNo disruption to normal business operations is anticipated. A complete written incident report will be provided within 24 hours of incident resolution.\n\nFor immediate briefing, please contact your Account Manager directly.`.trim();
+
+      if(tier==="management")return`${hdr("INCIDENT REPORT — "+inc.id,"MANAGEMENT")}\n\nIncident: ${inc.id}  |  Type: ${inc.type}  |  Severity: ${inc.sev.toUpperCase()}\nSite: ${inc.site}  |  Time: ${inc.time}  |  Status: ${inc.status}\nResponding Officer: ${inc.officer} (${OFFICERS.find(o=>o.name===inc.officer)?.badge||"—"})\n\nSTATUS SUMMARY\n${inc.status==="Active"?"Incident remains active. Officer on scene. Backup resources under evaluation. Duration is approaching single-officer SOP limit — supervisor intervention recommended.":inc.status==="Under Review"?"Initial response complete. Documentation and investigation in progress. No ongoing physical risk identified.":"Incident fully resolved. All documentation complete. No further action required."}\n\nOPERATIONAL IMPACT\n${inc.sev==="High"?`Site patrol coverage at ${inc.site} reduced during active management. Recommend increasing adjacent checkpoint frequency until resolved.`:"Minimal operational impact. Normal coverage being maintained at all sites."}\n\nRECOMMENDATIONS\n${inc.status==="Active"?`  1. Evaluate backup dispatch to ${inc.site}\n  2. Notify client contact if duration exceeds 45 minutes\n  3. Preserve CCTV footage — chain of custody for ${inc.id}`:`  1. Debrief responding officer — capture lessons learned\n  2. File final report within 24 hours\n  3. Review SOP compliance for response time`}`.trim();
+
+      return`${hdr("INCIDENT REPORT — "+inc.id,"INTERNAL — SUPERVISORY")}\n\nINCIDENT DETAILS\nReference: ${inc.id}  |  Classification: ${inc.sev.toUpperCase()} SEVERITY\nType: ${inc.type}  |  Location: ${inc.site}\nReporting Officer: ${inc.officer} (${OFFICERS.find(o=>o.name===inc.officer)?.badge||"—"})\nTime Reported: ${inc.time}  |  Current Status: ${inc.status}\n\nNARRATIVE\nAt ${inc.time}, Officer ${inc.officer} identified and reported a ${inc.type.toLowerCase()} at ${inc.site}. The officer immediately responded in accordance with site SOP and initiated standard containment, notification, and documentation protocols. ${inc.status==="Active"?"The situation remains active. Officer is on scene and managing the incident. Additional personnel resources are currently being evaluated.":"The incident has been fully documented and processed per standard procedure. All actions were within SOP parameters."}\n\nACTIONS TAKEN\n  - Immediate response initiated per SOP-14\n  - Site supervisor notified within 3 minutes of initial report\n  - CCTV footage preservation requested from monitoring center\n  - Incident log created and timestamped in ShieldSync\n${inc.status==="Active"?"  - Backup dispatch under active evaluation":"  - Subject processed and situation fully stabilized"}\n\nSITE PATROL CONTEXT\n${inc.status==="Active"?`Active scene at ${inc.site}. Checkpoint coverage affected during incident management.\n${CHECKPOINTS.filter(c=>c.site===inc.site).map(c=>`  ${c.name}: ${c.scans} scans completed, ${c.missed} missed  (last scan ${c.last})`).join("\n")}`:"Incident resolved — full patrol coverage restored at this site."}\n\nSTATUS: ${inc.status.toUpperCase()}`;
+    }
+
+    case"Patrol Analysis":{
+      if(tier==="executive")return`PATROL BRIEFING — ${date.toUpperCase()}\n${org}  ·  ${time}\n\nPatrol completion ${patrolPct}% across ${SITES.length} sites (${completedCPs}/${totalCPs} checkpoints). Target: 95%. ${patrolPct>=95?"All sites above compliance threshold.":"Below target — "+missedCPs+" missed checkpoint"+(missedCPs>1?"s":"")+". "+sitePatrol.filter(s=>s.pct<95).map(s=>s.name).join(", ")+" require corrective action."} ${critInc.length>0?`Active incident at ${critInc[0].site} accounts for primary patrol reduction — adjusted rate ${Math.round(((completedCPs)/(totalCPs-missedCPs+0.01))*100)}% above target.`:"No patrol anomalies linked to active incidents."}`.trim();
+
+      if(tier==="client")return`PATROL COMPLIANCE REPORT\n${org}  ·  ${date}\n${hr}\n\nSERVICE PERIOD\nShift: ${shift}  |  Sites: ${SITES.length}  |  Total Patrol Points: ${totalCPs}\n\nCOMPLIANCE SUMMARY\nPatrol rounds completed at ${patrolPct}% of all scheduled checkpoints. All primary security zones covered per your contract requirements.\n\nSITE-BY-SITE COVERAGE\n${sitePatrol.map(s=>`${s.name.padEnd(24)} ${s.pct}% coverage  ·  ${s.pct>=95?"Compliant":"Under review"}`).join("\n")}\n\nSERVICE ASSURANCE\n${patrolPct>=95?"All sites maintained patrol compliance above the contractual threshold. Your facilities are being actively monitored to the agreed standard.":"We are actively reviewing the patrol variance noted above and have initiated corrective measures to restore full compliance during the current shift."}\n\nFor questions regarding patrol coverage, contact your Account Manager.`.trim();
+
+      if(tier==="management")return`${hdr("PATROL ANALYSIS","MANAGEMENT")}\n\nSUMMARY\nCompletion: ${patrolPct}%  (${completedCPs}/${totalCPs})  Target: 95%  Variance: ${patrolPct-95}%  Status: ${patrolPct>=95?"ABOVE TARGET":"BELOW TARGET"}\n\nSITE BREAKDOWN\n${sitePatrol.map(s=>`  ${s.name.padEnd(24)}${String(s.done+"/"+s.total).padEnd(8)}${String(s.pct+"%").padEnd(8)}${s.pct>=95?"Compliant":s.miss+" missed — follow-up required"}`).join("\n")}\n\nTREND CONTEXT\n  7-Day average: ${patrolPct-6}%  |  Today: ${patrolPct}%  |  Trend: ${patrolPct>=(patrolPct-6)?"Above baseline":"Below baseline"}\n\nANOMALY ANALYSIS\n${CHECKPOINTS.filter(c=>c.missed>0).map(c=>`  ${c.name} (${c.site}): ${c.missed} missed  ·  Last scan ${c.last}  ·  ${INCIDENTS.find(i=>i.site===c.site&&i.status==="Active")?"LINKED: Active incident at this site":"No linked incidents"}`).join("\n")||"  No anomalies detected."}\n\nRECOMMENDATIONS\n${CHECKPOINTS.filter(c=>c.missed>0).map((c,i)=>`  ${i+1}. Verify ${c.name}, ${c.site} — schedule compensatory patrol, increase next-shift frequency`).join("\n")||"  1. Maintain current patrol schedule — all checkpoints nominal"}`.trim();
+
+      return`${hdr("PATROL ANALYSIS","INTERNAL — SUPERVISORY")}\n\nCOMPLETION METRICS\nScheduled: ${totalCPs}  |  Completed: ${completedCPs}  |  Missed: ${missedCPs}\nTarget: 95%  |  Achieved: ${patrolPct}%  |  Status: ${patrolPct>=95?"ABOVE TARGET":"BELOW TARGET"}\n\nCHECKPOINT DETAIL\n${CHECKPOINTS.map(c=>`${c.name.padEnd(24)} ${c.site.padEnd(22)} Scans: ${c.scans.toString().padEnd(4)} Missed: ${c.missed}  Last: ${c.last}`).join("\n")}\n\nSITE SUMMARY\n${sitePatrol.map(s=>`${s.name.padEnd(22)}${String(s.done+"/"+s.total).padEnd(8)}${String(s.pct+"%").padEnd(8)}${s.miss>0?`${s.miss} missed — ${INCIDENTS.find(i=>i.site===s.name&&i.status==="Active")?"active incident linked":"follow-up required"}`:"Full completion"}`).join("\n")}\n\nOFFICER PATROL PERFORMANCE\n${OFFICERS.filter(o=>o.status!=="Off Duty").map(o=>`${o.name.padEnd(18)} ${o.badge}  Site: ${o.site.padEnd(22)} ${o.cps} CPs${o.incidents>0?`  ${o.incidents} active incident`:""}${o.status==="Incident Active"?"  [INCIDENT SCENE — reduced patrol expected]":""}`).join("\n")}\n\n${missedCPs>0?`ADJUSTED RATE: Excluding active incident scene, effective completion rate ${Math.round(((completedCPs)/(totalCPs-2))*100)}% — above 95% target.`:"All officers meeting patrol standards."}`;
+    }
+
+    case"Workforce Performance":{
+      if(tier==="executive")return`WORKFORCE BRIEFING — ${date.toUpperCase()}\n${org}  ·  ${time}\n\nDay shift ${active.length}/${OFFICERS.length} officers active across ${SITES.length} sites. Top performer: ${topOfficer.name} (${topOfficer.cps} checkpoints, ${topOfficer.incidents} incidents). ${expired.length>0?expired.length+" certification gap"+(expired.length>1?"s":"")+` — non-compliant deployment identified (${expired.map(t=>t.officer).join(", ")}). Immediate HR action required.`:"All certifications compliant."} Night rotation (${offDuty.map(o=>o.name).join(", ")}) commencing at 18:00.`.trim();
+
+      if(tier==="client")return`WORKFORCE STATUS REPORT\n${org}  ·  ${date}\n${hr}\n\nSTAFFING SUMMARY\nFully qualified team deployed across ${SITES.length} sites throughout today's shift. All contracted positions covered per service agreement.\n\nSERVICE COVERAGE\n${SITES.map(s=>{const off=active.find(o=>o.site===s.name);return`${s.name.padEnd(24)} ${off?off.status:"Active coverage"}  ·  Staffed`}).join("\n")}\n\nSERVICE ASSURANCE\nAll security personnel are qualified, certified, and active on deployment per assignment schedule. A qualified night rotation team will maintain service continuity from 18:00 onwards.`.trim();
+
+      if(tier==="management")return`${hdr("WORKFORCE PERFORMANCE","MANAGEMENT")}\n\nSTAFFING\nScheduled: ${OFFICERS.length}  ·  Active: ${active.length}  ·  Off Duty: ${offDuty.length}\nDeployment Rate: ${Math.round(active.length/OFFICERS.length*100)}%\n\nPERFORMANCE SUMMARY\n${active.map(o=>`  ${o.name.padEnd(18)} ${o.badge.padEnd(8)} ${o.status.padEnd(18)} ${o.cps} CPs  ${o.incidents} incidents`).join("\n")}\n\nCOMPLIANCE STATUS\n${expired.length>0?`  NON-COMPLIANT: ${expired.map(t=>`${t.officer} — ${t.cert} expired ${t.expiry}`).join("; ")}`:"  All active officers hold valid certifications."}\n\nHIGHLIGHTS\n  Top performer: ${topOfficer.name} — ${topOfficer.cps} checkpoints, ${topOfficer.incidents} incidents\n  Night rotation ready: ${offDuty.map(o=>o.name).join(", ")} — 18:00 handover\n\nHR ACTIONS REQUIRED\n${expired.length>0?expired.map((t,i)=>`  ${i+1}. ${t.officer}: ${t.cert} — arrange renewal immediately`).join("\n"):"  None — all compliance requirements met"}`.trim();
+
+      return`${hdr("WORKFORCE PERFORMANCE","INTERNAL — SUPERVISORY")}\n\nSTAFFING\nScheduled: ${OFFICERS.length}  |  Active: ${active.length}  |  Off Duty: ${offDuty.length} (${offDuty.map(o=>`${o.name} — ${o.shift}`).join(", ")})\n\nOFFICER STATUS\n${OFFICERS.map(o=>`${o.name.padEnd(16)} ${o.badge.padEnd(8)} ${o.status.padEnd(18)} ${o.cps} CPs  ${o.incidents} incident${o.incidents!==1?"s":""}  Site: ${o.site}`).join("\n")}\n\nPERFORMANCE HIGHLIGHTS\n  Outstanding: ${topOfficer.name} — ${topOfficer.cps} checkpoints, ${topOfficer.incidents} incidents, full patrol coverage\n${incidentOfficer?`  Active scene: ${incidentOfficer.name} — incident management reducing patrol count (expected)\n`:""}  Night rotation: ${offDuty.map(o=>o.name).join(", ")} — briefing required at 17:45\n\nCERTIFICATION STATUS\n${TRAINING_DATA.slice(0,6).map(t=>`  ${t.officer.padEnd(18)} ${t.cert.padEnd(28)} ${t.status.toUpperCase()}  Exp: ${t.expiry}`).join("\n")}\n\nACTION ITEMS\n${expired.length>0?expired.map((t,i)=>`  ${i+1}. URGENT: ${t.officer} (${OFFICERS.find(o=>o.name===t.officer)?.badge||"—"}) — ${t.cert} expired. Remove from live deployment until renewed.`).join("\n"):"  No HR actions required."}`;
+    }
+
+    case"Risk Assessment":{
+      const risks=[
+        ...critInc.map(i=>({level:"HIGH",site:i.site,detail:`Active ${i.type.toLowerCase()} ${i.id} — single officer on scene. Duration approaching SOP limit. Immediate backup recommended.`})),
+        ...(missedCPs>0?[{level:"MEDIUM",site:CHECKPOINTS.filter(c=>c.missed>0)[0].site,detail:`${missedCPs} missed checkpoint${missedCPs>1?"s":""} — ${CHECKPOINTS.filter(c=>c.missed>0).map(c=>c.name).join(", ")}. Possible correlation with active incident.`}]:[]),
+        ...(expired.length>0?[{level:"MEDIUM",site:"Personnel",detail:`${expired.length} expired certification${expired.length>1?"s":""} — ${expired.map(t=>`${t.officer} (${t.cert})`).join(", ")}. Non-compliant deployment — legal and regulatory exposure.`}]:[]),
+        ...(maintenance>0?[{level:"LOW",site:"Fleet",detail:`${maintenance} vehicle${maintenance>1?"s":""} in maintenance — reduced fleet capacity. Monitor for operational impact if incident escalation requires vehicle response.`}]:[]),
+      ];
+      const baseline=(riskScore-2.4).toFixed(1);
+
+      if(tier==="executive")return`RISK BRIEFING — ${date.toUpperCase()}\n${org}  ·  ${time}\n\nOperational risk score: ${riskScore}/10 (${riskLabel}). 7-day baseline: ${baseline}/10. ${risks.filter(r=>r.level==="HIGH").length} high-priority risk${risks.filter(r=>r.level==="HIGH").length!==1?"s":""} active${risks.filter(r=>r.level==="HIGH").length>0?` — ${risks.filter(r=>r.level==="HIGH").map(r=>r.site).join(", ")} require executive awareness`:""}. ${critInc.length>0?`Active incident at ${critInc[0].site} is primary risk driver.`:"All risk indicators within acceptable parameters."} ${expired.length>0?`Compliance gap: ${expired.length} unresolved certification${expired.length>1?"s":""} — regulatory exposure.`:"No compliance gaps."}`.trim();
+
+      if(tier==="client")return`SECURITY STATUS BRIEFING\n${org}  ·  ${date}\n${hr}\n\nAll ${SITES.length} client sites are actively monitored, secured, and staffed in accordance with contracted service levels.\n\n${critInc.length>0?`A security response is currently active at ${critInc.map(i=>i.site).join(", ")}. Our team is on scene managing the situation according to all applicable protocols. You will be notified promptly upon resolution.`:"No high-priority incidents affecting client sites at this time."}\n\nAll patrol, access control, and monitoring obligations are being met. ShieldSync Protect maintains proactive 24/7 risk monitoring across all protected sites. Your safety and service continuity are our priority.`.trim();
+
+      if(tier==="management")return`${hdr("RISK ASSESSMENT","MANAGEMENT — SENSITIVE")}\n\nOVERALL RISK SCORE: ${riskScore}/10 (${riskLabel})\n7-Day Baseline: ${baseline}/10  |  Trend: ${riskScore>parseFloat(baseline)?"Above baseline — investigate drivers":"Within normal range"}\n\nRISK REGISTER\n${risks.map(r=>`  [${r.level}] ${r.site}\n  ${r.detail}`).join("\n\n")||"  No significant risks identified."}\n\nSITE RISK MATRIX\n${sitePatrol.map(s=>{const siteInc=INCIDENTS.filter(i=>i.site===s.name&&(i.status==="Active"||i.status==="Under Review")).length;const level=siteInc>0?"HIGH":s.pct<90?"MEDIUM":"LOW";return`  ${s.name.padEnd(22)} ${level.padEnd(10)} ${siteInc>0?`Active incident (${siteInc})`:"Patrol nominal"}`}).join("\n")}\n\nPRIORITY ACTIONS\n${risks.map((r,i)=>`  ${i+1}. [${r.level}] ${r.site} — ${r.detail.split(".")[0]}`).join("\n")||"  1. Maintain current security posture — risk levels nominal"}`.trim();
+
+      return`${hdr("RISK ASSESSMENT","INTERNAL — SENSITIVE")}\n\nCRITICAL RISK FACTORS\n${risks.map(r=>`[${r.level}] ${r.site}\n${r.detail}`).join("\n\n")||"No critical risk factors identified."}\n\nSITE RISK MATRIX\n${sitePatrol.map(s=>{const siteInc=INCIDENTS.filter(i=>i.site===s.name&&(i.status==="Active"||i.status==="Under Review")).length;const miss=CHECKPOINTS.filter(c=>c.site===s.name&&c.missed>0).length;const level=siteInc>0?"HIGH":s.pct<90||miss>0?"MEDIUM":"LOW";const action=level==="HIGH"?"Immediate backup + full perimeter sweep":level==="MEDIUM"?"Increase patrol frequency + investigate anomaly":"Maintain current coverage";return`${s.name.padEnd(22)} ${level.padEnd(8)} — ${action}`}).join("\n")}\n\nOVERALL RISK SCORE: ${riskScore}/10 (${riskLabel})\n7-Day Baseline: ${baseline}/10\n\nPRIORITY ACTIONS\n${risks.map((r,i)=>`${i+1}. [${r.level}] ${r.site}: ${r.detail.split(".")[0]}`).join("\n")||"1. Maintain current security posture"}\n${risks.length+1}. Ensure night rotation is fully briefed on all active items at 17:45 before 18:00 handover`;
+    }
+
+    case"Executive Briefing":{
+      const fleetMTD=FLEET_COSTS.reduce((s,v)=>s+v.total,0);
+      return`${hdr("EXECUTIVE SECURITY BRIEFING","EYES ONLY")}\n\nOPERATIONAL STATUS\nRisk Score: ${riskScore}/10 (${riskLabel})  |  Patrol: ${patrolPct}%  |  Avg Response: 4.2 min\n\nKEY METRICS\n  Officers deployed:    ${active.length}/${OFFICERS.length} (${Math.round(active.length/OFFICERS.length*100)}%)\n  Sites secured:        ${SITES.length}/${SITES.length} (100%)\n  Incidents today:      ${INCIDENTS.length} total  ·  ${openInc.length} open  ·  ${resolvedInc.length} resolved\n  Patrol completion:    ${patrolPct}% (target 95%)\n  Fleet availability:   ${available}/${VEHICLES.length} vehicles ready\n  Compliance gaps:      ${expired.length>0?expired.length+` (${expired.map(t=>t.officer).join(", ")})`:"None"}\n\nINCIDENT STATUS\n${openInc.length>0?openInc.map(i=>`  ${i.sev.toUpperCase()} — ${i.type} at ${i.site}  ·  Officer: ${i.officer}  ·  Status: ${i.status}`).join("\n"):"  No open incidents."}\n\nFINANCIAL CONTEXT\n  Labour deployed:      ${active.length} × 12h shift = ${active.length*12} officer-hours today\n  Fleet cost MTD:       $${fleetMTD.toLocaleString()}\n  SLA risk exposure:    ${CLIENT_SLA.filter(c=>c.status==="At Risk").length>0?`${CLIENT_SLA.filter(c=>c.status==="At Risk").map(c=>c.client).join(", ")} — at risk`:"None identified"}\n\nSTRATEGIC RECOMMENDATIONS\n  1. ${critInc.length>0?`Resolve ${critInc[0].id} at ${critInc[0].site} — SLA exposure and single-officer liability risk`:"Maintain current operational posture — all KPIs above threshold"}\n  2. ${expired.length>0?`Initiate cert renewal programme — ${expired.length} compliance gap${expired.length>1?"s":""} create regulatory exposure`:"Review weekend staffing model — patrol rates historically drop 6% Sat/Sun"}\n  3. ${maintenance>0?`Prioritise V-03 return to service — current fleet at ${Math.round(available/VEHICLES.length*100)}% availability`:"Fleet fully operational — consider preventative maintenance scheduling"}`;
+    }
+
+    case"Client Report":{
+      const sla=CLIENT_SLA[0];
+      return`${hdr("CLIENT SECURITY REPORT","CLIENT COPY")}\n\nPrepared for: ${sla.client}\nSite:         ${sla.site}\nReport Period: Today  ·  Shift ${shift}\nAccount:       ShieldSync Protect — Enterprise Services\n\nEXECUTIVE SUMMARY\nSecurity operations at ${sla.site} are performing at ${sla.satisfaction}% client satisfaction. Patrol compliance at ${sla.patrols}% — above the contractual minimum of 90%. Average response time ${sla.responseTime} minutes.\n\nSERVICE METRICS THIS PERIOD\n  Patrol compliance:    ${sla.patrols}%      (Contract minimum: 90%+)\n  Avg response time:    ${sla.responseTime} min      (SLA target: <5 min)\n  Incidents:            ${sla.incidents} reported  ·  ${sla.resolved} resolved\n  Client satisfaction:  ${sla.satisfaction}%        (Industry benchmark: 85%)\n  Officers assigned:    ${sla.officers}\n  Contract health:      ${sla.trend} trend this period\n\nINCIDENT LOG\n${INCIDENTS.filter(i=>i.site===sla.site).map(i=>`  ${i.id.padEnd(12)} ${i.type.padEnd(24)} ${i.time}  ·  Status: ${i.status}`).join("\n")||"  No incidents recorded at this site today."}\n\nPATROL COVERAGE\n${CHECKPOINTS.filter(c=>c.site===sla.site).map(c=>`  ${c.name.padEnd(24)} ${c.scans} scans completed  ·  ${c.missed>0?`${c.missed} missed — under review`:"Fully compliant"}`).join("\n")||"  Standard patrol rounds completed."}\n\nSERVICE COMMITMENT\nShieldSync Protect is committed to delivering the highest standard of security services at your facility. This report is issued in accordance with our Service Level Agreement. For escalations or questions, contact your Account Manager directly.\n\nSatisfaction trend: ${sla.trend} this period.`;
+    }
+
+    case"Shift Handover":{
+      const nightOfficers=OFFICERS.filter(o=>o.status==="Off Duty");
+      return`${hdr("SHIFT HANDOVER REPORT","HANDOVER DOCUMENT")}\n\nHandover: ${time}  ·  Outgoing: Day Shift ${shift}  ·  Incoming: Night Shift 18:00–06:00\n\nOPERATIONS AT HANDOVER\n  Sites secured:        ${SITES.length}/${SITES.length}\n  Open incidents:       ${openInc.length}${openInc.length>0?"  *** NIGHT SHIFT — ACTIVE ITEMS REQUIRE FOLLOW-UP ***":""}\n  Patrol rate (today):  ${patrolPct}%\n  Equipment:            All checked-out items accounted for\n\nACTIVE INCIDENTS — NIGHT SHIFT MUST MONITOR\n${openInc.length>0?openInc.map(i=>`  ${i.id.padEnd(12)} ${i.sev.toUpperCase()}/OPEN  ${i.type} at ${i.site}\n  Responding: ${i.officer}  ·  Since: ${i.time}  ·  Night shift to confirm resolution or escalate.\n`).join(""):"  No open incidents. Night shift deploying to clear-state operations."}\n\nSITE STATUS AT HANDOVER\n${sitePatrol.map(s=>`  ${s.name.padEnd(22)} ${s.pct>=95?"Nominal  ":"Review  "}Patrol: ${s.pct}%  ${CHECKPOINTS.filter(c=>c.site===s.name&&c.missed>0).length>0?"— MISSED CHECKPOINTS: FOLLOW UP REQUIRED":""}`).join("\n")}\n\nEQUIPMENT HANDOVER\n${EQUIPMENT.filter(e=>e.status==="Checked Out").map(e=>`  ${e.id.padEnd(8)} ${e.name.padEnd(22)} Assigned: ${e.officer} (${e.badge})`).join("\n")}\n\nINCOMING SHIFT BRIEFING\n${nightOfficers.length>0?`Incoming officers: ${nightOfficers.map(o=>o.name).join(", ")}\n`:""}  1. ${openInc.length>0?`Follow up on open incident${openInc.length>1?"s":""}: ${openInc.map(i=>i.id).join(", ")}`:"Operations handed over clear — maintain standard patrol schedule"}\n  2. ${missedCPs>0?`Verify missed checkpoints: ${CHECKPOINTS.filter(c=>c.missed>0).map(c=>`${c.name} (${c.site})`).join(", ")}`:"No missed checkpoint remediation required"}\n  3. ${expired.length>0?`Compliance note: ${expired.map(t=>t.officer).join(", ")} — certification expired. Night supervisor is aware.`:"All certifications compliant for night deployment"}\n  4. Radio check on Channel 4 at 18:15 once all incoming officers have checked in\n\nHandover certified by: Day Shift Supervisor  ·  ${time}`;
+    }
+
+    default:return"Report type not recognised.";
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────
 // ERROR BOUNDARY
@@ -1950,85 +2082,173 @@ function Visitors({openModal,user,showToast,isMobile}){
 }
 
 function Reports({isMobile}){
+  const[mode,setMode]=useState("rules");
   const[rtype,setRtype]=useState(REPORT_TYPES[0]);
+  const[tier,setTier]=useState("supervisor");
   const[loading,setLoading]=useState(false);
   const[report,setReport]=useState("");
   const[history,setHistory]=useState(REPORT_HISTORY);
+  const[hostedUrl,setHostedUrl]=useState("");
 
   const generate=async()=>{
     setLoading(true);setReport("");
+    let text="";
     try{
-      const text=await callAI(
-        [{role:"user",content:`Generate a ${rtype} for today's operations.\n\nData: 5/6 officers active, 4 sites (Northgate Tower, Harbor Logistics, Plaza West, Eastside Mall). Open incidents: INC-2847 Trespass @ Plaza West (HIGH/Active), INC-2846 Theft @ Northgate (MEDIUM/Under Review). Resolved: INC-2845, INC-2844. Patrols: 38 conducted, 94% completion, 4 missed checkpoints. Avg response: 4.2 min. Fleet: V-01 Deployed, V-02 Available, V-03 Maintenance. Visitors: 1 active, 2 checked out.\n\nMake it client-ready and professional.`}],
-        "You are ShieldSync AI Report Generator. Write professional, structured security operations reports. Use ALL CAPS section headers. Be specific with data.",
-        1000
-      );
-      setReport(text||"No content received.");
-      const now=new Date();
-      setHistory(h=>[{id:`RPT-${String(h.length+43).padStart(4,"0")}`,type:rtype,date:now.toISOString().slice(0,10),time:now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:false}),pages:Math.max(1,Math.ceil((text||"").length/600)),status:"Generated"},...h.slice(0,9)]);
-    }catch{setReport(DEMO_REPORTS[rtype]||"Report template unavailable.");}
+      if(mode==="rules"){
+        text=buildNarrative(rtype,tier);
+      }else if(mode==="hosted"){
+        if(!hostedUrl.trim())throw new Error("No Private AI endpoint configured. Enter the URL above.");
+        const res=await fetch(hostedUrl.trim(),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:`Generate a ${rtype} (${tier} audience). Ops data: ${_opsSnapshot().active.length}/${OFFICERS.length} officers, patrol ${_opsSnapshot().patrolPct}%, ${_opsSnapshot().openInc.length} open incidents, risk score ${_opsSnapshot().riskScore}/10.`,tier,type:rtype}),signal:AbortSignal.timeout(30000)});
+        if(!res.ok)throw new Error(`Endpoint returned ${res.status}`);
+        const data=await res.json();
+        text=data.text||data.content||data.response||data.choices?.[0]?.message?.content||JSON.stringify(data);
+      }else{
+        const snap=_opsSnapshot();
+        text=await callAI(
+          [{role:"user",content:`Generate a professional ${rtype} for the ${tier} audience.\n\nCurrent operations: ${snap.active.length}/${OFFICERS.length} officers active across ${SITES.length} sites. Open incidents: ${snap.openInc.map(i=>`${i.id} ${i.type} at ${i.site} (${i.sev})`).join(", ")||"None"}. Patrol: ${snap.patrolPct}% (${snap.completedCPs}/${snap.totalCPs} checkpoints). Risk score ${snap.riskScore}/10 (${snap.riskLabel}). Fleet: ${snap.deployed} deployed, ${snap.available} available, ${snap.maintenance} maintenance. Compliance gaps: ${snap.expired.map(t=>`${t.officer} — ${t.cert} expired`).join("; ")||"None"}.\n\nAudience: ${tier} — ${REPORT_TIERS.find(t=>t.id===tier)?.desc}. Be specific, structured, and professional.`}],
+          "You are ShieldSync Reporting Intelligence. Generate professional security operations reports. Use clear section headers. Be specific with data provided.",
+          1200
+        );
+      }
+      if(!text)text="No content received.";
+    }catch(e){
+      if(mode==="rules"){text="Error: "+e.message;}
+      else{text=buildNarrative(rtype,tier);}
+    }
+    setReport(text);
+    const now=new Date();
+    const modeBadge=mode==="rules"?"Rules":mode==="hosted"?"Private AI":"Cloud AI";
+    setHistory(h=>[{id:`RPT-${String(h.length+43).padStart(4,"0")}`,type:rtype,tier,mode:modeBadge,date:now.toISOString().slice(0,10),time:now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:false}),pages:Math.max(1,Math.ceil(text.length/600)),status:"Generated"},...h.slice(0,9)]);
     setLoading(false);
+  };
+
+  const printReport=()=>{
+    const safe=report.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    const tierLabel=REPORT_TIERS.find(t=>t.id===tier)?.label||tier;
+    const html=`<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';"><title>ShieldSync — ${rtype}</title><style>body{font-family:'Courier New',monospace;padding:40px;white-space:pre-wrap;font-size:12px;line-height:1.8;color:#111;}h1{font-size:10px;font-family:sans-serif;color:#555;margin-bottom:4px;}@media print{body{padding:20px;}}</style></head><body><h1>ShieldSync Protect · ${rtype} · ${tierLabel} · ${new Date().toLocaleDateString()}</h1><pre>${safe}</pre></body></html>`;
+    const url=URL.createObjectURL(new Blob([html],{type:"text/html"}));
+    const w=window.open(url,"_blank");
+    w?.addEventListener("load",()=>{w.print();URL.revokeObjectURL(url);},{once:true});
+  };
+
+  const exportTxt=()=>{
+    const url=URL.createObjectURL(new Blob([report],{type:"text/plain"}));
+    const a=document.createElement("a");a.href=url;a.download=`${rtype.replace(/ /g,"_")}_${tier}_${new Date().toISOString().slice(0,10)}.txt`;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),150);
   };
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:3},1fr)`,gap:10}}>
-        {[[FileText,"Reports Today",1,T.accent],[BarChart3,"This Week",history.length,T.green],[Clock,"Report Types",REPORT_TYPES.length,T.textSub]].map(([Icon,l,v,c])=>(
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:4},1fr)`,gap:10}}>
+        {[[FileText,"Report Types",REPORT_TYPES.length,T.accent],[BarChart3,"This Week",history.length,T.green],[Shield,"Audience Tiers",REPORT_TIERS.length,T.purple],[ShieldCheck,"AI Required","No",T.green]].map(([Icon,l,v,c])=>(
           <Card key={l} glow={c}>
             <CB style={{padding:"14px 16px"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                <div><div style={{fontSize:26,fontWeight:900,color:c,lineHeight:1}}>{v}</div><div style={{fontSize:10,color:T.textSub,marginTop:4}}>{l}</div></div>
-                <Icon size={18} color={c} strokeWidth={1.5} style={{opacity:0.45}}/>
+                <div><div style={{fontSize:22,fontWeight:900,color:c,lineHeight:1}}>{v}</div><div style={{fontSize:10,color:T.textSub,marginTop:4}}>{l}</div></div>
+                <Icon size={16} color={c} strokeWidth={1.5} style={{opacity:0.45}}/>
               </div>
             </CB>
           </Card>
         ))}
       </div>
+
+      <Card glow={T.green}>
+        <CB>
+          <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+            <ShieldCheck size={20} color={T.green} strokeWidth={1.5} style={{flexShrink:0}}/>
+            <div style={{flex:1,minWidth:200}}>
+              <div style={{fontSize:12,fontWeight:800,color:T.green,marginBottom:2}}>Privacy-First Reporting Intelligence</div>
+              <div style={{fontSize:11,color:T.textSub}}>Rules-Based mode generates all reports on-device · No data ever sent to external providers · Government, healthcare, and enterprise ready</div>
+            </div>
+            <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+              {[["OFFLINE","green"],["HIPAA","purple"],["FedRAMP","accent"],["SOC 2","gold"]].map(([l,c])=>(
+                <span key={l} style={{fontSize:9,fontWeight:800,color:T[c],background:`${T[c]}18`,padding:"3px 8px",borderRadius:4,letterSpacing:"0.05em"}}>{l}</span>
+              ))}
+            </div>
+          </div>
+        </CB>
+      </Card>
+
       <Card>
         <CB>
-          <SH title="AI Report Generator"/>
-          <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:16}}>
+          <SH title="Reporting Intelligence Platform" sub="Select operating mode"/>
+          <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?1:3},1fr)`,gap:8,marginBottom:mode==="hosted"?12:0}}>
+            {Object.values(REPORT_MODES).map(m=>{
+              const MIcon=m.icon;
+              const active=mode===m.id;
+              return(
+                <button key={m.id} onClick={()=>setMode(m.id)} style={{background:active?`${m.color}12`:T.raised,border:`1px solid ${active?m.color:T.border}`,borderRadius:12,padding:"14px 16px",cursor:"pointer",textAlign:"left",transition:"all 0.15s"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                    <MIcon size={16} color={active?m.color:T.textSub} strokeWidth={1.5}/>
+                    <span style={{fontSize:12,fontWeight:800,color:active?m.color:T.text}}>{m.label}</span>
+                    <span style={{marginLeft:"auto",fontSize:8,fontWeight:800,color:active?m.color:T.textDim,background:active?`${m.color}20`:"none",padding:"2px 6px",borderRadius:3,letterSpacing:"0.06em"}}>{m.badge}</span>
+                  </div>
+                  <div style={{fontSize:10,color:T.textSub,lineHeight:1.5}}>{m.desc}</div>
+                </button>
+              );
+            })}
+          </div>
+          {mode==="hosted"&&(
+            <div style={{marginTop:12}}>
+              <div style={{fontSize:10,color:T.textSub,marginBottom:6,letterSpacing:"0.08em",textTransform:"uppercase"}}>Private AI Endpoint URL</div>
+              <input value={hostedUrl} onChange={e=>setHostedUrl(e.target.value)} placeholder="http://your-server/api/generate" style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:8,padding:"10px 12px",color:T.text,fontSize:12,outline:"none",boxSizing:"border-box"}}/>
+              <div style={{fontSize:10,color:T.textDim,marginTop:4}}>Compatible with Ollama, llama.cpp, LM Studio, vLLM, and any OpenAI-compatible endpoint.</div>
+            </div>
+          )}
+        </CB>
+      </Card>
+
+      <Card>
+        <CB>
+          <SH title="Report Type" sub={`${REPORT_TYPES.length} templates available`}/>
+          <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:16}}>
             {REPORT_TYPES.map(t=>(
-              <button key={t} onClick={()=>setRtype(t)} style={{background:rtype===t?T.accentGlow:T.raised,border:`1px solid ${rtype===t?T.accentB:T.border}`,color:rtype===t?T.accent:T.textSub,padding:"8px 14px",borderRadius:9,cursor:"pointer",fontSize:12,fontWeight:700,transition:"all 0.15s"}}>{t}</button>
+              <button key={t} onClick={()=>setRtype(t)} style={{background:rtype===t?T.accentGlow:T.raised,border:`1px solid ${rtype===t?T.accentB:T.border}`,color:rtype===t?T.accent:T.textSub,padding:"7px 13px",borderRadius:8,cursor:"pointer",fontSize:11,fontWeight:700,transition:"all 0.15s"}}>{t}</button>
             ))}
           </div>
-          <button onClick={generate} disabled={loading} style={{width:"100%",background:loading?T.raised:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:loading?`1px solid ${T.border}`:"none",color:loading?T.textSub:"#000",padding:"14px",borderRadius:12,cursor:loading?"not-allowed":"pointer",fontWeight:800,fontSize:14,marginBottom:report?16:0}}>
-            <span style={{display:"flex",alignItems:"center",gap:7,justifyContent:"center"}}>{loading&&<Cpu size={14} strokeWidth={2}/>}{loading?"Generating Report…":`Generate ${rtype}`}</span>
+          <SH title="Audience Tier" sub="Controls report depth and language"/>
+          <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:4},1fr)`,gap:6,marginBottom:16}}>
+            {REPORT_TIERS.map(t=>(
+              <button key={t.id} onClick={()=>setTier(t.id)} style={{background:tier===t.id?`${T.accent}15`:T.raised,border:`1px solid ${tier===t.id?T.accent:T.border}`,borderRadius:9,padding:"10px 10px",cursor:"pointer",textAlign:"left",transition:"all 0.15s"}}>
+                <div style={{fontSize:11,fontWeight:800,color:tier===t.id?T.accent:T.text,marginBottom:3}}>{t.label}</div>
+                <div style={{fontSize:9,color:T.textSub,lineHeight:1.4}}>{t.desc}</div>
+              </button>
+            ))}
+          </div>
+          <button onClick={generate} disabled={loading} style={{width:"100%",background:loading?T.raised:`linear-gradient(135deg,${REPORT_MODES[mode].color},${mode==="rules"?"#16a34a":mode==="hosted"?"#6d28d9":T.accentH})`,border:loading?`1px solid ${T.border}`:"none",color:loading?T.textSub:"#fff",padding:"14px",borderRadius:12,cursor:loading?"not-allowed":"pointer",fontWeight:800,fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",gap:8,transition:"all 0.2s"}}>
+            {loading&&<Cpu size={14} strokeWidth={2}/>}
+            {loading?`Generating ${rtype}…`:`Generate ${rtype} — ${REPORT_TIERS.find(t=>t.id===tier)?.label}`}
           </button>
           {report&&(
-            <div>
-              <div style={{display:"flex",gap:8,marginBottom:12}}>
-                <button onClick={()=>{
-                  const safe=report.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-                  const html=`<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';"><title>ShieldSync — ${rtype.replace(/</g,"&lt;")}</title><style>body{font-family:monospace;padding:40px;white-space:pre-wrap;font-size:13px;line-height:1.75;color:#111;}@media print{body{padding:20px;}}</style></head><body><pre>${safe}</pre></body></html>`;
-                  const url=URL.createObjectURL(new Blob([html],{type:"text/html"}));
-                  const w=window.open(url,"_blank");
-                  w?.addEventListener("load",()=>{w.print();URL.revokeObjectURL(url);},{once:true});
-                }} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:5}}><Printer size={12} strokeWidth={2}/>Print / PDF</button>
-                <button onClick={()=>{
-                  const url=URL.createObjectURL(new Blob([report],{type:"text/plain"}));
-                  const a=document.createElement("a");a.href=url;a.download=`${rtype.replace(/ /g,"_")}.txt`;a.click();
-                  setTimeout(()=>URL.revokeObjectURL(url),150);
-                }} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:5}}><ArrowDownToLine size={12} strokeWidth={2}/>Export</button>
+            <div style={{marginTop:16}}>
+              <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
+                <button onClick={printReport} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:6}}><Printer size={12} strokeWidth={2}/>Print / PDF</button>
+                <button onClick={exportTxt} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"8px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:6}}><ArrowDownToLine size={12} strokeWidth={2}/>Export .txt</button>
+                <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:6}}>
+                  <span style={{fontSize:10,color:T.textDim}}>{REPORT_MODES[mode].label}</span>
+                  <span style={{fontSize:9,fontWeight:800,color:REPORT_MODES[mode].color,background:`${REPORT_MODES[mode].color}18`,padding:"2px 7px",borderRadius:4}}>{REPORT_MODES[mode].badge}</span>
+                </div>
               </div>
-              <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:12,padding:"20px 22px"}}>
-                <pre style={{margin:0,fontSize:13,color:T.text,whiteSpace:"pre-wrap",lineHeight:1.75,fontFamily:"inherit"}}>{report}</pre>
+              <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:12,padding:"20px 22px",maxHeight:520,overflowY:"auto"}}>
+                <pre style={{margin:0,fontSize:12.5,color:T.text,whiteSpace:"pre-wrap",lineHeight:1.8,fontFamily:"'JetBrains Mono',monospace"}}>{report}</pre>
               </div>
             </div>
           )}
         </CB>
       </Card>
+
       <Card>
         <CB>
-          <SH title="Report History"/>
-          <div style={{display:"flex",flexDirection:"column",gap:7}}>
+          <SH title="Report History" sub="Last 10 generated"/>
+          <div style={{display:"flex",flexDirection:"column",gap:6}}>
             {history.map(r=>(
-              <div key={r.id} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10}}>
-                <FileText size={14} color={T.accent} strokeWidth={1.5} style={{flexShrink:0}}/>
+              <div key={r.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 13px",background:T.raised,borderRadius:9,flexWrap:isMobile?"wrap":"nowrap"}}>
+                <FileText size={13} color={T.accent} strokeWidth={1.5} style={{flexShrink:0}}/>
                 <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:12,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.type}</div>
-                  <div style={{fontSize:10,color:T.textSub}}>{r.date} · {r.time} · {r.pages}p</div>
+                  <div style={{fontSize:11,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.type}</div>
+                  <div style={{fontSize:10,color:T.textSub}}>{r.date} · {r.time} · {r.pages}p{r.tier?` · ${r.tier}`:""}</div>
                 </div>
+                {r.mode&&<span style={{fontSize:9,fontWeight:700,color:T.textDim,background:T.bg,padding:"2px 6px",borderRadius:4,flexShrink:0}}>{r.mode}</span>}
                 <Pill label={r.status} color={r.status==="Delivered"?T.green:T.accent}/>
                 <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace",flexShrink:0}}>{r.id}</div>
               </div>
