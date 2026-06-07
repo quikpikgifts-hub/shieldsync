@@ -404,7 +404,7 @@ Sites: 4  |  Period: 06:00–09:20
 
 COMPLETION METRICS
 Scheduled: 42 checkpoints  |  Completed: 38 (90.5%)  |  Missed: 4
-Target: ≥95%  |  Status: ⚠ BELOW TARGET (Plaza West anomaly)
+Target: ≥95%  |  Status: BELOW TARGET (Plaza West anomaly)
 
 SITE BREAKDOWN
 Northgate Tower:    20/21  95.2%  — 1 missed, Parking Deck B
@@ -426,7 +426,7 @@ Scheduled: 6  |  Active: 5  |  Off Duty: 1 (Elena Voss — Night rotation)
 
 OFFICER STATUS
 Marcus Webb    S-0041  On Patrol        8 CPs  2 incidents
-Diana Reyes    S-0067  On Site          5 CPs  0 incidents  ★ Top performer
+Diana Reyes    S-0067  On Site          5 CPs  0 incidents  [Top performer]
 Theo Okafor    S-0083  Incident Active  3 CPs  1 incident
 Ava Simmons    S-0092  Clocked In       0 CPs  0 incidents
 Jordan Park    S-0105  Break            6 CPs  0 incidents
@@ -875,7 +875,7 @@ function CheckInModal({onClose,showToast}){
               <div style={{fontSize:10,color:T.textSub,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Visitor Management</div>
               <div style={{fontSize:18,fontWeight:800,color:T.text}}>New Check-In</div>
             </div>
-            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={14} strokeWidth={2.5}/></button>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
             <div>
@@ -908,7 +908,7 @@ function CheckInModal({onClose,showToast}){
             </div>
             <button onClick={submit} disabled={!valid}
               style={{background:valid?T.green:T.raised,border:`1px solid ${valid?T.green:T.border}`,color:valid?"#000":T.textDim,padding:"13px",borderRadius:12,cursor:valid?"pointer":"not-allowed",fontWeight:800,fontSize:14}}>
-              Check In Visitor ✓
+              <span style={{display:"flex",alignItems:"center",gap:7,justifyContent:"center"}}><CheckCircle2 size={15} strokeWidth={2}/>Check In Visitor</span>
             </button>
           </div>
         </CB>
@@ -1125,7 +1125,7 @@ function InspModal({vehicle,onClose}){
               <div style={{fontSize:18,fontWeight:800,color:T.text}}>{vehicle.make}</div>
               <div style={{fontSize:12,color:T.accent,fontFamily:"monospace",marginTop:2}}>{vehicle.plate} · {vehicle.id}</div>
             </div>
-            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={14} strokeWidth={2.5}/></button>
           </div>
           <div style={{marginBottom:20}}>
             <div style={{display:"flex",gap:3,marginBottom:8}}>
@@ -1155,7 +1155,7 @@ function InspModal({vehicle,onClose}){
                     {photos[sl.key]?(
                       <>
                         <img src={photos[sl.key]} alt={sl.label} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                        <div style={{position:"absolute",top:4,right:4,background:T.green,width:18,height:18,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:"#000"}}>✓</div>
+                        <div style={{position:"absolute",top:4,right:4,background:T.green,width:18,height:18,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center"}}><Check size={10} strokeWidth={3} color="#000"/></div>
                       </>
                     ):(
                       <>
@@ -1207,7 +1207,7 @@ function InspModal({vehicle,onClose}){
                 By signing, you confirm this inspection is accurate and complete. This report will be archived and sent to your supervisor.
               </div>
               <div onClick={()=>!signed&&setSigOpen(true)} style={{padding:"20px",background:signed?T.greenGlow:T.raised,border:`2px ${signed?"solid":"dashed"} ${signed?T.green:T.border}`,borderRadius:12,textAlign:"center",cursor:signed?"default":"pointer",WebkitTapHighlightColor:"transparent"}}>
-                {signed?<div style={{color:T.green,fontWeight:800,fontSize:15}}>✓ Digitally Signed</div>:<div style={{color:T.textSub,fontSize:13}}>Tap to sign digitally →</div>}
+                {signed?<div style={{color:T.green,fontWeight:800,fontSize:15,display:"flex",alignItems:"center",gap:6}}><Check size={14} strokeWidth={2.5}/>Digitally Signed</div>:<div style={{color:T.textSub,fontSize:13}}>Tap to sign digitally →</div>}
               </div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
                 {[["Photos",`${pc}/6`,pc===6?T.green:T.amber],["Mileage",`${mileage} mi`,T.text],["Fuel",`${fuel}%`,parseInt(fuel)>25?T.text:T.red],["Signature",signed?"Done":"Needed",signed?T.green:T.amber]].map(([l,v,c])=>(
@@ -1224,7 +1224,7 @@ function InspModal({vehicle,onClose}){
             {step<INSP_STEPS.length-1?(
               <button onClick={()=>setStep(s=>s+1)} style={{flex:2,background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",color:"#000",padding:"13px",borderRadius:12,cursor:"pointer",fontWeight:800,fontSize:14}}>Continue →</button>
             ):(
-              <button onClick={()=>signed&&setDone(true)} disabled={!signed} style={{flex:2,background:signed?T.green:T.raised,border:`1px solid ${signed?T.green:T.border}`,color:signed?"#000":T.textDim,padding:"13px",borderRadius:12,cursor:signed?"pointer":"not-allowed",fontWeight:800,fontSize:14}}>Submit Inspection ✓</button>
+              <button onClick={()=>signed&&setDone(true)} disabled={!signed} style={{flex:2,background:signed?T.green:T.raised,border:`1px solid ${signed?T.green:T.border}`,color:signed?"#000":T.textDim,padding:"13px",borderRadius:12,cursor:signed?"pointer":"not-allowed",fontWeight:800,fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><CheckCircle2 size={15} strokeWidth={2}/>Submit Inspection</button>
             )}
           </div>
         </CB>
@@ -1283,7 +1283,7 @@ function IncModal({onClose,showToast}){
               <div style={{fontSize:10,color:T.textSub,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>New Incident</div>
               <div style={{fontSize:18,fontWeight:800,color:T.text}}>INC-2848</div>
             </div>
-            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+            <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={14} strokeWidth={2.5}/></button>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
@@ -1337,7 +1337,7 @@ const LIVE_TICKER=[
   {t:40000,msg:"Jordan Park — Break ended, returning to patrol",type:"info"},
   {t:57000,msg:"V-02 Highlander dispatched — authorised by Supervisor Chen",type:"dispatch"},
   {t:73000,msg:"Diana Reyes — Checkpoint scanned: Loading Dock",type:"scan"},
-  {t:88000,msg:"⚠ Lone worker check-in pending — Jordan Park",type:"warning"},
+  {t:88000,msg:"Lone worker check-in pending — Jordan Park",type:"warning"},
   {t:104000,msg:"INC-2847 resolved — subject processed by Northgate PD",type:"success"},
   {t:119000,msg:"Ava Simmons — Started patrol route, Eastside Mall",type:"info"},
 ];
@@ -1595,7 +1595,7 @@ function Patrol({user,showToast,openModal}){
         const entry={id:`SC-${Date.now()}`,checkpoint:cp.name,site:cp.site,officer:user?.name||"Officer",badge:user?.badge||"—",ts,method:"QR"};
         setScanLog(l=>[entry,...l.slice(0,99)]);
         logAction(user,"CHECKPOINT_SCAN",`${cp.name} — ${cp.site}`);
-        showToast(`✓ ${cp.name} scanned successfully`,"success");
+        showToast(`${cp.name} scanned successfully`,"success");
         setScanning(false);setScanTarget(null);setScanProgress(0);
       }
     },55);
@@ -1633,7 +1633,7 @@ function Patrol({user,showToast,openModal}){
             <div style={{height:6,background:T.raised,borderRadius:3,marginBottom:16,overflow:"hidden"}}>
               <div style={{height:"100%",width:`${scanProgress}%`,background:`linear-gradient(90deg,${T.accent},${T.green})`,borderRadius:3,transition:"width 0.05s linear"}}/>
             </div>
-            <div style={{fontSize:12,color:T.accent}}>{scanProgress<100?"Reading code…":"Confirmed ✓"}</div>
+            <div style={{fontSize:12,color:T.accent,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>{scanProgress<100?"Reading code…":<><Check size={12} strokeWidth={2.5}/>Confirmed</>}</div>
           </div>
         </ModalWrap>
       )}
@@ -2003,7 +2003,7 @@ function Dispatch({showToast,user}){
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             <button onClick={()=>setDispatched(p=>({...p,5:"Plaza West"}))}
               style={{background:dispatched[5]?T.greenGlow:T.red,border:`1px solid ${dispatched[5]?T.greenB:"transparent"}`,color:dispatched[5]?T.green:"#fff",padding:"11px 20px",borderRadius:10,cursor:"pointer",fontWeight:800,fontSize:13,transition:"all .2s"}}>
-              {dispatched[5]?"✓ Jordan Park Dispatched":"Dispatch Jordan Park →"}
+              {dispatched[5]?<span style={{display:"flex",alignItems:"center",gap:6}}><Check size={13} strokeWidth={2.5}/>Jordan Park Dispatched</span>:"Dispatch Jordan Park →"}
             </button>
             <button onClick={radioAll} disabled={radioState!=="idle"}
               style={{background:radioState==="sent"?T.greenGlow:radioState==="broadcasting"?T.accentGlow:T.raised,border:`1px solid ${radioState==="sent"?T.greenB:radioState==="broadcasting"?T.accentB:T.border}`,color:radioState==="sent"?T.green:radioState==="broadcasting"?T.accent:T.textSub,padding:"11px 16px",borderRadius:10,cursor:radioState==="idle"?"pointer":"default",fontWeight:700,fontSize:13,transition:"all .2s"}}>
@@ -2112,7 +2112,7 @@ function MyShift({user,showToast}){
 
   const lwCheckIn=()=>{
     setLoneWorker(30*60);
-    addActivity("Lone worker check-in confirmed ✓");
+    addActivity("Lone worker check-in confirmed");
     showToast("Check-in confirmed — next in 30 min","success");
     logAction(user,"LONE_WORKER_CHECKIN","Manual check-in");
   };
@@ -2244,7 +2244,7 @@ function MyShift({user,showToast}){
                     <div style={{fontSize:13,fontWeight:700,color:T.text}}>{enRouteDest}</div>
                     <div style={{fontSize:11,color:T.gold}}>ETA: {Math.ceil(etaRemaining/60)} min remaining</div>
                   </div>
-                  <button onClick={arrived} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:13}}>✓ Arrived</button>
+                  <button onClick={arrived} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:13,display:"flex",alignItems:"center",gap:6}}><Check size={13} strokeWidth={2.5}/>Arrived</button>
                 </div>
                 <PBar value={enRouteElapsed} max={enRouteETA*60} color={T.gold}/>
               </div>
@@ -2302,7 +2302,7 @@ function MyShift({user,showToast}){
                 {loneWorkerActive&&<div style={{fontSize:11,color:loneWorker<300?T.red:T.amber,marginTop:3}}>Next check-in in {Math.floor(loneWorker/60)}:{String(loneWorker%60).padStart(2,"0")}</div>}
               </div>
               <div style={{display:"flex",gap:7}}>
-                {loneWorkerActive&&<button onClick={lwCheckIn} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>✓ Check In</button>}
+                {loneWorkerActive&&<button onClick={lwCheckIn} style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:5}}><Check size={12} strokeWidth={2.5}/>Check In</button>}
                 <button onClick={()=>setLoneWorkerActive(a=>!a)} style={{background:loneWorkerActive?T.redGlow:T.accentGlow,border:`1px solid ${loneWorkerActive?T.redB:T.accentB}`,color:loneWorkerActive?T.red:T.accent,padding:"8px 12px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{loneWorkerActive?"Disable":"Enable"}</button>
               </div>
             </div>
@@ -2327,7 +2327,7 @@ function MyShift({user,showToast}){
                 <button onClick={()=>{if(!handoverNote.trim())return;logAction(user,"HANDOVER_NOTES",handoverNote.slice(0,120));setHandoverSent(true);showToast("Handover notes submitted","success");}} style={{background:handoverNote.trim()?T.accentGlow:T.raised,border:`1px solid ${handoverNote.trim()?T.accentB:T.border}`,color:handoverNote.trim()?T.accent:T.textDim,padding:"10px",borderRadius:9,cursor:handoverNote.trim()?"pointer":"not-allowed",fontWeight:700,fontSize:13}}>Submit Handover</button>
               </div>
             ):(
-              <div style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,borderRadius:9,padding:"13px 15px",color:T.green,fontWeight:700,fontSize:13}}>✓ Handover notes submitted to incoming shift</div>
+              <div style={{background:T.greenGlow,border:`1px solid ${T.greenB}`,borderRadius:9,padding:"13px 15px",color:T.green,fontWeight:700,fontSize:13,display:"flex",alignItems:"center",gap:8}}><CheckCircle2 size={14} strokeWidth={2}/>Handover notes submitted to incoming shift</div>
             )}
           </CB>
         </Card>
@@ -2577,9 +2577,9 @@ function LeaveModule({user,showToast}){
                 </div>
                 {isManager&&r.status==="Pending"&&(
                   <div style={{display:"flex",gap:7,marginTop:10}}>
-                    {r.type==="Emergency"&&<div style={{fontSize:10,color:T.amber,background:T.goldGlow,border:`1px solid ${T.gold}30`,padding:"4px 8px",borderRadius:6,fontWeight:700,flex:1}}>⚠ Check coverage before approving</div>}
-                    <button onClick={()=>approve(r.id)} style={{flex:1,background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>✓ Approve</button>
-                    <button onClick={()=>deny(r.id)} style={{flex:1,background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"8px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>✕ Deny</button>
+                    {r.type==="Emergency"&&<div style={{fontSize:10,color:T.amber,background:T.goldGlow,border:`1px solid ${T.gold}30`,padding:"4px 8px",borderRadius:6,fontWeight:700,flex:1,display:"flex",alignItems:"center",gap:5}}><AlertTriangle size={10} strokeWidth={2}/>Check coverage before approving</div>}
+                    <button onClick={()=>approve(r.id)} style={{flex:1,background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"8px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><Check size={12} strokeWidth={2.5}/>Approve</button>
+                    <button onClick={()=>deny(r.id)} style={{flex:1,background:T.redGlow,border:`1px solid ${T.redB}`,color:T.red,padding:"8px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><X size={12} strokeWidth={2.5}/>Deny</button>
                   </div>
                 )}
               </div>
@@ -3166,7 +3166,7 @@ function TimekeepingModule({user,showToast}){
     const doClockIn=(gpsData,gfStatus)=>{
       setClockedIn(true);setClockTime(new Date());setElapsed(0);setGeofenceStatus(gfStatus);
       if(gpsData)setGps(gpsData);
-      if(gfStatus==="outside")showToast(`⚠ Outside ${site} geofence — location noted`,"info");
+      if(gfStatus==="outside")showToast(`Outside ${site} geofence — location noted`,"info");
       else showToast(`Clocked in at ${site}`,"success");
       logAction(user,"CLOCK_IN",`GPS clock-in at ${site}${gfStatus?" (geofence:"+gfStatus+")":""}`);
     };
@@ -3282,7 +3282,7 @@ function TimekeepingModule({user,showToast}){
                         </table>
                       </div>
                       {ts.status!=="Approved"&&(
-                        <button onClick={()=>approveSheet(ts.id)} style={{marginTop:10,background:T.green,border:"none",color:"#000",padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:800,fontSize:12,width:"100%"}}>✓ Approve All Shifts</button>
+                        <button onClick={()=>approveSheet(ts.id)} style={{marginTop:10,background:T.green,border:"none",color:"#000",padding:"10px",borderRadius:9,cursor:"pointer",fontWeight:800,fontSize:12,width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Check size={13} strokeWidth={2.5}/>Approve All Shifts</button>
                       )}
                     </div>
                   )}
@@ -3306,10 +3306,10 @@ function TimekeepingModule({user,showToast}){
               {gps&&<div style={{fontSize:11,color:T.accent,marginBottom:4,display:"flex",alignItems:"center",gap:4,justifyContent:"center"}}><MapPin size={10} strokeWidth={2}/>{gps.lat}, {gps.lng}{gps.dist!==undefined?` · ${gps.dist}m from site`:""}</div>}
               {gps&&gps.dist!==undefined&&(
                 <div style={{fontSize:11,fontWeight:700,color:gps.dist<=gps.radius?T.green:T.red,marginBottom:8,background:gps.dist<=gps.radius?T.greenB:T.redGlow,border:`1px solid ${gps.dist<=gps.radius?T.greenB:T.redB}`,borderRadius:8,padding:"4px 10px",display:"inline-block"}}>
-                  {gps.dist<=gps.radius?`✓ Inside ${site} geofence (${gps.radius}m radius)`:`⚠ Outside geofence — ${gps.dist}m (max ${gps.radius}m)`}
+                  {gps.dist<=gps.radius?`Inside ${site} geofence (${gps.radius}m radius)`:`Outside geofence — ${gps.dist}m (max ${gps.radius}m)`}
                 </div>
               )}
-              {gpsErr&&<div style={{fontSize:11,color:T.amber,marginBottom:8}}>⚠ {gpsErr}</div>}
+              {gpsErr&&<div style={{fontSize:11,color:T.amber,marginBottom:8,display:"flex",alignItems:"center",gap:5}}><AlertTriangle size={11} color={T.amber} strokeWidth={2}/>{gpsErr}</div>}
               {!clockedIn&&(
                 <div style={{marginBottom:16,textAlign:"left"}}>
                   <label style={{fontSize:11,color:T.textSub,fontWeight:700,display:"block",marginBottom:6}}>Deployment Site</label>
@@ -3327,10 +3327,10 @@ function TimekeepingModule({user,showToast}){
             <CB>
               <SH title="Payroll Integration Frameworks"/>
               {[
-                ["Paylocity","CSV export ready — compatible with Paylocity Import","⬇ Export",T.green,exportPaylocity],
-                ["ADP Workforce Now","ADP-format CSV — compatible with ADP import wizard","⬇ Export",T.green,exportADP],
-                ["UKG Pro","REST API integration — configure credentials in Settings","⚙ Configure",T.amber,null],
-                ["QuickBooks Payroll","Accounting integration available in v2.0","⌛ Planned",T.textDim,null],
+                ["Paylocity","CSV export ready — compatible with Paylocity Import","Export",T.green,exportPaylocity],
+                ["ADP Workforce Now","ADP-format CSV — compatible with ADP import wizard","Export",T.green,exportADP],
+                ["UKG Pro","REST API integration — configure credentials in Settings","Configure",T.amber,null],
+                ["QuickBooks Payroll","Accounting integration available in v2.0","Planned",T.textDim,null],
               ].map(([p,d,s,c,fn])=>(
                 <div key={p} style={{display:"flex",alignItems:"center",gap:12,background:T.raised,borderRadius:9,padding:"11px 14px",marginBottom:6}}>
                   <div style={{flex:1}}>
@@ -3583,7 +3583,7 @@ function ProcurementModule({user,showToast}){
             <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?T.accentGlow:T.raised,border:`1px solid ${tab===t?T.accentB:T.border}`,color:tab===t?T.accent:T.textSub,padding:"8px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{l}</button>
           ))}
         </div>
-        {tab==="requests"&&<button onClick={()=>setShowForm(p=>!p)} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12}}>{showForm?"✕ Cancel":"+ New Request"}</button>}
+        {tab==="requests"&&<button onClick={()=>setShowForm(p=>!p)} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 14px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:6}}>{showForm?<><X size={12} strokeWidth={2.5}/>Cancel</>:<><Plus size={12} strokeWidth={2.5}/>New Request</>}</button>}
       </div>
 
       {tab==="requests"&&(
@@ -3623,7 +3623,7 @@ function ProcurementModule({user,showToast}){
                   style={{width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:9,padding:"10px 12px",color:T.text,fontSize:13,resize:"none",outline:"none",boxSizing:"border-box",marginBottom:10}}/>
                 <div style={{display:"flex",gap:8}}>
                   <button onClick={()=>setShowForm(false)} style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px",borderRadius:9,cursor:"pointer",fontWeight:600}}>Cancel</button>
-                  <button onClick={submitReq} disabled={!valid} style={{flex:2,background:valid?T.accent:T.raised,border:`1px solid ${valid?T.accent:T.border}`,color:valid?"#000":T.textDim,padding:"11px",borderRadius:9,cursor:valid?"pointer":"not-allowed",fontWeight:800}}>Submit Request ✓</button>
+                  <button onClick={submitReq} disabled={!valid} style={{flex:2,background:valid?T.accent:T.raised,border:`1px solid ${valid?T.accent:T.border}`,color:valid?"#000":T.textDim,padding:"11px",borderRadius:9,cursor:valid?"pointer":"not-allowed",fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><CheckCircle2 size={14} strokeWidth={2}/>Submit Request</button>
                 </div>
               </CB>
             </Card>
@@ -3646,7 +3646,7 @@ function ProcurementModule({user,showToast}){
                 </div>
               </div>
               {r.status==="Pending"&&(
-                <button onClick={()=>approve(r.id)} style={{marginTop:8,background:T.green,border:"none",color:"#000",padding:"8px",borderRadius:7,cursor:"pointer",fontWeight:800,fontSize:11,width:"100%"}}>✓ Approve Request</button>
+                <button onClick={()=>approve(r.id)} style={{marginTop:8,background:T.green,border:"none",color:"#000",padding:"8px",borderRadius:7,cursor:"pointer",fontWeight:800,fontSize:11,width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><Check size={12} strokeWidth={2.5}/>Approve Request</button>
               )}
             </div>
           ))}
@@ -3859,7 +3859,7 @@ function MFAScreen({user,onVerify,onCancel}){
           Verify Identity →
         </button>
         <div style={{display:"flex",justifyContent:"space-between"}}>
-          <button onClick={()=>{setResent(true);setTimeout(()=>setResent(false),3000);}} style={{background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer",padding:0}}>{resent?"Code re-sent ✓":"Resend code"}</button>
+          <button onClick={()=>{setResent(true);setTimeout(()=>setResent(false),3000);}} style={{background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer",padding:0}}>{resent?"Code re-sent":"Resend code"}</button>
           <button onClick={onCancel} style={{background:"none",border:"none",color:T.textDim,fontSize:12,cursor:"pointer",padding:0}}>Cancel</button>
         </div>
       </div>
@@ -4101,7 +4101,7 @@ function UserManagement({user,showToast}){
                       <td style={{padding:"12px 14px"}}>{u.mfaEnabled?<Fingerprint size={16} color={T.green} strokeWidth={2}/>:<span style={{color:T.textDim}}>—</span>}</td>
                       <td style={{padding:"12px 14px"}}>
                         <div style={{display:"flex",gap:6}}>
-                          <button onClick={()=>setEditingId(editingId===u.id?null:u.id)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:600}}>{editingId===u.id?"✕":"Edit"}</button>
+                          <button onClick={()=>setEditingId(editingId===u.id?null:u.id)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.text,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:600,display:"flex",alignItems:"center",gap:4}}>{editingId===u.id?<><X size={11} strokeWidth={2.5}/>Cancel</>:"Edit"}</button>
                           {u.id!==user.id&&<button onClick={()=>toggleActive(u.id)} style={{background:u.active!==false?T.redGlow:T.greenB,border:`1px solid ${u.active!==false?T.redB:T.greenB}`,color:u.active!==false?T.red:T.green,padding:"5px 10px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:600}}>{u.active!==false?"Deactivate":"Activate"}</button>}
                         </div>
                       </td>
@@ -4131,7 +4131,7 @@ function UserManagement({user,showToast}){
                       <td style={{padding:"9px 14px",fontSize:13,color:T.text}}>{label}</td>
                       {ROLES.map(r=>(
                         <td key={r} style={{padding:"9px 14px",textAlign:"center"}}>
-                          {ROLE_PERMS[r]?.includes(id)?<span style={{fontSize:16,color:T.green}}>✓</span>:<span style={{fontSize:14,color:T.textDim}}>—</span>}
+                          {ROLE_PERMS[r]?.includes(id)?<Check size={16} color={T.green} strokeWidth={2.5}/>:<span style={{fontSize:14,color:T.textDim}}>—</span>}
                         </td>
                       ))}
                     </tr>
@@ -4149,11 +4149,11 @@ function UserManagement({user,showToast}){
             <CB>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
                 <div><div style={{fontSize:10,color:T.textSub,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>User Management</div><div style={{fontSize:18,fontWeight:800,color:T.text}}>Invite User</div></div>
-                <button onClick={()=>setShowInvite(false)} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",fontSize:18}}>✕</button>
+                <button onClick={()=>setShowInvite(false)} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={14} strokeWidth={2.5}/></button>
               </div>
               {inviteDone?(
                 <div style={{textAlign:"center",padding:"16px 0"}}>
-                  <div style={{fontSize:40,marginBottom:12}}>✉️</div>
+                  <div style={{marginBottom:12,display:"flex",justifyContent:"center"}}><Mail size={40} color={T.green} strokeWidth={1.5}/></div>
                   <div style={{fontSize:17,fontWeight:800,color:T.green,marginBottom:8}}>Invitation Sent!</div>
                   <div style={{fontSize:13,color:T.textSub,lineHeight:1.7,marginBottom:18}}><strong style={{color:T.text}}>{invite.name}</strong> can sign in with temp password: <span style={{fontFamily:"monospace",color:T.accent}}>Welcome1!</span></div>
                   <button onClick={()=>setShowInvite(false)} style={{background:T.accent,border:"none",color:"#000",padding:"12px 28px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14}}>Done</button>
@@ -4292,7 +4292,7 @@ function CompanySettings({user,showToast}){
                 ))}
               </div>
               <div style={{background:s.ukg_key?`${T.green}15`:`${T.amber}15`,border:`1px solid ${s.ukg_key?T.green:T.amber}40`,borderRadius:10,padding:"11px 14px",marginBottom:14,fontSize:12,color:s.ukg_key?T.green:T.amber}}>
-                {s.ukg_key?"✓ Credentials configured — sync will activate on next payroll run":"⚠ Credentials not set — UKG sync disabled. Enter credentials above to enable."}
+                {s.ukg_key?<span style={{display:"flex",alignItems:"center",gap:6}}><Check size={13} strokeWidth={2.5}/>Credentials configured — sync will activate on next payroll run</span>:<span style={{display:"flex",alignItems:"center",gap:6}}><AlertTriangle size={13} strokeWidth={2}/>Credentials not set — UKG sync disabled. Enter credentials above to enable.</span>}
               </div>
               <button onClick={save} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:"12px 28px",color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Save UKG Credentials</button>
             </CB>
@@ -4345,7 +4345,7 @@ function ClientPortal({user,showToast}){
           <div style={{fontSize:10,color:T.accent,fontWeight:700,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>Client Portal</div>
           <div style={{fontSize:20,fontWeight:900,color:T.text}}>Contract & Service Overview</div>
         </div>
-        <button onClick={exportReport} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12}}>⬇ Export Report</button>
+        <button onClick={exportReport} style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"9px 16px",borderRadius:9,cursor:"pointer",fontWeight:700,fontSize:12,display:"flex",alignItems:"center",gap:6}}><ArrowDownToLine size={13} strokeWidth={2}/>Export Report</button>
       </div>
 
       <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
