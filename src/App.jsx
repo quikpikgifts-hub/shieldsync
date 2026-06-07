@@ -195,6 +195,13 @@ const AI_INSIGHTS=[
   {text:"Certificate alert: Theo Okafor — SIA Door Supervisor expired Nov 2025. Non-compliant deployment.",priority:"critical"},
 ];
 const REPORT_TYPES=["Daily Operations Summary","Incident Report","Patrol Analysis","Workforce Performance","Risk Assessment"];
+const REPORT_HISTORY=[
+  {id:"RPT-0042",type:"Daily Operations Summary",date:"2026-06-06",time:"18:15",pages:3,status:"Delivered"},
+  {id:"RPT-0041",type:"Incident Report",date:"2026-06-06",time:"09:30",pages:2,status:"Delivered"},
+  {id:"RPT-0040",type:"Patrol Analysis",date:"2026-06-05",time:"18:00",pages:4,status:"Delivered"},
+  {id:"RPT-0039",type:"Workforce Performance",date:"2026-06-04",time:"17:45",pages:5,status:"Delivered"},
+];
+const LEAVE_TOTALS={Annual:25,Sick:14,Training:8,Emergency:5};
 const NAV=[
   {id:"dashboard",label:"Command",icon:LayoutDashboard,roles:["Company Admin","Supervisor","Officer"],group:"ops"},
   {id:"executive",label:"Executive",icon:BarChart3,roles:["Company Admin"],group:"ops"},
@@ -1520,37 +1527,82 @@ function Dashboard({openModal,showToast,isMobile}){
 }
 
 function Workforce({isMobile}){
+  const[search,setSearch]=useState("");
+  const[sf,setSf]=useState("All");
+  const active=OFFICERS.filter(o=>o.status!=="Off Duty").length;
+  const withInc=OFFICERS.filter(o=>o.incidents>0).length;
+  const onPatrol=OFFICERS.filter(o=>o.status==="On Patrol").length;
+  const sfColor=(s)=>s==="All"?T.accent:SM(s).c;
+  const filtered=OFFICERS.filter(o=>{
+    const ms=!search||[o.name,o.badge,o.site].some(x=>x.toLowerCase().includes(search.toLowerCase()));
+    return ms&&(sf==="All"||o.status===sf);
+  });
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:4},1fr)`,gap:10}}>
+        {[[Users,"Total Officers",OFFICERS.length,T.accent],[ShieldCheck,"Active Now",active,T.green],[AlertTriangle,"Active Incidents",withInc,withInc>0?T.red:T.textDim],[Navigation,"On Patrol",onPatrol,T.accent]].map(([Icon,l,v,c])=>(
+          <Card key={l} glow={c}>
+            <CB style={{padding:"14px 16px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                <div><div style={{fontSize:26,fontWeight:900,color:c,lineHeight:1}}>{v}</div><div style={{fontSize:10,color:T.textSub,marginTop:4}}>{l}</div></div>
+                <Icon size={18} color={c} strokeWidth={1.5} style={{opacity:0.45}}/>
+              </div>
+            </CB>
+          </Card>
+        ))}
+      </div>
+      <Card>
+        <CB style={{padding:"12px 16px"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <div style={{fontSize:12,fontWeight:700,color:T.text}}>Shift Coverage</div>
+            <div style={{fontSize:12,fontWeight:800,color:active>=5?T.green:active>=4?T.amber:T.red}}>{Math.round(active/OFFICERS.length*100)}% — {active}/{OFFICERS.length} on duty</div>
+          </div>
+          <PBar value={active} max={OFFICERS.length} color={active>=5?T.green:active>=4?T.amber:T.red}/>
+          <div style={{display:"flex",gap:12,marginTop:10,flexWrap:"wrap"}}>
+            {["On Patrol","On Site","Incident Active","Clocked In","Break","Off Duty"].map(s=>{const n=OFFICERS.filter(o=>o.status===s).length;return n?<div key={s} style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:T.textSub}}><div style={{width:6,height:6,borderRadius:"50%",background:SM(s).c}}/>{s} ({n})</div>:null;})}
+          </div>
+        </CB>
+      </Card>
+      <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search name, badge, or site…" style={{flex:1,minWidth:150,background:T.surface,border:`1px solid ${T.border}`,color:T.text,padding:"10px 14px",borderRadius:10,fontSize:12,outline:"none"}}/>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          {["All","On Patrol","Incident Active","Off Duty"].map(s=>(
+            <button key={s} onClick={()=>setSf(s)} style={{background:sf===s?`${sfColor(s)}22`:T.raised,border:`1px solid ${sf===s?sfColor(s):T.border}`,color:sf===s?T.text:T.textSub,padding:"8px 12px",borderRadius:8,cursor:"pointer",fontSize:11,fontWeight:700,whiteSpace:"nowrap"}}>{s}</button>
+          ))}
+        </div>
+      </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(265px,1fr))",gap:12}}>
-        {OFFICERS.map(o=>{
-          const c=SM(o.status).c;
-          return(
-            <Card key={o.id} glow={c}>
-              <CB>
-                <div style={{display:"flex",gap:14,alignItems:"center"}}>
-                  <Av initials={o.av} color={c} size={44}/>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontWeight:800,fontSize:14,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{o.name}</div>
-                    <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{o.badge} · {o.shift}</div>
-                    <div style={{marginTop:7}}><Pill label={o.status}/></div>
+        {filtered.length===0
+          ?<div style={{gridColumn:"1/-1",padding:40,textAlign:"center",color:T.textSub,fontSize:13}}>No officers match your search.</div>
+          :filtered.map(o=>{
+            const c=SM(o.status).c;
+            return(
+              <Card key={o.id} glow={c}>
+                <CB>
+                  <div style={{display:"flex",gap:14,alignItems:"center"}}>
+                    <Av initials={o.av} color={c} size={44}/>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontWeight:800,fontSize:14,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{o.name}</div>
+                      <div style={{fontSize:11,color:T.textSub,marginTop:1}}>{o.badge} · {o.shift}</div>
+                      <div style={{marginTop:7}}><Pill label={o.status}/></div>
+                    </div>
                   </div>
-                </div>
-                <div style={{marginTop:14,display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-                  <div style={{background:T.raised,borderRadius:8,padding:"9px 12px"}}>
-                    <div style={{fontSize:10,color:T.textSub,marginBottom:2}}>Site</div>
-                    <div style={{fontSize:12,color:T.text,fontWeight:700}}>{o.site}</div>
+                  <div style={{marginTop:14,display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                    <div style={{background:T.raised,borderRadius:8,padding:"9px 12px"}}>
+                      <div style={{fontSize:10,color:T.textSub,marginBottom:2}}>Site</div>
+                      <div style={{fontSize:12,color:T.text,fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{o.site}</div>
+                    </div>
+                    <div style={{background:T.raised,borderRadius:8,padding:"9px 12px"}}>
+                      <div style={{fontSize:10,color:T.textSub,marginBottom:2}}>Checkpoints</div>
+                      <div style={{fontSize:12,color:T.accent,fontWeight:800}}>{o.cps} hit</div>
+                    </div>
                   </div>
-                  <div style={{background:T.raised,borderRadius:8,padding:"9px 12px"}}>
-                    <div style={{fontSize:10,color:T.textSub,marginBottom:2}}>Checkpoints</div>
-                    <div style={{fontSize:12,color:T.accent,fontWeight:800}}>{o.cps} hit</div>
-                  </div>
-                </div>
-                {o.incidents>0&&<div style={{marginTop:10,padding:"9px 12px",background:T.redGlow,borderRadius:8,border:`1px solid ${T.redB}`,fontSize:12,color:T.red,fontWeight:700,display:"flex",alignItems:"center",gap:6}}><AlertTriangle size={12} strokeWidth={2}/>{o.incidents} active incident{o.incidents>1?"s":""}</div>}
-              </CB>
-            </Card>
-          );
-        })}
+                  {o.incidents>0&&<div style={{marginTop:10,padding:"9px 12px",background:T.redGlow,borderRadius:8,border:`1px solid ${T.redB}`,fontSize:12,color:T.red,fontWeight:700,display:"flex",alignItems:"center",gap:6}}><AlertTriangle size={12} strokeWidth={2}/>{o.incidents} active incident{o.incidents>1?"s":""}</div>}
+                </CB>
+              </Card>
+            );
+          })
+        }
       </div>
       <Card>
         <CB>
@@ -1901,6 +1953,7 @@ function Reports({isMobile}){
   const[rtype,setRtype]=useState(REPORT_TYPES[0]);
   const[loading,setLoading]=useState(false);
   const[report,setReport]=useState("");
+  const[history,setHistory]=useState(REPORT_HISTORY);
 
   const generate=async()=>{
     setLoading(true);setReport("");
@@ -1911,12 +1964,26 @@ function Reports({isMobile}){
         1000
       );
       setReport(text||"No content received.");
+      const now=new Date();
+      setHistory(h=>[{id:`RPT-${String(h.length+43).padStart(4,"0")}`,type:rtype,date:now.toISOString().slice(0,10),time:now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:false}),pages:Math.max(1,Math.ceil((text||"").length/600)),status:"Generated"},...h.slice(0,9)]);
     }catch{setReport(DEMO_REPORTS[rtype]||"Report template unavailable.");}
     setLoading(false);
   };
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:16}}>
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:3},1fr)`,gap:10}}>
+        {[[FileText,"Reports Today",1,T.accent],[BarChart3,"This Week",history.length,T.green],[Clock,"Report Types",REPORT_TYPES.length,T.textSub]].map(([Icon,l,v,c])=>(
+          <Card key={l} glow={c}>
+            <CB style={{padding:"14px 16px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                <div><div style={{fontSize:26,fontWeight:900,color:c,lineHeight:1}}>{v}</div><div style={{fontSize:10,color:T.textSub,marginTop:4}}>{l}</div></div>
+                <Icon size={18} color={c} strokeWidth={1.5} style={{opacity:0.45}}/>
+              </div>
+            </CB>
+          </Card>
+        ))}
+      </div>
       <Card>
         <CB>
           <SH title="AI Report Generator"/>
@@ -1949,6 +2016,24 @@ function Reports({isMobile}){
               </div>
             </div>
           )}
+        </CB>
+      </Card>
+      <Card>
+        <CB>
+          <SH title="Report History"/>
+          <div style={{display:"flex",flexDirection:"column",gap:7}}>
+            {history.map(r=>(
+              <div key={r.id} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:T.raised,borderRadius:10}}>
+                <FileText size={14} color={T.accent} strokeWidth={1.5} style={{flexShrink:0}}/>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:12,fontWeight:700,color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.type}</div>
+                  <div style={{fontSize:10,color:T.textSub}}>{r.date} · {r.time} · {r.pages}p</div>
+                </div>
+                <Pill label={r.status} color={r.status==="Delivered"?T.green:T.accent}/>
+                <div style={{fontSize:10,color:T.textDim,fontFamily:"monospace",flexShrink:0}}>{r.id}</div>
+              </div>
+            ))}
+          </div>
         </CB>
       </Card>
     </div>
@@ -2507,19 +2592,43 @@ function LeaveModule({user,showToast,isMobile}){
   const statusColor=(s)=>s==="Approved"?T.green:s==="Pending"?T.amber:T.red;
   const typeColor=(t)=>t==="Annual"?T.accent:t==="Sick"?T.red:t==="Training"?T.purple:T.gold;
 
+  const pending=requests.filter(r=>r.status==="Pending").length;
+  const approvedDays=requests.filter(r=>r.status==="Approved").reduce((a,r)=>a+r.days,0);
+  const teamOnLeave=requests.filter(r=>r.status==="Approved"&&r.from<="2026-06-07"&&r.to>="2026-06-07").length;
+
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      {/* Balances */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10}}>
-        {Object.entries(LEAVE_BALANCES).map(([type,days])=>(
-          <Card key={type} glow={typeColor(type)}>
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:3},1fr)`,gap:10}}>
+        {[[CalendarDays,"Pending Requests",pending,pending>0?T.amber:T.textDim],[Check,"Approved Days",approvedDays,T.green],[Users,"Team On Leave",teamOnLeave,teamOnLeave>1?T.amber:T.textDim]].map(([Icon,l,v,c])=>(
+          <Card key={l} glow={c}>
             <CB style={{padding:"14px 16px"}}>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:typeColor(type),marginBottom:8}}>{type}</div>
-              <div style={{fontSize:30,fontWeight:900,color:T.text}}>{days}</div>
-              <div style={{fontSize:10,color:T.textSub,marginTop:2}}>days available</div>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                <div><div style={{fontSize:26,fontWeight:900,color:c,lineHeight:1}}>{v}</div><div style={{fontSize:10,color:T.textSub,marginTop:4}}>{l}</div></div>
+                <Icon size={18} color={c} strokeWidth={1.5} style={{opacity:0.45}}/>
+              </div>
             </CB>
           </Card>
         ))}
+      </div>
+      {/* Balances */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10}}>
+        {Object.entries(LEAVE_BALANCES).map(([type,days])=>{
+          const total=LEAVE_TOTALS[type]||days;
+          const used=total-days;
+          return(
+            <Card key={type} glow={typeColor(type)}>
+              <CB style={{padding:"14px 16px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",color:typeColor(type)}}>{type}</div>
+                  <div style={{fontSize:10,color:T.textDim}}>{used}/{total} used</div>
+                </div>
+                <div style={{fontSize:28,fontWeight:900,color:T.text,lineHeight:1}}>{days}</div>
+                <div style={{fontSize:10,color:T.textSub,marginTop:2,marginBottom:10}}>days remaining</div>
+                <PBar value={days} max={total} color={typeColor(type)}/>
+              </CB>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Request form toggle */}
@@ -2596,12 +2705,16 @@ function LeaveModule({user,showToast,isMobile}){
 // ─────────────────────────────────────────────────────────────────
 function TrainingModule({isMobile}){
   const[filter,setFilter]=useState("All");
+  const[scheduled,setScheduled]=useState({});
   const statuses=["All","Valid","Expiring Soon","Expired"];
   const filtered=filter==="All"?TRAINING_DATA:TRAINING_DATA.filter(t=>t.status===filter);
+  const valid=TRAINING_DATA.filter(t=>t.status==="Valid").length;
   const expired=TRAINING_DATA.filter(t=>t.status==="Expired").length;
   const expiring=TRAINING_DATA.filter(t=>t.status==="Expiring Soon").length;
+  const compliancePct=Math.round(valid/TRAINING_DATA.length*100);
 
   const certColor=(s)=>s==="Valid"?T.green:s==="Expiring Soon"?T.amber:T.red;
+  const daysUntil=(expiry)=>{const d=Math.round((new Date(expiry)-new Date("2026-06-07"))/(1000*60*60*24));return d;};
 
   const byOfficer=OFFICERS.map(o=>({
     ...o,
@@ -2612,20 +2725,32 @@ function TrainingModule({isMobile}){
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:isMobile?6:10}}>
-        {[["Total Certs",TRAINING_DATA.length,T.accent],["Expiring Soon",expiring,T.amber],["Expired",expired,T.red]].map(([l,v,c])=>(
+      <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?2:4},1fr)`,gap:isMobile?6:10}}>
+        {[[GraduationCap,"Total Certs",TRAINING_DATA.length,T.accent],[CheckCircle2,"Valid",valid,T.green],[AlertTriangle,"Expiring Soon",expiring,T.amber],[X,"Expired",expired,T.red]].map(([Icon,l,v,c])=>(
           <Card key={l} glow={c}>
-            <CB style={{textAlign:"center",padding:"14px 10px"}}>
-              <div style={{fontSize:26,fontWeight:900,color:c}}>{v}</div>
-              <div style={{fontSize:10,color:T.textSub,marginTop:3}}>{l}</div>
+            <CB style={{padding:"14px 16px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                <div><div style={{fontSize:24,fontWeight:900,color:c,lineHeight:1}}>{v}</div><div style={{fontSize:10,color:T.textSub,marginTop:3}}>{l}</div></div>
+                <Icon size={16} color={c} strokeWidth={1.5} style={{opacity:0.45}}/>
+              </div>
             </CB>
           </Card>
         ))}
       </div>
+      <Card>
+        <CB style={{padding:"14px 16px"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <div style={{fontSize:12,fontWeight:700,color:T.text}}>Overall Compliance Score</div>
+            <div style={{fontSize:14,fontWeight:900,color:compliancePct>=80?T.green:compliancePct>=60?T.amber:T.red}}>{compliancePct}%</div>
+          </div>
+          <PBar value={valid} max={TRAINING_DATA.length} color={compliancePct>=80?T.green:compliancePct>=60?T.amber:T.red}/>
+          <div style={{fontSize:11,color:T.textSub,marginTop:8}}>{valid} of {TRAINING_DATA.length} certifications valid — {expired+expiring} require action</div>
+        </CB>
+      </Card>
       {expired>0&&(
         <div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"12px 16px",display:"flex",gap:10,alignItems:"center"}}>
           <AlertTriangle size={18} color={T.red} strokeWidth={2}/>
-          <div style={{fontSize:12,color:T.red,fontWeight:700}}>Action Required: {expired} expired certificate{expired!==1?"s":" "} — officers may not be legally compliant for deployment. Escalate to HR.</div>
+          <div style={{fontSize:12,color:T.red,fontWeight:700}}>Action Required: {expired} expired certificate{expired!==1?"s":""} — officers may not be legally compliant for deployment. Escalate to HR.</div>
         </div>
       )}
       <Card>
@@ -2639,10 +2764,7 @@ function TrainingModule({isMobile}){
                   <div style={{fontSize:13,fontWeight:700,color:T.text}}>{o.name}</div>
                   <div style={{fontSize:10,color:T.textSub}}>{o.certs.length} certs · {o.valid} valid</div>
                 </div>
-                {o.issues>0
-                  ?<Pill label={`${o.issues} issue${o.issues!==1?"s":""}`} color={T.red}/>
-                  :<Pill label="Compliant" color={T.green}/>
-                }
+                {o.issues>0?<Pill label={`${o.issues} issue${o.issues!==1?"s":""}`} color={T.red}/>:<Pill label="Compliant" color={T.green}/>}
               </div>
             ))}
           </div>
@@ -2650,25 +2772,44 @@ function TrainingModule({isMobile}){
       </Card>
       <Card>
         <CB>
-          <div style={{display:"flex",gap:7,marginBottom:14,flexWrap:"wrap"}}>
-            {statuses.map(s=>(
-              <button key={s} onClick={()=>setFilter(s)} style={{background:filter===s?`${certColor(s)}20`:T.raised,border:`1px solid ${filter===s?certColor(s):T.border}`,color:filter===s?certColor(s):T.textSub,padding:"7px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11}}>{s}</button>
-            ))}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,flexWrap:"wrap",gap:8}}>
+            <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+              {statuses.map(s=>(
+                <button key={s} onClick={()=>setFilter(s)} style={{background:filter===s?`${certColor(s==="All"?"Valid":s)}20`:T.raised,border:`1px solid ${filter===s?certColor(s==="All"?"Valid":s):T.border}`,color:filter===s?certColor(s==="All"?"Valid":s):T.textSub,padding:"7px 13px",borderRadius:8,cursor:"pointer",fontWeight:700,fontSize:11}}>{s}</button>
+              ))}
+            </div>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:7}}>
-            {filtered.map(t=>(
-              <div key={t.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 13px",background:T.raised,borderRadius:9}}>
-                <div style={{width:8,height:8,borderRadius:"50%",background:certColor(t.status),flexShrink:0}}/>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:12,fontWeight:700,color:T.text}}>{t.cert}</div>
-                  <div style={{fontSize:10,color:T.textSub}}>{t.officer} · {t.issuer}</div>
+            {filtered.map(t=>{
+              const days=daysUntil(t.expiry);
+              const isAction=t.status==="Expired"||t.status==="Expiring Soon";
+              const isScheduled=!!scheduled[t.id];
+              return(
+                <div key={t.id} style={{padding:"10px 13px",background:T.raised,borderRadius:9}}>
+                  <div style={{display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{width:8,height:8,borderRadius:"50%",background:certColor(t.status),flexShrink:0}}/>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:12,fontWeight:700,color:T.text}}>{t.cert}</div>
+                      <div style={{fontSize:10,color:T.textSub}}>{t.officer} · {t.issuer}</div>
+                    </div>
+                    <div style={{textAlign:"right",flexShrink:0}}>
+                      <div style={{fontSize:10,color:certColor(t.status),fontWeight:700}}>
+                        {days<0?`${Math.abs(days)}d overdue`:days===0?"Expires today":`${days}d`}
+                      </div>
+                      <Pill label={t.status} color={certColor(t.status)}/>
+                    </div>
+                  </div>
+                  {isAction&&(
+                    <div style={{marginTop:8,display:"flex",gap:7}}>
+                      {isScheduled
+                        ?<div style={{flex:1,background:T.greenGlow,border:`1px solid ${T.greenB}`,color:T.green,padding:"7px 12px",borderRadius:7,fontSize:11,fontWeight:700,display:"flex",alignItems:"center",gap:5}}><Check size={11} strokeWidth={2.5}/>Renewal Scheduled</div>
+                        :<button onClick={()=>setScheduled(s=>({...s,[t.id]:true}))} style={{flex:1,background:T.accentGlow,border:`1px solid ${T.accentB}`,color:T.accent,padding:"7px 12px",borderRadius:7,cursor:"pointer",fontSize:11,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}><RotateCw size={11} strokeWidth={2.5}/>Schedule Renewal</button>
+                      }
+                    </div>
+                  )}
                 </div>
-                <div style={{textAlign:"right",flexShrink:0}}>
-                  <div style={{fontSize:10,color:certColor(t.status),fontWeight:700}}>{t.expiry}</div>
-                  <Pill label={t.status} color={certColor(t.status)}/>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </CB>
       </Card>
