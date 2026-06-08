@@ -111,10 +111,25 @@ export const audit = {
   subscribe: (cb) => _subscribe(AUD_KEY, cb),
 };
 
+// ─── AI Configuration ─────────────────────────────────────────────
+// Modes:
+//   "none"       — AI completely disabled (throws AI_DISABLED)
+//   "rules"      — offline rules-based only, no external calls (throws AI_DISABLED)
+//   "hosted"     — customer self-hosted LLM (Ollama / vLLM / LM Studio)
+//   "azure"      — Azure OpenAI endpoint
+//   "anthropic"  — Anthropic API (proxy → direct browser fallback)
+const AI_CFG_KEY = "ss_ai_config_v1";
+export const getAIConfig = () => LS.get(AI_CFG_KEY, { mode: "anthropic" });
+export const setAIConfig = (cfg) => { LS.set(AI_CFG_KEY, cfg); };
+
 // ─── AI helper ────────────────────────────────────────────────────
 // Routes through /api/ai Edge Function (key server-side).
 // Falls back to direct browser call for local dev without the proxy.
 export async function callAI(messages, system, maxTokens = 1000) {
+  const { mode = "anthropic", hostedUrl, azureUrl, azureKey } = getAIConfig();
+
+  if (mode === "none" || mode === "rules") throw new Error("AI_DISABLED");
+
   const payload = {
     model:      "claude-sonnet-4-6",
     max_tokens: maxTokens,
@@ -122,7 +137,37 @@ export async function callAI(messages, system, maxTokens = 1000) {
     messages,
   };
 
-  // Try proxy first (production path — key is server-side)
+  if (mode === "hosted") {
+    const url = hostedUrl || "/api/ai-hosted";
+    const res = await fetch(url, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ ...payload, stream: false }),
+    });
+    if (!res.ok) throw new Error(`Hosted AI ${res.status}`);
+    const data = await res.json();
+    return data.content?.[0]?.text ?? data.choices?.[0]?.message?.content ?? null;
+  }
+
+  if (mode === "azure") {
+    if (!azureUrl) throw new Error("Azure endpoint not configured");
+    const res = await fetch(azureUrl, {
+      method:  "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": azureKey || "",
+      },
+      body: JSON.stringify({
+        messages:   [{ role: "system", content: system }, ...messages],
+        max_tokens: maxTokens,
+      }),
+    });
+    if (!res.ok) throw new Error(`Azure AI ${res.status}`);
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content ?? null;
+  }
+
+  // mode === "anthropic" — proxy → direct browser fallback
   try {
     const res = await fetch("/api/ai", {
       method:  "POST",
@@ -133,7 +178,6 @@ export async function callAI(messages, system, maxTokens = 1000) {
       const data = await res.json();
       return data.content?.[0]?.text ?? null;
     }
-    // 503 = proxy deployed but key not set → fall through to direct call
     if (res.status !== 503 && res.status !== 404) throw new Error(`Proxy ${res.status}`);
   } catch (e) {
     if (!e.message.includes("Failed to fetch") && !e.message.includes("404")) throw e;
