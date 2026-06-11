@@ -77,20 +77,20 @@ const SM=(s)=>({
 // AUTH USERS  (demo credentials — swap for real IdP in production)
 // ─────────────────────────────────────────────────────────────────
 const AUTH_USERS=[
-  {id:"U-001",email:"admin@shieldsync.com",     password:"Sentinel2025!",name:"Alex Morgan",    role:"Company Admin",badge:"ADMIN-01",av:"AM"},
-  {id:"U-002",email:"supervisor@shieldsync.com", password:"Sentinel2025!",name:"Sarah Chen",    role:"Supervisor",   badge:"SUP-001", av:"SC"},
-  {id:"U-003",email:"officer@shieldsync.com",   password:"Sentinel2025!",name:"Marcus Webb",   role:"Officer",      badge:"S-0041",  av:"MW"},
-  {id:"U-004",email:"client@shieldsync.com",    password:"Sentinel2025!",name:"James Holloway",role:"Client",       badge:"CLT-001", av:"JH"},
+  {id:"U-001",email:"admin@operacore.app",     password:"OperaCore2025!",name:"Alex Morgan",    role:"Company Admin",badge:"ADMIN-01",av:"AM"},
+  {id:"U-002",email:"supervisor@operacore.app", password:"OperaCore2025!",name:"Sarah Chen",    role:"Supervisor",   badge:"SUP-001", av:"SC"},
+  {id:"U-003",email:"officer@operacore.app",   password:"OperaCore2025!",name:"Marcus Webb",   role:"Officer",      badge:"S-0041",  av:"MW"},
+  {id:"U-004",email:"client@operacore.app",    password:"OperaCore2025!",name:"James Holloway",role:"Client",       badge:"CLT-001", av:"JH"},
 ];
 const ROLES=["Company Admin","Supervisor","Officer","Client"];
 const PERM_LABELS={
-  dashboard:"Command Center",executive:"Executive Dashboard",workforce:"Workforce",
+  dashboard:"Dashboard",executive:"Executive View",workforce:"People",
   timekeeping:"Timekeeping",patrol:"Patrol",fleet:"Fleet",visitors:"Visitors",
   reports:"Reports",dispatch:"Dispatch",equipment:"Equipment",leave:"Leave/PTO",
-  training:"Training",aicommand:"AI Command",procurement:"Procurement",
+  training:"Training",aicommand:"OperaCore AI",procurement:"Procurement",
   auditlog:"Audit Log",users:"User Management",settings:"Company Settings",myshift:"My Shift",
   clientportal:"Client Portal",itcommand:"IT/Cyber",
-  scheduling:"Scheduling",postorders:"Post Orders",keymanagement:"Key Management",
+  scheduling:"Scheduling",postorders:"Post Orders",keymanagement:"Keys",
   corrective:"Corrective Actions",handover:"Shift Handover",
 };
 const ROLE_PERMS={
@@ -99,7 +99,7 @@ const ROLE_PERMS={
   "Officer":["dashboard","myshift","patrol","visitors","equipment","leave","postorders"],
   "Client":["clientportal","reports"],
 };
-function getUsers(){const s=LS.get("ss_users_v1",null);if(s)return s;const init=AUTH_USERS.map(u=>({...u,active:true,createdAt:"2024-01-01",mfaEnabled:false,company:"ShieldSync Protect"}));LS.set("ss_users_v1",init);return init;}
+function getUsers(){const s=LS.get("ss_users_v1",null);if(s)return s;const init=AUTH_USERS.map(u=>({...u,active:true,createdAt:"2024-01-01",mfaEnabled:false,company:"OperaCore Demo"}));LS.set("ss_users_v1",init);return init;}
 function saveUsers(list){LS.set("ss_users_v1",list);}
 function authUser(email,pw){return getUsers().find(u=>u.email.toLowerCase()===email.toLowerCase().trim()&&u.password===pw&&u.active!==false)||null;}
 
@@ -247,10 +247,10 @@ const POST_ORDERS=[
   {id:"PO-001",site:"Northgate Tower",version:"v3.2",updated:"2026-05-15",approvedBy:"Alex Morgan",
    sections:[
      {title:"Site Overview",body:"Northgate Tower is a 42-floor commercial office building operating 24/7. Primary tenants include financial services firms and corporate headquarters. Security coverage: 06:00–18:00 day shift, 18:00–06:00 night shift. Post orders are effective until superseded."},
-     {title:"Emergency Contacts",body:"Property Manager: Jane Smith · 555-0101\nBuilding Engineer: Tom Rivera · 555-0102\nFire Marshal: Lisa Chen · 555-0103\nPolice Non-Emergency: 555-0911\nBuilding Security Direct: 555-0199\nShieldSync Operations Centre: 555-0SYNC"},
+     {title:"Emergency Contacts",body:"Property Manager: Jane Smith · 555-0101\nBuilding Engineer: Tom Rivera · 555-0102\nFire Marshal: Lisa Chen · 555-0103\nPolice Non-Emergency: 555-0911\nBuilding Security Direct: 555-0199\nOperaCore Operations Centre: 555-0SYNC"},
      {title:"Access Control Procedures",body:"All visitors sign in at reception via visitor management system.\nContractors require pre-authorization from tenant and valid photo ID.\nAfter-hours access requires written tenant approval on file.\nPackage deliveries accepted at Loading Dock only — Dock B.\nSuspicious packages: do not touch, clear 100m area, call emergency line immediately."},
      {title:"Patrol Schedule",body:"Lobby: continuous coverage during business hours (07:00–19:00)\nParking Deck B: every 2 hours — 07:00, 09:00, 11:00, 13:00, 15:00, 17:00\nMain Entrance perimeter: every 3 hours\nRoof access door check: once per shift (log completion)\nServer Room Floor 12: visual check only — do not enter without IT escort. Log each check."},
-     {title:"Client Rules & Standards",body:"No photography of tenant floors without prior written approval.\nMaintain full professional uniform and presentation standards at all times.\nAll incidents must be reported in ShieldSync within 5 minutes of observation.\nDo not discuss security arrangements, staffing levels, or vulnerabilities with any non-authorized personnel.\nMinimum 15-minute shift overlap for verbal briefing before relief."},
+     {title:"Client Rules & Standards",body:"No photography of tenant floors without prior written approval.\nMaintain full professional uniform and presentation standards at all times.\nAll incidents must be reported in OperaCore within 5 minutes of observation.\nDo not discuss security arrangements, staffing levels, or vulnerabilities with any non-authorized personnel.\nMinimum 15-minute shift overlap for verbal briefing before relief."},
    ],
    acknowledgments:[
      {officer:"Marcus Webb",badge:"S-0041",date:"2026-06-01",version:"v3.2"},
@@ -310,7 +310,7 @@ const CORRECTIVE_ACTIONS_DATA=[
   {id:"CA-001",officer:"Theo Okafor",badge:"S-0083",type:"Written Warning",category:"Certification Non-Compliance",date:"2026-06-07",description:"Officer deployed with expired SIA Door Supervisor certification (expired November 2025). Non-compliant deployment identified during shift audit. Officer must complete SIA renewal before next operational deployment.",linkedIncident:null,supervisor:"Sarah Chen",hrReview:"Required",status:"Pending Acknowledgment",escalation:null},
   {id:"CA-002",officer:"Jordan Park",badge:"S-0105",type:"Verbal Warning",category:"Break Compliance",date:"2026-06-07",description:"Officer worked 3.5 hours without logging a mandatory break in violation of SOP-07 fatigue management policy. Second occurrence in 30 days. Verbal warning issued on shift. Written warning to follow on next occurrence.",linkedIncident:null,supervisor:"Sarah Chen",hrReview:"Not Required",status:"Pending Acknowledgment",escalation:null},
   {id:"CA-003",officer:"Marcus Webb",badge:"S-0041",type:"Coaching Note",category:"Overtime Management",date:"2026-06-03",description:"Officer incurred 0.43 hours of unplanned overtime Monday shift without prior authorisation. Officer reminded that all overtime requires pre-authorisation from supervisor unless responding to an active incident.",linkedIncident:null,supervisor:"Sarah Chen",hrReview:"Not Required",status:"Acknowledged",acknowledgedAt:"2026-06-04",escalation:null},
-  {id:"CA-004",officer:"Elena Voss",badge:"S-0118",type:"Coaching Note",category:"Policy Compliance",date:"2026-06-01",description:"Annual Policy Acknowledgment remains outstanding. Two previous reminders sent via ShieldSync. Final reminder issued. Non-completion by 2026-06-30 will result in formal written warning and potential schedule restriction.",linkedIncident:null,supervisor:"Alex Morgan",hrReview:"Not Required",status:"Acknowledged",acknowledgedAt:"2026-06-02",escalation:null},
+  {id:"CA-004",officer:"Elena Voss",badge:"S-0118",type:"Coaching Note",category:"Policy Compliance",date:"2026-06-01",description:"Annual Policy Acknowledgment remains outstanding. Two previous reminders sent via OperaCore. Final reminder issued. Non-completion by 2026-06-30 will result in formal written warning and potential schedule restriction.",linkedIncident:null,supervisor:"Alex Morgan",hrReview:"Not Required",status:"Acknowledged",acknowledgedAt:"2026-06-02",escalation:null},
 ];
 const CA_TYPES=["Coaching Note","Verbal Warning","Written Warning","Final Written Warning","Suspension","Termination"];
 const CA_CATEGORIES=["Certification Non-Compliance","Break Compliance","Attendance","Conduct","Performance","Use of Force","Overtime Management","Policy Compliance","Equipment Responsibility","Incident Response"];
@@ -336,33 +336,33 @@ const HANDOVER_RECORDS=[
   },
 ];
 const NAV=[
-  {id:"dashboard",label:"Command",icon:LayoutDashboard,roles:["Company Admin","Supervisor","Officer"],group:"ops"},
-  {id:"executive",label:"Executive",icon:BarChart3,roles:["Company Admin"],group:"ops"},
-  {id:"myshift",label:"My Shift",icon:Clock,roles:["Officer"],group:"ops"},
-  {id:"patrol",label:"Patrol",icon:Shield,roles:["Company Admin","Supervisor","Officer"],group:"field"},
-  {id:"dispatch",label:"Dispatch",icon:Radio,roles:["Company Admin","Supervisor"],group:"field"},
-  {id:"fleet",label:"Fleet",icon:Car,roles:["Company Admin","Supervisor"],group:"field"},
-  {id:"visitors",label:"Visitors",icon:IdCard,roles:["Company Admin","Supervisor","Officer"],group:"field"},
-  {id:"equipment",label:"Equipment",icon:Wrench,roles:["Company Admin","Supervisor","Officer"],group:"field"},
-  {id:"workforce",label:"Workforce",icon:Users,roles:["Company Admin","Supervisor"],group:"people"},
+  {id:"dashboard",label:"Dashboard",icon:LayoutDashboard,roles:["Company Admin","Supervisor","Officer"],group:"core"},
+  {id:"executive",label:"Executive View",icon:BarChart3,roles:["Company Admin"],group:"core"},
+  {id:"myshift",label:"My Shift",icon:Clock,roles:["Officer"],group:"core"},
+  {id:"patrol",label:"Patrol",icon:Shield,roles:["Company Admin","Supervisor","Officer"],group:"operations"},
+  {id:"dispatch",label:"Dispatch",icon:Radio,roles:["Company Admin","Supervisor"],group:"operations"},
+  {id:"fleet",label:"Fleet",icon:Car,roles:["Company Admin","Supervisor"],group:"operations"},
+  {id:"visitors",label:"Visitors",icon:IdCard,roles:["Company Admin","Supervisor","Officer"],group:"operations"},
+  {id:"equipment",label:"Equipment",icon:Wrench,roles:["Company Admin","Supervisor","Officer"],group:"operations"},
+  {id:"postorders",label:"Post Orders",icon:ClipboardCheck,roles:["Company Admin","Supervisor","Officer"],group:"operations"},
+  {id:"keymanagement",label:"Keys",icon:Key,roles:["Company Admin","Supervisor"],group:"operations"},
+  {id:"handover",label:"Shift Handover",icon:ArrowLeftRight,roles:["Company Admin","Supervisor"],group:"operations"},
+  {id:"workforce",label:"People",icon:Users,roles:["Company Admin","Supervisor"],group:"people"},
   {id:"scheduling",label:"Scheduling",icon:Calendar,roles:["Company Admin","Supervisor"],group:"people"},
   {id:"timekeeping",label:"Timekeeping",icon:Clock4,roles:["Company Admin","Supervisor"],group:"people"},
   {id:"leave",label:"Leave",icon:CalendarDays,roles:["Company Admin","Supervisor","Officer"],group:"people"},
   {id:"training",label:"Training",icon:GraduationCap,roles:["Company Admin","Supervisor"],group:"people"},
-  {id:"postorders",label:"Post Orders",icon:ClipboardCheck,roles:["Company Admin","Supervisor","Officer"],group:"field"},
-  {id:"keymanagement",label:"Key Management",icon:Key,roles:["Company Admin","Supervisor"],group:"field"},
   {id:"corrective",label:"Corrective Actions",icon:UserX,roles:["Company Admin","Supervisor"],group:"people"},
-  {id:"handover",label:"Shift Handover",icon:ArrowLeftRight,roles:["Company Admin","Supervisor"],group:"field"},
-  {id:"aicommand",label:"Intelligence",icon:Sparkles,roles:["Company Admin","Supervisor"],group:"intel"},
-  {id:"reports",label:"Reports",icon:FileText,roles:["Company Admin","Supervisor","Client"],group:"intel"},
-  {id:"procurement",label:"Procurement",icon:Package,roles:["Company Admin"],group:"admin"},
+  {id:"aicommand",label:"OperaCore AI",icon:Sparkles,roles:["Company Admin","Supervisor"],group:"intelligence"},
+  {id:"reports",label:"Reports",icon:FileText,roles:["Company Admin","Supervisor","Client"],group:"intelligence"},
   {id:"auditlog",label:"Audit Log",icon:ClipboardList,roles:["Company Admin"],group:"admin"},
   {id:"users",label:"Users",icon:UserCog,roles:["Company Admin"],group:"admin"},
   {id:"settings",label:"Settings",icon:Settings,roles:["Company Admin"],group:"admin"},
   {id:"clientportal",label:"Client Portal",icon:Building2,roles:["Company Admin","Client"],group:"admin"},
+  {id:"procurement",label:"Procurement",icon:Package,roles:["Company Admin"],group:"admin"},
   {id:"itcommand",label:"IT / Cyber",icon:ShieldAlert,roles:["Company Admin","Supervisor"],group:"admin"},
 ];
-const NAV_GROUP_LABELS={ops:"OPERATIONS",field:"FIELD OPS",people:"WORKFORCE",intel:"INTELLIGENCE",admin:"ADMIN"};
+const NAV_GROUP_LABELS={core:"OVERVIEW",operations:"OPERATIONS",people:"PEOPLE",intelligence:"AI & REPORTS",admin:"ADMIN"};
 const KPI_DATA=[
   {label:"Active Officers",value:"5",sub:"1 off duty",icon:Users,color:T.accent,trend:"+2"},
   {label:"Open Incidents",value:"2",sub:"1 critical",icon:AlertTriangle,color:T.red,trend:"-1"},
@@ -482,13 +482,13 @@ const FLEET_COST_MAX=Math.max(...FLEET_COSTS.map(x=>x.total));
 const CYBER_CRIT=CYBER_ALERTS.filter(a=>a.severity==="Critical").length;
 const CYBER_HIGH=CYBER_ALERTS.filter(a=>a.severity==="High").length;
 const CYBER_ACCESS_LOG=[
-  {time:"08:47",user:"admin@shieldsync.com",action:"Login",ip:"203.0.113.42",result:"Success",device:"Chrome / macOS"},
-  {time:"08:31",user:"supervisor@shieldsync.com",action:"Login",ip:"192.168.1.15",result:"Success",device:"Safari / iOS"},
+  {time:"08:47",user:"admin@operacore.app",action:"Login",ip:"203.0.113.42",result:"Success",device:"Chrome / macOS"},
+  {time:"08:31",user:"supervisor@operacore.app",action:"Login",ip:"192.168.1.15",result:"Success",device:"Safari / iOS"},
   {time:"08:14",user:"unknown@external.io",action:"Login",ip:"45.33.32.156",result:"Failed",device:"curl/7.88"},
-  {time:"07:59",user:"admin@shieldsync.com",action:"Export",ip:"203.0.113.42",result:"Success",device:"Chrome / macOS"},
-  {time:"07:42",user:"officer@shieldsync.com",action:"Login",ip:"10.0.0.4",result:"Success",device:"Android / Chrome"},
+  {time:"07:59",user:"admin@operacore.app",action:"Export",ip:"203.0.113.42",result:"Success",device:"Chrome / macOS"},
+  {time:"07:42",user:"officer@operacore.app",action:"Login",ip:"10.0.0.4",result:"Success",device:"Android / Chrome"},
   {time:"07:21",user:"unknown@external.io",action:"Login",ip:"45.33.32.156",result:"Failed",device:"curl/7.88"},
-  {time:"06:55",user:"client@shieldsync.com",action:"Report View",ip:"172.16.0.8",result:"Success",device:"Firefox / Windows"},
+  {time:"06:55",user:"client@operacore.app",action:"Report View",ip:"172.16.0.8",result:"Success",device:"Firefox / Windows"},
 ];
 
 // ─────────────────────────────────────────────────────────────────
@@ -645,7 +645,7 @@ function buildNarrative(type,tier){
   const D=new Date();
   const date=D.toLocaleDateString([],{weekday:"long",year:"numeric",month:"long",day:"numeric"});
   const time=D.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",hour12:false});
-  const org="ShieldSync Protect";
+  const org="OperaCore";
   const shift="06:00–18:00";
   const{active,offDuty,openInc,critInc,resolvedInc,totalCPs,completedCPs,missedCPs,patrolPct,deployed,available,maintenance,expired,expiring,topOfficer,incidentOfficer,riskScore,riskLabel,sitePatrol}=_opsSnapshot();
   const hr="─".repeat(60);
@@ -670,7 +670,7 @@ function buildNarrative(type,tier){
 
       if(tier==="management")return`${hdr("INCIDENT REPORT — "+inc.id,"MANAGEMENT")}\n\nIncident: ${inc.id}  |  Type: ${inc.type}  |  Severity: ${inc.sev.toUpperCase()}\nSite: ${inc.site}  |  Time: ${inc.time}  |  Status: ${inc.status}\nResponding Officer: ${inc.officer} (${OFFICERS.find(o=>o.name===inc.officer)?.badge||"—"})\n\nSTATUS SUMMARY\n${inc.status==="Active"?"Incident remains active. Officer on scene. Backup resources under evaluation. Duration is approaching single-officer SOP limit — supervisor intervention recommended.":inc.status==="Under Review"?"Initial response complete. Documentation and investigation in progress. No ongoing physical risk identified.":"Incident fully resolved. All documentation complete. No further action required."}\n\nOPERATIONAL IMPACT\n${inc.sev==="High"?`Site patrol coverage at ${inc.site} reduced during active management. Recommend increasing adjacent checkpoint frequency until resolved.`:"Minimal operational impact. Normal coverage being maintained at all sites."}\n\nRECOMMENDATIONS\n${inc.status==="Active"?`  1. Evaluate backup dispatch to ${inc.site}\n  2. Notify client contact if duration exceeds 45 minutes\n  3. Preserve CCTV footage — chain of custody for ${inc.id}`:`  1. Debrief responding officer — capture lessons learned\n  2. File final report within 24 hours\n  3. Review SOP compliance for response time`}`.trim();
 
-      return`${hdr("INCIDENT REPORT — "+inc.id,"INTERNAL — SUPERVISORY")}\n\nINCIDENT DETAILS\nReference: ${inc.id}  |  Classification: ${inc.sev.toUpperCase()} SEVERITY\nType: ${inc.type}  |  Location: ${inc.site}\nReporting Officer: ${inc.officer} (${OFFICERS.find(o=>o.name===inc.officer)?.badge||"—"})\nTime Reported: ${inc.time}  |  Current Status: ${inc.status}\n\nNARRATIVE\nAt ${inc.time}, Officer ${inc.officer} identified and reported a ${inc.type.toLowerCase()} at ${inc.site}. The officer immediately responded in accordance with site SOP and initiated standard containment, notification, and documentation protocols. ${inc.status==="Active"?"The situation remains active. Officer is on scene and managing the incident. Additional personnel resources are currently being evaluated.":"The incident has been fully documented and processed per standard procedure. All actions were within SOP parameters."}\n\nACTIONS TAKEN\n  - Immediate response initiated per SOP-14\n  - Site supervisor notified within 3 minutes of initial report\n  - CCTV footage preservation requested from monitoring center\n  - Incident log created and timestamped in ShieldSync\n${inc.status==="Active"?"  - Backup dispatch under active evaluation":"  - Subject processed and situation fully stabilized"}\n\nSITE PATROL CONTEXT\n${inc.status==="Active"?`Active scene at ${inc.site}. Checkpoint coverage affected during incident management.\n${CHECKPOINTS.filter(c=>c.site===inc.site).map(c=>`  ${c.name}: ${c.scans} scans completed, ${c.missed} missed  (last scan ${c.last})`).join("\n")}`:"Incident resolved — full patrol coverage restored at this site."}\n\nSTATUS: ${inc.status.toUpperCase()}`;
+      return`${hdr("INCIDENT REPORT — "+inc.id,"INTERNAL — SUPERVISORY")}\n\nINCIDENT DETAILS\nReference: ${inc.id}  |  Classification: ${inc.sev.toUpperCase()} SEVERITY\nType: ${inc.type}  |  Location: ${inc.site}\nReporting Officer: ${inc.officer} (${OFFICERS.find(o=>o.name===inc.officer)?.badge||"—"})\nTime Reported: ${inc.time}  |  Current Status: ${inc.status}\n\nNARRATIVE\nAt ${inc.time}, Officer ${inc.officer} identified and reported a ${inc.type.toLowerCase()} at ${inc.site}. The officer immediately responded in accordance with site SOP and initiated standard containment, notification, and documentation protocols. ${inc.status==="Active"?"The situation remains active. Officer is on scene and managing the incident. Additional personnel resources are currently being evaluated.":"The incident has been fully documented and processed per standard procedure. All actions were within SOP parameters."}\n\nACTIONS TAKEN\n  - Immediate response initiated per SOP-14\n  - Site supervisor notified within 3 minutes of initial report\n  - CCTV footage preservation requested from monitoring center\n  - Incident log created and timestamped in OperaCore\n${inc.status==="Active"?"  - Backup dispatch under active evaluation":"  - Subject processed and situation fully stabilized"}\n\nSITE PATROL CONTEXT\n${inc.status==="Active"?`Active scene at ${inc.site}. Checkpoint coverage affected during incident management.\n${CHECKPOINTS.filter(c=>c.site===inc.site).map(c=>`  ${c.name}: ${c.scans} scans completed, ${c.missed} missed  (last scan ${c.last})`).join("\n")}`:"Incident resolved — full patrol coverage restored at this site."}\n\nSTATUS: ${inc.status.toUpperCase()}`;
     }
 
     case"Patrol Analysis":{
@@ -704,7 +704,7 @@ function buildNarrative(type,tier){
 
       if(tier==="executive")return`RISK BRIEFING — ${date.toUpperCase()}\n${org}  ·  ${time}\n\nOperational risk score: ${riskScore}/10 (${riskLabel}). 7-day baseline: ${baseline}/10. ${risks.filter(r=>r.level==="HIGH").length} high-priority risk${risks.filter(r=>r.level==="HIGH").length!==1?"s":""} active${risks.filter(r=>r.level==="HIGH").length>0?` — ${risks.filter(r=>r.level==="HIGH").map(r=>r.site).join(", ")} require executive awareness`:""}. ${critInc.length>0?`Active incident at ${critInc[0].site} is primary risk driver.`:"All risk indicators within acceptable parameters."} ${expired.length>0?`Compliance gap: ${expired.length} unresolved certification${expired.length>1?"s":""} — regulatory exposure.`:"No compliance gaps."}`.trim();
 
-      if(tier==="client")return`SECURITY STATUS BRIEFING\n${org}  ·  ${date}\n${hr}\n\nAll ${SITES.length} client sites are actively monitored, secured, and staffed in accordance with contracted service levels.\n\n${critInc.length>0?`A security response is currently active at ${critInc.map(i=>i.site).join(", ")}. Our team is on scene managing the situation according to all applicable protocols. You will be notified promptly upon resolution.`:"No high-priority incidents affecting client sites at this time."}\n\nAll patrol, access control, and monitoring obligations are being met. ShieldSync Protect maintains proactive 24/7 risk monitoring across all protected sites. Your safety and service continuity are our priority.`.trim();
+      if(tier==="client")return`SECURITY STATUS BRIEFING\n${org}  ·  ${date}\n${hr}\n\nAll ${SITES.length} client sites are actively monitored, secured, and staffed in accordance with contracted service levels.\n\n${critInc.length>0?`A security response is currently active at ${critInc.map(i=>i.site).join(", ")}. Our team is on scene managing the situation according to all applicable protocols. You will be notified promptly upon resolution.`:"No high-priority incidents affecting client sites at this time."}\n\nAll patrol, access control, and monitoring obligations are being met. OperaCore maintains proactive 24/7 risk monitoring across all protected sites. Your safety and service continuity are our priority.`.trim();
 
       if(tier==="management")return`${hdr("RISK ASSESSMENT","MANAGEMENT — SENSITIVE")}\n\nOVERALL RISK SCORE: ${riskScore}/10 (${riskLabel})\n7-Day Baseline: ${baseline}/10  |  Trend: ${riskScore>parseFloat(baseline)?"Above baseline — investigate drivers":"Within normal range"}\n\nRISK REGISTER\n${risks.map(r=>`  [${r.level}] ${r.site}\n  ${r.detail}`).join("\n\n")||"  No significant risks identified."}\n\nSITE RISK MATRIX\n${sitePatrol.map(s=>{const siteInc=INCIDENTS.filter(i=>i.site===s.name&&(i.status==="Active"||i.status==="Under Review")).length;const level=siteInc>0?"HIGH":s.pct<90?"MEDIUM":"LOW";return`  ${s.name.padEnd(22)} ${level.padEnd(10)} ${siteInc>0?`Active incident (${siteInc})`:"Patrol nominal"}`}).join("\n")}\n\nPRIORITY ACTIONS\n${risks.map((r,i)=>`  ${i+1}. [${r.level}] ${r.site} — ${r.detail.split(".")[0]}`).join("\n")||"  1. Maintain current security posture — risk levels nominal"}`.trim();
 
@@ -718,7 +718,7 @@ function buildNarrative(type,tier){
 
     case"Client Report":{
       const sla=CLIENT_SLA[0];
-      return`${hdr("CLIENT SECURITY REPORT","CLIENT COPY")}\n\nPrepared for: ${sla.client}\nSite:         ${sla.site}\nReport Period: Today  ·  Shift ${shift}\nAccount:       ShieldSync Protect — Enterprise Services\n\nEXECUTIVE SUMMARY\nSecurity operations at ${sla.site} are performing at ${sla.satisfaction}% client satisfaction. Patrol compliance at ${sla.patrols}% — above the contractual minimum of 90%. Average response time ${sla.responseTime} minutes.\n\nSERVICE METRICS THIS PERIOD\n  Patrol compliance:    ${sla.patrols}%      (Contract minimum: 90%+)\n  Avg response time:    ${sla.responseTime} min      (SLA target: <5 min)\n  Incidents:            ${sla.incidents} reported  ·  ${sla.resolved} resolved\n  Client satisfaction:  ${sla.satisfaction}%        (Industry benchmark: 85%)\n  Officers assigned:    ${sla.officers}\n  Contract health:      ${sla.trend} trend this period\n\nINCIDENT LOG\n${INCIDENTS.filter(i=>i.site===sla.site).map(i=>`  ${i.id.padEnd(12)} ${i.type.padEnd(24)} ${i.time}  ·  Status: ${i.status}`).join("\n")||"  No incidents recorded at this site today."}\n\nPATROL COVERAGE\n${CHECKPOINTS.filter(c=>c.site===sla.site).map(c=>`  ${c.name.padEnd(24)} ${c.scans} scans completed  ·  ${c.missed>0?`${c.missed} missed — under review`:"Fully compliant"}`).join("\n")||"  Standard patrol rounds completed."}\n\nSERVICE COMMITMENT\nShieldSync Protect is committed to delivering the highest standard of security services at your facility. This report is issued in accordance with our Service Level Agreement. For escalations or questions, contact your Account Manager directly.\n\nSatisfaction trend: ${sla.trend} this period.`;
+      return`${hdr("CLIENT SECURITY REPORT","CLIENT COPY")}\n\nPrepared for: ${sla.client}\nSite:         ${sla.site}\nReport Period: Today  ·  Shift ${shift}\nAccount:       OperaCore — Operational Services\n\nEXECUTIVE SUMMARY\nSecurity operations at ${sla.site} are performing at ${sla.satisfaction}% client satisfaction. Patrol compliance at ${sla.patrols}% — above the contractual minimum of 90%. Average response time ${sla.responseTime} minutes.\n\nSERVICE METRICS THIS PERIOD\n  Patrol compliance:    ${sla.patrols}%      (Contract minimum: 90%+)\n  Avg response time:    ${sla.responseTime} min      (SLA target: <5 min)\n  Incidents:            ${sla.incidents} reported  ·  ${sla.resolved} resolved\n  Client satisfaction:  ${sla.satisfaction}%        (Industry benchmark: 85%)\n  Officers assigned:    ${sla.officers}\n  Contract health:      ${sla.trend} trend this period\n\nINCIDENT LOG\n${INCIDENTS.filter(i=>i.site===sla.site).map(i=>`  ${i.id.padEnd(12)} ${i.type.padEnd(24)} ${i.time}  ·  Status: ${i.status}`).join("\n")||"  No incidents recorded at this site today."}\n\nPATROL COVERAGE\n${CHECKPOINTS.filter(c=>c.site===sla.site).map(c=>`  ${c.name.padEnd(24)} ${c.scans} scans completed  ·  ${c.missed>0?`${c.missed} missed — under review`:"Fully compliant"}`).join("\n")||"  Standard patrol rounds completed."}\n\nSERVICE COMMITMENT\nOperaCore is committed to delivering the highest standard of operational services at your facility. This report is issued in accordance with our Service Level Agreement. For escalations or questions, contact your Account Manager directly.\n\nSatisfaction trend: ${sla.trend} this period.`;
     }
 
     case"Shift Handover":{
@@ -736,7 +736,7 @@ function buildNarrative(type,tier){
 class ErrorBoundary extends Component{
   state={err:null};
   static getDerivedStateFromError(e){return{err:e};}
-  componentDidCatch(e,info){console.error("[ShieldSync Module Error]",e,info);}
+  componentDidCatch(e,info){console.error("[OperaCore Module Error]",e,info);}
   render(){
     if(this.state.err)return(
       <div style={{padding:48,textAlign:"center"}}>
@@ -915,10 +915,17 @@ function AuthScreen({onLogin,onRegister}){
       </svg>
       <div style={{position:"absolute",top:"5%",left:"50%",transform:"translateX(-50%)",width:"90vw",maxWidth:800,height:"55vh",background:`radial-gradient(ellipse at center,${T.accentGlow} 0%,transparent 65%)`,pointerEvents:"none",animation:"glow 4s ease-in-out infinite"}}/>
 
-      <div style={{textAlign:"center",marginBottom:24,animation:"ssUp .35s ease",position:"relative",zIndex:1}}>
-        <div style={{width:66,height:66,borderRadius:20,background:T.accent,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 14px",boxShadow:`0 0 40px ${T.accent}30`}}><Shield size={30} color="#fff" strokeWidth={2}/></div>
-        <div style={{fontSize:32,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>ShieldSync</div>
-        <div style={{fontSize:9,color:T.textDim,letterSpacing:"0.24em",textTransform:"uppercase",marginTop:5}}>SENTINEL · ENTERPRISE SECURITY PLATFORM</div>
+      <div style={{textAlign:"center",marginBottom:20,animation:"ssUp .35s ease",position:"relative",zIndex:1}}>
+        <div style={{width:60,height:60,borderRadius:18,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 14px",boxShadow:`0 0 40px ${T.accent}40`}}><Activity size={28} color="#fff" strokeWidth={2}/></div>
+        <div style={{fontSize:30,fontWeight:900,color:T.text,letterSpacing:"-0.03em",fontFamily:"'Syne',system-ui"}}>OperaCore</div>
+        <div style={{fontSize:9,color:T.textDim,letterSpacing:"0.22em",textTransform:"uppercase",marginTop:5}}>OPERATIONAL INTELLIGENCE PLATFORM</div>
+        <div style={{display:"flex",justifyContent:"center",gap:14,marginTop:14}}>
+          {[[Car,"Fleet"],[Shield,"Security"],[AlertTriangle,"Incidents"],[ShieldQuestion,"Risk"]].map(([Ic,lb])=>(
+            <div key={lb} style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:T.textSub}}>
+              <Ic size={10} color={T.textDim} strokeWidth={2}/><span>{lb}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Tab bar — hidden during forgot-password flow */}
@@ -985,8 +992,8 @@ function AuthScreen({onLogin,onRegister}){
         {forgotStep===0&&tab==="login"&&(
           <div>
             <div style={{marginBottom:20}}>
-              <div style={{fontSize:19,fontWeight:800,color:T.text}}>Secure Access</div>
-              <div style={{fontSize:12,color:T.textSub,marginTop:4,lineHeight:1.6}}>Authorized personnel only. All sessions are monitored and logged.</div>
+              <div style={{fontSize:19,fontWeight:800,color:T.text}}>Sign In to OperaCore</div>
+              <div style={{fontSize:12,color:T.textSub,marginTop:4,lineHeight:1.6}}>All sessions are encrypted, monitored, and audit-logged.</div>
             </div>
             {err&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"11px 14px",marginBottom:16,fontSize:13,color:T.red,display:"flex",gap:9,alignItems:"center"}}><AlertTriangle size={14} strokeWidth={2}/><span>{err}</span></div>}
             <div style={{display:"flex",flexDirection:"column",gap:14}}>
@@ -1016,7 +1023,7 @@ function AuthScreen({onLogin,onRegister}){
             </div>
             <div style={{marginTop:14}}>
               <button onClick={()=>setShowDemo(p=>!p)} style={{width:"100%",background:"none",border:"none",color:T.textDim,fontSize:11,cursor:"pointer",padding:"6px 0",letterSpacing:"0.03em"}}>
-                {showDemo?"Hide demo access":"Demo access · Sales & Procurement"}
+                {showDemo?"Hide demo credentials":"Try demo · Explore all roles"}
               </button>
               {showDemo&&(
                 <div style={{marginTop:10,display:"flex",flexDirection:"column",gap:6}}>
@@ -1042,9 +1049,9 @@ function AuthScreen({onLogin,onRegister}){
           regDone?(
             <div style={{textAlign:"center",padding:"24px 0"}}>
               <div style={{marginBottom:14,display:"flex",justifyContent:"center"}}><Building2 size={44} color={T.green} strokeWidth={1.5}/></div>
-              <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:10}}>Company Registered!</div>
+              <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:10}}>Account Created!</div>
               <div style={{fontSize:13,color:T.textSub,lineHeight:1.7,marginBottom:22}}>
-                <strong style={{color:T.text}}>{reg.company}</strong> is set up. Sign in to start your onboarding.
+                <strong style={{color:T.text}}>{reg.company}</strong> is ready on OperaCore. Sign in to complete your setup in under 5 minutes.
               </div>
               <button onClick={()=>{setTab("login");setEmail(reg.email);setPw(reg.pw);}}
                 style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:14,color:"#000",fontWeight:800,fontSize:15,cursor:"pointer",width:"100%"}}>
@@ -1054,8 +1061,8 @@ function AuthScreen({onLogin,onRegister}){
           ):(
             <div>
               <div style={{marginBottom:18}}>
-                <div style={{fontSize:18,fontWeight:800,color:T.text}}>Register Your Company</div>
-                <div style={{fontSize:12,color:T.textSub,marginTop:4,lineHeight:1.6}}>You'll be the Company Admin with full platform access.</div>
+                <div style={{fontSize:18,fontWeight:800,color:T.text}}>Start Your Free Trial</div>
+                <div style={{fontSize:12,color:T.textSub,marginTop:4,lineHeight:1.6}}>Set up in under 10 minutes. You'll be the Company Admin with full access.</div>
               </div>
               {regErr&&<div style={{background:T.redGlow,border:`1px solid ${T.redB}`,borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:13,color:T.red}}>{regErr}</div>}
               <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -1094,8 +1101,8 @@ function AuthScreen({onLogin,onRegister}){
       </div>
 
       <div style={{marginTop:20,fontSize:10,color:T.textDim,textAlign:"center",position:"relative",zIndex:1,lineHeight:1.8}}>
-        © 2025 ShieldSync Inc. · All access is logged and monitored.<br/>
-        Unauthorized access is prohibited and subject to prosecution.
+        © 2026 OperaCore Inc. · All access is encrypted, logged, and monitored.<br/>
+        Tenant-isolated · Role-based access · SOC 2 Ready
       </div>
     </div>
   );
@@ -1249,14 +1256,14 @@ const LiveMap=memo(function LiveMap({officers,positions}){
 // AI COPILOT
 // ─────────────────────────────────────────────────────────────────
 const QUICK=["Which sites have missed checkpoints?","Summarize today's ops.","Who is highest risk?","Recommend staffing changes."];
-const AI_SYS=`You are ShieldSync AI — elite operational intelligence assistant for a security workforce platform.
+const AI_SYS=`You are OperaCore AI — elite operational intelligence assistant for a unified operations platform.
 Context: 5 officers active, 4 sites (Northgate Tower, Harbor Logistics, Plaza West, Eastside Mall).
 Open: INC-2847 Trespass @ Plaza West (HIGH/Active), INC-2846 Theft @ Northgate (MEDIUM/Under Review).
 Patrol: 94% (4 missed CPs). Avg response 4.2 min. V-01 Deployed, V-02 Available, V-03 Maintenance.
 Rules: Be direct, tactical, data-driven. Max 3-4 sentences. No filler.`;
 
 function AICopilot(){
-  const[msgs,setMsgs]=useState([{role:"ai",text:"ShieldSync AI online. 4 sites monitored, 5 officers active, 2 open incidents. Patrol efficiency 94%. What do you need?"}]);
+  const[msgs,setMsgs]=useState([{role:"ai",text:"OperaCore AI online. 4 sites monitored, 5 officers active, 2 open incidents. Patrol efficiency 94%. What needs your attention?"}]);
   const[inp,setInp]=useState("");
   const[loading,setLoading]=useState(false);
   const endRef=useRef(null);
@@ -1304,7 +1311,7 @@ function AICopilot(){
         ))}
       </div>
       <div style={{display:"flex",gap:8}}>
-        <input value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder="Ask ShieldSync AI…" disabled={loading} style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 14px",color:T.text,fontSize:13,outline:"none",WebkitAppearance:"none"}}/>
+        <input value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder="Ask OperaCore AI…" disabled={loading} style={{flex:1,background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"10px 14px",color:T.text,fontSize:13,outline:"none",WebkitAppearance:"none"}}/>
         <button onClick={()=>send()} disabled={loading||!inp.trim()} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:10,padding:"10px 16px",color:"#000",fontWeight:800,cursor:"pointer",fontSize:14,opacity:loading||!inp.trim()?.5:1}}>→</button>
       </div>
     </div>
@@ -1635,25 +1642,60 @@ function Dashboard({openModal,showToast,isMobile}){
   },[]);
 
   const criticalAlerts=AI_INSIGHTS.filter(a=>a.priority==="critical");
+  const highAlerts=AI_INSIGHTS.filter(a=>a.priority==="high");
   const activeOfficers=OFFICERS.filter(o=>o.status!=="Off Duty");
+  const openIncidents=INCIDENTS.filter(i=>i.status==="Active"||i.status==="Under Review");
+  const todayPriorities=[
+    ...criticalAlerts.map(a=>({text:a.text,level:"critical",color:T.red})),
+    ...highAlerts.slice(0,2).map(a=>({text:a.text,level:"high",color:T.amber})),
+  ];
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
 
-      {/* 1 — CRITICAL ALERTS */}
-      {criticalAlerts.length>0&&(
-        <div style={{display:"flex",flexDirection:"column",gap:6}}>
-          {criticalAlerts.map((a,i)=>(
-            <div key={i} style={{display:"flex",gap:12,alignItems:"center",padding:"12px 16px",background:`${T.red}0a`,border:`1px solid ${T.red}30`,borderRadius:10}}>
-              <div style={{width:7,height:7,borderRadius:"50%",background:T.red,flexShrink:0,animation:"ssB 1s infinite"}}/>
-              <span style={{flex:1,fontSize:13,color:T.text,lineHeight:1.5}}>{a.text}</span>
-              <Pill label="CRITICAL" color={T.red}/>
+      {/* 0 — TODAY'S PRIORITIES */}
+      <Card>
+        <CB style={{padding:"16px 20px"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+            <div>
+              <div style={{fontSize:16,fontWeight:800,color:T.text}}>Today's Priorities</div>
+              <div style={{fontSize:11,color:T.textSub,marginTop:2}}>What requires your attention right now</div>
             </div>
-          ))}
-        </div>
-      )}
+            <div style={{display:"flex",gap:8}}>
+              <div style={{background:`${T.red}15`,border:`1px solid ${T.red}30`,borderRadius:8,padding:"6px 12px",textAlign:"center"}}>
+                <div style={{fontSize:16,fontWeight:900,color:T.red,lineHeight:1}}>{criticalAlerts.length}</div>
+                <div style={{fontSize:9,color:T.red,fontWeight:700,letterSpacing:"0.08em",marginTop:1}}>CRITICAL</div>
+              </div>
+              <div style={{background:`${T.amber}15`,border:`1px solid ${T.amber}30`,borderRadius:8,padding:"6px 12px",textAlign:"center"}}>
+                <div style={{fontSize:16,fontWeight:900,color:T.amber,lineHeight:1}}>{openIncidents.length}</div>
+                <div style={{fontSize:9,color:T.amber,fontWeight:700,letterSpacing:"0.08em",marginTop:1}}>OPEN INC.</div>
+              </div>
+              <div style={{background:`${T.accent}10`,border:`1px solid ${T.accentB}`,borderRadius:8,padding:"6px 12px",textAlign:"center"}}>
+                <div style={{fontSize:16,fontWeight:900,color:T.accent,lineHeight:1}}>{activeOfficers.length}</div>
+                <div style={{fontSize:9,color:T.accent,fontWeight:700,letterSpacing:"0.08em",marginTop:1}}>ON DUTY</div>
+              </div>
+            </div>
+          </div>
+          {todayPriorities.length===0?(
+            <div style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",background:T.greenGlow,border:`1px solid ${T.green}30`,borderRadius:9}}>
+              <CheckCircle2 size={14} color={T.green} strokeWidth={2}/>
+              <span style={{fontSize:13,color:T.text}}>All operations nominal — no critical items require attention.</span>
+            </div>
+          ):(
+            <div style={{display:"flex",flexDirection:"column",gap:6}}>
+              {todayPriorities.map((p,i)=>(
+                <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start",padding:"10px 14px",background:`${p.color}08`,border:`1px solid ${p.color}25`,borderRadius:9}}>
+                  <div style={{width:7,height:7,borderRadius:"50%",background:p.color,flexShrink:0,marginTop:4,animation:p.level==="critical"?"ssB 1s infinite":"none"}}/>
+                  <span style={{flex:1,fontSize:12,color:T.text,lineHeight:1.55}}>{p.text}</span>
+                  <Pill label={p.level} color={p.color}/>
+                </div>
+              ))}
+            </div>
+          )}
+        </CB>
+      </Card>
 
-      {/* 2 — METRICS STRIP */}
+      {/* 1 — METRICS STRIP */}
       <div style={{display:"grid",gridTemplateColumns:`repeat(${isMobile?3:6},1fr)`,gap:isMobile?6:8}}>
         {KPI_DATA.map(k=>{
           const Ic=k.icon;
@@ -1670,7 +1712,7 @@ function Dashboard({openModal,showToast,isMobile}){
         })}
       </div>
 
-      {/* 3 — ACTIVE OPERATIONS: map + live feed */}
+      {/* 2 — ACTIVE OPERATIONS: map + live feed */}
       <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"minmax(0,1.6fr) minmax(0,1fr)",gap:12}}>
         <Card>
           <CB>
@@ -1731,7 +1773,7 @@ function Dashboard({openModal,showToast,isMobile}){
         </div>
       </div>
 
-      {/* 4 — RECENT INCIDENTS */}
+      {/* 3 — RECENT INCIDENTS */}
       <Card>
         <CB>
           <SH title="Incidents" icon={ShieldAlert} action={{icon:Plus,label:"New Incident",fn:()=>openModal({type:"incident"})}}/>
@@ -1762,10 +1804,10 @@ function Dashboard({openModal,showToast,isMobile}){
         </CB>
       </Card>
 
-      {/* 5 — OPERATIONAL INTELLIGENCE */}
+      {/* 4 — OPERATIONAL INTELLIGENCE */}
       <Card>
         <CB>
-          <SH title="Operational Intelligence" icon={Sparkles} sub="AI-generated risk signals — updated continuously"/>
+          <SH title="OperaCore AI Signals" icon={Sparkles} sub="AI-generated risk signals — updated continuously"/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:8}}>
             {AI_INSIGHTS.map((ins,i)=>{
               const c={critical:T.red,high:T.amber,medium:T.gold,info:T.accent}[ins.priority]||T.textSub;
@@ -3300,7 +3342,7 @@ function Reports({isMobile}){
         const snap=_opsSnapshot();
         text=await callAI(
           [{role:"user",content:`Generate a professional ${rtype} for the ${tier} audience.\n\nCurrent operations: ${snap.active.length}/${OFFICERS.length} officers active across ${SITES.length} sites. Open incidents: ${snap.openInc.map(i=>`${i.id} ${i.type} at ${i.site} (${i.sev})`).join(", ")||"None"}. Patrol: ${snap.patrolPct}% (${snap.completedCPs}/${snap.totalCPs} checkpoints). Risk score ${snap.riskScore}/10 (${snap.riskLabel}). Fleet: ${snap.deployed} deployed, ${snap.available} available, ${snap.maintenance} maintenance. Compliance gaps: ${snap.expired.map(t=>`${t.officer} — ${t.cert} expired`).join("; ")||"None"}.\n\nAudience: ${tier} — ${REPORT_TIERS.find(t=>t.id===tier)?.desc}. Be specific, structured, and professional.`}],
-          "You are ShieldSync Reporting Intelligence. Generate professional security operations reports. Use clear section headers. Be specific with data provided.",
+          "You are OperaCore AI Reporting Intelligence. Generate professional operational reports. Use clear section headers. Be specific with data provided.",
           1200
         );
       }
@@ -3319,7 +3361,7 @@ function Reports({isMobile}){
   const printReport=()=>{
     const safe=report.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
     const tierLabel=REPORT_TIERS.find(t=>t.id===tier)?.label||tier;
-    const html=`<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';"><title>ShieldSync — ${rtype}</title><style>body{font-family:'Courier New',monospace;padding:40px;white-space:pre-wrap;font-size:12px;line-height:1.8;color:#111;}h1{font-size:10px;font-family:sans-serif;color:#555;margin-bottom:4px;}@media print{body{padding:20px;}}</style></head><body><h1>ShieldSync Protect · ${rtype} · ${tierLabel} · ${new Date().toLocaleDateString()}</h1><pre>${safe}</pre></body></html>`;
+    const html=`<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';"><title>OperaCore — ${rtype}</title><style>body{font-family:'Courier New',monospace;padding:40px;white-space:pre-wrap;font-size:12px;line-height:1.8;color:#111;}h1{font-size:10px;font-family:sans-serif;color:#555;margin-bottom:4px;}@media print{body{padding:20px;}}</style></head><body><h1>OperaCore · ${rtype} · ${tierLabel} · ${new Date().toLocaleDateString()}</h1><pre>${safe}</pre></body></html>`;
     const url=URL.createObjectURL(new Blob([html],{type:"text/html"}));
     const w=window.open(url,"_blank");
     w?.addEventListener("load",()=>{w.print();URL.revokeObjectURL(url);},{once:true});
@@ -3475,7 +3517,7 @@ function Dispatch({showToast,user,isMobile}){
     setDispatched(p=>({...p,[o.id]:dest}));
     logAction(user,"DISPATCH",`${o.name} → ${dest}`);
     showToast(`${o.name} dispatched to ${dest}`,"success");
-    pushNotif("ShieldSync Dispatch",`${o.name} dispatched to ${dest}`);
+    pushNotif("OperaCore Dispatch",`${o.name} dispatched to ${dest}`);
   };
 
   const radioAll=()=>{
@@ -3485,7 +3527,7 @@ function Dispatch({showToast,user,isMobile}){
       setRadioState("sent");
       logAction(user,"RADIO_ALL","All-units broadcast on Channel 4");
       showToast("All active field units notified · Broadcast on Channel 4","success");
-      pushNotif("ShieldSync Radio","All-units broadcast transmitted on Channel 4");
+      pushNotif("OperaCore Radio","All-units broadcast transmitted on Channel 4");
       setTimeout(()=>setRadioState("idle"),5000);
     },1800);
   };
@@ -4323,7 +4365,7 @@ function ExecutiveCommand({showToast,isMobile}){
       );
       setBriefing(text||"");
     }catch{
-      setBriefing(`Today's summary: ShieldSync is generating $${totalRev.toLocaleString()} in monthly recurring revenue across ${active.length} active contracts, achieving a ${totalMargin}% gross margin. ${OFFICERS.filter(o=>o.status!=="Off Duty").length} of ${OFFICERS.length} officers are deployed with a 94% patrol completion rate. There are ${COMPLIANCE_ITEMS.filter(c=>c.status==="Overdue").length} overdue compliance items requiring immediate HR and legal attention. Contract health averages ${avgHealth}% with one contract flagged for immediate renewal discussion.`);
+      setBriefing(`Today's summary: OperaCore is generating $${totalRev.toLocaleString()} in monthly recurring revenue across ${active.length} active contracts, achieving a ${totalMargin}% gross margin. ${OFFICERS.filter(o=>o.status!=="Off Duty").length} of ${OFFICERS.length} officers are deployed with a 94% patrol completion rate. There are ${COMPLIANCE_ITEMS.filter(c=>c.status==="Overdue").length} overdue compliance items requiring immediate HR and legal attention. Contract health averages ${avgHealth}% with one contract flagged for immediate renewal discussion.`);
     }
     setLoadBrief(false);
   };
@@ -4699,7 +4741,7 @@ function TimekeepingModule({user,showToast,isMobile}){
   const exportCSV=mkExport(
     ["Officer","Badge","Week","Mon","Tue","Wed","Thu","Fri","Total Hrs","OT Hrs","Status"],
     ts=>[ts.officer,ts.badge,ts.week,...ts.days.map(d=>d.hrs.toFixed(2)),ts.totalHrs.toFixed(2),ts.otHrs.toFixed(2),ts.status],
-    ()=>`shieldsync_payroll_${today()}.csv`,
+    ()=>`operacore_payroll_${today()}.csv`,
     "Payroll CSV exported","PAYROLL_EXPORT"
   );
   const exportADP=mkExport(
@@ -4958,27 +5000,27 @@ function TimekeepingModule({user,showToast,isMobile}){
 // ─────────────────────────────────────────────────────────────────
 const ADVISORS={
   operations:{label:"Operations",icon:Zap,color:T.accent,
-    system:"You are ShieldSync AI Operations Advisor. Analyze patrol completion, incident response, checkpoint compliance, and dispatch efficiency. Context: 5 officers, 4 sites, 94% patrol rate, 2 open incidents, 4.2min avg response. Be tactical and data-driven. Max 4 sentences.",
+    system:"You are OperaCore AI Operations Advisor. Analyze patrol completion, incident response, checkpoint compliance, and dispatch efficiency. Context: 5 officers, 4 sites, 94% patrol rate, 2 open incidents, 4.2min avg response. Be tactical and data-driven. Max 4 sentences.",
     quick:["What needs immediate attention?","Analyze patrol gaps","Dispatch priority","Site risk ranking"],
     alerts:AI_INSIGHTS.filter(a=>a.priority==="critical"||a.priority==="high"),
   },
   workforce:{label:"Workforce",icon:Users,color:T.gold,
-    system:"You are ShieldSync AI Workforce Advisor. Analyze officer performance, scheduling, fatigue risk, and training compliance. Context: 6 officers, 1 expired cert, 2.68 OT hours, 2 pending leave requests. Be direct.",
+    system:"You are OperaCore AI Workforce Advisor. Analyze officer performance, scheduling, fatigue risk, and training compliance. Context: 6 officers, 1 expired cert, 2.68 OT hours, 2 pending leave requests. Be direct.",
     quick:["Flag fatigue risks","Scheduling gaps","Top performer analysis","Cert compliance status"],
     alerts:TRAINING_DATA.filter(t=>t.status==="Expired").map(t=>({text:`Expired certification: ${t.cert} — ${t.officer}. Requires immediate renewal.`,priority:"critical"})),
   },
   compliance:{label:"Compliance",icon:CheckCircle2,color:T.green,
-    system:"You are ShieldSync AI Compliance Advisor. Track cert expiry, contract renewals, policy acknowledgments, and audit schedules. Focus on risk mitigation and legal compliance. 2 overdue certs, 1 expired contract, Q2 audit pending.",
+    system:"You are OperaCore AI Compliance Advisor. Track cert expiry, contract renewals, policy acknowledgments, and audit schedules. Focus on risk mitigation and legal compliance. 2 overdue certs, 1 expired contract, Q2 audit pending.",
     quick:["What's overdue?","Audit readiness check","Renewal priorities","Policy acknowledgment status"],
     alerts:COMPLIANCE_ITEMS.filter(c=>c.status==="Overdue").map(c=>({text:c.title+": "+c.notes,priority:"critical"})),
   },
   risk:{label:"Risk",icon:ShieldAlert,color:T.red,
-    system:"You are ShieldSync AI Risk Advisor. Identify operational, personnel, financial, and compliance risks. Provide risk scores and mitigation strategies. Current risk score: 6.2/10 (elevated). Be concise and prioritized.",
+    system:"You are OperaCore AI Risk Advisor. Identify operational, personnel, financial, and compliance risks. Provide risk scores and mitigation strategies. Current risk score: 6.2/10 (elevated). Be concise and prioritized.",
     quick:["Current risk score?","Top 3 risk factors","Mitigation priorities","Financial exposure"],
     alerts:AI_INSIGHTS.filter(a=>a.priority==="critical").slice(0,2),
   },
   executive:{label:"Executive",icon:BarChart3,color:T.purple,
-    system:"You are ShieldSync AI Executive Advisor. Provide strategic insights on financial performance, business development, and contract health. Monthly revenue $96,750, margin 27%, 4 active contracts. Be executive-level strategic.",
+    system:"You are OperaCore AI Executive Advisor. Provide strategic insights on financial performance, business development, and contract health. Monthly revenue $96,750, margin 27%, 4 active contracts. Be executive-level strategic.",
     quick:["Executive summary","Revenue growth opportunities","Contract renewal risks","Strategic priorities"],
     alerts:[{text:"Q2 revenue tracking 8% above prior quarter driven by Northgate contract optimization.",priority:"info"},{text:"CTR-003 Plaza West REIT expired June 1 — client relationship requires immediate executive outreach.",priority:"critical"}],
   },
@@ -5025,8 +5067,8 @@ function AICommandCenter({isMobile}){
       <div style={{background:`linear-gradient(135deg,${cfg.color}12,${cfg.color}05)`,border:`1px solid ${cfg.color}28`,borderRadius:12,padding:"14px 18px",display:"flex",alignItems:"center",gap:12}}>
         <div style={{width:44,height:44,borderRadius:12,background:`${cfg.color}12`,border:`1px solid ${cfg.color}35`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><cfg.icon size={22} color={cfg.color} strokeWidth={1.8}/></div>
         <div style={{flex:1}}>
-          <div style={{fontSize:15,fontWeight:800,color:T.text}}>{cfg.label} Advisor</div>
-          <div style={{fontSize:11,color:T.textSub,marginTop:2}}>AI-powered · Real-time intelligence · Security operations specialist</div>
+          <div style={{fontSize:15,fontWeight:800,color:T.text}}>OperaCore AI — {cfg.label} Advisor</div>
+          <div style={{fontSize:11,color:T.textSub,marginTop:2}}>AI-powered · Real-time operational intelligence · Context-aware</div>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:5}}>
           <div style={{width:6,height:6,borderRadius:"50%",background:cfg.color,animation:"ssB 1.2s infinite"}}/>
@@ -5280,8 +5322,8 @@ function Sidebar({items,active,onChange,user,onLogout,collapsed,setCollapsed}){
     <aside style={{width:collapsed?56:220,background:T.surface,borderRight:`1px solid ${T.border}`,display:"flex",flexDirection:"column",transition:"width 0.18s ease",flexShrink:0,position:"sticky",top:0,height:"100vh",overflowX:"hidden"}}>
       {/* Logo */}
       <div style={{padding:collapsed?"14px 12px":"14px 16px",borderBottom:`1px solid ${T.border}`,display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
-        <div style={{width:30,height:30,borderRadius:8,background:T.accent,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Shield size={16} color="#fff" strokeWidth={2.5}/></div>
-        {!collapsed&&<div><div style={{fontWeight:700,fontSize:13,color:T.text,letterSpacing:"-0.01em"}}>ShieldSync</div><div style={{fontSize:9,color:T.textDim,letterSpacing:"0.16em",textTransform:"uppercase",marginTop:1}}>SENTINEL</div></div>}
+        <div style={{width:30,height:30,borderRadius:8,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Activity size={16} color="#fff" strokeWidth={2.5}/></div>
+        {!collapsed&&<div><div style={{fontWeight:700,fontSize:13,color:T.text,letterSpacing:"-0.01em"}}>OperaCore</div><div style={{fontSize:9,color:T.textDim,letterSpacing:"0.16em",textTransform:"uppercase",marginTop:1}}>OPS PLATFORM</div></div>}
       </div>
       {/* Nav */}
       <nav style={{flex:1,padding:"8px 6px",display:"flex",flexDirection:"column",gap:0,overflowY:"auto"}}>
@@ -5431,23 +5473,28 @@ function MFAScreen({user,onVerify,onCancel}){
 // ONBOARDING WIZARD
 // ─────────────────────────────────────────────────────────────────
 function OnboardingWizard({user,onComplete}){
-  const STEPS=["Welcome","Add Site","Add Officer","Configure Alerts","You're Live"];
-  const ICONS=[Hand,Building2,Users,Bell,Rocket];
+  const STEPS=["Welcome","Company","Team","Clients","Go Live"];
+  const ICONS=[Hand,Building2,Users,Briefcase,Rocket];
   const[step,setStep]=useState(0);
-  const[form,setForm]=useState({site:"",address:"",officer:"",email:"",badge:"",alertEmail:true,alertSMS:false,alertPush:true});
+  const[form,setForm]=useState({
+    industry:"Security Services",size:"11-50",timezone:"America/New_York",
+    officer:"",email:"",badge:"",role:"Officer",
+    client:"",clientEmail:"",clientSite:"",
+    alertEmail:true,alertSMS:false,alertPush:true,
+  });
   const upd=(k,v)=>setForm(f=>({...f,[k]:v}));
   const iinp=(ex={})=>({width:"100%",background:T.bg,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px",color:T.text,fontSize:13,outline:"none",boxSizing:"border-box",...ex});
   const handleComplete=()=>{
     if(form.officer&&form.email){
       const existing=getUsers();
       if(!existing.find(u=>u.email.toLowerCase()===form.email.toLowerCase())){
-        const newOfficer={id:`U-OB-${Date.now()}`,email:form.email,password:"Welcome2026!",name:form.officer,role:"Officer",badge:form.badge||`S-${String(Math.floor(Math.random()*9000)+1000)}`,av:form.officer.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2),active:true,createdAt:new Date().toISOString().slice(0,10),mfaEnabled:false,company:user.company};
-        saveUsers([...existing,newOfficer]);
+        const newUser={id:`U-OB-${Date.now()}`,email:form.email,password:"Welcome2026!",name:form.officer,role:form.role,badge:form.badge||`S-${String(Math.floor(Math.random()*9000)+1000)}`,av:form.officer.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2),active:true,createdAt:new Date().toISOString().slice(0,10),mfaEnabled:false,company:user.company};
+        saveUsers([...existing,newUser]);
       }
     }
     const cs=LS.get("ss_co_settings_v1",{});
-    LS.set("ss_co_settings_v1",{...cs,n_sos:form.alertPush,n_inc:form.alertEmail,n_cp:form.alertPush});
-    logAction(user,"ONBOARDING_COMPLETE",`Company: ${user.company}${form.site?` · Site: ${form.site}`:""}${form.officer?` · Officer: ${form.officer}`:""}`);
+    LS.set("ss_co_settings_v1",{...cs,n_sos:form.alertPush,n_inc:form.alertEmail,n_cp:form.alertPush,industry:form.industry,size:form.size});
+    logAction(user,"ONBOARDING_COMPLETE",`Company: ${user.company} · ${form.officer?`Team: ${form.officer}`:""}${form.client?` · Client: ${form.client}`:""}`);
     onComplete();
   };
 
@@ -5468,15 +5515,14 @@ function OnboardingWizard({user,onComplete}){
         <div style={{padding:32}}>
           {step===0&&(
             <div style={{textAlign:"center"}}>
-              <div style={{marginBottom:14,display:"flex",justifyContent:"center"}}><Hand size={36} color={T.accent} strokeWidth={1.5}/></div>
-              <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:10}}>Welcome to ShieldSync, {user.name.split(" ")[0]}!</div>
-              <div style={{fontSize:13,color:T.textSub,lineHeight:1.75,marginBottom:24}}>Your account is ready. Let's set up your first site, add an officer, and configure alerts in under 2 minutes.</div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
-                {[[MapPin,"Add Site","Set patrol locations"],[Users,"Add Officer","Invite your team"],[Bell,"Alerts","Real-time notifications"]].map(([Ic,t,s])=>(
-                  <div key={t} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:14,padding:16}}>
-                    <div style={{marginBottom:8,display:"flex",justifyContent:"center"}}><Ic size={22} color={T.accent} strokeWidth={1.8}/></div>
-                    <div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:3}}>{t}</div>
-                    <div style={{fontSize:11,color:T.textSub,lineHeight:1.5}}>{s}</div>
+              <div style={{width:56,height:56,borderRadius:16,background:`linear-gradient(135deg,${T.accent},${T.purple})`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}><Activity size={28} color="#fff" strokeWidth={2}/></div>
+              <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:8}}>Welcome to OperaCore, {user.name.split(" ")[0]}.</div>
+              <div style={{fontSize:13,color:T.textSub,lineHeight:1.75,marginBottom:24}}>You're 4 steps from a working operational platform. This takes under 5 minutes and you can skip any step.</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,textAlign:"left"}}>
+                {[[Building2,"Company setup","Industry, size, timezone"],[Users,"Add team members","Employees with role access"],[Briefcase,"Add a client","Track client sites & SLAs"],[Sparkles,"First AI briefing","Instant executive summary"]].map(([Ic,t,s])=>(
+                  <div key={t} style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:12,padding:"14px 16px",display:"flex",gap:12,alignItems:"flex-start"}}>
+                    <div style={{width:32,height:32,borderRadius:8,background:T.accentGlow,border:`1px solid ${T.accentB}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Ic size={15} color={T.accent} strokeWidth={2}/></div>
+                    <div><div style={{fontSize:12,fontWeight:700,color:T.text,marginBottom:2}}>{t}</div><div style={{fontSize:11,color:T.textSub,lineHeight:1.4}}>{s}</div></div>
                   </div>
                 ))}
               </div>
@@ -5484,68 +5530,105 @@ function OnboardingWizard({user,onComplete}){
           )}
           {step===1&&(
             <div>
-              <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Add Your First Site</div>
-              <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>A site is any physical location your officers protect.</div>
+              <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Company Profile</div>
+              <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>This helps OperaCore AI generate context-aware briefings for your operations.</div>
               <div style={{display:"flex",flexDirection:"column",gap:14}}>
-                {[{label:"Site Name",k:"site",ph:"Headquarters, Warehouse, Tower A…"},{label:"Address",k:"address",ph:"123 Main St, New York, NY 10001"}].map(({label,k,ph})=>(
-                  <div key={k}>
-                    <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>{label}</label>
-                    <input value={form[k]} onChange={e=>upd(k,e.target.value)} placeholder={ph} style={iinp()}/>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+                  <div>
+                    <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Industry</label>
+                    <select value={form.industry} onChange={e=>upd("industry",e.target.value)} style={iinp({appearance:"none",cursor:"pointer"})}>
+                      {["Security Services","Fleet Management","Property Management","Logistics","Retail","Healthcare","Government","Other"].map(o=><option key={o}>{o}</option>)}
+                    </select>
                   </div>
-                ))}
+                  <div>
+                    <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Company Size</label>
+                    <select value={form.size} onChange={e=>upd("size",e.target.value)} style={iinp({appearance:"none",cursor:"pointer"})}>
+                      {["1-10","11-50","51-200","201-500","500+"].map(o=><option key={o}>{o}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Primary Timezone</label>
+                  <select value={form.timezone} onChange={e=>upd("timezone",e.target.value)} style={iinp({appearance:"none",cursor:"pointer"})}>
+                    {["America/New_York","America/Chicago","America/Denver","America/Los_Angeles","America/Phoenix","Europe/London","Europe/Berlin","Asia/Dubai","Asia/Singapore","Australia/Sydney"].map(o=><option key={o}>{o}</option>)}
+                  </select>
+                </div>
+                <div style={{background:T.accentGlow,border:`1px solid ${T.accentB}`,borderRadius:10,padding:"12px 14px",display:"flex",gap:10,alignItems:"center"}}>
+                  <CheckCircle2 size={13} color={T.accent} strokeWidth={2}/>
+                  <span style={{fontSize:12,color:T.text}}>Company <strong>{user.company}</strong> is registered. You are the Company Admin.</span>
+                </div>
               </div>
             </div>
           )}
           {step===2&&(
             <div>
-              <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Invite First Officer</div>
-              <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>They'll receive an email with login credentials.</div>
+              <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Add a Team Member</div>
+              <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>Add your first employee. They'll receive login credentials and access based on their role.</div>
               <div style={{display:"flex",flexDirection:"column",gap:14}}>
-                {[{label:"Full Name",k:"officer",ph:"Jane Smith"},{label:"Email",k:"email",ph:"officer@yourcompany.com"},{label:"Badge Number",k:"badge",ph:"S-0001"}].map(({label,k,ph})=>(
+                {[{label:"Full Name",k:"officer",ph:"Jane Smith"},{label:"Work Email",k:"email",ph:"jane@yourcompany.com"},{label:"Badge / ID",k:"badge",ph:"S-0001 or EMP-001"}].map(({label,k,ph})=>(
                   <div key={k}>
                     <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>{label}</label>
                     <input value={form[k]} onChange={e=>upd(k,e.target.value)} placeholder={ph} style={iinp()}/>
                   </div>
                 ))}
+                <div>
+                  <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>Role</label>
+                  <select value={form.role} onChange={e=>upd("role",e.target.value)} style={iinp({appearance:"none",cursor:"pointer"})}>
+                    {["Supervisor","Officer","Client"].map(o=><option key={o}>{o}</option>)}
+                  </select>
+                </div>
+                <div style={{fontSize:11,color:T.textDim,lineHeight:1.5}}>Skip this step if you want to add team members from the People module later.</div>
               </div>
             </div>
           )}
           {step===3&&(
             <div>
-              <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Configure Alert Channels</div>
-              <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>Choose how your team gets notified for SOS, missed checkpoints, and incidents.</div>
-              <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                {[{k:"alertEmail",label:"Email Alerts",sub:"Incident reports and daily summaries",icon:Mail},{k:"alertSMS",label:"SMS / Text Alerts",sub:"SOS and critical incidents only",icon:Phone},{k:"alertPush",label:"Push Notifications",sub:"Real-time browser and mobile alerts",icon:Bell}].map(({k,label,sub,icon:Ic})=>(
-                  <div key={k} onClick={()=>upd(k,!form[k])} style={{display:"flex",alignItems:"center",gap:14,background:form[k]?T.accentGlow:T.raised,border:`1px solid ${form[k]?T.accentB:T.border}`,borderRadius:14,padding:"14px 16px",cursor:"pointer",transition:"all .2s"}}>
-                    <div style={{display:"flex",alignItems:"center",justifyContent:"center",width:28,height:28,borderRadius:8,background:T.bg,border:`1px solid ${T.border}`}}><Ic size={15} color={form[k]?T.accent:T.textSub} strokeWidth={2}/></div>
-                    <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:T.text}}>{label}</div><div style={{fontSize:11,color:T.textSub,marginTop:2}}>{sub}</div></div>
-                    <div style={{width:22,height:22,borderRadius:6,background:form[k]?T.accent:T.raised,border:`2px solid ${form[k]?T.accent:T.borderLight}`,display:"flex",alignItems:"center",justifyContent:"center",transition:"all .2s",flexShrink:0}}>
-                      {form[k]&&<Check size={12} color="#000" strokeWidth={3}/>}
-                    </div>
+              <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Add a Client</div>
+              <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>Clients are the organizations or properties you serve. They can have their own portal access.</div>
+              <div style={{display:"flex",flexDirection:"column",gap:14}}>
+                {[{label:"Client Name",k:"client",ph:"Northgate Properties Ltd"},{label:"Client Contact Email",k:"clientEmail",ph:"contact@client.com"},{label:"Primary Site / Location",k:"clientSite",ph:"Northgate Tower, 1 Main St"}].map(({label,k,ph})=>(
+                  <div key={k}>
+                    <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:7}}>{label}</label>
+                    <input value={form[k]} onChange={e=>upd(k,e.target.value)} placeholder={ph} style={iinp()}/>
                   </div>
                 ))}
+                <div style={{fontSize:11,color:T.textDim,lineHeight:1.5}}>Skip this step to add clients later from the Client Portal module.</div>
               </div>
             </div>
           )}
           {step===4&&(
             <div style={{textAlign:"center"}}>
-              <div style={{marginBottom:14,display:"flex",justifyContent:"center"}}><Rocket size={44} color={T.accent} strokeWidth={1.5}/></div>
-              <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:10}}>You're All Set!</div>
-              <div style={{fontSize:13,color:T.textSub,lineHeight:1.75,marginBottom:22}}>Your ShieldSync workspace is live with demo data. AI features work immediately, and all modules are ready to explore.</div>
-              <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:14,padding:18,textAlign:"left",marginBottom:22}}>
-                <div style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:10}}>Configured</div>
-                {[["Site",form.site||"Demo sites pre-loaded"],["Officer",form.officer||"Demo team pre-loaded"],["Alerts",`Email ${form.alertEmail?"on":"off"} · SMS ${form.alertSMS?"on":"off"} · Push ${form.alertPush?"on":"off"}`],["AI Command","5 specialist advisors ready"],["Access control","4-tier RBAC configured"]].map(([lb,v])=>(
-                  <div key={lb} style={{display:"flex",gap:10,fontSize:13,marginBottom:6,alignItems:"center"}}><CheckCircle2 size={13} color={T.green} strokeWidth={2}/><span style={{color:T.textSub,minWidth:100}}>{lb}</span><span style={{color:T.text,fontWeight:600}}>{v}</span></div>
+              <div style={{width:52,height:52,borderRadius:14,background:`linear-gradient(135deg,${T.green}30,${T.accent}20)`,border:`1px solid ${T.green}40`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}><Rocket size={26} color={T.green} strokeWidth={1.8}/></div>
+              <div style={{fontSize:20,fontWeight:900,color:T.text,marginBottom:8}}>OperaCore is Ready</div>
+              <div style={{fontSize:13,color:T.textSub,lineHeight:1.75,marginBottom:20}}>Your workspace is configured. OperaCore AI will generate your first executive briefing the moment you enter the dashboard.</div>
+              <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:14,padding:18,textAlign:"left",marginBottom:18}}>
+                <div style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:12}}>Setup Summary</div>
+                {[
+                  ["Company",user.company],
+                  ["Industry",form.industry],
+                  ["Team member",form.officer||"Add from People module"],
+                  ["Client",form.client||"Add from Client Portal"],
+                  ["OperaCore AI","5 advisors ready — Operations, Workforce, Compliance, Risk, Executive"],
+                  ["Security","Tenant-isolated · Role-based access · Audit logging enabled"],
+                ].map(([lb,v])=>(
+                  <div key={lb} style={{display:"flex",gap:10,fontSize:12,marginBottom:8,alignItems:"flex-start"}}>
+                    <CheckCircle2 size={13} color={T.green} strokeWidth={2} style={{flexShrink:0,marginTop:1}}/>
+                    <span style={{color:T.textSub,minWidth:110,flexShrink:0}}>{lb}</span>
+                    <span style={{color:T.text,fontWeight:600,lineHeight:1.4}}>{v}</span>
+                  </div>
                 ))}
               </div>
             </div>
           )}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:24}}>
             {step>0?<button onClick={()=>setStep(s=>s-1)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px 20px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:600,display:"flex",alignItems:"center",gap:6}}><ChevronLeft size={14} strokeWidth={2}/>Back</button>:<div/>}
-            {step<STEPS.length-1
-              ?<button onClick={()=>setStep(s=>s+1)} style={{background:T.accent,border:"none",color:"#fff",padding:"12px 28px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:700,display:"flex",alignItems:"center",gap:6}}>{step===0?"Let's Go":"Continue"}<ChevronRight size={15} strokeWidth={2.5}/></button>
-              :<button onClick={handleComplete} style={{background:T.green,border:"none",color:"#000",padding:"13px 32px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:6}}>Enter Dashboard<ArrowRight size={15} strokeWidth={2.5}/></button>
-            }
+            <div style={{display:"flex",gap:8}}>
+              {step>0&&step<STEPS.length-1&&<button onClick={()=>setStep(s=>s+1)} style={{background:T.raised,border:`1px solid ${T.border}`,color:T.textSub,padding:"11px 18px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:600}}>Skip</button>}
+              {step<STEPS.length-1
+                ?<button onClick={()=>setStep(s=>s+1)} style={{background:T.accent,border:"none",color:"#fff",padding:"12px 28px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:700,display:"flex",alignItems:"center",gap:6}}>{step===0?"Get Started":"Continue"}<ChevronRight size={15} strokeWidth={2.5}/></button>
+                :<button onClick={handleComplete} style={{background:`linear-gradient(135deg,${T.green},${T.accent})`,border:"none",color:"#000",padding:"13px 32px",borderRadius:12,cursor:"pointer",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",gap:6}}>Enter Dashboard<ArrowRight size={15} strokeWidth={2.5}/></button>
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -5750,7 +5833,7 @@ function UserManagement({user,showToast,isMobile}){
 // ─────────────────────────────────────────────────────────────────
 function CompanySettings({user,showToast,isMobile}){
   const[tab,setTab]=useState("company");
-  const[s,setS]=useState(()=>LS.get("ss_co_settings_v1",{name:"ShieldSync Demo Co.",industry:"Security Services",size:"11-50",website:"",address:"",city:"",state:"",zip:"",phone:"",timezone:"America/New_York",mfaRequired:false,sessionTTL:"8",passwordMinLength:"8",logRetention:"90",n_sos:true,n_cp:true,n_inc:true,n_clock:false,n_fuel:true,n_cert:true,n_daily:false}));
+  const[s,setS]=useState(()=>LS.get("ss_co_settings_v1",{name:"My Company",industry:"Security Services",size:"11-50",website:"",address:"",city:"",state:"",zip:"",phone:"",timezone:"America/New_York",mfaRequired:false,sessionTTL:"8",passwordMinLength:"8",logRetention:"90",n_sos:true,n_cp:true,n_inc:true,n_clock:false,n_fuel:true,n_cert:true,n_daily:false}));
   const upd=(k,v)=>setS(p=>({...p,[k]:v}));
   const save=()=>{LS.set("ss_co_settings_v1",s);showToast("Settings saved","success");logAction(user,"SETTINGS_SAVE","Company settings updated");};
   const inp=(ex={})=>({width:"100%",background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"11px 14px",color:T.text,fontSize:13,outline:"none",boxSizing:"border-box",...ex});
@@ -5842,8 +5925,8 @@ function CompanySettings({user,showToast,isMobile}){
                 {[
                   {label:"API Base URL",k:"ukg_url",ph:"https://api.ultipro.com"},
                   {label:"API Key",k:"ukg_key",ph:"••••••••••••••••"},
-                  {label:"Company ID",k:"ukg_company",ph:"ShieldSync-001"},
-                  {label:"User Service Account",k:"ukg_user",ph:"svc-shieldsync@org.com"},
+                  {label:"Company ID",k:"ukg_company",ph:"OperaCore-001"},
+                  {label:"User Service Account",k:"ukg_user",ph:"svc-operacore@org.com"},
                 ].map(({label,k,ph})=>(
                   <div key={k}>
                     <label style={{fontSize:10,color:T.textSub,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",display:"block",marginBottom:6}}>{label}</label>
