@@ -1,13 +1,30 @@
 export const config = { runtime: "edge" };
 
+async function kv(cmd, ...args) {
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return null;
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify([cmd, ...args]),
+  });
+  const data = await r.json();
+  return data.result;
+}
+
 function mkId() {
   return `vrd_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
-function priority(annual) {
-  if (annual >= 100000) return "HIGH";
-  if (annual >= 30000) return "MEDIUM";
-  return "STANDARD";
+function priority(annual, challenge) {
+  const hot = ["urgent", "immediately", "asap", "losing", "crisis", "now"].some(
+    w => (challenge || "").toLowerCase().includes(w)
+  );
+  if (hot || annual >= 200000) return "HOT";
+  if (annual >= 75000) return "HIGH";
+  if (annual >= 25000) return "MEDIUM";
+  return "LOW";
 }
 
 function fmtAnnual(n) {
@@ -51,22 +68,16 @@ export default async function handler(req) {
   const leadId = mkId();
   const ts = new Date().toISOString();
   const annual = calcData?.annualPotential || 0;
-  const p = priority(annual);
+  const p = priority(annual, challenge);
   const firstName = name.trim().split(" ")[0];
 
-  // Structured CRM entry — webhook consumers get this full object
   const crmEntry = {
     leadId,
     timestamp: ts,
     source: "veridian-website",
     priority: p,
     followUpTrigger: true,
-    contact: {
-      name: name.trim(),
-      email: email.trim(),
-      phone: phone || "",
-      business: biz || "",
-    },
+    contact: { name: name.trim(), email: email.trim(), phone: phone || "", business: biz || "" },
     challenge: challenge || "",
     calcData: calcData || null,
     recoveryEstimate: fmtAnnual(annual),
@@ -79,102 +90,66 @@ export default async function handler(req) {
 
   const calcBlock = calcData
     ? [
-        `Monthly calls: ${calcData.calls}  |  Miss rate: ${calcData.miss}%  |  Avg value: $${calcData.val}  |  Conv rate: ${calcData.conv}%`,
-        `Missed calls/mo: ${calcData.missedPerMonth}  |  Revenue at risk: $${calcData.lostMonthly}/mo`,
-        `Recovery potential: $${calcData.recoveryMonthly}/mo  |  Annual: ${fmtAnnual(annual)}`,
+        `Monthly calls: ${calcData.calls}  |  Miss rate: ${calcData.miss}%  |  Avg value: $${calcData.val}  |  Conv: ${calcData.conv}%`,
+        `Missed/mo: ${calcData.missedPerMonth}  |  At risk: $${calcData.lostMonthly}/mo  |  Recovery: $${calcData.recoveryMonthly}/mo`,
+        `Annual potential: ${fmtAnnual(annual)}`,
       ].join("\n")
-    : "No calculator data — direct contact form.";
+    : "No calculator data — direct contact.";
 
   const subjectSuffix = annual > 0 ? ` | Est. ${fmtAnnual(annual)}/yr` : "";
+  const recoveryLine =
+    annual > 0
+      ? `Based on your calculator inputs, we estimate ${fmtAnnual(annual)} per year in recoverable revenue is within reach.`
+      : "We'll assess your recovery potential during our review and share specific numbers.";
+
+  const promises = [];
 
   if (resendKey) {
-    const teamText = `[${p}] NEW LEAD — VERIDIAN
-Lead ID: ${leadId}
-Submitted: ${ts}
+    const teamText = `[${p}] NEW LEAD — VERIDIAN\nLead ID: ${leadId}\nSubmitted: ${ts}\n\nCONTACT\nName:     ${name.trim()}\nBusiness: ${biz || "(not provided)"}\nEmail:    ${email.trim()}\nPhone:    ${phone || "(not provided)"}\n\nREVENUE CALCULATOR\n${calcBlock}\n\nCHALLENGE\n${challenge || "(not provided)"}\n\n---\nPriority: ${p} — follow up within 1 business day.`;
 
-CONTACT
-Name:     ${name.trim()}
-Business: ${biz || "(not provided)"}
-Email:    ${email.trim()}
-Phone:    ${phone || "(not provided)"}
+    const prospectText = `Hi ${firstName},\n\nThanks for reaching out to Veridian.\n\n${recoveryLine}\n\nA member of our team will be in touch within one business day with your personalized revenue recovery assessment.\n\nWhat to expect:\n- We'll review your business type and call volume\n- We'll identify your highest-impact recovery opportunities\n- We'll propose a specific plan with projected outcomes\n\n— The Veridian Team\n${toEmail}`;
 
-REVENUE CALCULATOR
-${calcBlock}
-
-CHALLENGE
-${challenge || "(not provided)"}
-
----
-Follow-up required within 1 business day.`;
-
-    const recoveryLine =
-      annual > 0
-        ? `Based on your calculator inputs, we estimate ${fmtAnnual(annual)} per year in recoverable revenue is within reach for your business.`
-        : "We'll assess your recovery potential during our review and come back to you with specific numbers.";
-
-    const prospectText = `Hi ${firstName},
-
-Thanks for reaching out to Veridian.
-
-${recoveryLine}
-
-A member of our team will be in touch within one business day with your personalized revenue recovery assessment.
-
-Here's what to expect:
-- We'll review your business type, call volume, and current miss rate
-- We'll identify your highest-impact recovery opportunities
-- We'll propose a specific plan with projected outcomes and timeline
-
-— The Veridian Team
-${toEmail}`;
-
-    try {
-      await Promise.all([
-        fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${resendKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: `Veridian <noreply@${fromDomain}>`,
-            to: [toEmail],
-            subject: `[${p}] New lead: ${name.trim()} — ${biz || "Unknown Business"}${subjectSuffix}`,
-            text: teamText,
-          }),
+    promises.push(
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: `Veridian <noreply@${fromDomain}>`,
+          to: [toEmail],
+          subject: `[${p}] New lead: ${name.trim()} — ${biz || "Unknown"}${subjectSuffix}`,
+          text: teamText,
         }),
-        fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${resendKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: `Veridian <hello@${fromDomain}>`,
-            to: [email.trim()],
-            reply_to: toEmail,
-            subject: "Your Veridian Revenue Assessment — We're on it",
-            text: prospectText,
-          }),
+      }),
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: `Veridian <hello@${fromDomain}>`,
+          to: [email.trim()],
+          reply_to: toEmail,
+          subject: "Your Veridian Revenue Assessment — We're on it",
+          text: prospectText,
         }),
-      ]);
-    } catch {}
+      })
+    );
   }
 
   if (webhookUrl) {
-    try {
-      await fetch(webhookUrl, {
+    promises.push(
+      fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(crmEntry),
-      });
-    } catch {}
+      })
+    );
   }
 
-  return new Response(JSON.stringify({ success: true, leadId }), {
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    },
+  // Always write to KV if configured (powers the Revenue Dashboard)
+  promises.push(kv("LPUSH", "veridian:leads", JSON.stringify(crmEntry)));
+
+  await Promise.allSettled(promises);
+
+  return new Response(JSON.stringify({ success: true, leadId, priority: p }), {
+    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
   });
 }

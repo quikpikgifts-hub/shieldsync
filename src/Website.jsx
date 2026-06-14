@@ -11,13 +11,19 @@ const W={
   text:"#F1F5F9",textSub:"#8892A6",textDim:"#424F62",
 };
 
-const WCSS=`*{box-sizing:border-box;margin:0;padding:0;}body{background:#050509;color:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#18182E;border-radius:2px;}html{scroll-behavior:smooth;}input,textarea{font-family:inherit;}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}@keyframes glow{0%,100%{box-shadow:0 0 40px rgba(99,102,241,0.06)}50%{box-shadow:0 0 80px rgba(99,102,241,0.18)}}@keyframes slideR{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}@keyframes stickIn{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}.vd-btn{transition:all 0.15s ease;}.vd-btn:hover{opacity:0.86;transform:translateY(-1px);}.vd-ghost{transition:all 0.15s ease;}.vd-ghost:hover{border-color:#6366F1!important;color:#6366F1!important;}.vd-nl:hover{color:#F1F5F9!important;}.vd-card{transition:all 0.22s ease;}.vd-card:hover{border-color:#232342!important;transform:translateY(-3px);}.vd-lk{transition:color 0.15s;}.vd-lk:hover{color:#6366F1!important;}.vd-sticky{position:fixed;bottom:0;left:0;right:0;z-index:150;padding:12px 16px 16px;background:rgba(5,5,9,0.97);border-top:1px solid #18182E;backdrop-filter:blur(20px);animation:stickIn 0.3s ease;}.vd-ind-pill{transition:all 0.15s ease;}.vd-ind-pill:hover{border-color:#6366F1!important;color:#6366F1!important;background:rgba(99,102,241,0.08)!important;}`;
+const WCSS=`*{box-sizing:border-box;margin:0;padding:0;}body{background:#050509;color:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#18182E;border-radius:2px;}html{scroll-behavior:smooth;}input,textarea{font-family:inherit;}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}@keyframes glow{0%,100%{box-shadow:0 0 40px rgba(99,102,241,0.06)}50%{box-shadow:0 0 80px rgba(99,102,241,0.18)}}@keyframes slideR{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}@keyframes stickIn{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}.vd-btn{transition:all 0.15s ease;}.vd-btn:hover{opacity:0.86;transform:translateY(-1px);}.vd-ghost{transition:all 0.15s ease;}.vd-ghost:hover{border-color:#6366F1!important;color:#6366F1!important;}.vd-nl:hover{color:#F1F5F9!important;}.vd-card{transition:all 0.22s ease;}.vd-card:hover{border-color:#232342!important;transform:translateY(-3px);}.vd-lk{transition:color 0.15s;}.vd-lk:hover{color:#6366F1!important;}.vd-sticky{position:fixed;bottom:0;left:0;right:0;z-index:150;padding:12px 16px 16px;background:rgba(5,5,9,0.97);border-top:1px solid #18182E;backdrop-filter:blur(20px);animation:stickIn 0.3s ease;}.vd-ind-pill{transition:all 0.15s ease;}.vd-ind-pill:hover{border-color:#6366F1!important;color:#6366F1!important;background:rgba(99,102,241,0.08)!important;}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`;
 
 const fmtN=v=>v.toLocaleString();
 const fmtM=n=>n>=1000?`$${(n/1000).toFixed(1)}K`:`$${n}`;
 
 // Shared lead state — populated by calculators, consumed by Contact form
 const _lead={};
+
+function getSlots(){
+  const s=[];const d=new Date();const labels=["10:00 AM","2:00 PM","4:00 PM"];
+  while(s.length<9){d.setDate(d.getDate()+1);const day=d.getDay();if(day!==0&&day!==6){const ds=d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});labels.forEach(t=>s.push({date:ds,time:t,id:`${d.toISOString().slice(0,10)}_${t.replace(/[: ]/g,"")}`}));}}
+  return s;
+}
 
 // ── Sticky Mobile CTA ─────────────────────────────────────────────
 function StickyMobileCTA(){
@@ -600,21 +606,55 @@ function IndustriesTeaser({isMobile}){
 
 function Contact({isMobile}){
   const[f,setF]=useState({name:"",biz:"",phone:"",email:"",challenge:""});
-  const[sent,setSent]=useState(false);
+  const[step,setStep]=useState("form");
   const[loading,setLoading]=useState(false);
   const[err,setErr]=useState(null);
   const[calcHint,setCalcHint]=useState(null);
-  useEffect(()=>{const h=e=>setCalcHint({...e.detail});window.addEventListener("veridian:calcdata",h);if(_lead.annual>0)setCalcHint({..._lead});return()=>window.removeEventListener("veridian:calcdata",h);},[]);
+  const[leadId,setLeadId]=useState(null);
+  const[slot,setSlot]=useState(null);
+  const[plan,setPlan]=useState(null);
+  const[planLoading,setPlanLoading]=useState(false);
+  const[bookingLoading,setBookingLoading]=useState(false);
+  useEffect(()=>{
+    const h=e=>setCalcHint({...e.detail});
+    window.addEventListener("veridian:calcdata",h);
+    if(_lead.annual>0)setCalcHint({..._lead});
+    return()=>window.removeEventListener("veridian:calcdata",h);
+  },[]);
   const sub=async e=>{
     e.preventDefault();
     if(!f.name.trim()||!f.email.trim()){setErr("Name and email are required.");return;}
     setLoading(true);setErr(null);
     const payload={...f};
-    if(calcHint&&calcHint.annual>0){payload.calcData={calls:calcHint.calls,miss:calcHint.miss,val:calcHint.val,conv:calcHint.conv,missedPerMonth:calcHint.missed,lostMonthly:calcHint.lostMo,recoveryMonthly:calcHint.recMo,annualPotential:calcHint.annual};}
-    try{const r=await fetch("/api/contact",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});const data=await r.json();if(!r.ok||!data.success)throw new Error(data.error||"Submission failed");setSent(true);}
-    catch(ex){setErr("Something went wrong — please try again or email us directly.");}
+    if(calcHint?.annual>0){payload.calcData={calls:calcHint.calls,miss:calcHint.miss,val:calcHint.val,conv:calcHint.conv,missedPerMonth:calcHint.missed,lostMonthly:calcHint.lostMo,recoveryMonthly:calcHint.recMo,annualPotential:calcHint.annual};}
+    try{
+      const r=await fetch("/api/contact",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+      const data=await r.json();
+      if(!r.ok||!data.success)throw new Error(data.error||"Submission failed");
+      setLeadId(data.leadId||null);
+      setStep("success");
+    }catch(ex){setErr("Something went wrong — please try again or email us directly.");}
     setLoading(false);
   };
+  const confirmBooking=async()=>{
+    if(!slot)return;
+    setBookingLoading(true);
+    try{await fetch("/api/book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({leadId,slot,name:f.name,email:f.email,biz:f.biz})});}catch{}
+    setStep("booked");setBookingLoading(false);
+  };
+  const generatePlan=async()=>{
+    setStep("plan");setPlanLoading(true);
+    const ch=calcHint;
+    const prompt=`Generate a revenue recovery plan for this service business.\nBusiness: ${f.biz||"Service business"}\nChallenge: ${f.challenge||"Missed calls and follow-up"}\n${ch?.annual>0?`Calculator:\n- Monthly calls: ${ch.calls}, Miss rate: ${ch.miss}%, Avg value: $${ch.val}, Conv: ${ch.conv}%\n- Missed/mo: ${ch.missed}, At risk: $${ch.lostMo}/mo, Recovery: $${ch.recMo}/mo, Annual: $${ch.annual}`:"No calculator data."}\n\nProvide the plan with EXACTLY these 4 headers:\n\nRECOMMENDED SERVICES\n[3 Veridian services specific to their situation]\n\nEXPECTED OUTCOMES\n[3 quantified outcomes using their numbers]\n\nESTIMATED RECOVERY POTENTIAL\n[Monthly, annual, per-call breakdown]\n\nNEXT STEPS\n[Day 1, Day 2-3, Day 4, Day 5+ timeline]\n\nUnder 350 words. Use their actual numbers. Revenue-focused only.`;
+    try{
+      const r=await fetch("/api/ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:[{role:"user",content:prompt}],system:"You are a revenue recovery specialist. Be specific, concise, use the client's actual numbers.",max_tokens:600})});
+      const data=await r.json();
+      setPlan(data.text||null);
+    }catch{setPlan(null);}
+    setPlanLoading(false);
+  };
+  const slots=getSlots();
+  const PC={HOT:W.red,HIGH:W.amber,MEDIUM:W.accent,LOW:W.textDim};
   const FI=({label,k,type="text",placeholder=""})=>(
     <div style={{marginBottom:18}}>
       <label style={{fontSize:12,fontWeight:600,color:W.textSub,display:"block",marginBottom:7,letterSpacing:"0.04em"}}>{label}</label>
@@ -624,27 +664,21 @@ function Contact({isMobile}){
   return(
     <section id="contact" style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bgAlt}}>
       <div style={{maxWidth:640,margin:"0 auto"}}>
-        <div style={{textAlign:"center",marginBottom:isMobile?40:64}}>
-          <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(16,185,129,0.08)",border:"1px solid rgba(16,185,129,0.2)",borderRadius:100,padding:"6px 14px",marginBottom:20}}>
-            <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
-            <span style={{fontSize:12,fontWeight:600,color:W.green}}>Responding to new client inquiries now</span>
+        {step==="form"&&<>
+          <div style={{textAlign:"center",marginBottom:isMobile?40:64}}>
+            <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(16,185,129,0.08)",border:"1px solid rgba(16,185,129,0.2)",borderRadius:100,padding:"6px 14px",marginBottom:20}}>
+              <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
+              <span style={{fontSize:12,fontWeight:600,color:W.green}}>Responding to new client inquiries now</span>
+            </div>
+            <SLabel>GET STARTED</SLabel>
+            <SHead mobile={28}>Start Recovering<br/>Revenue Today</SHead>
+            <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,lineHeight:1.65}}>Tell us about your business. We'll show you exactly how much revenue you're losing — and how to recover it.</p>
           </div>
-          <SLabel>GET STARTED</SLabel>
-          <SHead mobile={28}>Start Recovering<br/>Revenue Today</SHead>
-          <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,lineHeight:1.65}}>Tell us about your business. We'll show you exactly how much revenue you're losing — and how to recover it.</p>
-        </div>
-        {sent?(
-          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?32:48,textAlign:"center"}}>
-            <div style={{width:56,height:56,borderRadius:"50%",background:W.greenB,border:`1px solid ${W.green}`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}><CheckCircle size={24} style={{color:W.green}}/></div>
-            <div style={{fontSize:20,fontWeight:800,color:W.text,marginBottom:12}}>We'll be in touch shortly</div>
-            <div style={{fontSize:14,color:W.textSub,lineHeight:1.65}}>A member of our team will reach out within one business day with your personalized revenue recovery assessment.</div>
-          </div>
-        ):(
           <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:40}}>
             <form onSubmit={sub}>
-              {calcHint&&calcHint.annual>0&&(
+              {calcHint?.annual>0&&(
                 <div style={{background:W.accentB,border:`1px solid rgba(99,102,241,0.22)`,borderRadius:10,padding:"14px 18px",marginBottom:22,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <div><div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.06em",marginBottom:3}}>YOUR ESTIMATED RECOVERY</div><div style={{fontSize:12,color:W.textSub}}>Based on your calculator inputs</div></div>
+                  <div><div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.06em",marginBottom:3}}>YOUR ESTIMATED RECOVERY</div><div style={{fontSize:12,color:W.textSub}}>From your calculator inputs</div></div>
                   <div style={{fontSize:24,fontWeight:900,color:W.text,letterSpacing:"-0.03em"}}>{fmtM(calcHint.annual)}<span style={{fontSize:11,color:W.textDim,fontWeight:400}}>/yr</span></div>
                 </div>
               )}
@@ -665,6 +699,84 @@ function Contact({isMobile}){
                 {loading?"Submitting...":"Get My Free Revenue Assessment"}
               </button>
             </form>
+          </div>
+        </>}
+        {step==="success"&&(
+          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?28:44,textAlign:"center"}}>
+            <div style={{width:56,height:56,borderRadius:"50%",background:W.greenB,border:`1px solid ${W.green}`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}><CheckCircle size={24} style={{color:W.green}}/></div>
+            <div style={{fontSize:20,fontWeight:800,color:W.text,marginBottom:6}}>Lead Captured</div>
+            {calcHint?.annual>0&&(
+              <div style={{background:W.accentB,border:`1px solid rgba(99,102,241,0.22)`,borderRadius:12,padding:"16px 20px",margin:"16px 0 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div style={{textAlign:"left"}}><div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.06em",marginBottom:3}}>RECOVERY POTENTIAL</div><div style={{fontSize:12,color:W.textSub}}>Identified</div></div>
+                <div style={{fontSize:28,fontWeight:900,color:W.text,letterSpacing:"-0.03em"}}>{fmtM(calcHint.annual)}<span style={{fontSize:11,color:W.textDim,fontWeight:400}}>/yr</span></div>
+              </div>
+            )}
+            <div style={{fontSize:14,color:W.textSub,lineHeight:1.65,marginBottom:24}}>A member of our team will be in touch within one business day. Or skip the wait:</div>
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              <button onClick={()=>setStep("booking")} className="vd-btn" style={{background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:"15px",fontSize:15,fontWeight:700,cursor:"pointer",width:"100%"}}>Book My Free Consultation</button>
+              {calcHint?.annual>0&&<button onClick={generatePlan} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:10,padding:"13px",fontSize:14,fontWeight:600,color:W.text,cursor:"pointer",width:"100%"}}>Generate My Recovery Plan</button>}
+            </div>
+          </div>
+        )}
+        {step==="booking"&&(
+          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:40}}>
+            <div style={{textAlign:"center",marginBottom:28}}>
+              <div style={{fontSize:18,fontWeight:800,color:W.text,marginBottom:6}}>Book Your Free Consultation</div>
+              <div style={{fontSize:13,color:W.textSub}}>30 minutes — we'll review your numbers and build your recovery plan live.</div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:20}}>
+              {slots.map(s=>(
+                <button key={s.id} onClick={()=>setSlot(s)} style={{background:slot?.id===s.id?W.accentB:W.bgAlt,border:`1.5px solid ${slot?.id===s.id?W.accent:W.border}`,borderRadius:10,padding:"12px 8px",cursor:"pointer",textAlign:"center",transition:"all 0.15s"}}>
+                  <div style={{fontSize:11,fontWeight:700,color:slot?.id===s.id?W.accent:W.text,marginBottom:3}}>{s.date}</div>
+                  <div style={{fontSize:11,color:slot?.id===s.id?W.accent:W.textSub}}>{s.time}</div>
+                </button>
+              ))}
+            </div>
+            {slot&&<button onClick={confirmBooking} disabled={bookingLoading} className="vd-btn" style={{width:"100%",background:W.green,color:"#fff",border:"none",borderRadius:10,padding:"14px",fontSize:14,fontWeight:700,cursor:"pointer",marginBottom:10}}>
+              {bookingLoading?"Confirming...":"Confirm — "+slot.date+" at "+slot.time}
+            </button>}
+            <button onClick={()=>setStep("success")} style={{background:"none",border:"none",color:W.textDim,fontSize:13,cursor:"pointer",width:"100%",padding:"8px"}}>← Back</button>
+          </div>
+        )}
+        {step==="booked"&&(
+          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?28:44,textAlign:"center"}}>
+            <div style={{width:56,height:56,borderRadius:"50%",background:W.greenB,border:`1px solid ${W.green}`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}><Calendar size={24} style={{color:W.green}}/></div>
+            <div style={{fontSize:20,fontWeight:800,color:W.text,marginBottom:6}}>Consultation Confirmed</div>
+            <div style={{background:W.bgAlt,border:`1px solid ${W.border}`,borderRadius:12,padding:"16px 20px",margin:"16px auto 16px",display:"inline-block"}}>
+              <div style={{fontSize:16,fontWeight:700,color:W.text}}>{slot?.date}</div>
+              <div style={{fontSize:13,color:W.textSub}}>{slot?.time} — 30 minutes</div>
+            </div>
+            <div style={{fontSize:14,color:W.textSub,lineHeight:1.65,marginBottom:20}}>Check your email for confirmation details. We'll send a calendar invite and prep notes.</div>
+            {calcHint?.annual>0&&<button onClick={generatePlan} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:10,padding:"12px 24px",fontSize:13,fontWeight:600,color:W.text,cursor:"pointer"}}>Generate My Recovery Plan While You Wait</button>}
+          </div>
+        )}
+        {step==="plan"&&(
+          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:40}}>
+            {planLoading?(
+              <div style={{textAlign:"center",padding:"48px 0"}}>
+                <div style={{width:44,height:44,borderRadius:"50%",border:`3px solid ${W.accent}`,borderTopColor:"transparent",animation:"spin 0.7s linear infinite",margin:"0 auto 20px"}}/>
+                <div style={{fontSize:14,color:W.textSub}}>Generating your recovery plan...</div>
+              </div>
+            ):(
+              <>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
+                  <div style={{fontSize:17,fontWeight:800,color:W.text}}>Your Revenue Recovery Plan</div>
+                  <button onClick={()=>window.print()} style={{background:W.accentB,border:`1px solid rgba(99,102,241,0.22)`,borderRadius:8,padding:"7px 14px",fontSize:12,fontWeight:700,color:W.accent,cursor:"pointer"}}>Print / PDF</button>
+                </div>
+                {plan?(
+                  <div style={{fontSize:13,color:W.textSub,lineHeight:1.8,whiteSpace:"pre-wrap"}}>{plan}</div>
+                ):(
+                  <div style={{padding:"28px 0",textAlign:"center"}}>
+                    <div style={{fontSize:14,color:W.textSub,marginBottom:10}}>AI plan generation requires ANTHROPIC_API_KEY to be set in Vercel environment variables.</div>
+                    <div style={{fontSize:12,color:W.textDim}}>Contact us directly — we'll build your plan on our consultation call.</div>
+                  </div>
+                )}
+                <div style={{marginTop:24,paddingTop:18,borderTop:`1px solid ${W.border}`,display:"flex",gap:10}}>
+                  <button onClick={()=>setStep("success")} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:9,padding:"10px 18px",fontSize:13,fontWeight:600,color:W.textSub,cursor:"pointer"}}>← Back</button>
+                  <button onClick={()=>setStep("booking")} className="vd-btn" style={{flex:1,background:W.accent,color:"#fff",border:"none",borderRadius:9,padding:"10px",fontSize:14,fontWeight:700,cursor:"pointer"}}>Book a Consultation</button>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -1007,6 +1119,125 @@ function IndustryPage({sector,isMobile}){
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// REVENUE DASHBOARD (internal — /dashboard)
+// ═══════════════════════════════════════════════════════════════════
+function DashboardPage(){
+  const[pin,setPin]=useState("");
+  const[authed,setAuthed]=useState(false);
+  const[leads,setLeads]=useState([]);
+  const[configured,setConfigured]=useState(true);
+  const[fetching,setFetching]=useState(false);
+  const[authErr,setAuthErr]=useState(null);
+  const fetchLeads=async(p)=>{
+    const r=await fetch("/api/leads",{headers:{Authorization:`Bearer ${p}`}});
+    if(r.status===401)return null;
+    const data=await r.json();
+    setLeads(data.leads||[]);
+    setConfigured(data.configured!==false);
+    return data;
+  };
+  const tryAuth=async e=>{
+    e.preventDefault();setFetching(true);setAuthErr(null);
+    const data=await fetchLeads(pin);
+    if(!data){setAuthErr("Incorrect PIN.");setFetching(false);return;}
+    setAuthed(true);setFetching(false);
+  };
+  const total=leads.length;
+  const hot=leads.filter(l=>l.priority==="HOT").length;
+  const high=leads.filter(l=>l.priority==="HIGH").length;
+  const pipeline=leads.reduce((s,l)=>s+(l.calcData?.annualPotential||0),0);
+  const appointments=leads.filter(l=>l.booked).length;
+  const avgRecovery=total>0?Math.round(pipeline/total):0;
+  const PC={HOT:W.red,HIGH:W.amber,MEDIUM:W.accent,LOW:W.textDim,STANDARD:W.textDim};
+  if(!authed)return(
+    <div style={{minHeight:"100vh",background:W.bg,display:"flex",alignItems:"center",justifyContent:"center",padding:"80px 24px"}}>
+      <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:40,width:"100%",maxWidth:360,textAlign:"center"}}>
+        <div style={{width:48,height:48,borderRadius:"50%",background:W.accentB,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}><Lock size={20} style={{color:W.accent}}/></div>
+        <div style={{fontSize:18,fontWeight:800,color:W.text,marginBottom:6}}>Revenue Dashboard</div>
+        <div style={{fontSize:13,color:W.textSub,marginBottom:28}}>Enter your dashboard PIN to continue</div>
+        <form onSubmit={tryAuth}>
+          <input type="password" value={pin} onChange={e=>setPin(e.target.value)} placeholder="PIN" style={{width:"100%",background:W.bgAlt,border:`1px solid ${W.border}`,borderRadius:8,padding:"12px 14px",color:W.text,fontSize:18,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:"0.3em"}}/>
+          {authErr&&<div style={{fontSize:12,color:W.red,marginBottom:10}}>{authErr}</div>}
+          <button type="submit" disabled={fetching} className="vd-btn" style={{width:"100%",background:W.accent,color:"#fff",border:"none",borderRadius:9,padding:"13px",fontSize:14,fontWeight:700,cursor:"pointer"}}>
+            {fetching?"Connecting...":"Access Dashboard"}
+          </button>
+        </form>
+        <div style={{marginTop:20,fontSize:11,color:W.textDim}}>Set DASH_PIN in Vercel env vars (default: 0000)</div>
+      </div>
+    </div>
+  );
+  const metrics=[
+    {l:"Total Leads",v:total,sub:"All time"},
+    {l:"HOT Leads",v:hot,sub:"Immediate priority",c:W.red},
+    {l:"HIGH Leads",v:high,sub:"Respond today",c:W.amber},
+    {l:"Revenue Pipeline",v:pipeline>=1000?`$${(pipeline/1000).toFixed(0)}K`:`$${pipeline}`,sub:"Annual recovery potential"},
+    {l:"Avg Recovery",v:avgRecovery>=1000?`$${(avgRecovery/1000).toFixed(1)}K`:`$${avgRecovery}`,sub:"Per lead"},
+    {l:"Appointments",v:appointments,sub:"Booked consultations",c:W.green},
+  ];
+  return(
+    <div style={{minHeight:"100vh",background:W.bg,paddingTop:80}}>
+      <div style={{maxWidth:1200,margin:"0 auto",padding:"40px 24px 80px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:32}}>
+          <div>
+            <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:4}}>VERIDIAN</div>
+            <div style={{fontSize:24,fontWeight:900,color:W.text,letterSpacing:"-0.03em"}}>Revenue Operations</div>
+          </div>
+          <button onClick={()=>fetchLeads(pin)} style={{background:W.accentB,border:`1px solid rgba(99,102,241,0.22)`,borderRadius:9,padding:"9px 18px",fontSize:13,fontWeight:600,color:W.accent,cursor:"pointer"}}>Refresh</button>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16,marginBottom:28}}>
+          {metrics.map((m,i)=>(
+            <div key={i} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:24}}>
+              <div style={{fontSize:11,color:W.textDim,fontWeight:700,letterSpacing:"0.06em",marginBottom:10}}>{m.l.toUpperCase()}</div>
+              <div style={{fontSize:34,fontWeight:900,color:m.c||W.text,letterSpacing:"-0.03em",lineHeight:1,marginBottom:5}}>{m.v}</div>
+              <div style={{fontSize:11,color:W.textDim}}>{m.sub}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,overflow:"hidden"}}>
+          <div style={{padding:"18px 24px",borderBottom:`1px solid ${W.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+            <div style={{fontSize:14,fontWeight:700,color:W.text}}>Lead Pipeline</div>
+            <div style={{fontSize:12,color:W.textDim}}>{total} leads</div>
+          </div>
+          {leads.length===0?(
+            <div style={{padding:"48px 24px",textAlign:"center"}}>
+              <div style={{fontSize:14,color:W.textSub,marginBottom:8}}>{configured?"No leads yet.":"Vercel KV not configured."}</div>
+              <div style={{fontSize:12,color:W.textDim,lineHeight:1.7}}>{configured?"Leads will appear here once the contact form receives submissions.":"Add Vercel KV: Dashboard → Storage → Create KV Database → Connect to project.\nThen set KV_REST_API_URL and KV_REST_API_TOKEN (auto-set when connected)."}</div>
+            </div>
+          ):(
+            leads.map((l,i)=>(
+              <div key={l.leadId||i} style={{padding:"14px 24px",borderBottom:i<leads.length-1?`1px solid ${W.border}`:"none",display:"flex",justifyContent:"space-between",alignItems:"center",gap:16}}>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:13,fontWeight:700,color:W.text,marginBottom:2}}>{l.contact?.name||"Unknown"}</div>
+                  <div style={{fontSize:12,color:W.textSub}}>{l.contact?.business||l.contact?.email||""}</div>
+                </div>
+                <div style={{display:"flex",gap:10,alignItems:"center",flexShrink:0}}>
+                  {l.booked&&<span style={{fontSize:11,color:W.green,fontWeight:600}}>Booked</span>}
+                  {l.calcData?.annualPotential>0&&<div style={{fontSize:12,fontWeight:700,color:W.green}}>{fmtM(l.calcData.annualPotential)}/yr</div>}
+                  <span style={{fontSize:11,fontWeight:700,color:PC[l.priority]||W.textDim,border:`1px solid ${PC[l.priority]||W.border}`,borderRadius:4,padding:"2px 8px"}}>{l.priority||"NEW"}</span>
+                  <div style={{fontSize:11,color:W.textDim}}>{l.timestamp?new Date(l.timestamp).toLocaleDateString():"—"}</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        {!configured&&(
+          <div style={{background:"rgba(99,102,241,0.06)",border:`1px solid rgba(99,102,241,0.18)`,borderRadius:14,padding:24,marginTop:20}}>
+            <div style={{fontSize:12,fontWeight:700,color:W.accent,letterSpacing:"0.06em",marginBottom:10}}>SETUP GUIDE</div>
+            <div style={{fontSize:13,color:W.textSub,lineHeight:1.8}}>
+              1. Vercel Dashboard → Storage → Create KV Database → Connect to this project<br/>
+              2. KV_REST_API_URL + KV_REST_API_TOKEN are auto-set in env vars<br/>
+              3. Set DASH_PIN (default 0000), RESEND_API_KEY, TEAM_EMAIL, FROM_DOMAIN<br/>
+              4. Optional: set CONTACT_WEBHOOK_URL to your domain /api/leads for self-ingestion<br/>
+              5. Set ANTHROPIC_API_KEY to enable AI recovery plan generation
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // WEBSITE ROOT — ROUTING
 // ═══════════════════════════════════════════════════════════════════
 export default function Website(){
@@ -1035,8 +1266,9 @@ export default function Website(){
       <WebNav isMobile={isMobile} page={path==="/enterprise"?"enterprise":sector?"industry":"home"}/>
       <div style={{paddingTop:0}}>
         {path==="/enterprise"&&<EnterprisePage isMobile={isMobile}/>}
+        {path==="/dashboard"&&<DashboardPage/>}
         {sector&&<IndustryPage sector={sector} isMobile={isMobile}/>}
-        {!path.startsWith("/industries/")&&path!=="/enterprise"&&<Homepage isMobile={isMobile}/>}
+        {!path.startsWith("/industries/")&&path!=="/enterprise"&&path!=="/dashboard"&&<Homepage isMobile={isMobile}/>}
       </div>
       <WebFooter isMobile={isMobile}/>
       {isMobile&&<StickyMobileCTA/>}
