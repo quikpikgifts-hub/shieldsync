@@ -11,7 +11,7 @@ const W={
   text:"#F1F5F9",textSub:"#8892A6",textDim:"#424F62",
 };
 
-const WCSS=`*{box-sizing:border-box;margin:0;padding:0;}body{background:#050509;color:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#18182E;border-radius:2px;}html{scroll-behavior:smooth;}input,textarea{font-family:inherit;}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}@keyframes glow{0%,100%{box-shadow:0 0 40px rgba(99,102,241,0.06)}50%{box-shadow:0 0 80px rgba(99,102,241,0.18)}}@keyframes slideR{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}@keyframes stickIn{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}.vd-btn{transition:all 0.15s ease;}.vd-btn:hover{opacity:0.86;transform:translateY(-1px);}.vd-ghost{transition:all 0.15s ease;}.vd-ghost:hover{border-color:#6366F1!important;color:#6366F1!important;}.vd-nl:hover{color:#F1F5F9!important;}.vd-card{transition:all 0.22s ease;}.vd-card:hover{border-color:#232342!important;transform:translateY(-3px);}.vd-lk{transition:color 0.15s;}.vd-lk:hover{color:#6366F1!important;}.vd-sticky{position:fixed;bottom:0;left:0;right:0;z-index:150;padding:12px 16px 16px;background:rgba(5,5,9,0.97);border-top:1px solid #18182E;backdrop-filter:blur(20px);animation:stickIn 0.3s ease;}.vd-ind-pill{transition:all 0.15s ease;}.vd-ind-pill:hover{border-color:#6366F1!important;color:#6366F1!important;background:rgba(99,102,241,0.08)!important;}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`;
+const WCSS=`*{box-sizing:border-box;margin:0;padding:0;}body{background:#050509;color:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#18182E;border-radius:2px;}html{scroll-behavior:smooth;}input,textarea{font-family:inherit;}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}@keyframes glow{0%,100%{box-shadow:0 0 40px rgba(99,102,241,0.06)}50%{box-shadow:0 0 80px rgba(99,102,241,0.18)}}@keyframes slideR{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}@keyframes stickIn{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}.vd-btn{transition:all 0.15s ease;}.vd-btn:hover{opacity:0.86;transform:translateY(-1px);}.vd-ghost{transition:all 0.15s ease;}.vd-ghost:hover{border-color:#6366F1!important;color:#6366F1!important;}.vd-nl:hover{color:#F1F5F9!important;}.vd-card{transition:all 0.22s ease;}.vd-card:hover{border-color:#232342!important;transform:translateY(-3px);}.vd-lk{transition:color 0.15s;}.vd-lk:hover{color:#6366F1!important;}.vd-sticky{position:fixed;bottom:0;left:0;right:0;z-index:150;padding:12px 16px 16px;background:rgba(5,5,9,0.97);border-top:1px solid #18182E;backdrop-filter:blur(20px);animation:stickIn 0.3s ease;}.vd-ind-pill{transition:all 0.15s ease;}.vd-ind-pill:hover{border-color:#6366F1!important;color:#6366F1!important;background:rgba(99,102,241,0.08)!important;}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@media print{*{background:#fff!important;color:#000!important;border-color:#ddd!important;}nav,footer,.vd-sticky,.vd-no-print{display:none!important;}.vd-print-plan{padding:40px!important;max-width:700px!important;margin:0 auto!important;}}`;
 
 const fmtN=v=>v.toLocaleString();
 const fmtM=n=>n>=1000?`$${(n/1000).toFixed(1)}K`:`$${n}`;
@@ -759,12 +759,12 @@ function Contact({isMobile}){
               </div>
             ):(
               <>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
+                <div className="vd-no-print" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
                   <div style={{fontSize:17,fontWeight:800,color:W.text}}>Your Revenue Recovery Plan</div>
                   <button onClick={()=>window.print()} style={{background:W.accentB,border:`1px solid rgba(99,102,241,0.22)`,borderRadius:8,padding:"7px 14px",fontSize:12,fontWeight:700,color:W.accent,cursor:"pointer"}}>Print / PDF</button>
                 </div>
                 {plan?(
-                  <div style={{fontSize:13,color:W.textSub,lineHeight:1.8,whiteSpace:"pre-wrap"}}>{plan}</div>
+                  <div className="vd-print-plan" style={{fontSize:13,color:W.textSub,lineHeight:1.8,whiteSpace:"pre-wrap"}}>{plan}</div>
                 ):(
                   <div style={{padding:"28px 0",textAlign:"center"}}>
                     <div style={{fontSize:14,color:W.textSub,marginBottom:10}}>AI plan generation requires ANTHROPIC_API_KEY to be set in Vercel environment variables.</div>
@@ -1128,6 +1128,8 @@ function DashboardPage(){
   const[configured,setConfigured]=useState(true);
   const[fetching,setFetching]=useState(false);
   const[authErr,setAuthErr]=useState(null);
+  const[fuStats,setFuStats]=useState(null);
+  const[updatingId,setUpdatingId]=useState(null);
   const fetchLeads=async(p)=>{
     const r=await fetch("/api/leads",{headers:{Authorization:`Bearer ${p}`}});
     if(r.status===401)return null;
@@ -1136,30 +1138,44 @@ function DashboardPage(){
     setConfigured(data.configured!==false);
     return data;
   };
+  const fetchFuStats=async(p)=>{
+    try{const r=await fetch("/api/follow-up",{headers:{Authorization:`Bearer ${p}`}});if(r.ok){const d=await r.json();setFuStats(d.stats||null);}}catch{}
+  };
   const tryAuth=async e=>{
     e.preventDefault();setFetching(true);setAuthErr(null);
     const data=await fetchLeads(pin);
     if(!data){setAuthErr("Incorrect PIN.");setFetching(false);return;}
     setAuthed(true);setFetching(false);
+    fetchFuStats(pin);
+  };
+  const refresh=async()=>{await fetchLeads(pin);fetchFuStats(pin);};
+  const updateStatus=async(leadId,action,value)=>{
+    setUpdatingId(leadId);
+    await fetch("/api/leads",{method:"PATCH",headers:{Authorization:`Bearer ${pin}`,"Content-Type":"application/json"},body:JSON.stringify({leadId,action,value})});
+    await fetchLeads(pin);
+    setUpdatingId(null);
   };
   const total=leads.length;
   const hot=leads.filter(l=>l.priority==="HOT").length;
   const high=leads.filter(l=>l.priority==="HIGH").length;
   const pipeline=leads.reduce((s,l)=>s+(l.calcData?.annualPotential||0),0);
   const appointments=leads.filter(l=>l.booked).length;
+  const proposals=leads.filter(l=>l.proposalSent).length;
+  const won=leads.filter(l=>l.clientWon).length;
+  const monthlyRevenue=leads.filter(l=>l.clientWon&&l.monthlyRevenue).reduce((s,l)=>s+l.monthlyRevenue,0);
   const avgRecovery=total>0?Math.round(pipeline/total):0;
   const PC={HOT:W.red,HIGH:W.amber,MEDIUM:W.accent,LOW:W.textDim,STANDARD:W.textDim};
   if(!authed)return(
     <div style={{minHeight:"100vh",background:W.bg,display:"flex",alignItems:"center",justifyContent:"center",padding:"80px 24px"}}>
       <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:40,width:"100%",maxWidth:360,textAlign:"center"}}>
         <div style={{width:48,height:48,borderRadius:"50%",background:W.accentB,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}><Lock size={20} style={{color:W.accent}}/></div>
-        <div style={{fontSize:18,fontWeight:800,color:W.text,marginBottom:6}}>Revenue Dashboard</div>
-        <div style={{fontSize:13,color:W.textSub,marginBottom:28}}>Enter your dashboard PIN to continue</div>
+        <div style={{fontSize:18,fontWeight:800,color:W.text,marginBottom:6}}>Command Center</div>
+        <div style={{fontSize:13,color:W.textSub,marginBottom:28}}>Revenue Operations — PIN Required</div>
         <form onSubmit={tryAuth}>
           <input type="password" value={pin} onChange={e=>setPin(e.target.value)} placeholder="PIN" style={{width:"100%",background:W.bgAlt,border:`1px solid ${W.border}`,borderRadius:8,padding:"12px 14px",color:W.text,fontSize:18,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:"0.3em"}}/>
           {authErr&&<div style={{fontSize:12,color:W.red,marginBottom:10}}>{authErr}</div>}
           <button type="submit" disabled={fetching} className="vd-btn" style={{width:"100%",background:W.accent,color:"#fff",border:"none",borderRadius:9,padding:"13px",fontSize:14,fontWeight:700,cursor:"pointer"}}>
-            {fetching?"Connecting...":"Access Dashboard"}
+            {fetching?"Connecting...":"Access Command Center"}
           </button>
         </form>
         <div style={{marginTop:20,fontSize:11,color:W.textDim}}>Set DASH_PIN in Vercel env vars (default: 0000)</div>
@@ -1170,9 +1186,12 @@ function DashboardPage(){
     {l:"Total Leads",v:total,sub:"All time"},
     {l:"HOT Leads",v:hot,sub:"Immediate priority",c:W.red},
     {l:"HIGH Leads",v:high,sub:"Respond today",c:W.amber},
+    {l:"Appointments",v:appointments,sub:"Booked consultations",c:W.green},
+    {l:"Proposals Sent",v:proposals,sub:"In evaluation"},
+    {l:"Clients Won",v:won,sub:"Closed",c:W.green},
     {l:"Revenue Pipeline",v:pipeline>=1000?`$${(pipeline/1000).toFixed(0)}K`:`$${pipeline}`,sub:"Annual recovery potential"},
     {l:"Avg Recovery",v:avgRecovery>=1000?`$${(avgRecovery/1000).toFixed(1)}K`:`$${avgRecovery}`,sub:"Per lead"},
-    {l:"Appointments",v:appointments,sub:"Booked consultations",c:W.green},
+    {l:"Monthly Revenue",v:monthlyRevenue>0?`$${monthlyRevenue.toLocaleString()}/mo`:"—",sub:"From won clients",c:monthlyRevenue>0?W.green:undefined},
   ];
   return(
     <div style={{minHeight:"100vh",background:W.bg,paddingTop:80}}>
@@ -1180,55 +1199,84 @@ function DashboardPage(){
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:32}}>
           <div>
             <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:4}}>VERIDIAN</div>
-            <div style={{fontSize:24,fontWeight:900,color:W.text,letterSpacing:"-0.03em"}}>Revenue Operations</div>
+            <div style={{fontSize:24,fontWeight:900,color:W.text,letterSpacing:"-0.03em"}}>Revenue Command Center</div>
           </div>
-          <button onClick={()=>fetchLeads(pin)} style={{background:W.accentB,border:`1px solid rgba(99,102,241,0.22)`,borderRadius:9,padding:"9px 18px",fontSize:13,fontWeight:600,color:W.accent,cursor:"pointer"}}>Refresh</button>
+          <button onClick={refresh} style={{background:W.accentB,border:`1px solid rgba(99,102,241,0.22)`,borderRadius:9,padding:"9px 18px",fontSize:13,fontWeight:600,color:W.accent,cursor:"pointer"}}>Refresh</button>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16,marginBottom:28}}>
+        {/* 9-Metric Grid */}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:24}}>
           {metrics.map((m,i)=>(
-            <div key={i} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:24}}>
-              <div style={{fontSize:11,color:W.textDim,fontWeight:700,letterSpacing:"0.06em",marginBottom:10}}>{m.l.toUpperCase()}</div>
-              <div style={{fontSize:34,fontWeight:900,color:m.c||W.text,letterSpacing:"-0.03em",lineHeight:1,marginBottom:5}}>{m.v}</div>
+            <div key={i} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:22}}>
+              <div style={{fontSize:10,color:W.textDim,fontWeight:700,letterSpacing:"0.06em",marginBottom:8}}>{m.l.toUpperCase()}</div>
+              <div style={{fontSize:30,fontWeight:900,color:m.c||W.text,letterSpacing:"-0.03em",lineHeight:1,marginBottom:4}}>{m.v}</div>
               <div style={{fontSize:11,color:W.textDim}}>{m.sub}</div>
             </div>
           ))}
         </div>
+        {/* Follow-Up Queue Status */}
+        {fuStats&&(
+          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:20,marginBottom:20}}>
+            <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.06em",marginBottom:14}}>FOLLOW-UP QUEUE</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
+              {fuStats.map(s=>(
+                <div key={s.sequence} style={{textAlign:"center"}}>
+                  <div style={{fontSize:11,color:W.textDim,marginBottom:4}}>{s.sequence.toUpperCase()}</div>
+                  <div style={{fontSize:20,fontWeight:800,color:s.due>0?W.amber:W.text}}>{s.queued}</div>
+                  {s.due>0&&<div style={{fontSize:10,color:W.amber}}>{s.due} due</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* Lead Pipeline */}
         <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,overflow:"hidden"}}>
-          <div style={{padding:"18px 24px",borderBottom:`1px solid ${W.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div style={{padding:"16px 24px",borderBottom:`1px solid ${W.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div style={{fontSize:14,fontWeight:700,color:W.text}}>Lead Pipeline</div>
             <div style={{fontSize:12,color:W.textDim}}>{total} leads</div>
           </div>
           {leads.length===0?(
-            <div style={{padding:"48px 24px",textAlign:"center"}}>
+            <div style={{padding:"40px 24px",textAlign:"center"}}>
               <div style={{fontSize:14,color:W.textSub,marginBottom:8}}>{configured?"No leads yet.":"Vercel KV not configured."}</div>
-              <div style={{fontSize:12,color:W.textDim,lineHeight:1.7}}>{configured?"Leads will appear here once the contact form receives submissions.":"Add Vercel KV: Dashboard → Storage → Create KV Database → Connect to project.\nThen set KV_REST_API_URL and KV_REST_API_TOKEN (auto-set when connected)."}</div>
+              <div style={{fontSize:12,color:W.textDim,lineHeight:1.7,whiteSpace:"pre-line"}}>{configured?"Leads will appear here once the contact form receives submissions.":"Add Vercel KV: Dashboard → Storage → Create KV Database → Connect to project.\nSet KV_REST_API_URL + KV_REST_API_TOKEN in env vars."}</div>
             </div>
           ):(
             leads.map((l,i)=>(
-              <div key={l.leadId||i} style={{padding:"14px 24px",borderBottom:i<leads.length-1?`1px solid ${W.border}`:"none",display:"flex",justifyContent:"space-between",alignItems:"center",gap:16}}>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:13,fontWeight:700,color:W.text,marginBottom:2}}>{l.contact?.name||"Unknown"}</div>
-                  <div style={{fontSize:12,color:W.textSub}}>{l.contact?.business||l.contact?.email||""}</div>
+              <div key={l.leadId||i} style={{padding:"14px 24px",borderBottom:i<leads.length-1?`1px solid ${W.border}`:"none"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,marginBottom:l.leadId?6:0}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:700,color:W.text,marginBottom:1}}>{l.contact?.name||"Unknown"}</div>
+                    <div style={{fontSize:12,color:W.textSub}}>{l.contact?.business||l.contact?.email||""}</div>
+                  </div>
+                  <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0}}>
+                    {l.clientWon&&<span style={{fontSize:10,color:W.green,fontWeight:700,background:W.greenB,padding:"2px 6px",borderRadius:4}}>WON</span>}
+                    {l.proposalSent&&!l.clientWon&&<span style={{fontSize:10,color:W.amber,fontWeight:700,padding:"2px 6px",borderRadius:4,background:"rgba(245,158,11,0.1)"}}>PROPOSAL</span>}
+                    {l.booked&&<span style={{fontSize:10,color:W.accent,fontWeight:600}}>Booked</span>}
+                    {l.calcData?.annualPotential>0&&<div style={{fontSize:12,fontWeight:700,color:W.green}}>{fmtM(l.calcData.annualPotential)}/yr</div>}
+                    <span style={{fontSize:10,fontWeight:700,color:PC[l.priority]||W.textDim,border:`1px solid ${PC[l.priority]||W.border}`,borderRadius:4,padding:"2px 7px"}}>{l.priority||"NEW"}</span>
+                    <div style={{fontSize:10,color:W.textDim}}>{l.timestamp?new Date(l.timestamp).toLocaleDateString():"—"}</div>
+                  </div>
                 </div>
-                <div style={{display:"flex",gap:10,alignItems:"center",flexShrink:0}}>
-                  {l.booked&&<span style={{fontSize:11,color:W.green,fontWeight:600}}>Booked</span>}
-                  {l.calcData?.annualPotential>0&&<div style={{fontSize:12,fontWeight:700,color:W.green}}>{fmtM(l.calcData.annualPotential)}/yr</div>}
-                  <span style={{fontSize:11,fontWeight:700,color:PC[l.priority]||W.textDim,border:`1px solid ${PC[l.priority]||W.border}`,borderRadius:4,padding:"2px 8px"}}>{l.priority||"NEW"}</span>
-                  <div style={{fontSize:11,color:W.textDim}}>{l.timestamp?new Date(l.timestamp).toLocaleDateString():"—"}</div>
-                </div>
+                {l.leadId&&(
+                  <div style={{display:"flex",gap:6,marginTop:4}}>
+                    {!l.proposalSent&&<button onClick={()=>updateStatus(l.leadId,"proposal")} disabled={updatingId===l.leadId} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:6,padding:"3px 10px",fontSize:11,color:W.textSub,cursor:"pointer"}}>Proposal Sent</button>}
+                    {!l.clientWon&&<button onClick={()=>{const rev=prompt("Monthly revenue from this client ($):","");if(rev)updateStatus(l.leadId,"won",rev);}} disabled={updatingId===l.leadId} style={{background:"none",border:`1px solid ${W.green}`,borderRadius:6,padding:"3px 10px",fontSize:11,color:W.green,cursor:"pointer"}}>Mark Won</button>}
+                    {l.clientWon&&<button onClick={()=>updateStatus(l.leadId,"unmark_won")} disabled={updatingId===l.leadId} style={{background:"none",border:`1px solid ${W.textDim}`,borderRadius:6,padding:"3px 10px",fontSize:11,color:W.textDim,cursor:"pointer"}}>Unmark Won</button>}
+                  </div>
+                )}
               </div>
             ))
           )}
         </div>
         {!configured&&(
-          <div style={{background:"rgba(99,102,241,0.06)",border:`1px solid rgba(99,102,241,0.18)`,borderRadius:14,padding:24,marginTop:20}}>
-            <div style={{fontSize:12,fontWeight:700,color:W.accent,letterSpacing:"0.06em",marginBottom:10}}>SETUP GUIDE</div>
+          <div style={{background:"rgba(99,102,241,0.06)",border:`1px solid rgba(99,102,241,0.18)`,borderRadius:14,padding:22,marginTop:18}}>
+            <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.06em",marginBottom:10}}>SETUP REQUIRED</div>
             <div style={{fontSize:13,color:W.textSub,lineHeight:1.8}}>
-              1. Vercel Dashboard → Storage → Create KV Database → Connect to this project<br/>
-              2. KV_REST_API_URL + KV_REST_API_TOKEN are auto-set in env vars<br/>
-              3. Set DASH_PIN (default 0000), RESEND_API_KEY, TEAM_EMAIL, FROM_DOMAIN<br/>
-              4. Optional: set CONTACT_WEBHOOK_URL to your domain /api/leads for self-ingestion<br/>
-              5. Set ANTHROPIC_API_KEY to enable AI recovery plan generation
+              1. Vercel Dashboard → Storage → Create KV Database → Connect project (auto-sets KV_REST_API_URL + KV_REST_API_TOKEN)<br/>
+              2. Set DASH_PIN, RESEND_API_KEY, TEAM_EMAIL, FROM_DOMAIN in Vercel env vars<br/>
+              3. Set CRON_SECRET — Vercel Cron sends follow-ups daily at 9 AM UTC (Vercel Pro required)<br/>
+              4. Set GOHIGHLEVEL_API_KEY + GOHIGHLEVEL_LOCATION_ID for CRM sync<br/>
+              5. Optional: GOHIGHLEVEL_PIPELINE_ID + GOHIGHLEVEL_STAGE_ID for auto-opportunities<br/>
+              6. Set ANTHROPIC_API_KEY for AI recovery plan generation
             </div>
           </div>
         )}
