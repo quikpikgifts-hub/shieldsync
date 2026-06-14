@@ -16,6 +16,9 @@ const WCSS=`*{box-sizing:border-box;margin:0;padding:0;}body{background:#050509;
 const fmtN=v=>v.toLocaleString();
 const fmtM=n=>n>=1000?`$${(n/1000).toFixed(1)}K`:`$${n}`;
 
+// Shared lead state — populated by calculators, consumed by Contact form
+const _lead={};
+
 // ── Sticky Mobile CTA ─────────────────────────────────────────────
 function StickyMobileCTA(){
   const[show,setShow]=useState(false);
@@ -231,7 +234,7 @@ function Calculator({isMobile}){
                 <div style={{fontSize:20,fontWeight:800,color:r.c||W.text}}>{r.v}</div>
               </div>
             ))}
-            <a href="#contact" className="vd-btn" style={{display:"block",background:W.accent,color:"#fff",padding:"17px",borderRadius:12,fontSize:15,fontWeight:700,textDecoration:"none",textAlign:"center"}}>Get My Recovery Plan</a>
+            <a href="#contact" onClick={()=>{Object.assign(_lead,{calls,miss,val,conv,missed,lostMo,recMo,annual});window.dispatchEvent(new CustomEvent("veridian:calcdata",{detail:{..._lead}}));}} className="vd-btn" style={{display:"block",background:W.accent,color:"#fff",padding:"17px",borderRadius:12,fontSize:15,fontWeight:700,textDecoration:"none",textAlign:"center"}}>Get My Recovery Plan</a>
           </div>
         </div>
       </div>
@@ -600,7 +603,18 @@ function Contact({isMobile}){
   const[sent,setSent]=useState(false);
   const[loading,setLoading]=useState(false);
   const[err,setErr]=useState(null);
-  const sub=async e=>{e.preventDefault();if(!f.name.trim()||!f.email.trim()){setErr("Name and email are required.");return;}setLoading(true);setErr(null);try{const r=await fetch("/api/contact",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(f)});const data=await r.json();if(!r.ok||!data.success)throw new Error(data.error||"Submission failed");setSent(true);}catch(ex){setErr("Something went wrong — please try again or email us directly.");}setLoading(false);};
+  const[calcHint,setCalcHint]=useState(null);
+  useEffect(()=>{const h=e=>setCalcHint({...e.detail});window.addEventListener("veridian:calcdata",h);if(_lead.annual>0)setCalcHint({..._lead});return()=>window.removeEventListener("veridian:calcdata",h);},[]);
+  const sub=async e=>{
+    e.preventDefault();
+    if(!f.name.trim()||!f.email.trim()){setErr("Name and email are required.");return;}
+    setLoading(true);setErr(null);
+    const payload={...f};
+    if(calcHint&&calcHint.annual>0){payload.calcData={calls:calcHint.calls,miss:calcHint.miss,val:calcHint.val,conv:calcHint.conv,missedPerMonth:calcHint.missed,lostMonthly:calcHint.lostMo,recoveryMonthly:calcHint.recMo,annualPotential:calcHint.annual};}
+    try{const r=await fetch("/api/contact",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});const data=await r.json();if(!r.ok||!data.success)throw new Error(data.error||"Submission failed");setSent(true);}
+    catch(ex){setErr("Something went wrong — please try again or email us directly.");}
+    setLoading(false);
+  };
   const FI=({label,k,type="text",placeholder=""})=>(
     <div style={{marginBottom:18}}>
       <label style={{fontSize:12,fontWeight:600,color:W.textSub,display:"block",marginBottom:7,letterSpacing:"0.04em"}}>{label}</label>
@@ -628,6 +642,12 @@ function Contact({isMobile}){
         ):(
           <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:40}}>
             <form onSubmit={sub}>
+              {calcHint&&calcHint.annual>0&&(
+                <div style={{background:W.accentB,border:`1px solid rgba(99,102,241,0.22)`,borderRadius:10,padding:"14px 18px",marginBottom:22,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div><div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.06em",marginBottom:3}}>YOUR ESTIMATED RECOVERY</div><div style={{fontSize:12,color:W.textSub}}>Based on your calculator inputs</div></div>
+                  <div style={{fontSize:24,fontWeight:900,color:W.text,letterSpacing:"-0.03em"}}>{fmtM(calcHint.annual)}<span style={{fontSize:11,color:W.textDim,fontWeight:400}}>/yr</span></div>
+                </div>
+              )}
               <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?0:16}}>
                 <FI label="YOUR NAME" k="name" placeholder="First and last name"/>
                 <FI label="BUSINESS NAME" k="biz" placeholder="Company name"/>
@@ -867,7 +887,7 @@ function IndustryCalculator({sector,isMobile}){
               <span style={{fontSize:15,fontWeight:800,color:r.c||W.text}}>{r.v}</span>
             </div>
           ))}
-          <a href="/#contact" className="vd-btn" style={{display:"block",background:W.accent,color:"#fff",padding:"14px",borderRadius:10,fontSize:14,fontWeight:700,textDecoration:"none",textAlign:"center",marginTop:14}}>Get My Recovery Plan</a>
+          <a href="/#contact" onClick={()=>{Object.assign(_lead,{calls,miss,val,conv,missed,lostMo,recMo,annual});window.dispatchEvent(new CustomEvent("veridian:calcdata",{detail:{..._lead}}));}} className="vd-btn" style={{display:"block",background:W.accent,color:"#fff",padding:"14px",borderRadius:10,fontSize:14,fontWeight:700,textDecoration:"none",textAlign:"center",marginTop:14}}>Get My Recovery Plan</a>
         </div>
       </div>
     </div>
