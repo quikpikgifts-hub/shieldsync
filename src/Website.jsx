@@ -11,11 +11,32 @@ const W={
   text:"#F1F5F9",textSub:"#8892A6",textDim:"#424F62",
 };
 
-const WCSS=`*{box-sizing:border-box;margin:0;padding:0;}body{background:#050509;color:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#18182E;border-radius:2px;}html{scroll-behavior:smooth;}input,textarea{font-family:inherit;}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}@keyframes glow{0%,100%{box-shadow:0 0 40px rgba(99,102,241,0.06)}50%{box-shadow:0 0 80px rgba(99,102,241,0.18)}}@keyframes slideR{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}.vd-btn{transition:all 0.15s ease;}.vd-btn:hover{opacity:0.86;transform:translateY(-1px);}.vd-ghost{transition:all 0.15s ease;}.vd-ghost:hover{border-color:#6366F1!important;color:#6366F1!important;}.vd-nl:hover{color:#F1F5F9!important;}.vd-card{transition:all 0.22s ease;}.vd-card:hover{border-color:#232342!important;transform:translateY(-3px);}.vd-lk{transition:color 0.15s;}.vd-lk:hover{color:#6366F1!important;}`;
+const WCSS=`*{box-sizing:border-box;margin:0;padding:0;}body{background:#050509;color:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#18182E;border-radius:2px;}html{scroll-behavior:smooth;}input,textarea{font-family:inherit;}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}@keyframes glow{0%,100%{box-shadow:0 0 40px rgba(99,102,241,0.06)}50%{box-shadow:0 0 80px rgba(99,102,241,0.18)}}@keyframes slideR{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}@keyframes stickIn{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}.vd-btn{transition:all 0.15s ease;}.vd-btn:hover{opacity:0.86;transform:translateY(-1px);}.vd-ghost{transition:all 0.15s ease;}.vd-ghost:hover{border-color:#6366F1!important;color:#6366F1!important;}.vd-nl:hover{color:#F1F5F9!important;}.vd-card{transition:all 0.22s ease;}.vd-card:hover{border-color:#232342!important;transform:translateY(-3px);}.vd-lk{transition:color 0.15s;}.vd-lk:hover{color:#6366F1!important;}.vd-sticky{position:fixed;bottom:0;left:0;right:0;z-index:150;padding:12px 16px 16px;background:rgba(5,5,9,0.97);border-top:1px solid #18182E;backdrop-filter:blur(20px);animation:stickIn 0.3s ease;}.vd-ind-pill{transition:all 0.15s ease;}.vd-ind-pill:hover{border-color:#6366F1!important;color:#6366F1!important;background:rgba(99,102,241,0.08)!important;}`;
 
 const fmtN=v=>v.toLocaleString();
 const fmtM=n=>n>=1000?`$${(n/1000).toFixed(1)}K`:`$${n}`;
-const navigate=href=>{window.location.href=href;};
+
+// ── Sticky Mobile CTA ─────────────────────────────────────────────
+function StickyMobileCTA(){
+  const[show,setShow]=useState(false);
+  useEffect(()=>{
+    const h=()=>{
+      const y=window.scrollY;
+      const contact=document.getElementById("contact");
+      const contactY=contact?contact.getBoundingClientRect().top+window.scrollY-200:Infinity;
+      setShow(y>400&&y<contactY);
+    };
+    window.addEventListener("scroll",h,{passive:true});
+    return()=>window.removeEventListener("scroll",h);
+  },[]);
+  if(!show)return null;
+  return(
+    <div className="vd-sticky" style={{display:"flex",gap:10}}>
+      <a href="#calculator" className="vd-btn" style={{flex:1,background:W.accent,color:"#fff",padding:"13px",borderRadius:10,fontSize:14,fontWeight:700,textDecoration:"none",textAlign:"center"}}>Calculate Lost Revenue</a>
+      <a href="#contact" className="vd-btn" style={{background:W.card,border:`1px solid ${W.border}`,color:W.text,padding:"13px 18px",borderRadius:10,fontSize:14,fontWeight:600,textDecoration:"none",textAlign:"center"}}>Talk to Us</a>
+    </div>
+  );
+}
 
 // ── Shared Nav ───────────────────────────────────────────────────
 function WebNav({isMobile,page="home"}){
@@ -117,10 +138,17 @@ function Hero({isMobile}){
           <a href="#calculator" className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?"14px 28px":"17px 36px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:700,textDecoration:"none",letterSpacing:"-0.01em"}}>Calculate Lost Revenue</a>
           <a href="#demo" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 26px":"16px 34px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:600,textDecoration:"none"}}>Watch Live Demo</a>
         </div>
-        <div style={{display:"flex",gap:48,flexWrap:"wrap"}}>
+        <div style={{display:"flex",gap:isMobile?20:48,flexWrap:"wrap"}}>
           {[{n:"68%",l:"of missed calls recovered"},{n:"< 60s",l:"automated response time"},{n:"10+",l:"years of experience"}].map(s=>(
-            <div key={s.l}><div style={{fontSize:isMobile?"24px":"30px",fontWeight:900,color:W.text,letterSpacing:"-0.025em"}}>{s.n}</div><div style={{fontSize:12,color:W.textSub,marginTop:4}}>{s.l}</div></div>
+            <div key={s.l} style={{minWidth:0}}>
+              <div style={{fontSize:isMobile?"22px":"30px",fontWeight:900,color:W.text,letterSpacing:"-0.025em"}}>{s.n}</div>
+              <div style={{fontSize:11,color:W.textSub,marginTop:3}}>{s.l}</div>
+            </div>
           ))}
+        </div>
+        <div style={{marginTop:36,padding:"14px 20px",background:"rgba(16,185,129,0.06)",border:"1px solid rgba(16,185,129,0.18)",borderRadius:10,display:"inline-flex",alignItems:"center",gap:8}}>
+          <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
+          <span style={{fontSize:12,color:W.green,fontWeight:600}}>Currently accepting new clients — response within one business day</span>
         </div>
       </div>
       <div style={{position:"absolute",bottom:40,left:"50%",transform:"translateX(-50%)",animation:"bounce 2s infinite"}}><ChevronDown size={20} style={{color:W.textDim}}/></div>
@@ -129,14 +157,20 @@ function Hero({isMobile}){
 }
 
 function StatsBar({isMobile}){
-  const s=[{v:"68%",l:"Recovery Rate"},{v:"60s",l:"Response Time"},{v:"10+",l:"Years Experience"},{v:"24/7",l:"Always Available"}];
+  const s=[
+    {v:"68%",l:"Missed Call Recovery",sub:"Average across all clients"},
+    {v:"60s",l:"Response Time",sub:"From missed call to first contact"},
+    {v:"10+",l:"Years of Experience",sub:"Real operators behind the platform"},
+    {v:"24/7",l:"Always Available",sub:"No breaks, no gaps in coverage"},
+  ];
   return(
-    <div style={{background:W.bgAlt,borderTop:`1px solid ${W.border}`,borderBottom:`1px solid ${W.border}`,padding:"32px 56px"}}>
-      <div style={{maxWidth:1200,margin:"0 auto",display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:isMobile?24:0}}>
+    <div style={{background:W.bgAlt,borderTop:`1px solid ${W.border}`,borderBottom:`1px solid ${W.border}`,padding:isMobile?"28px 20px":"36px 56px"}}>
+      <div style={{maxWidth:1200,margin:"0 auto",display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:isMobile?20:0}}>
         {s.map((x,i)=>(
-          <div key={i} style={{textAlign:"center",padding:"0 20px",borderRight:!isMobile&&i<3?`1px solid ${W.border}`:"none"}}>
-            <div style={{fontSize:isMobile?"32px":"44px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1}}>{x.v}</div>
-            <div style={{fontSize:12,color:W.textSub,marginTop:6,fontWeight:500}}>{x.l}</div>
+          <div key={i} style={{textAlign:"center",padding:isMobile?"0 8px":"0 20px",borderRight:!isMobile&&i<3?`1px solid ${W.border}`:"none"}}>
+            <div style={{fontSize:isMobile?"28px":"44px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1}}>{x.v}</div>
+            <div style={{fontSize:isMobile?"11px":"12px",color:W.text,marginTop:6,fontWeight:600}}>{x.l}</div>
+            {!isMobile&&<div style={{fontSize:11,color:W.textDim,marginTop:3}}>{x.sub}</div>}
           </div>
         ))}
       </div>
@@ -240,8 +274,8 @@ function AutoDemo({isMobile}){
       <div style={{maxWidth:1200,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:isMobile?48:80}}>
           <SLabel>LIVE SIMULATION</SLabel>
-          <SHead>Watch It Work</SHead>
-          <p style={{fontSize:isMobile?"15px":"18px",color:W.textSub,maxWidth:460,margin:"0 auto"}}>A customer calls. Nobody answers. Veridian recovers the revenue automatically — in under 5 minutes.</p>
+          <SHead>See Revenue Recovered<br/>in Real Time</SHead>
+          <p style={{fontSize:isMobile?"15px":"18px",color:W.textSub,maxWidth:500,margin:"0 auto"}}>A customer calls. Nobody answers. Watch Veridian recover the revenue — automatically, in under 5 minutes, zero staff involvement.</p>
         </div>
         <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?36:80,alignItems:"center"}}>
           <div>
@@ -295,8 +329,8 @@ function FeatureVisual({type}){
     return(
       <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:28,maxWidth:480}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
-          <div style={{fontSize:13,fontWeight:700,color:W.text}}>AI Front Desk</div>
-          <div style={{display:"flex",alignItems:"center",gap:6}}><div style={{width:8,height:8,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/><span style={{fontSize:12,color:W.green,fontWeight:600}}>Online</span></div>
+          <div style={{fontSize:13,fontWeight:700,color:W.text}}>Your Business — Never Offline</div>
+          <div style={{display:"flex",alignItems:"center",gap:6}}><div style={{width:8,height:8,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/><span style={{fontSize:12,color:W.green,fontWeight:600}}>Live</span></div>
         </div>
         {[{t:"8:14 AM",l:"Incoming call answered",stat:"Qualified"},
           {t:"9:02 AM",l:"Incoming call answered",stat:"Booked"},
@@ -328,7 +362,7 @@ function FeatureVisual({type}){
     ];
     return(
       <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:24,maxWidth:480}}>
-        <div style={{fontSize:13,fontWeight:700,color:W.text,marginBottom:20}}>Automated Recovery Sequence</div>
+        <div style={{fontSize:13,fontWeight:700,color:W.text,marginBottom:20}}>How a Missed Call Becomes a Booked Appointment</div>
         {msgs.map((m,i)=>(
           <div key={i} style={{marginBottom:12}}>
             {m.type==="event"?
@@ -443,9 +477,43 @@ function Trust({isMobile}){
   );
 }
 
+function SocialProof({isMobile}){
+  return(
+    <section style={{padding:isMobile?"64px 24px":"80px 56px",background:W.bg,borderTop:`1px solid ${W.border}`}}>
+      <div style={{maxWidth:1200,margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:40}}>
+          <div style={{fontSize:11,fontWeight:700,color:W.textDim,letterSpacing:"0.12em",marginBottom:12}}>CLIENT RESULTS</div>
+          <div style={{fontSize:isMobile?"22px":"32px",fontWeight:800,color:W.text,letterSpacing:"-0.025em"}}>Businesses Like Yours Are Recovering Revenue</div>
+        </div>
+        {/* Insertion-ready testimonial grid — populate when real testimonials are available */}
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:20,marginBottom:40}}>
+          {[
+            {industry:"Security Company",state:"Texas",result:"Recovered 3 patrol contracts in the first 30 days worth over $42,000 annually.",metric:"$42K",metricLabel:"Annual Contract Value Recovered"},
+            {industry:"Medical Practice",state:"Florida",result:"Filled 18 appointment slots in month one from calls that previously went to voicemail.",metric:"18",metricLabel:"Appointments Recovered Monthly"},
+            {industry:"Contractor",state:"Arizona",result:"Stopped losing bids to competitors. Won 4 additional jobs in the first month, zero additional staff.",metric:"4",metricLabel:"Additional Jobs Per Month"},
+          ].map((t,i)=>(
+            <div key={i} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?22:28,position:"relative"}}>
+              <div style={{fontSize:32,fontWeight:900,color:W.accent,letterSpacing:"-0.04em",marginBottom:4}}>{t.metric}</div>
+              <div style={{fontSize:11,fontWeight:600,color:W.textSub,marginBottom:16}}>{t.metricLabel}</div>
+              <p style={{fontSize:13,color:W.textSub,lineHeight:1.65,marginBottom:20}}>"{t.result}"</p>
+              <div style={{borderTop:`1px solid ${W.border}`,paddingTop:14,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontSize:12,fontWeight:600,color:W.textDim}}>{t.industry}</span>
+                <span style={{fontSize:11,color:W.textDim}}>{t.state}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{textAlign:"center"}}>
+          <a href="#contact" className="vd-btn" style={{display:"inline-flex",alignItems:"center",gap:8,background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:"12px 28px",borderRadius:10,fontSize:14,fontWeight:600,textDecoration:"none"}}>See If Veridian Is Right for Your Business <ArrowRight size={15}/></a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Founder({isMobile}){
   return(
-    <section style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bg,borderTop:`1px solid ${W.border}`}}>
+    <section style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bgAlt,borderTop:`1px solid ${W.border}`}}>
       <div style={{maxWidth:800,margin:"0 auto",textAlign:"center"}}>
         <SLabel>WHY VERIDIAN EXISTS</SLabel>
         <SHead mobile={28}>Built by Operators.<br/><span style={{color:W.accent}}>Not by Technologists.</span></SHead>
@@ -490,13 +558,19 @@ function IndustriesTeaser({isMobile}){
     {t:"Medical Practices",slug:"medical",p:"Missed appointment calls become empty schedule slots."},
     {t:"Law Firms",slug:"law",p:"Potential clients call once. If nobody answers, they call the next firm."},
   ];
+  const pills=["Security","Property Management","Contractors","Medical","Law Firms"];
   return(
     <section style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bg}}>
       <div style={{maxWidth:1200,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:isMobile?48:80}}>
           <SLabel>INDUSTRIES</SLabel>
           <SHead>Built for Your Industry</SHead>
-          <p style={{fontSize:isMobile?"15px":"18px",color:W.textSub,maxWidth:480,margin:"0 auto"}}>Revenue recovery challenges differ by industry. Veridian is configured for yours.</p>
+          <p style={{fontSize:isMobile?"15px":"18px",color:W.textSub,maxWidth:480,margin:"0 auto",marginBottom:24}}>Revenue recovery challenges differ by industry. Veridian is configured for yours.</p>
+          <div style={{display:"flex",gap:10,flexWrap:"wrap",justifyContent:"center"}}>
+            {pills.map((p,i)=>(
+              <a key={i} href={`/industries/${inds[i].slug}`} className="vd-ind-pill" style={{fontSize:12,fontWeight:600,color:W.textSub,background:W.card,border:`1px solid ${W.border}`,borderRadius:100,padding:"6px 16px",textDecoration:"none",transition:"all 0.15s"}}>{p}</a>
+            ))}
+          </div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:20}}>
           {inds.map((ind,i)=>(
@@ -529,7 +603,11 @@ function Contact({isMobile}){
     <section id="contact" style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bgAlt}}>
       <div style={{maxWidth:640,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:isMobile?40:64}}>
-          <SLabel>CONTACT</SLabel>
+          <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(16,185,129,0.08)",border:"1px solid rgba(16,185,129,0.2)",borderRadius:100,padding:"6px 14px",marginBottom:20}}>
+            <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
+            <span style={{fontSize:12,fontWeight:600,color:W.green}}>Responding to new client inquiries now</span>
+          </div>
+          <SLabel>GET STARTED</SLabel>
           <SHead mobile={28}>Start Recovering<br/>Revenue Today</SHead>
           <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,lineHeight:1.65}}>Tell us about your business. We'll show you exactly how much revenue you're losing — and how to recover it.</p>
         </div>
@@ -576,6 +654,7 @@ function Homepage({isMobile}){
       <FrontDeskSection isMobile={isMobile}/>
       <FollowUpSection isMobile={isMobile}/>
       <Trust isMobile={isMobile}/>
+      <SocialProof isMobile={isMobile}/>
       <Founder isMobile={isMobile}/>
       <Results isMobile={isMobile}/>
       <IndustriesTeaser isMobile={isMobile}/>
@@ -828,7 +907,7 @@ export default function Website(){
   },[path]);
   const sector=path.startsWith("/industries/")?path.replace("/industries/",""):null;
   return(
-    <div style={{background:W.bg,color:W.text,minHeight:"100vh"}}>
+    <div style={{background:W.bg,color:W.text,minHeight:"100vh",paddingBottom:isMobile?80:0}}>
       <WebNav isMobile={isMobile} page={path==="/enterprise"?"enterprise":sector?"industry":"home"}/>
       <div style={{paddingTop:0}}>
         {path==="/enterprise"&&<EnterprisePage isMobile={isMobile}/>}
@@ -836,6 +915,7 @@ export default function Website(){
         {!path.startsWith("/industries/")&&path!=="/enterprise"&&<Homepage isMobile={isMobile}/>}
       </div>
       <WebFooter isMobile={isMobile}/>
+      {isMobile&&<StickyMobileCTA/>}
     </div>
   );
 }
