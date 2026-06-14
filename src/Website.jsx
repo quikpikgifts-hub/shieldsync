@@ -288,6 +288,10 @@ function AutoDemo({isMobile}){
               </div>
             ))}
             <div style={{marginTop:20,height:3,background:W.border,borderRadius:2,overflow:"hidden"}}><div style={{height:"100%",width:`${((step+1)/DS.length)*100}%`,background:W.accent,transition:"width 0.35s ease",borderRadius:2}}/></div>
+            <div style={{marginTop:28,display:"flex",gap:14,flexWrap:"wrap"}}>
+              <a href="#calculator" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"13px 24px",borderRadius:10,fontSize:14,fontWeight:700,textDecoration:"none"}}>Calculate My Recovery</a>
+              <a href="#contact" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:"12px 22px",borderRadius:10,fontSize:14,fontWeight:600,textDecoration:"none"}}>Talk to Us</a>
+            </div>
           </div>
           <div style={{display:"flex",justifyContent:"center"}}><PhoneScreen step={step}/></div>
         </div>
@@ -478,33 +482,33 @@ function Trust({isMobile}){
 }
 
 function SocialProof({isMobile}){
+  const outcomes=[
+    {industry:"Security Companies",metric:"3–5x",label:"More Bid Opportunities Captured",detail:"When patrol and guard contract inquiries are answered immediately — not after the prospect called someone else."},
+    {industry:"Medical Practices",metric:"12–18",label:"Additional Appointments Per Month",detail:"From calls that previously reached voicemail and never came back."},
+    {industry:"Contractors",metric:"68%",label:"of Missed Calls Recovered",detail:"Inquiries received while on the job site, converted to estimates and booked jobs."},
+  ];
   return(
     <section style={{padding:isMobile?"64px 24px":"80px 56px",background:W.bg,borderTop:`1px solid ${W.border}`}}>
       <div style={{maxWidth:1200,margin:"0 auto"}}>
-        <div style={{textAlign:"center",marginBottom:40}}>
-          <div style={{fontSize:11,fontWeight:700,color:W.textDim,letterSpacing:"0.12em",marginBottom:12}}>CLIENT RESULTS</div>
-          <div style={{fontSize:isMobile?"22px":"32px",fontWeight:800,color:W.text,letterSpacing:"-0.025em"}}>Businesses Like Yours Are Recovering Revenue</div>
+        <div style={{textAlign:"center",marginBottom:48}}>
+          <SLabel>TYPICAL OUTCOMES</SLabel>
+          <div style={{fontSize:isMobile?"24px":"36px",fontWeight:800,color:W.text,letterSpacing:"-0.025em",lineHeight:1.1}}>What Businesses Recover<br/>With Veridian</div>
+          <div style={{fontSize:12,color:W.textDim,marginTop:12}}>Representative outcomes by industry. Actual results vary by call volume, industry, and market.</div>
         </div>
-        {/* Insertion-ready testimonial grid — populate when real testimonials are available */}
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:20,marginBottom:40}}>
-          {[
-            {industry:"Security Company",state:"Texas",result:"Recovered 3 patrol contracts in the first 30 days worth over $42,000 annually.",metric:"$42K",metricLabel:"Annual Contract Value Recovered"},
-            {industry:"Medical Practice",state:"Florida",result:"Filled 18 appointment slots in month one from calls that previously went to voicemail.",metric:"18",metricLabel:"Appointments Recovered Monthly"},
-            {industry:"Contractor",state:"Arizona",result:"Stopped losing bids to competitors. Won 4 additional jobs in the first month, zero additional staff.",metric:"4",metricLabel:"Additional Jobs Per Month"},
-          ].map((t,i)=>(
-            <div key={i} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?22:28,position:"relative"}}>
-              <div style={{fontSize:32,fontWeight:900,color:W.accent,letterSpacing:"-0.04em",marginBottom:4}}>{t.metric}</div>
-              <div style={{fontSize:11,fontWeight:600,color:W.textSub,marginBottom:16}}>{t.metricLabel}</div>
-              <p style={{fontSize:13,color:W.textSub,lineHeight:1.65,marginBottom:20}}>"{t.result}"</p>
-              <div style={{borderTop:`1px solid ${W.border}`,paddingTop:14,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <span style={{fontSize:12,fontWeight:600,color:W.textDim}}>{t.industry}</span>
-                <span style={{fontSize:11,color:W.textDim}}>{t.state}</span>
+          {outcomes.map((o,i)=>(
+            <div key={i} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?22:28}}>
+              <div style={{fontSize:isMobile?"36px":"44px",fontWeight:900,color:W.accent,letterSpacing:"-0.04em",lineHeight:1,marginBottom:8}}>{o.metric}</div>
+              <div style={{fontSize:13,fontWeight:700,color:W.text,marginBottom:12}}>{o.label}</div>
+              <p style={{fontSize:13,color:W.textSub,lineHeight:1.65,marginBottom:20}}>{o.detail}</p>
+              <div style={{borderTop:`1px solid ${W.border}`,paddingTop:12}}>
+                <span style={{fontSize:11,fontWeight:600,color:W.textDim,letterSpacing:"0.06em"}}>{o.industry.toUpperCase()}</span>
               </div>
             </div>
           ))}
         </div>
         <div style={{textAlign:"center"}}>
-          <a href="#contact" className="vd-btn" style={{display:"inline-flex",alignItems:"center",gap:8,background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:"12px 28px",borderRadius:10,fontSize:14,fontWeight:600,textDecoration:"none"}}>See If Veridian Is Right for Your Business <ArrowRight size={15}/></a>
+          <a href="#contact" className="vd-btn" style={{display:"inline-flex",alignItems:"center",gap:8,background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:"12px 28px",borderRadius:10,fontSize:14,fontWeight:600,textDecoration:"none"}}>See What Veridian Recovers for Your Business <ArrowRight size={15}/></a>
         </div>
       </div>
     </section>
@@ -542,8 +546,11 @@ function Results({isMobile}){
           <SLabel>OUTCOMES</SLabel>
           <SHead>The Results Speak<br/>for Themselves</SHead>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:20}}>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:20,marginBottom:48}}>
           {s.map((x,i)=><div key={i} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:36,textAlign:"center"}}><div style={{fontSize:isMobile?"36px":"52px",fontWeight:900,color:W.accent,letterSpacing:"-0.04em",lineHeight:1}}>{x.v}</div><div style={{fontSize:14,fontWeight:600,color:W.text,marginTop:14,marginBottom:5}}>{x.l}</div><div style={{fontSize:11,color:W.textDim}}>{x.sub}</div></div>)}
+        </div>
+        <div style={{textAlign:"center"}}>
+          <a href="#contact" className="vd-btn" style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accent,color:"#fff",padding:"15px 32px",borderRadius:10,fontSize:15,fontWeight:700,textDecoration:"none"}}>Start Recovering Revenue Today <ArrowRight size={16}/></a>
         </div>
       </div>
     </section>
@@ -592,7 +599,8 @@ function Contact({isMobile}){
   const[f,setF]=useState({name:"",biz:"",phone:"",email:"",challenge:""});
   const[sent,setSent]=useState(false);
   const[loading,setLoading]=useState(false);
-  const sub=async e=>{e.preventDefault();setLoading(true);await new Promise(r=>setTimeout(r,1200));setSent(true);setLoading(false);};
+  const[err,setErr]=useState(null);
+  const sub=async e=>{e.preventDefault();if(!f.name.trim()||!f.email.trim()){setErr("Name and email are required.");return;}setLoading(true);setErr(null);try{const r=await fetch("/api/contact",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(f)});const data=await r.json();if(!r.ok||!data.success)throw new Error(data.error||"Submission failed");setSent(true);}catch(ex){setErr("Something went wrong — please try again or email us directly.");}setLoading(false);};
   const FI=({label,k,type="text",placeholder=""})=>(
     <div style={{marginBottom:18}}>
       <label style={{fontSize:12,fontWeight:600,color:W.textSub,display:"block",marginBottom:7,letterSpacing:"0.04em"}}>{label}</label>
@@ -632,12 +640,49 @@ function Contact({isMobile}){
                 <label style={{fontSize:12,fontWeight:600,color:W.textSub,display:"block",marginBottom:7,letterSpacing:"0.04em"}}>BIGGEST CHALLENGE</label>
                 <textarea value={f.challenge} onChange={e=>setF(x=>({...x,challenge:e.target.value}))} placeholder="What's your biggest revenue or customer follow-up challenge?" rows={3} style={{width:"100%",background:W.bgAlt,border:`1px solid ${W.border}`,borderRadius:8,padding:"12px 14px",color:W.text,fontSize:14,outline:"none",resize:"vertical"}}/>
               </div>
-              <button type="submit" disabled={loading} className="vd-btn" style={{width:"100%",background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:"17px",fontSize:15,fontWeight:700,cursor:"pointer"}}>
+              {err&&<div style={{marginBottom:14,padding:"12px 14px",background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.2)",borderRadius:8,fontSize:13,color:W.red}}>{err}</div>}
+              <button type="submit" disabled={loading} className="vd-btn" style={{width:"100%",background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:"17px",fontSize:15,fontWeight:700,cursor:loading?"not-allowed":"pointer",opacity:loading?0.7:1}}>
                 {loading?"Submitting...":"Get My Free Revenue Assessment"}
               </button>
             </form>
           </div>
         )}
+      </div>
+    </section>
+  );
+}
+
+const HAS_VIDEOS=false;
+function VideoSection({isMobile}){
+  if(!HAS_VIDEOS)return null;
+  const videos=[
+    {title:"Missed Call Recovery Demo",sub:"See how a missed call becomes a booked appointment in under 5 minutes.",id:"recovery"},
+    {title:"AI Front Desk in Action",sub:"24/7 customer intake — no staff, no missed opportunities.",id:"frontdesk"},
+    {title:"Customer Follow-Up Automation",sub:"From first contact to confirmed appointment, fully automated.",id:"followup"},
+  ];
+  return(
+    <section style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bg}}>
+      <div style={{maxWidth:1200,margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:isMobile?48:72}}>
+          <SLabel>VIDEO DEMOS</SLabel>
+          <SHead>See Veridian in Action</SHead>
+          <p style={{fontSize:isMobile?"15px":"18px",color:W.textSub,maxWidth:480,margin:"0 auto"}}>Watch how Veridian captures missed calls and turns them into booked revenue — automatically.</p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:20}}>
+          {videos.map(v=>(
+            <div key={v.id} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,overflow:"hidden"}}>
+              <div style={{width:"100%",aspectRatio:"16/9",background:W.bgAlt,display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
+                <div style={{width:56,height:56,borderRadius:"50%",background:W.accent,display:"flex",alignItems:"center",justifyContent:"center",opacity:0.9}}>
+                  <div style={{width:0,height:0,borderStyle:"solid",borderWidth:"10px 0 10px 18px",borderColor:`transparent transparent transparent #fff`,marginLeft:4}}/>
+                </div>
+              </div>
+              <div style={{padding:"18px 20px 24px"}}>
+                <div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:6}}>{v.title}</div>
+                <p style={{fontSize:13,color:W.textSub,lineHeight:1.55}}>{v.sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -650,6 +695,7 @@ function Homepage({isMobile}){
       <StatsBar isMobile={isMobile}/>
       <Calculator isMobile={isMobile}/>
       <AutoDemo isMobile={isMobile}/>
+      <VideoSection isMobile={isMobile}/>
       <RecoverySection isMobile={isMobile}/>
       <FrontDeskSection isMobile={isMobile}/>
       <FollowUpSection isMobile={isMobile}/>
@@ -771,6 +817,63 @@ function EnterprisePage({isMobile}){
 // ═══════════════════════════════════════════════════════════════════
 // INDUSTRY PAGES
 // ═══════════════════════════════════════════════════════════════════
+const INDUSTRY_DEFAULTS={
+  "security":{calls:150,miss:35,val:8000,conv:25},
+  "property-management":{calls:100,miss:40,val:2000,conv:35},
+  "contractors":{calls:80,miss:45,val:5000,conv:30},
+  "medical":{calls:200,miss:30,val:300,conv:60},
+  "law":{calls:60,miss:40,val:15000,conv:20},
+};
+function IndustryCalculator({sector,isMobile}){
+  const def=INDUSTRY_DEFAULTS[sector]||{calls:100,miss:30,val:1000,conv:35};
+  const[calls,setCalls]=useState(def.calls);
+  const[miss,setMiss]=useState(def.miss);
+  const[val,setVal]=useState(def.val);
+  const[conv,setConv]=useState(def.conv);
+  const missed=Math.round(calls*miss/100);
+  const opps=Math.round(missed*conv/100);
+  const lostMo=opps*val;
+  const recMo=Math.round(lostMo*0.68);
+  const annual=recMo*12;
+  const fmt$=n=>n>=1000?`$${(n/1000).toFixed(1)}K`:`$${n}`;
+  const Sl=({label,value,set,min,max,step=1,fmt})=>(
+    <div style={{marginBottom:18}}>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:7}}>
+        <span style={{fontSize:13,color:W.textSub,fontWeight:500}}>{label}</span>
+        <span style={{fontSize:13,fontWeight:700,color:W.text}}>{fmt(value)}</span>
+      </div>
+      <input type="range" min={min} max={max} step={step} value={value} onChange={e=>set(Number(e.target.value))} style={{width:"100%",accentColor:W.accent,cursor:"pointer",height:4}}/>
+    </div>
+  );
+  return(
+    <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?24:36,marginBottom:48}}>
+      <div style={{fontSize:12,fontWeight:700,color:W.accent,letterSpacing:"0.08em",marginBottom:20}}>YOUR RECOVERY ESTIMATE</div>
+      <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?0:32,alignItems:"start"}}>
+        <div>
+          <Sl label="Monthly incoming calls" value={calls} set={setCalls} min={20} max={2000} step={10} fmt={v=>v.toLocaleString()}/>
+          <Sl label="Missed call rate" value={miss} set={setMiss} min={5} max={70} fmt={v=>`${v}%`}/>
+          <Sl label="Average customer value" value={val} set={setVal} min={100} max={50000} step={100} fmt={v=>`$${v.toLocaleString()}`}/>
+          <Sl label="Lead-to-customer conversion" value={conv} set={setConv} min={5} max={80} fmt={v=>`${v}%`}/>
+        </div>
+        <div>
+          <div style={{background:"linear-gradient(135deg,rgba(99,102,241,0.12),rgba(99,102,241,0.04))",border:"1px solid rgba(99,102,241,0.26)",borderRadius:14,padding:isMobile?20:28,textAlign:"center",marginBottom:14,animation:"glow 3s infinite"}}>
+            <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:8}}>ANNUAL RECOVERY POTENTIAL</div>
+            <div style={{fontSize:isMobile?"40px":"52px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1}}>{fmt$(annual)}</div>
+            <div style={{fontSize:12,color:W.textSub,marginTop:8}}>in revenue recoverable with Veridian</div>
+          </div>
+          {[{l:"Missed calls/month",v:missed.toLocaleString()},{l:"Revenue lost monthly",v:fmt$(lostMo),c:W.red},{l:"Recovery potential (68%)",v:fmt$(recMo),c:W.green}].map((r,i)=>(
+            <div key={i} style={{background:W.bgAlt,border:`1px solid ${W.border}`,borderRadius:10,padding:"12px 18px",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+              <span style={{fontSize:12,color:W.textSub}}>{r.l}</span>
+              <span style={{fontSize:15,fontWeight:800,color:r.c||W.text}}>{r.v}</span>
+            </div>
+          ))}
+          <a href="/#contact" className="vd-btn" style={{display:"block",background:W.accent,color:"#fff",padding:"14px",borderRadius:10,fontSize:14,fontWeight:700,textDecoration:"none",textAlign:"center",marginTop:14}}>Get My Recovery Plan</a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const INDUSTRY_DATA={
   "security":{
     name:"Security Companies",
@@ -840,6 +943,7 @@ function IndustryPage({sector,isMobile}){
           <div style={{fontSize:12,fontWeight:700,color:W.red,letterSpacing:"0.08em",marginBottom:12}}>REVENUE AT RISK</div>
           <p style={{fontSize:isMobile?"15px":"18px",color:W.text,lineHeight:1.7}}>{d.loss}</p>
         </div>
+        <IndustryCalculator sector={sector} isMobile={isMobile}/>
         {/* Solution */}
         <div style={{marginBottom:48}}>
           <div style={{fontSize:12,fontWeight:700,color:W.accent,letterSpacing:"0.08em",marginBottom:16}}>THE VERIDIAN SOLUTION</div>
