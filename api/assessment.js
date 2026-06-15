@@ -19,7 +19,7 @@ function mkId() {
 const REC_LABELS = {
   revenue: "Missed Call Recovery",
   followup: "Follow-Up Automation",
-  continuity: "AI Front Desk",
+  continuity: "Always-Available Coverage",
   compliance: "Compliance Programs",
   risk: "Business Continuity Planning",
 };
