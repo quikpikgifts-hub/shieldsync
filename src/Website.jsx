@@ -75,7 +75,6 @@ function WebNav({isMobile,page="home"}){
             <a href="/#demo" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Interactive Demo</a>
             <a href="/#calculator" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Revenue Calculator</a>
             <a href="/#assessment" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Assessment</a>
-            <a href="/#contact" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Case Studies</a>
             <a href="/#contact" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Contact</a>
           </div>
         )}
@@ -178,7 +177,7 @@ function Hero({isMobile}){
 
 function StatsBar({isMobile}){
   const s=[
-    {v:"68%",l:"Missed Call Recovery",sub:"Average across all clients"},
+    {v:"68%",l:"Missed Call Recovery",sub:"Representative outcomes. Results vary."},
     {v:"60s",l:"Response Time",sub:"From missed call to first contact"},
     {v:"10+",l:"Years of Experience",sub:"Real operators behind the platform"},
     {v:"24/7",l:"Always Available",sub:"No breaks, no gaps in coverage"},
@@ -344,7 +343,7 @@ function FeatureVisual({type}){
           <div style={{height:6,background:W.border,borderRadius:3,overflow:"hidden"}}>
             <div style={{height:"100%",width:"68%",background:W.green,borderRadius:3}}/>
           </div>
-          <div style={{fontSize:11,color:W.textDim,marginTop:8}}>Average across all Veridian clients</div>
+          <div style={{fontSize:11,color:W.textDim,marginTop:8}}>Representative outcomes. Results vary.</div>
         </div>
       </div>
     );
@@ -558,7 +557,7 @@ function Founder({isMobile}){
 }
 
 function Results({isMobile}){
-  const s=[{v:"68%",l:"Recovery Rate",sub:"Average across all clients"},{v:"< 4 min",l:"Time to First Contact",sub:"From missed call to reply"},{v:"10+",l:"Years of Experience",sub:"Real operators behind the platform"},{v:"24/7",l:"Automated Coverage",sub:"No breaks, no missed revenue"}];
+  const s=[{v:"68%",l:"Recovery Rate",sub:"Representative outcomes. Results vary."},{v:"< 4 min",l:"Time to First Contact",sub:"From missed call to reply"},{v:"10+",l:"Years of Experience",sub:"Real operators behind the platform"},{v:"24/7",l:"Automated Coverage",sub:"No breaks, no missed revenue"}];
   return(
     <section style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bgAlt}}>
       <div style={{maxWidth:1200,margin:"0 auto"}}>
