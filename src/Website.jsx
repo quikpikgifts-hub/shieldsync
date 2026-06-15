@@ -874,22 +874,24 @@ function Assessment({isMobile}){
   const[repName,setRepName]=useState("");
   const[repSent,setRepSent]=useState(false);
   const[repLoading,setRepLoading]=useState(false);
+  const[selectedArea,setSelectedArea]=useState(null);
   const area=step>=1&&step<=5?ASSESS_AREAS[step-1]:null;
   const allAnswered=area?Object.keys(sel).length===area.questions.length:false;
   const next=()=>{
     if(area){const aScores=area.questions.map((_,i)=>sel[i]??0);setScores(p=>({...p,[area.id]:aScores}));}
-    setSel({});setStep(s=>s+1);
+    setSel({});if(selectedArea!==null){setStep(6);}else{setStep(s=>s+1);}
   };
   const areaScores=ASSESS_AREAS.map(a=>{const v=scores[a.id]||[];const got=v.reduce((s,x)=>s+x,0);return{...a,got,pct:Math.round((got/6)*100)};});
   const totalGot=areaScores.reduce((s,a)=>s+a.got,0);
-  const overallPct=step===6?Math.round((totalGot/30)*100):0;
+  const selArea=selectedArea?areaScores.find(a=>a.id===selectedArea):null;
+  const overallPct=step===6?(selectedArea?(selArea?.pct||0):Math.round((totalGot/30)*100)):0;
   const levelC=overallPct>=80?W.green:overallPct>=40?W.amber:W.red;
   const levelL=overallPct>=80?"STRONG":overallPct>=60?"MODERATE":overallPct>=40?"NEEDS ATTENTION":"AT RISK";
-  const sorted=[...areaScores].sort((a,b)=>a.pct-b.pct);
+  const sorted=selectedArea&&selArea?[selArea]:[...areaScores].sort((a,b)=>a.pct-b.pct);
   const sendReport=async()=>{
     if(!repEmail.trim())return;
     setRepLoading(true);
-    try{await fetch("/api/assessment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:repEmail.trim(),name:repName.trim(),overallPct,level:levelL,areaScores:areaScores.map(a=>({id:a.id,label:a.label,pct:a.pct})),recommendations:sorted.slice(0,3).map(a=>a.id)})});setRepSent(true);}catch{}
+    try{await fetch("/api/assessment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:repEmail.trim(),name:repName.trim(),overallPct,level:levelL,areaScores:(selectedArea?areaScores.filter(a=>a.id===selectedArea):areaScores).map(a=>({id:a.id,label:a.label,pct:a.pct})),recommendations:sorted.slice(0,3).map(a=>a.id)})});setRepSent(true);}catch{}
     setRepLoading(false);
   };
 
@@ -906,15 +908,15 @@ function Assessment({isMobile}){
         </h1>
         <p style={{fontSize:isMobile?"16px":"20px",color:W.textSub,lineHeight:1.65,maxWidth:560,margin:"0 auto 40px"}}>A 2-minute assessment across five areas. Get a readiness score, a summary report, and recommended next steps. No cost, no obligation.</p>
         <div style={{display:"flex",gap:10,flexWrap:"wrap",justifyContent:"center",marginBottom:48}}>
-          {ASSESS_AREAS.map(a=>(
-            <div key={a.id} style={{display:"flex",alignItems:"center",gap:6,background:W.card,border:`1px solid ${W.border}`,borderRadius:100,padding:"7px 16px"}}>
+          {ASSESS_AREAS.map((a,i)=>(
+            <button key={a.id} onClick={()=>{setSelectedArea(a.id);setScores({});setSel({});setStep(i+1);}} style={{display:"flex",alignItems:"center",gap:6,background:W.card,border:`1px solid ${W.border}`,borderRadius:100,padding:"7px 16px",cursor:"pointer"}}>
               <div style={{width:6,height:6,borderRadius:"50%",background:a.color}}/>
               <span style={{fontSize:12,fontWeight:600,color:W.textSub}}>{a.label}</span>
-            </div>
+            </button>
           ))}
         </div>
         <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
-          <button onClick={()=>setStep(1)} className="vd-btn" style={{background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:isMobile?"14px 28px":"17px 36px",fontSize:isMobile?"15px":"17px",fontWeight:700,cursor:"pointer",letterSpacing:"-0.01em"}}>Start Assessment</button>
+          <button onClick={()=>{setSelectedArea(null);setScores({});setSel({});setStep(1);}} className="vd-btn" style={{background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:isMobile?"14px 28px":"17px 36px",fontSize:isMobile?"15px":"17px",fontWeight:700,cursor:"pointer",letterSpacing:"-0.01em"}}>Start Full Assessment</button>
           <a href="#calculator" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 26px":"16px 34px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:600,textDecoration:"none"}}>Calculate Revenue Loss</a>
         </div>
         <div style={{marginTop:32,padding:"12px 20px",background:"rgba(16,185,129,0.06)",border:"1px solid rgba(16,185,129,0.18)",borderRadius:10,display:"inline-flex",alignItems:"center",gap:8}}>
@@ -931,7 +933,7 @@ function Assessment({isMobile}){
         <div style={{marginBottom:32}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
             <div style={{fontSize:11,fontWeight:700,color:area.color,letterSpacing:"0.08em"}}>{area.label.toUpperCase()}</div>
-            <div style={{fontSize:11,color:W.textDim}}>Area {step} of 5</div>
+            <div style={{fontSize:11,color:W.textDim}}>{selectedArea?"1 of 1":`Area ${step} of 5`}</div>
           </div>
           <div style={{height:3,background:W.border,borderRadius:2,overflow:"hidden"}}>
             <div style={{height:"100%",width:`${(step/5)*100}%`,background:area.color,transition:"width 0.4s ease",borderRadius:2}}/>
@@ -950,7 +952,7 @@ function Assessment({isMobile}){
           ))}
         </div>
         <div style={{marginTop:20,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <button onClick={()=>{setSel({});setStep(s=>s-1);}} style={{background:"none",border:"none",color:W.textDim,fontSize:13,cursor:"pointer",padding:"8px 0"}}>← Back</button>
+          <button onClick={()=>{setSel({});selectedArea!==null?setStep(0):setStep(s=>s-1);}} style={{background:"none",border:"none",color:W.textDim,fontSize:13,cursor:"pointer",padding:"8px 0"}}>← Back</button>
           <button onClick={next} disabled={!allAnswered} className="vd-btn" style={{background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:"13px 28px",fontSize:14,fontWeight:700,cursor:allAnswered?"pointer":"not-allowed",opacity:allAnswered?1:0.4,transition:"opacity 0.15s"}}>
             {step<5?"Next Area →":"See My Results →"}
           </button>
@@ -963,7 +965,7 @@ function Assessment({isMobile}){
     <section style={{minHeight:"100vh",padding:isMobile?"100px 24px 80px":"120px 56px 80px",background:W.bg}}>
       <div style={{maxWidth:720,margin:"0 auto"}}>
         <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?28:44,textAlign:"center",marginBottom:20}}>
-          <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:16}}>YOUR READINESS SCORE</div>
+          <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:16}}>{selectedArea?(selArea?.label?.toUpperCase()||"AREA")+" SCORE":"YOUR READINESS SCORE"}</div>
           <div style={{fontSize:isMobile?"72px":"100px",fontWeight:900,color:levelC,letterSpacing:"-0.05em",lineHeight:1}}>{overallPct}</div>
           <div style={{fontSize:13,color:W.textSub,marginBottom:16}}>out of 100</div>
           <div style={{display:"inline-block",padding:"6px 20px",borderRadius:100,border:`1px solid ${levelC}`,background:levelC===W.green?W.greenB:levelC===W.red?W.redB:"rgba(245,158,11,0.1)"}}>
@@ -972,7 +974,7 @@ function Assessment({isMobile}){
         </div>
         <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?20:28,marginBottom:20}}>
           <div style={{fontSize:11,fontWeight:700,color:W.textDim,letterSpacing:"0.08em",marginBottom:20}}>BREAKDOWN BY AREA</div>
-          {areaScores.map(a=>(
+          {(selectedArea?areaScores.filter(a=>a.id===selectedArea):areaScores).map(a=>(
             <div key={a.id} style={{marginBottom:16}}>
               <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
                 <span style={{fontSize:13,fontWeight:600,color:W.text}}>{a.label}</span>
@@ -1016,7 +1018,7 @@ function Assessment({isMobile}){
           <div style={{fontSize:14,color:W.textSub,marginBottom:24}}>Book a free 30-minute consultation. We'll build a specific plan using your assessment results.</div>
           <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
             <a href="#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"13px 28px",borderRadius:10,fontSize:14,fontWeight:700,textDecoration:"none"}}>Book Free Consultation</a>
-            <button onClick={()=>{setStep(0);setScores({});setSel({});setRepEmail("");setRepName("");setRepSent(false);}} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:10,padding:"12px 24px",fontSize:14,fontWeight:600,color:W.textSub,cursor:"pointer"}}>Retake Assessment</button>
+            <button onClick={()=>{setStep(0);setScores({});setSel({});setRepEmail("");setRepName("");setRepSent(false);setSelectedArea(null);}} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:10,padding:"12px 24px",fontSize:14,fontWeight:600,color:W.textSub,cursor:"pointer"}}>Retake Assessment</button>
           </div>
         </div>
       </div>
