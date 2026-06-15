@@ -311,7 +311,7 @@ function AuthScreen({onLogin,onDemo}){
         {onDemo&&(
           <div style={{marginTop:16,textAlign:"center"}}>
             <button onClick={onDemo} style={{background:"none",border:`1px solid ${T.accent}`,borderRadius:10,padding:"12px 28px",color:T.accent,fontSize:14,fontWeight:600,cursor:"pointer",width:"100%",letterSpacing:"0.01em"}}>
-              Launch Interactive Demo
+              See How Revenue Is Recovered
             </button>
             <div style={{fontSize:11,color:T.textDim,marginTop:8}}>No login required — see the platform in action</div>
           </div>
@@ -2479,7 +2479,7 @@ function GuidedTour({onComplete}){
           {step>0&&<Btn variant="ghost" onClick={()=>setStep(s=>s-1)}>Previous</Btn>}
           {step<TOUR_STEPS.length-1
             ?<Btn onClick={()=>setStep(s=>s+1)} style={{background:ts.accent}}>Next: {TOUR_STEPS[step+1].module} →</Btn>
-            :<Btn onClick={onComplete} style={{background:T.green}}>Book a Live Demo →</Btn>
+            :<Btn onClick={onComplete} style={{background:T.green}}>Calculate Lost Revenue →</Btn>
           }
         </div>
       </div>
@@ -2508,10 +2508,10 @@ function DemoCenter({onLogin,onExit}){
       </div>
     </div>
   );
-  if(view==="sim1")return<div style={{minHeight:"100vh",background:T.bg,padding:"20px 16px"}}><div style={{maxWidth:900,margin:"0 auto"}}><div style={{marginBottom:12,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{fontSize:14,fontWeight:800,color:T.text}}>Veridian <span style={{color:T.accent}}>Demo</span></div></div><RevenueRecoverySimulator onBack={()=>setView("hub")}/></div></div>;
-  if(view==="sim2")return<div style={{minHeight:"100vh",background:T.bg,padding:"20px 16px"}}><div style={{maxWidth:900,margin:"0 auto"}}><div style={{marginBottom:12}}><span style={{fontSize:14,fontWeight:800,color:T.text}}>Veridian <span style={{color:T.accent}}>Demo</span></span></div><AIFrontDeskSim onBack={()=>setView("hub")}/></div></div>;
-  if(view==="sim3")return<div style={{minHeight:"100vh",background:T.bg,padding:"20px 16px"}}><div style={{maxWidth:900,margin:"0 auto"}}><div style={{marginBottom:12}}><span style={{fontSize:14,fontWeight:800,color:T.text}}>Veridian <span style={{color:T.accent}}>Demo</span></span></div><RecoveryTimeline onBack={()=>setView("hub")}/></div></div>;
-  if(view==="sim4")return<div style={{minHeight:"100vh",background:T.bg,padding:"20px 16px"}}><div style={{maxWidth:900,margin:"0 auto"}}><div style={{marginBottom:12}}><span style={{fontSize:14,fontWeight:800,color:T.text}}>Veridian <span style={{color:T.accent}}>Demo</span></span></div><BusinessContinuityDemo onBack={()=>setView("hub")}/></div></div>;
+  if(view==="sim1")return<div style={{minHeight:"100vh",background:T.bg,padding:"20px 16px"}}><div style={{maxWidth:900,margin:"0 auto"}}><div style={{marginBottom:12,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div style={{fontSize:14,fontWeight:800,color:T.text}}>Veridian <span style={{color:T.accent}}>Recovery</span></div></div><RevenueRecoverySimulator onBack={()=>setView("hub")}/></div></div>;
+  if(view==="sim2")return<div style={{minHeight:"100vh",background:T.bg,padding:"20px 16px"}}><div style={{maxWidth:900,margin:"0 auto"}}><div style={{marginBottom:12}}><span style={{fontSize:14,fontWeight:800,color:T.text}}>Veridian <span style={{color:T.accent}}>Recovery</span></span></div><AIFrontDeskSim onBack={()=>setView("hub")}/></div></div>;
+  if(view==="sim3")return<div style={{minHeight:"100vh",background:T.bg,padding:"20px 16px"}}><div style={{maxWidth:900,margin:"0 auto"}}><div style={{marginBottom:12}}><span style={{fontSize:14,fontWeight:800,color:T.text}}>Veridian <span style={{color:T.accent}}>Recovery</span></span></div><RecoveryTimeline onBack={()=>setView("hub")}/></div></div>;
+  if(view==="sim4")return<div style={{minHeight:"100vh",background:T.bg,padding:"20px 16px"}}><div style={{maxWidth:900,margin:"0 auto"}}><div style={{marginBottom:12}}><span style={{fontSize:14,fontWeight:800,color:T.text}}>Veridian <span style={{color:T.accent}}>Recovery</span></span></div><BusinessContinuityDemo onBack={()=>setView("hub")}/></div></div>;
 
   return(
     <div style={{minHeight:"100vh",background:T.bg}}>
@@ -2531,7 +2531,7 @@ function DemoCenter({onLogin,onExit}){
         <div style={{textAlign:"center",marginBottom:48}}>
           <div style={{display:"inline-flex",alignItems:"center",gap:6,background:T.accentB,border:`1px solid ${T.accent}44`,borderRadius:20,padding:"4px 14px",marginBottom:16}}>
             <div style={{width:6,height:6,borderRadius:"50%",background:T.green,animation:"ocPulse 2s infinite"}}/>
-            <span style={{fontSize:11,color:T.accent,fontWeight:700}}>INTERACTIVE DEMO ENVIRONMENT</span>
+            <span style={{fontSize:11,color:T.accent,fontWeight:700}}>REVENUE RECOVERY CENTER</span>
           </div>
           <div style={{fontSize:36,fontWeight:900,color:T.text,letterSpacing:"-0.03em",lineHeight:1.15,marginBottom:14,maxWidth:640,margin:"0 auto 14px"}}>
             Discover how Veridian<br/>grows your business
@@ -2562,8 +2562,8 @@ function DemoCenter({onLogin,onExit}){
 
         {/* Demo cards */}
         <div style={{marginBottom:24}}>
-          <div style={{fontSize:16,fontWeight:800,color:T.text,marginBottom:4}}>Interactive Demos</div>
-          <div style={{fontSize:13,color:T.textSub}}>Click any demo to experience it now — no signup required</div>
+          <div style={{fontSize:16,fontWeight:800,color:T.text,marginBottom:4}}>Revenue Recovery Simulations</div>
+          <div style={{fontSize:13,color:T.textSub}}>Click any simulation to experience it now — no signup required</div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:14,marginBottom:40}}>
           {demos.map(d=>(
@@ -2574,7 +2574,7 @@ function DemoCenter({onLogin,onExit}){
               <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:6}}>{d.label}</div>
               <div style={{fontSize:13,color:T.textSub,marginBottom:14,lineHeight:1.4}}>{d.sub}</div>
               <div style={{display:"flex",alignItems:"center",gap:6,color:d.color,fontSize:13,fontWeight:600}}>
-                Launch Demo <ArrowUpRight size={14}/>
+                Explore <ArrowUpRight size={14}/>
               </div>
             </div>
           ))}
@@ -2582,8 +2582,8 @@ function DemoCenter({onLogin,onExit}){
 
         {/* Veridian orgs */}
         <Card>
-          <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:4}}>Demo Organizations</div>
-          <div style={{fontSize:12,color:T.textSub,marginBottom:14}}>Explore full platform access with live demo data — no production data, no real customers</div>
+          <div style={{fontSize:14,fontWeight:700,color:T.text,marginBottom:4}}>Live Environments</div>
+          <div style={{fontSize:12,color:T.textSub,marginBottom:14}}>Explore full platform access with live data — no production data, no real customers</div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:10}}>
             {[
               {id:"U-VS-CEO",name:"Veridian Solutions",role:"CEO / Ryan Park",color:T.accent,desc:"AI SaaS · Revenue recovery platform"},

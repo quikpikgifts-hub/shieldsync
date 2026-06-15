@@ -56,7 +56,7 @@ function WebNav({isMobile,page="home"}){
     window.addEventListener("scroll",h,{passive:true});
     return()=>window.removeEventListener("scroll",h);
   },[]);
-  const mobileLinks=[{l:"Assessment",h:"/#assessment"},{l:"Solutions",h:"/#solutions"},{l:"Interactive Demo",h:"/#demo"},{l:"Revenue Calculator",h:"/#calculator"},{l:"Contact",h:"/#contact"}];
+  const mobileLinks=[{l:"Assessment",h:"/#assessment"},{l:"Solutions",h:"/#solutions"},{l:"Revenue Recovery Center",h:"/#recovery-center"},{l:"Revenue Calculator",h:"/#calculator"},{l:"Contact",h:"/#contact"}];
   return(
     <>
       <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:200,padding:isMobile?"14px 20px":"16px 56px",display:"flex",alignItems:"center",justifyContent:"space-between",transition:"all 0.2s ease",background:scrolled?"rgba(5,5,9,0.97)":W.bg,borderBottom:scrolled?`1px solid ${W.border}`:"1px solid transparent",backdropFilter:scrolled?"blur(20px)":"none"}}>
@@ -72,7 +72,7 @@ function WebNav({isMobile,page="home"}){
         {!isMobile&&(
           <div style={{display:"flex",gap:20,alignItems:"center"}}>
             <a href="/#solutions" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Solutions</a>
-            <a href="/#demo" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Interactive Demo</a>
+            <a href="/#recovery-center" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Revenue Recovery Center</a>
             <a href="/#calculator" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Revenue Calculator</a>
             <a href="/#assessment" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Assessment</a>
             <a href="/#contact" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Contact</a>
