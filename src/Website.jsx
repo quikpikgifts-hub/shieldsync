@@ -56,7 +56,7 @@ function WebNav({isMobile,page="home"}){
     window.addEventListener("scroll",h,{passive:true});
     return()=>window.removeEventListener("scroll",h);
   },[]);
-  const mobileLinks=[{l:"Solutions",h:"/#solutions"},{l:"Interactive Demo",h:"/#demo"},{l:"Revenue Calculator",h:"/#calculator"},{l:"Enterprise",h:"/enterprise"},{l:"Contact",h:"/#contact"}];
+  const mobileLinks=[{l:"Assessment",h:"/#assessment"},{l:"Solutions",h:"/#solutions"},{l:"Interactive Demo",h:"/#demo"},{l:"Revenue Calculator",h:"/#calculator"},{l:"Contact",h:"/#contact"}];
   return(
     <>
       <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:200,padding:isMobile?"14px 20px":"16px 56px",display:"flex",alignItems:"center",justifyContent:"space-between",transition:"all 0.2s ease",background:scrolled?"rgba(5,5,9,0.97)":W.bg,borderBottom:scrolled?`1px solid ${W.border}`:"1px solid transparent",backdropFilter:scrolled?"blur(20px)":"none"}}>
@@ -70,12 +70,13 @@ function WebNav({isMobile,page="home"}){
             </div>
         </a>
         {!isMobile&&(
-          <div style={{display:"flex",gap:28,alignItems:"center"}}>
-            <a href="/#solutions" className="vd-nl" style={{color:W.textSub,fontSize:14,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Solutions</a>
-            <a href="/#demo" className="vd-nl" style={{color:W.textSub,fontSize:14,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Interactive Demo</a>
-            <a href="/#calculator" className="vd-nl" style={{color:W.textSub,fontSize:14,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Revenue Calculator</a>
-            <a href="/enterprise" className="vd-nl" style={{color:W.textSub,fontSize:14,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Enterprise</a>
-            <a href="/#contact" className="vd-nl" style={{color:W.textSub,fontSize:14,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Contact</a>
+          <div style={{display:"flex",gap:20,alignItems:"center"}}>
+            <a href="/#solutions" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Solutions</a>
+            <a href="/#demo" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Interactive Demo</a>
+            <a href="/#calculator" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Revenue Calculator</a>
+            <a href="/#assessment" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Assessment</a>
+            <a href="/#contact" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Case Studies</a>
+            <a href="/#contact" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Contact</a>
           </div>
         )}
         {!isMobile&&<a href="/#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"10px 22px",borderRadius:9,fontSize:14,fontWeight:600,textDecoration:"none"}}>Book Consultation</a>}
@@ -830,10 +831,203 @@ function VideoSection({isMobile}){
   );
 }
 
+const ASSESS_AREAS=[
+  {id:"revenue",label:"Revenue Recovery",color:W.red,questions:[
+    {q:"Do you have a system to respond to every missed call within 60 seconds?",opts:[{t:"Yes, automated",s:2},{t:"Sometimes",s:1},{t:"No",s:0}]},
+    {q:"What percentage of your incoming calls go unanswered?",opts:[{t:"Less than 10%",s:2},{t:"10–30%",s:1},{t:"More than 30%",s:0}]},
+    {q:"Do you track how much revenue you lose to missed calls each month?",opts:[{t:"Yes, precisely",s:2},{t:"Roughly",s:1},{t:"No",s:0}]},
+  ]},
+  {id:"followup",label:"Customer Follow-Up",color:W.accent,questions:[
+    {q:"How quickly does a new inquiry receive follow-up from your team?",opts:[{t:"Within the hour",s:2},{t:"Same day",s:1},{t:"Next day or later",s:0}]},
+    {q:"Do you have an automated follow-up sequence for unconverted leads?",opts:[{t:"Yes, automated",s:2},{t:"Manual only",s:1},{t:"No",s:0}]},
+    {q:"Do you know your current lead-to-customer conversion rate?",opts:[{t:"Yes, tracked",s:2},{t:"Roughly",s:1},{t:"No",s:0}]},
+  ]},
+  {id:"continuity",label:"Business Continuity",color:"#8B5CF6",questions:[
+    {q:"Can your business handle customer inquiries if your main phone line fails?",opts:[{t:"Yes, redundant systems",s:2},{t:"Partly",s:1},{t:"No",s:0}]},
+    {q:"Do you have coverage for customer calls after business hours?",opts:[{t:"Yes, 24/7",s:2},{t:"Partial coverage",s:1},{t:"Voicemail only",s:0}]},
+    {q:"If a key team member is unavailable, do customers still receive immediate response?",opts:[{t:"Yes",s:2},{t:"Usually",s:1},{t:"No",s:0}]},
+  ]},
+  {id:"compliance",label:"Compliance Readiness",color:W.amber,questions:[
+    {q:"Are your customer intake and data handling procedures documented?",opts:[{t:"Yes, current",s:2},{t:"Informal only",s:1},{t:"No",s:0}]},
+    {q:"Are all client communications logged and retrievable if needed?",opts:[{t:"Yes",s:2},{t:"Partially",s:1},{t:"No",s:0}]},
+    {q:"When did you last review your operational compliance procedures?",opts:[{t:"Past 12 months",s:2},{t:"1–3 years ago",s:1},{t:"Not formally",s:0}]},
+  ]},
+  {id:"risk",label:"Operational Risk",color:W.green,questions:[
+    {q:"Do you have backup systems if your primary communication tool fails?",opts:[{t:"Yes",s:2},{t:"Partial",s:1},{t:"No",s:0}]},
+    {q:"Can you handle 2–3× your normal call volume without service degradation?",opts:[{t:"Yes",s:2},{t:"Somewhat",s:1},{t:"No",s:0}]},
+    {q:"Do you have real-time visibility into team response rates and performance?",opts:[{t:"Yes, dashboards",s:2},{t:"Informal tracking",s:1},{t:"No",s:0}]},
+  ]},
+];
+const ASSESS_RECS={
+  revenue:{label:"Missed Call Recovery",detail:"Capture every inquiry automatically within 60 seconds."},
+  followup:{label:"Follow-Up Automation",detail:"Convert leads with automated sequences — no manual effort."},
+  continuity:{label:"AI Front Desk",detail:"24/7 coverage so no customer call ever goes unanswered."},
+  compliance:{label:"Compliance Programs",detail:"Documented procedures and audit-ready operational frameworks."},
+  risk:{label:"Business Continuity Planning",detail:"Redundant systems and an operational resilience assessment."},
+};
+
+function Assessment({isMobile}){
+  const[step,setStep]=useState(0);
+  const[scores,setScores]=useState({});
+  const[sel,setSel]=useState({});
+  const[repEmail,setRepEmail]=useState("");
+  const[repName,setRepName]=useState("");
+  const[repSent,setRepSent]=useState(false);
+  const[repLoading,setRepLoading]=useState(false);
+  const area=step>=1&&step<=5?ASSESS_AREAS[step-1]:null;
+  const allAnswered=area?Object.keys(sel).length===area.questions.length:false;
+  const next=()=>{
+    if(area){const aScores=area.questions.map((_,i)=>sel[i]??0);setScores(p=>({...p,[area.id]:aScores}));}
+    setSel({});setStep(s=>s+1);
+  };
+  const areaScores=ASSESS_AREAS.map(a=>{const v=scores[a.id]||[];const got=v.reduce((s,x)=>s+x,0);return{...a,got,pct:Math.round((got/6)*100)};});
+  const totalGot=areaScores.reduce((s,a)=>s+a.got,0);
+  const overallPct=step===6?Math.round((totalGot/30)*100):0;
+  const levelC=overallPct>=80?W.green:overallPct>=40?W.amber:W.red;
+  const levelL=overallPct>=80?"STRONG":overallPct>=60?"MODERATE":overallPct>=40?"NEEDS ATTENTION":"AT RISK";
+  const sorted=[...areaScores].sort((a,b)=>a.pct-b.pct);
+  const sendReport=async()=>{
+    if(!repEmail.trim())return;
+    setRepLoading(true);
+    try{await fetch("/api/assessment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:repEmail.trim(),name:repName.trim(),overallPct,level:levelL,areaScores:areaScores.map(a=>({id:a.id,label:a.label,pct:a.pct})),recommendations:sorted.slice(0,3).map(a=>a.id)})});setRepSent(true);}catch{}
+    setRepLoading(false);
+  };
+
+  if(step===0)return(
+    <section id="assessment" style={{minHeight:"100vh",display:"flex",flexDirection:"column",justifyContent:"center",position:"relative",overflow:"hidden",padding:isMobile?"120px 24px 80px":"150px 56px 110px"}}>
+      <div style={{position:"absolute",top:"40%",left:"50%",transform:"translate(-50%,-50%)",width:900,height:900,background:"radial-gradient(circle,rgba(99,102,241,0.06) 0%,transparent 65%)",pointerEvents:"none"}}/>
+      <div style={{maxWidth:960,margin:"0 auto",width:"100%",position:"relative",zIndex:1,textAlign:"center"}}>
+        <div style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accentB,border:"1px solid rgba(99,102,241,0.22)",borderRadius:100,padding:"6px 16px",marginBottom:40}}>
+          <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
+          <span style={{fontSize:12,fontWeight:600,color:W.accent,letterSpacing:"0.06em"}}>FREE BUSINESS ASSESSMENT</span>
+        </div>
+        <h1 style={{fontSize:isMobile?"40px":"76px",fontWeight:900,color:W.text,lineHeight:1.03,letterSpacing:"-0.04em",marginBottom:20}}>
+          How protected is your<br/><span style={{color:W.accent}}>revenue and operations?</span>
+        </h1>
+        <p style={{fontSize:isMobile?"16px":"20px",color:W.textSub,lineHeight:1.65,maxWidth:560,margin:"0 auto 40px"}}>A 2-minute assessment across five areas. Get a readiness score, a summary report, and recommended next steps. No cost, no obligation.</p>
+        <div style={{display:"flex",gap:10,flexWrap:"wrap",justifyContent:"center",marginBottom:48}}>
+          {ASSESS_AREAS.map(a=>(
+            <div key={a.id} style={{display:"flex",alignItems:"center",gap:6,background:W.card,border:`1px solid ${W.border}`,borderRadius:100,padding:"7px 16px"}}>
+              <div style={{width:6,height:6,borderRadius:"50%",background:a.color}}/>
+              <span style={{fontSize:12,fontWeight:600,color:W.textSub}}>{a.label}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
+          <button onClick={()=>setStep(1)} className="vd-btn" style={{background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:isMobile?"14px 28px":"17px 36px",fontSize:isMobile?"15px":"17px",fontWeight:700,cursor:"pointer",letterSpacing:"-0.01em"}}>Start Assessment</button>
+          <a href="#calculator" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 26px":"16px 34px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:600,textDecoration:"none"}}>Calculate Revenue Loss</a>
+        </div>
+        <div style={{marginTop:32,padding:"12px 20px",background:"rgba(16,185,129,0.06)",border:"1px solid rgba(16,185,129,0.18)",borderRadius:10,display:"inline-flex",alignItems:"center",gap:8}}>
+          <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
+          <span style={{fontSize:12,color:W.green,fontWeight:600}}>Currently accepting new clients — response within one business day</span>
+        </div>
+      </div>
+    </section>
+  );
+
+  if(step>=1&&step<=5&&area)return(
+    <section style={{minHeight:"100vh",display:"flex",alignItems:"center",padding:isMobile?"100px 24px 60px":"120px 56px 80px",background:W.bg}}>
+      <div style={{maxWidth:640,margin:"0 auto",width:"100%"}}>
+        <div style={{marginBottom:32}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{fontSize:11,fontWeight:700,color:area.color,letterSpacing:"0.08em"}}>{area.label.toUpperCase()}</div>
+            <div style={{fontSize:11,color:W.textDim}}>Area {step} of 5</div>
+          </div>
+          <div style={{height:3,background:W.border,borderRadius:2,overflow:"hidden"}}>
+            <div style={{height:"100%",width:`${(step/5)*100}%`,background:area.color,transition:"width 0.4s ease",borderRadius:2}}/>
+          </div>
+        </div>
+        <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:40}}>
+          {area.questions.map((q,qi)=>(
+            <div key={qi} style={{marginBottom:qi<area.questions.length-1?28:0}}>
+              <div style={{fontSize:isMobile?"14px":"15px",fontWeight:700,color:W.text,marginBottom:14,lineHeight:1.4}}>{q.q}</div>
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {q.opts.map((opt,oi)=>(
+                  <button key={oi} onClick={()=>setSel(p=>({...p,[qi]:opt.s}))} style={{background:sel[qi]===opt.s?W.accentB:W.bgAlt,border:`1.5px solid ${sel[qi]===opt.s?W.accent:W.border}`,borderRadius:10,padding:"12px 16px",color:sel[qi]===opt.s?W.text:W.textSub,fontSize:14,fontWeight:sel[qi]===opt.s?600:400,cursor:"pointer",textAlign:"left",transition:"all 0.12s"}}>{opt.t}</button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:20,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <button onClick={()=>{setSel({});setStep(s=>s-1);}} style={{background:"none",border:"none",color:W.textDim,fontSize:13,cursor:"pointer",padding:"8px 0"}}>← Back</button>
+          <button onClick={next} disabled={!allAnswered} className="vd-btn" style={{background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:"13px 28px",fontSize:14,fontWeight:700,cursor:allAnswered?"pointer":"not-allowed",opacity:allAnswered?1:0.4,transition:"opacity 0.15s"}}>
+            {step<5?"Next Area →":"See My Results →"}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+
+  return(
+    <section style={{minHeight:"100vh",padding:isMobile?"100px 24px 80px":"120px 56px 80px",background:W.bg}}>
+      <div style={{maxWidth:720,margin:"0 auto"}}>
+        <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?28:44,textAlign:"center",marginBottom:20}}>
+          <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:16}}>YOUR READINESS SCORE</div>
+          <div style={{fontSize:isMobile?"72px":"100px",fontWeight:900,color:levelC,letterSpacing:"-0.05em",lineHeight:1}}>{overallPct}</div>
+          <div style={{fontSize:13,color:W.textSub,marginBottom:16}}>out of 100</div>
+          <div style={{display:"inline-block",padding:"6px 20px",borderRadius:100,border:`1px solid ${levelC}`,background:levelC===W.green?W.greenB:levelC===W.red?W.redB:"rgba(245,158,11,0.1)"}}>
+            <span style={{fontSize:13,fontWeight:800,color:levelC,letterSpacing:"0.06em"}}>{levelL}</span>
+          </div>
+        </div>
+        <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?20:28,marginBottom:20}}>
+          <div style={{fontSize:11,fontWeight:700,color:W.textDim,letterSpacing:"0.08em",marginBottom:20}}>BREAKDOWN BY AREA</div>
+          {areaScores.map(a=>(
+            <div key={a.id} style={{marginBottom:16}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                <span style={{fontSize:13,fontWeight:600,color:W.text}}>{a.label}</span>
+                <span style={{fontSize:13,fontWeight:700,color:a.pct>=70?W.green:a.pct>=40?W.amber:W.red}}>{a.pct}%</span>
+              </div>
+              <div style={{height:6,background:W.border,borderRadius:3,overflow:"hidden"}}>
+                <div style={{height:"100%",width:`${a.pct}%`,background:a.pct>=70?W.green:a.pct>=40?W.amber:W.red,borderRadius:3}}/>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?20:28,marginBottom:20}}>
+          <div style={{fontSize:11,fontWeight:700,color:W.textDim,letterSpacing:"0.08em",marginBottom:20}}>TOP RECOMMENDATIONS</div>
+          {sorted.slice(0,3).map((a,i)=>{const rec=ASSESS_RECS[a.id];return(
+            <div key={a.id} style={{display:"flex",gap:14,padding:"14px 0",borderBottom:i<2?`1px solid ${W.border}`:"none"}}>
+              <div style={{width:28,height:28,borderRadius:"50%",background:W.accentB,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:13,fontWeight:800,color:W.accent}}>{i+1}</div>
+              <div><div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:3}}>{rec.label}</div><div style={{fontSize:13,color:W.textSub}}>{rec.detail}</div></div>
+            </div>
+          );})}
+        </div>
+        {!repSent?(
+          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?20:28,marginBottom:20}}>
+            <div style={{fontSize:11,fontWeight:700,color:W.textDim,letterSpacing:"0.08em",marginBottom:12}}>GET YOUR FULL REPORT</div>
+            <div style={{fontSize:13,color:W.textSub,marginBottom:16}}>Enter your email to receive your assessment results, recommendations, and a personalized action plan.</div>
+            <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:10,marginBottom:10}}>
+              <input type="text" value={repName} onChange={e=>setRepName(e.target.value)} placeholder="Your name (optional)" style={{background:W.bgAlt,border:`1px solid ${W.border}`,borderRadius:8,padding:"11px 14px",color:W.text,fontSize:14,outline:"none"}}/>
+              <input type="email" value={repEmail} onChange={e=>setRepEmail(e.target.value)} placeholder="Business email address" style={{background:W.bgAlt,border:`1px solid ${W.border}`,borderRadius:8,padding:"11px 14px",color:W.text,fontSize:14,outline:"none"}}/>
+            </div>
+            <button onClick={sendReport} disabled={!repEmail.trim()||repLoading} className="vd-btn" style={{width:"100%",background:W.accent,color:"#fff",border:"none",borderRadius:9,padding:"12px",fontSize:14,fontWeight:700,cursor:repEmail.trim()?"pointer":"not-allowed",opacity:repEmail.trim()?1:0.5}}>
+              {repLoading?"Sending...":"Email My Results"}
+            </button>
+          </div>
+        ):(
+          <div style={{background:W.greenB,border:`1px solid rgba(16,185,129,0.25)`,borderRadius:12,padding:"14px 18px",marginBottom:20,display:"flex",gap:10,alignItems:"center"}}>
+            <CheckCircle size={16} style={{color:W.green,flexShrink:0}}/>
+            <span style={{fontSize:13,color:W.green,fontWeight:600}}>Report sent to {repEmail} — check your inbox.</span>
+          </div>
+        )}
+        <div style={{background:"linear-gradient(135deg,rgba(99,102,241,0.1),rgba(99,102,241,0.04))",border:"1px solid rgba(99,102,241,0.22)",borderRadius:16,padding:isMobile?24:36,textAlign:"center"}}>
+          <div style={{fontSize:17,fontWeight:800,color:W.text,marginBottom:8}}>Ready to close these gaps?</div>
+          <div style={{fontSize:14,color:W.textSub,marginBottom:24}}>Book a free 30-minute consultation. We'll build a specific plan using your assessment results.</div>
+          <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
+            <a href="#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"13px 28px",borderRadius:10,fontSize:14,fontWeight:700,textDecoration:"none"}}>Book Free Consultation</a>
+            <button onClick={()=>{setStep(0);setScores({});setSel({});setRepEmail("");setRepName("");setRepSent(false);}} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:10,padding:"12px 24px",fontSize:14,fontWeight:600,color:W.textSub,cursor:"pointer"}}>Retake Assessment</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Homepage({isMobile}){
   return(
     <>
-      <Hero isMobile={isMobile}/>
+      <Assessment isMobile={isMobile}/>
       <StatsBar isMobile={isMobile}/>
       <Calculator isMobile={isMobile}/>
       <AutoDemo isMobile={isMobile}/>
