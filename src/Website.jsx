@@ -876,6 +876,7 @@ function Assessment({isMobile}){
   const[selectedArea,setSelectedArea]=useState(null);
   const area=step>=1&&step<=5?ASSESS_AREAS[step-1]:null;
   const allAnswered=area?Object.keys(sel).length===area.questions.length:false;
+  useEffect(()=>{if(step>0){const el=document.getElementById("assessment");if(el)el.scrollIntoView({behavior:"smooth",block:"start"});}},[step]);
   const next=()=>{
     if(area){const aScores=area.questions.map((_,i)=>sel[i]??0);setScores(p=>({...p,[area.id]:aScores}));}
     setSel({});if(selectedArea!==null){setStep(6);}else{setStep(s=>s+1);}
@@ -908,14 +909,14 @@ function Assessment({isMobile}){
         <p style={{fontSize:isMobile?"16px":"20px",color:W.textSub,lineHeight:1.65,maxWidth:560,margin:"0 auto 40px"}}>A 2-minute assessment across five areas. Get a readiness score, a summary report, and recommended next steps. No cost, no obligation.</p>
         <div style={{display:"flex",gap:10,flexWrap:"wrap",justifyContent:"center",marginBottom:48}}>
           {ASSESS_AREAS.map((a,i)=>(
-            <button key={a.id} onClick={()=>{setSelectedArea(a.id);setScores({});setSel({});setStep(i+1);}} style={{display:"flex",alignItems:"center",gap:6,background:W.card,border:`1px solid ${W.border}`,borderRadius:100,padding:"7px 16px",cursor:"pointer"}}>
+            <button type="button" key={a.id} onClick={()=>{setSelectedArea(a.id);setScores({});setSel({});setStep(i+1);}} style={{display:"flex",alignItems:"center",gap:6,background:W.card,border:`1px solid ${W.border}`,borderRadius:100,padding:"7px 16px",cursor:"pointer"}}>
               <div style={{width:6,height:6,borderRadius:"50%",background:a.color}}/>
               <span style={{fontSize:12,fontWeight:600,color:W.textSub}}>{a.label}</span>
             </button>
           ))}
         </div>
         <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
-          <button onClick={()=>{setSelectedArea(null);setScores({});setSel({});setStep(1);}} className="vd-btn" style={{background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:isMobile?"14px 28px":"17px 36px",fontSize:isMobile?"15px":"17px",fontWeight:700,cursor:"pointer",letterSpacing:"-0.01em"}}>Start Full Assessment</button>
+          <button type="button" onClick={()=>{setSelectedArea(null);setScores({});setSel({});setStep(1);}} className="vd-btn" style={{background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:isMobile?"14px 28px":"17px 36px",fontSize:isMobile?"15px":"17px",fontWeight:700,cursor:"pointer",letterSpacing:"-0.01em"}}>Start Full Assessment</button>
           <a href="#calculator" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 26px":"16px 34px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:600,textDecoration:"none"}}>Calculate Revenue Loss</a>
         </div>
         <div style={{marginTop:32,padding:"12px 20px",background:"rgba(16,185,129,0.06)",border:"1px solid rgba(16,185,129,0.18)",borderRadius:10,display:"inline-flex",alignItems:"center",gap:8}}>
@@ -952,8 +953,8 @@ function Assessment({isMobile}){
         </div>
         <div style={{marginTop:20,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <button onClick={()=>{setSel({});selectedArea!==null?setStep(0):setStep(s=>s-1);}} style={{background:"none",border:"none",color:W.textDim,fontSize:13,cursor:"pointer",padding:"8px 0"}}>← Back</button>
-          <button onClick={next} disabled={!allAnswered} className="vd-btn" style={{background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:"13px 28px",fontSize:14,fontWeight:700,cursor:allAnswered?"pointer":"not-allowed",opacity:allAnswered?1:0.4,transition:"opacity 0.15s"}}>
-            {step<5?"Next Area →":"See My Results →"}
+          <button type="button" onClick={next} disabled={!allAnswered} className="vd-btn" style={{background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:"13px 28px",fontSize:14,fontWeight:700,cursor:allAnswered?"pointer":"not-allowed",opacity:allAnswered?1:0.4,transition:"opacity 0.15s"}}>
+            {selectedArea||step>=5?"See My Results →":"Next Area →"}
           </button>
         </div>
       </div>
