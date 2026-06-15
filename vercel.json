@@ -1,5 +1,4 @@
 {
-  "functions": { "api/**/*.js": { "runtime": "edge" } },
   "crons": [
     {
       "path": "/api/follow-up",
