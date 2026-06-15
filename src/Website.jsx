@@ -56,7 +56,7 @@ function WebNav({isMobile,page="home"}){
     window.addEventListener("scroll",h,{passive:true});
     return()=>window.removeEventListener("scroll",h);
   },[]);
-  const mobileLinks=[{l:"Solutions",h:"/#solutions"},{l:"Demo",h:"/#demo"},{l:"Revenue Calculator",h:"/#calculator"},{l:"Contact",h:"/#contact"}];
+  const mobileLinks=[{l:"Solutions",h:"/#solutions"},{l:"Interactive Demo",h:"/#demo"},{l:"Revenue Calculator",h:"/#calculator"},{l:"Enterprise",h:"/enterprise"},{l:"Contact",h:"/#contact"}];
   return(
     <>
       <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:200,padding:isMobile?"14px 20px":"16px 56px",display:"flex",alignItems:"center",justifyContent:"space-between",transition:"all 0.2s ease",background:scrolled?"rgba(5,5,9,0.97)":W.bg,borderBottom:scrolled?`1px solid ${W.border}`:"1px solid transparent",backdropFilter:scrolled?"blur(20px)":"none"}}>
@@ -64,18 +64,21 @@ function WebNav({isMobile,page="home"}){
           <div style={{width:32,height:32,background:W.accent,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
             <span style={{color:"#fff",fontWeight:900,fontSize:15,letterSpacing:"-0.04em"}}>V</span>
           </div>
-          <span style={{fontSize:17,fontWeight:800,color:W.text,letterSpacing:"-0.025em"}}>Veridian</span>
+          <div>
+              <div style={{fontSize:17,fontWeight:800,color:W.text,letterSpacing:"-0.025em",lineHeight:1.1}}>Veridian</div>
+              <div style={{fontSize:9,fontWeight:700,color:W.accent,letterSpacing:"0.08em"}}>RISK & RESILIENCE GROUP</div>
+            </div>
         </a>
         {!isMobile&&(
           <div style={{display:"flex",gap:28,alignItems:"center"}}>
             <a href="/#solutions" className="vd-nl" style={{color:W.textSub,fontSize:14,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Solutions</a>
-            <a href="/#calculator" className="vd-nl" style={{color:W.textSub,fontSize:14,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Calculator</a>
-            <a href="/industries/security" className="vd-nl" style={{color:W.textSub,fontSize:14,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Industries</a>
+            <a href="/#demo" className="vd-nl" style={{color:W.textSub,fontSize:14,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Interactive Demo</a>
+            <a href="/#calculator" className="vd-nl" style={{color:W.textSub,fontSize:14,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Revenue Calculator</a>
             <a href="/enterprise" className="vd-nl" style={{color:W.textSub,fontSize:14,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Enterprise</a>
             <a href="/#contact" className="vd-nl" style={{color:W.textSub,fontSize:14,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Contact</a>
           </div>
         )}
-        {!isMobile&&<a href="/#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"10px 22px",borderRadius:9,fontSize:14,fontWeight:600,textDecoration:"none"}}>Get Started</a>}
+        {!isMobile&&<a href="/#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"10px 22px",borderRadius:9,fontSize:14,fontWeight:600,textDecoration:"none"}}>Book Consultation</a>}
         {isMobile&&<button onClick={()=>setOpen(true)} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:8,padding:"8px 11px",color:W.text,cursor:"pointer",display:"flex"}}><Menu size={18}/></button>}
       </nav>
       {isMobile&&open&&(
@@ -83,14 +86,14 @@ function WebNav({isMobile,page="home"}){
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:56}}>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
               <div style={{width:32,height:32,background:W.accent,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontWeight:900,fontSize:15}}>V</span></div>
-              <span style={{fontSize:17,fontWeight:800,color:W.text}}>Veridian</span>
+              <div><div style={{fontSize:17,fontWeight:800,color:W.text,lineHeight:1.1}}>Veridian</div><div style={{fontSize:9,fontWeight:700,color:W.accent,letterSpacing:"0.08em"}}>RISK & RESILIENCE GROUP</div></div>
             </div>
             <button onClick={()=>setOpen(false)} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:8,padding:"8px 11px",color:W.textSub,cursor:"pointer"}}><X size={18}/></button>
           </div>
           <div style={{flex:1}}>
             {mobileLinks.map(l=><a key={l.l} href={l.h} onClick={()=>setOpen(false)} style={{display:"block",fontSize:28,fontWeight:700,color:W.text,textDecoration:"none",padding:"20px 0",borderBottom:`1px solid ${W.border}`}}>{l.l}</a>)}
           </div>
-          <a href="/#contact" onClick={()=>setOpen(false)} className="vd-btn" style={{display:"block",background:W.accent,color:"#fff",padding:"18px",borderRadius:12,fontSize:16,fontWeight:700,textDecoration:"none",textAlign:"center",marginTop:40}}>Get Started</a>
+          <a href="/#contact" onClick={()=>setOpen(false)} className="vd-btn" style={{display:"block",background:W.accent,color:"#fff",padding:"18px",borderRadius:12,fontSize:16,fontWeight:700,textDecoration:"none",textAlign:"center",marginTop:40}}>Book Consultation</a>
         </div>
       )}
     </>
@@ -103,18 +106,25 @@ function WebFooter({isMobile}){
     <footer style={{borderTop:`1px solid ${W.border}`,padding:isMobile?"28px 24px":"36px 56px",background:W.bgAlt}}>
       <div style={{maxWidth:1200,margin:"0 auto",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr auto 1fr",gap:isMobile?20:0,alignItems:"center"}}>
         <div>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
             <div style={{width:26,height:26,background:W.accent,borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontWeight:900,fontSize:13}}>V</span></div>
-            <span style={{fontSize:15,fontWeight:800,color:W.text}}>Veridian</span>
+            <div>
+              <div style={{fontSize:15,fontWeight:800,color:W.text,lineHeight:1.1}}>Veridian</div>
+              <div style={{fontSize:9,fontWeight:700,color:W.accent,letterSpacing:"0.07em"}}>RISK & RESILIENCE GROUP</div>
+            </div>
           </div>
-          <div style={{fontSize:12,color:W.textDim}}>Revenue Recovery & Business Automation</div>
+          <div style={{fontSize:12,color:W.textDim,marginTop:6}}>Sanford, Florida 32773</div>
+          <div style={{fontSize:12,color:W.textDim}}>Serving Nationwide</div>
         </div>
-        <div style={{textAlign:"center",display:"flex",flexDirection:"column",gap:6}}>
-          <a href="tel:+18005550100" className="vd-lk" style={{fontSize:13,color:W.textSub,textDecoration:"none"}}>+1 (800) 555-0100</a>
-          <a href="mailto:hello@veridian.io" className="vd-lk" style={{fontSize:13,color:W.textSub,textDecoration:"none"}}>hello@veridian.io</a>
-          <div style={{fontSize:12,color:W.textDim}}>Nationwide Service</div>
+        <div style={{textAlign:"center",display:"flex",flexDirection:"column",gap:3}}>
+          <div style={{fontSize:10,fontWeight:700,color:W.textDim,letterSpacing:"0.08em",marginBottom:6}}>CONTACT</div>
+          <div style={{fontSize:11,color:W.textDim}}>Steve Smith — Managing Member</div>
+          <a href="tel:+14074705992" className="vd-lk" style={{fontSize:13,fontWeight:600,color:W.text,textDecoration:"none"}}>(407) 470-5992</a>
+          <div style={{fontSize:11,color:W.textDim,marginTop:6}}>Skeeter — Director of Operations</div>
+          <a href="tel:+16892485965" className="vd-lk" style={{fontSize:13,fontWeight:600,color:W.text,textDecoration:"none"}}>(689) 248-5965</a>
+          <a href="mailto:info@veridianrisk.com" className="vd-lk" style={{fontSize:12,color:W.textSub,textDecoration:"none",marginTop:6}}>info@veridianrisk.com</a>
         </div>
-        <div style={{textAlign:isMobile?"left":"right",fontSize:12,color:W.textDim}}>&copy; {new Date().getFullYear()} Veridian. All rights reserved.</div>
+        <div style={{textAlign:isMobile?"left":"right",fontSize:12,color:W.textDim}}>&copy; {new Date().getFullYear()} Veridian Risk & Resilience Group. All rights reserved.</div>
       </div>
     </footer>
   );
