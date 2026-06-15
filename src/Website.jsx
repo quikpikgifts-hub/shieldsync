@@ -794,36 +794,88 @@ function Contact({isMobile}){
   );
 }
 
-const HAS_VIDEOS=false;
-function VideoSection({isMobile}){
-  if(!HAS_VIDEOS)return null;
-  const videos=[
-    {title:"Missed Call Recovery Demo",sub:"See how a missed call becomes a booked appointment in under 5 minutes.",id:"recovery"},
-    {title:"AI Front Desk in Action",sub:"24/7 customer intake — no staff, no missed opportunities.",id:"frontdesk"},
-    {title:"Customer Follow-Up Automation",sub:"From first contact to confirmed appointment, fully automated.",id:"followup"},
+function RevenueRecoveryCenter({isMobile}){
+  const[activeInd,setActiveInd]=useState(0);
+  const inds=[
+    {name:"Security Companies",loss:"$144K–$432K/yr",metric:"3–5×",detail:"More bid opportunities from prospects who call once and need an immediate response.",example:"Losing 2 patrol bids/mo at $12,000 avg = $288K/yr left on the table."},
+    {name:"Medical Practices",loss:"$48K–$192K/yr",metric:"12–18",detail:"Additional appointments per month from calls previously going to voicemail.",example:"10 missed calls/wk at $400 avg new patient value = $80K/yr in missed revenue."},
+    {name:"Contractors",loss:"$96K–$240K/yr",metric:"68%",detail:"Of missed calls recovered — inquiries while on-site converted to booked jobs.",example:"8 missed calls/mo at $5,000 avg = $120K/yr walking out the door."},
+    {name:"Property Management",loss:"$42K–$126K/yr",metric:"40%",detail:"Fewer tenant complaints after implementing automated response.",example:"Missing 5 leasing calls/mo at $2,000 avg = units sitting vacant."},
+    {name:"Law Firms",loss:"$60K–$600K/yr",metric:"45%",detail:"Increase in consultations from the same call volume — zero extra staff.",example:"Missing 1 retained client/mo at $15K average = $180K/yr in lost fees."},
   ];
+  const ai=inds[activeInd];
   return(
-    <section style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bg}}>
+    <section id="recovery-center" style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bg,borderTop:`1px solid ${W.border}`}}>
       <div style={{maxWidth:1200,margin:"0 auto"}}>
-        <div style={{textAlign:"center",marginBottom:isMobile?48:72}}>
-          <SLabel>VIDEO DEMOS</SLabel>
-          <SHead>See Veridian in Action</SHead>
-          <p style={{fontSize:isMobile?"15px":"18px",color:W.textSub,maxWidth:480,margin:"0 auto"}}>Watch how Veridian captures missed calls and turns them into booked revenue — automatically.</p>
+        <div style={{textAlign:"center",marginBottom:isMobile?48:80}}>
+          <SLabel>REVENUE RECOVERY CENTER</SLabel>
+          <SHead>See What You're Losing<br/><span style={{color:W.accent}}>and How to Recover It</span></SHead>
+          <p style={{fontSize:isMobile?"15px":"18px",color:W.textSub,maxWidth:520,margin:"0 auto"}}>30 seconds. No signup. Understand your revenue gap and exactly how Veridian closes it.</p>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:20}}>
-          {videos.map(v=>(
-            <div key={v.id} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,overflow:"hidden"}}>
-              <div style={{width:"100%",aspectRatio:"16/9",background:W.bgAlt,display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
-                <div style={{width:56,height:56,borderRadius:"50%",background:W.accent,display:"flex",alignItems:"center",justifyContent:"center",opacity:0.9}}>
-                  <div style={{width:0,height:0,borderStyle:"solid",borderWidth:"10px 0 10px 18px",borderColor:`transparent transparent transparent #fff`,marginLeft:4}}/>
-                </div>
+        <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:20,marginBottom:isMobile?48:72}}>
+          <div style={{background:"rgba(239,68,68,0.04)",border:"1px solid rgba(239,68,68,0.18)",borderRadius:20,padding:isMobile?24:36}}>
+            <div style={{fontSize:11,fontWeight:700,color:W.red,letterSpacing:"0.12em",marginBottom:24}}>WITHOUT VERIDIAN</div>
+            {[{I:Phone,l:"Missed Calls",v:"~30%",s:"Go unanswered every month"},{I:MessageSquare,l:"Unanswered Leads",v:"73%",s:"Never leave a voicemail — they just leave"},{I:Calendar,l:"Lost Appointments",v:"8–15/mo",s:"Booked by whoever answered first"},{I:Zap,l:"Lost Revenue",v:"$8K–$50K/mo",s:"Leaving your business permanently"}].map((r,i)=>{const Icon=r.I;return(
+              <div key={i} style={{display:"flex",gap:14,alignItems:"center",padding:"10px 0",borderBottom:i<3?`1px solid rgba(239,68,68,0.1)`:"none"}}>
+                <div style={{width:36,height:36,borderRadius:9,background:W.redB,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Icon size={15} style={{color:W.red}}/></div>
+                <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600,color:W.text}}>{r.l}</div><div style={{fontSize:12,color:W.textDim}}>{r.s}</div></div>
+                <div style={{fontSize:14,fontWeight:800,color:W.red}}>{r.v}</div>
               </div>
-              <div style={{padding:"18px 20px 24px"}}>
-                <div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:6}}>{v.title}</div>
-                <p style={{fontSize:13,color:W.textSub,lineHeight:1.55}}>{v.sub}</p>
+            );})}
+          </div>
+          <div style={{background:"rgba(16,185,129,0.04)",border:"1px solid rgba(16,185,129,0.22)",borderRadius:20,padding:isMobile?24:36}}>
+            <div style={{fontSize:11,fontWeight:700,color:W.green,letterSpacing:"0.12em",marginBottom:24}}>WITH VERIDIAN</div>
+            {[{I:Phone,l:"Calls Recovered",v:"68%",s:"Converted to live conversations"},{I:MessageSquare,l:"Conversations Started",v:"< 60s",s:"Automatic response to every missed call"},{I:Calendar,l:"Appointments Booked",v:"+8–12/mo",s:"Scheduled without staff involvement"},{I:Zap,l:"Revenue Recovered",v:"$5K–$34K/mo",s:"Back into your business"}].map((r,i)=>{const Icon=r.I;return(
+              <div key={i} style={{display:"flex",gap:14,alignItems:"center",padding:"10px 0",borderBottom:i<3?`1px solid rgba(16,185,129,0.12)`:"none"}}>
+                <div style={{width:36,height:36,borderRadius:9,background:W.greenB,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Icon size={15} style={{color:W.green}}/></div>
+                <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600,color:W.text}}>{r.l}</div><div style={{fontSize:12,color:W.textDim}}>{r.s}</div></div>
+                <div style={{fontSize:14,fontWeight:800,color:W.green}}>{r.v}</div>
+              </div>
+            );})}
+            <div style={{marginTop:16,fontSize:11,color:W.textDim}}>Representative outcomes. Actual results vary by call volume, industry, and market.</div>
+          </div>
+        </div>
+        <div style={{background:W.bgAlt,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:40,marginBottom:isMobile?48:72}}>
+          <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.12em",marginBottom:20}}>INDUSTRY REVENUE EXAMPLES</div>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:24}}>
+            {inds.map((ind,i)=>(
+              <button key={i} type="button" onClick={()=>setActiveInd(i)} style={{background:i===activeInd?W.accentB:"none",border:`1px solid ${i===activeInd?W.accent:W.border}`,borderRadius:100,padding:"6px 16px",fontSize:12,fontWeight:600,color:i===activeInd?W.accent:W.textSub,cursor:"pointer",transition:"all 0.15s"}}>{ind.name}</button>
+            ))}
+          </div>
+          <div key={activeInd} style={{animation:"fadeIn 0.2s ease"}}>
+            <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr 1fr",gap:16}}>
+              <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:24}}>
+                <div style={{fontSize:11,fontWeight:700,color:W.red,letterSpacing:"0.06em",marginBottom:12}}>ESTIMATED ANNUAL LOSS</div>
+                <div style={{fontSize:isMobile?"24px":"32px",fontWeight:900,color:W.text,letterSpacing:"-0.03em",lineHeight:1.1,marginBottom:8}}>{ai.loss}</div>
+                <div style={{fontSize:12,color:W.textDim,lineHeight:1.5}}>{ai.example}</div>
+              </div>
+              <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:24}}>
+                <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.06em",marginBottom:12}}>TYPICAL RECOVERY</div>
+                <div style={{fontSize:isMobile?"36px":"52px",fontWeight:900,color:W.accent,letterSpacing:"-0.04em",lineHeight:1,marginBottom:8}}>{ai.metric}</div>
+                <div style={{fontSize:13,color:W.textSub,lineHeight:1.5}}>{ai.detail}</div>
+              </div>
+              <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:24,display:"flex",flexDirection:"column",justifyContent:"space-between"}}>
+                <div>
+                  <div style={{fontSize:11,fontWeight:700,color:W.green,letterSpacing:"0.06em",marginBottom:12}}>SEE YOUR NUMBERS</div>
+                  <div style={{fontSize:13,color:W.textSub,lineHeight:1.6,marginBottom:16}}>Enter your actual call volume and see exactly what Veridian recovers for your business.</div>
+                </div>
+                <a href="#calculator" className="vd-btn" style={{display:"block",background:W.accent,color:"#fff",padding:"11px",borderRadius:9,fontSize:13,fontWeight:700,textDecoration:"none",textAlign:"center"}}>Calculate My Recovery</a>
               </div>
             </div>
-          ))}
+            <div style={{marginTop:12,fontSize:11,color:W.textDim}}>Representative examples for illustration. Actual results vary by call volume, pricing, and conversion rate.</div>
+          </div>
+        </div>
+        <div>
+          <div style={{fontSize:11,fontWeight:700,color:W.textDim,letterSpacing:"0.1em",marginBottom:20,textAlign:"center"}}>WHAT HAPPENS AFTER YOU CONTACT VERIDIAN</div>
+          <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:16}}>
+            {[{step:"Day 1",t:"Consultation",b:"30-minute call. We review your numbers and build your recovery plan live."},{step:"Day 2–3",t:"Configuration",b:"We configure your call recovery sequences. No technical work on your end."},{step:"Day 4",t:"Go Live",b:"Your first missed call gets recovered automatically. We monitor in real time."},{step:"Day 5+",t:"Recovery Begins",b:"Monthly reporting shows exactly how much revenue was recovered."}].map((s,i)=>(
+              <div key={i} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:22}}>
+                <div style={{fontSize:11,fontWeight:700,color:W.accent,marginBottom:10}}>{s.step}</div>
+                <div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:8}}>{s.t}</div>
+                <div style={{fontSize:12,color:W.textSub,lineHeight:1.6}}>{s.b}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -1033,7 +1085,7 @@ function Homepage({isMobile}){
       <StatsBar isMobile={isMobile}/>
       <Calculator isMobile={isMobile}/>
       <AutoDemo isMobile={isMobile}/>
-      <VideoSection isMobile={isMobile}/>
+      <RevenueRecoveryCenter isMobile={isMobile}/>
       <RecoverySection isMobile={isMobile}/>
       <FrontDeskSection isMobile={isMobile}/>
       <FollowUpSection isMobile={isMobile}/>
