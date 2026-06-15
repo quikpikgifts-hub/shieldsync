@@ -97,7 +97,7 @@ const BLUEPRINTS={
     label:"AI SaaS / Automation Platform",category:"Technology Services",
     modules:["dashboard","pipeline","clients","operations","people","finance","reports","settings"],
     roles:["ceo_advisor","coo","cfo","sales_manager","client_success","ops_manager"],
-    pipelines:[{name:"Sales Pipeline",stages:["New Lead","Contacted","Demo Booked","Demo Done","Proposal","Trial","Won","Churned"]}],
+    pipelines:[{name:"Sales Pipeline",stages:["New Lead","Contacted","Consultation Booked","Consultation Done","Proposal","Trial","Won","Churned"]}],
     kpis:["MRR","ARR","Churn Rate","NPS","Pipeline Value","CAC","LTV"],
     departments:["Executive","Sales","Customer Success","Product","Engineering","Finance"],
     defaultData:{leads:true,clients:true,employees:true},
@@ -161,7 +161,7 @@ const BLUEPRINTS={
     label:"Veridian Solutions — AI Automation Platform",category:"Technology Services",
     modules:["dashboard","pipeline","clients","operations","people","finance","intelligence","knowledge","reports","settings"],
     roles:["ceo_advisor","coo","cfo","sales_manager","client_success","ops_manager","tenant_admin"],
-    pipelines:[{name:"Sales Pipeline",stages:["New Lead","Contacted","Demo Booked","Demo Complete","Proposal","Trial Active","Won","Churned"]}],
+    pipelines:[{name:"Sales Pipeline",stages:["New Lead","Contacted","Consultation Booked","Consultation Complete","Proposal","Trial Active","Won","Churned"]}],
     kpis:["MRR","ARR","Churn Rate","NPS","Pipeline Value","CAC","LTV","New Clients/Month","Demos/Week","Conversion Rate"],
     departments:["Executive","Sales","Customer Success","Product","Operations","Finance","Marketing"],
     services:["AI Receptionist","Missed Call Recovery","Missed Text Recovery","Email Recovery","Business Automation","CRM Automation","Workflow Automation","Customer Engagement","Lead Generation","Recurring Revenue Management"],
@@ -299,7 +299,7 @@ function AuthScreen({onLogin,onDemo}){
             <Btn style={{width:"100%",justifyContent:"center"}} disabled={loading}>{loading?<Spinner/>:"Sign In"}</Btn>
           </form>
           <div style={{marginTop:24,borderTop:`1px solid ${T.border}`,paddingTop:16}}>
-            <div style={{fontSize:11,color:T.textDim,marginBottom:8}}>DEMO ACCOUNTS</div>
+            <div style={{fontSize:11,color:T.textDim,marginBottom:8}}>PLATFORM ACCOUNTS</div>
             {SU.filter(u=>u.tenantId).slice(0,4).map(u=>(
               <div key={u.id} onClick={()=>onLogin(u)} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",cursor:"pointer",borderRadius:6}} className="oc-row">
                 <span style={{fontSize:12,color:T.textSub}}>{u.email}</span>
@@ -1977,7 +1977,7 @@ function RevenueRecoverySimulator({onBack}){
   );
 }
 
-// ── AI Front Desk Simulation ───────────────────────────────────
+// ── Always-Available Coverage Simulation ──────────────────────
 function AIFrontDeskSim({onBack}){
   const[step,setStep]=useState(0);
   const STEPS=[
@@ -2033,7 +2033,7 @@ function AIFrontDeskSim({onBack}){
       <div style={{display:"flex",alignItems:"center",gap:12}}>
         <button onClick={onBack} style={{background:"none",border:`1px solid ${T.border}`,borderRadius:8,padding:"6px 12px",color:T.textSub,fontSize:12,cursor:"pointer"}}>Back</button>
         <div>
-          <div style={{fontSize:20,fontWeight:800,color:T.text}}>AI Front Desk Simulation</div>
+          <div style={{fontSize:20,fontWeight:800,color:T.text}}>Always-Available Coverage</div>
           <div style={{fontSize:13,color:T.textSub}}>Watch how Veridian recovers a missed call in real time</div>
         </div>
       </div>
@@ -2417,9 +2417,9 @@ function GuidedTour({onComplete}){
     },
     {
       title:"Never Lose a Lead Again",
-      subtitle:"AI Front Desk — 24/7 call recovery",
+      subtitle:"Always-Available Coverage — 24/7 call recovery",
       content:"When a customer calls and you can't answer, Veridian automatically sends a personalized text within 60 seconds. 68% of prospects respond and book within the hour.",
-      module:"AI Front Desk",
+      module:"Always-Available Coverage",
       stat:{label:"Of missed calls recovered with Veridian",value:"68%"},
       accent:T.green,
     },
@@ -2492,7 +2492,7 @@ function DemoCenter({onLogin,onExit}){
   const[view,setView]=useState("hub"); // hub | tour | sim1 | sim2 | sim3 | sim4
   const demos=[
     {id:"sim1",label:"Revenue Recovery",sub:"How much are missed calls costing you?",color:T.red,tag:"INTERACTIVE CALCULATOR"},
-    {id:"sim2",label:"AI Front Desk",sub:"Watch a missed call become an appointment",color:T.green,tag:"LIVE SIMULATION"},
+    {id:"sim2",label:"Always-Available Coverage",sub:"Watch a missed call become an appointment",color:T.green,tag:"LIVE SIMULATION"},
     {id:"sim3",label:"Text & Email Recovery",sub:"See the full automated follow-up sequence",color:T.blue,tag:"LIVE SIMULATION"},
     {id:"sim4",label:"Business Continuity",sub:"Activate a recovery plan in real time",color:T.purple,tag:"SCENARIO BUILDER"},
   ];

@@ -289,7 +289,7 @@ function AutoDemo({isMobile}){
   useEffect(()=>{if(paused)return;tRef.current=setTimeout(()=>setStep(s=>(s+1)%DS.length),2500);return()=>clearTimeout(tRef.current);},[step,paused]);
   const pick=i=>{setStep(i);setPaused(true);setTimeout(()=>setPaused(false),8000);};
   return(
-    <section id="demo" style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bgAlt}}>
+    <section id="how-it-works" style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bgAlt}}>
       <div style={{maxWidth:1200,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:isMobile?48:80}}>
           <SLabel>LIVE SIMULATION</SLabel>
