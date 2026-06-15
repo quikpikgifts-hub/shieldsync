@@ -155,7 +155,7 @@ function Hero({isMobile}){
         </p>
         <div style={{display:"flex",gap:14,flexWrap:"wrap",alignItems:"center",marginBottom:64}}>
           <a href="#calculator" className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?"14px 28px":"17px 36px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:700,textDecoration:"none",letterSpacing:"-0.01em"}}>Calculate Lost Revenue</a>
-          <a href="#demo" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 26px":"16px 34px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:600,textDecoration:"none"}}>Watch Live Demo</a>
+          <a href="#assessment" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 26px":"16px 34px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:600,textDecoration:"none"}}>Take Free Assessment</a>
         </div>
         <div style={{display:"flex",gap:isMobile?20:48,flexWrap:"wrap"}}>
           {[{n:"68%",l:"of missed calls recovered"},{n:"< 60s",l:"automated response time"},{n:"10+",l:"years of experience"}].map(s=>(
@@ -309,7 +309,7 @@ function AutoDemo({isMobile}){
             <div style={{marginTop:20,height:3,background:W.border,borderRadius:2,overflow:"hidden"}}><div style={{height:"100%",width:`${((step+1)/DS.length)*100}%`,background:W.accent,transition:"width 0.35s ease",borderRadius:2}}/></div>
             <div style={{marginTop:28,display:"flex",gap:14,flexWrap:"wrap"}}>
               <a href="#calculator" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"13px 24px",borderRadius:10,fontSize:14,fontWeight:700,textDecoration:"none"}}>Calculate My Recovery</a>
-              <a href="#contact" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:"12px 22px",borderRadius:10,fontSize:14,fontWeight:600,textDecoration:"none"}}>Talk to Us</a>
+              <a href="#assessment" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:"12px 22px",borderRadius:10,fontSize:14,fontWeight:600,textDecoration:"none"}}>Take Free Assessment</a>
             </div>
           </div>
           <div style={{display:"flex",justifyContent:"center"}}><PhoneScreen step={step}/></div>
@@ -416,7 +416,7 @@ function RecoverySection({isMobile}){
           <SHead>Recover Revenue You Didn't Know You Were Losing</SHead>
           <p style={{fontSize:isMobile?"16px":"18px",color:W.textSub,lineHeight:1.72,marginBottom:32}}>Every missed call is a customer choosing your competitor. Veridian responds within 60 seconds — automatically — so no call ever goes unanswered again.</p>
           <div style={{marginBottom:32,display:"flex",flexDirection:"column",gap:14}}>
-            {["60-second automatic response to every missed call","68% average recovery rate across all clients","Full revenue tracking with before/after reporting"].map((p,i)=>(
+            {["60-second automatic response to every missed call","68% of missed calls recovered on average","Full revenue tracking with before/after reporting"].map((p,i)=>(
               <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start"}}><div style={{width:20,height:20,borderRadius:"50%",background:W.greenB,border:`1px solid rgba(16,185,129,0.3)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}><Check size={11} style={{color:W.green}}/></div><span style={{fontSize:15,color:W.textSub}}>{p}</span></div>
             ))}
           </div>
@@ -434,11 +434,11 @@ function FrontDeskSection({isMobile}){
       <div style={{maxWidth:1200,margin:"0 auto",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?48:80,alignItems:"center"}}>
         <div style={{order:isMobile?1:0,display:"flex",justifyContent:isMobile?"center":"flex-start"}}><FeatureVisual type="frontdesk"/></div>
         <div style={{order:isMobile?0:1}}>
-          <SLabel>AI FRONT DESK</SLabel>
+          <SLabel>ALWAYS AVAILABLE</SLabel>
           <SHead>Answer Every Call Even When Nobody Is Available</SHead>
-          <p style={{fontSize:isMobile?"16px":"18px",color:W.textSub,lineHeight:1.72,marginBottom:32}}>Veridian answers incoming calls 24 hours a day, qualifies leads, and routes inquiries — so your business is always open, even when your team isn't.</p>
+          <p style={{fontSize:isMobile?"16px":"18px",color:W.textSub,lineHeight:1.72,marginBottom:32}}>Your business answers every customer call 24 hours a day — always responsive, always professional, even when your team is unavailable.</p>
           <div style={{marginBottom:32,display:"flex",flexDirection:"column",gap:14}}>
-            {["24/7 availability — no voicemail, no missed opportunities","Instant lead qualification on every call","Seamless handoff to your team for warm leads"].map((p,i)=>(
+            {["24/7 availability — no voicemail, no missed opportunities","Every caller gets a professional, immediate response","Warm leads handed off to your team, ready to close"].map((p,i)=>(
               <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start"}}><div style={{width:20,height:20,borderRadius:"50%",background:W.greenB,border:`1px solid rgba(16,185,129,0.3)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}><Check size={11} style={{color:W.green}}/></div><span style={{fontSize:15,color:W.textSub}}>{p}</span></div>
             ))}
           </div>
@@ -462,7 +462,7 @@ function FollowUpSection({isMobile}){
               <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start"}}><div style={{width:20,height:20,borderRadius:"50%",background:W.greenB,border:`1px solid rgba(16,185,129,0.3)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}><Check size={11} style={{color:W.green}}/></div><span style={{fontSize:15,color:W.textSub}}>{p}</span></div>
             ))}
           </div>
-          <a href="#contact" className="vd-btn" style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accent,color:"#fff",padding:"14px 28px",borderRadius:10,fontSize:15,fontWeight:700,textDecoration:"none"}}>Automate Your Follow-Up <ArrowRight size={16}/></a>
+          <a href="#contact" className="vd-btn" style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accent,color:"#fff",padding:"14px 28px",borderRadius:10,fontSize:15,fontWeight:700,textDecoration:"none"}}>Never Lose Another Lead <ArrowRight size={16}/></a>
         </div>
         <div style={{display:"flex",justifyContent:isMobile?"center":"flex-end"}}><FeatureVisual type="followup"/></div>
       </div>
@@ -477,7 +477,7 @@ function Trust({isMobile}){
     {I:Globe,t:"Nationwide Service",b:"Local expertise backed by national infrastructure. Wherever you operate, we operate."},
     {I:Clock,t:"Same-Day Response",b:"We answer within the same business day. Your customers deserve speed — and so do you."},
     {I:Shield,t:"Business-First Approach",b:"Our measure of success is your revenue recovered — not features delivered or seats sold."},
-    {I:Zap,t:"Technology-Enabled",b:"Sophisticated automation under the hood. Simple, clear outcomes on your end. No training needed."},
+    {I:Zap,t:"No Commitment to Start",b:"We start with a free consultation and show you your recovery potential before you commit. No pressure, no setup fees, no obligation."},
   ];
   return(
     <section style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bgAlt}}>
@@ -912,7 +912,7 @@ const ASSESS_AREAS=[
 const ASSESS_RECS={
   revenue:{label:"Missed Call Recovery",detail:"Capture every inquiry automatically within 60 seconds."},
   followup:{label:"Follow-Up Automation",detail:"Convert leads with automated sequences — no manual effort."},
-  continuity:{label:"AI Front Desk",detail:"24/7 coverage so no customer call ever goes unanswered."},
+  continuity:{label:"Always-Available Coverage",detail:"24/7 coverage so no customer call ever goes unanswered."},
   compliance:{label:"Compliance Programs",detail:"Documented procedures and audit-ready operational frameworks."},
   risk:{label:"Business Continuity Planning",detail:"Redundant systems and an operational resilience assessment."},
 };
@@ -958,9 +958,9 @@ function Assessment({isMobile}){
         <h1 style={{fontSize:isMobile?"40px":"76px",fontWeight:900,color:W.text,lineHeight:1.03,letterSpacing:"-0.04em",marginBottom:20}}>
           How protected is your<br/><span style={{color:W.accent}}>revenue and operations?</span>
         </h1>
-        <p style={{fontSize:isMobile?"16px":"20px",color:W.textSub,lineHeight:1.65,maxWidth:560,margin:"0 auto 40px"}}>A 2-minute assessment across five areas. Get a readiness score, a summary report, and recommended next steps. No cost, no obligation.</p>
+        <p style={{fontSize:isMobile?"16px":"20px",color:W.textSub,lineHeight:1.65,maxWidth:560,margin:"0 auto 40px"}}>2 minutes. No cost, no obligation. Get a readiness score, priority gaps, and recommended next steps — sent to your inbox.</p>
         <div style={{display:"flex",gap:10,flexWrap:"wrap",justifyContent:"center",marginBottom:48}}>
-          {ASSESS_AREAS.map((a,i)=>(
+          {ASSESS_AREAS.slice(0,3).map((a,i)=>(
             <button type="button" key={a.id} onClick={()=>{setSelectedArea(a.id);setScores({});setSel({});setStep(i+1);}} style={{display:"flex",alignItems:"center",gap:6,background:W.card,border:`1px solid ${W.border}`,borderRadius:100,padding:"7px 16px",cursor:"pointer"}}>
               <div style={{width:6,height:6,borderRadius:"50%",background:a.color}}/>
               <span style={{fontSize:12,fontWeight:600,color:W.textSub}}>{a.label}</span>
@@ -1078,6 +1078,52 @@ function Assessment({isMobile}){
   );
 }
 
+function BusinessFAQ({isMobile}){
+  const[open,setOpen]=useState(null);
+  const faqs=[
+    {q:"How quickly does Veridian respond to a missed call?",a:"Under 60 seconds — automatically. The moment a call goes unanswered, Veridian sends a personalized message and starts a conversation. No staff action required."},
+    {q:"What do I need to do to get started?",a:"Almost nothing. We handle all configuration. You make a simple call forwarding change. Most clients are fully live within 5 business days."},
+    {q:"Does this replace my receptionist or staff?",a:"No. It captures revenue that was already being lost to missed calls. Your team stays focused on serving current clients — not chasing the calls that slipped through."},
+    {q:"How long until I see results?",a:"Most clients see their first recovered call within 24 hours of going live. You receive monthly reports showing exactly how much revenue was recovered before and after Veridian."},
+    {q:"What if my call volume is low?",a:"Low volume means every missed call matters more. Whether you miss 5 calls a month or 500, Veridian makes sure none walk away without a response."},
+    {q:"Is there a contract or long-term commitment?",a:"We start with a no-obligation consultation. We'll be upfront if Veridian isn't the right fit for your situation. No pressure, no hidden fees."},
+  ];
+  return(
+    <section style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bgAlt,borderTop:`1px solid ${W.border}`}}>
+      <div style={{maxWidth:800,margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:isMobile?48:64}}>
+          <SLabel>BUSINESS OWNER FAQ</SLabel>
+          <SHead mobile={28}>Questions We Hear<br/>Before the First Call</SHead>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:0}}>
+          {faqs.map((f,i)=>(
+            <div key={i} style={{borderBottom:`1px solid ${W.border}`}}>
+              <button type="button" onClick={()=>setOpen(open===i?null:i)} style={{width:"100%",background:"none",border:"none",padding:"22px 0",display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer",textAlign:"left",gap:16}}>
+                <span style={{fontSize:isMobile?"14px":"16px",fontWeight:700,color:W.text,lineHeight:1.35}}>{f.q}</span>
+                <div style={{width:22,height:22,borderRadius:"50%",background:open===i?W.accentB:W.bgAlt,border:`1px solid ${open===i?W.accent:W.border}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all 0.15s"}}>
+                  <span style={{fontSize:14,color:open===i?W.accent:W.textDim,lineHeight:1,fontWeight:700}}>{open===i?"−":"+"}</span>
+                </div>
+              </button>
+              {open===i&&(
+                <div style={{paddingBottom:22,animation:"fadeIn 0.2s ease"}}>
+                  <p style={{fontSize:isMobile?"14px":"15px",color:W.textSub,lineHeight:1.75}}>{f.a}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:40,background:"linear-gradient(135deg,rgba(99,102,241,0.08),rgba(99,102,241,0.03))",border:"1px solid rgba(99,102,241,0.2)",borderRadius:14,padding:isMobile?22:32,display:"flex",flexDirection:isMobile?"column":"row",alignItems:isMobile?"flex-start":"center",justifyContent:"space-between",gap:16}}>
+          <div>
+            <div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:4}}>Still have questions?</div>
+            <div style={{fontSize:13,color:W.textSub}}>Talk to us directly — no scripts, no pressure, just honest answers.</div>
+          </div>
+          <a href="#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"12px 24px",borderRadius:9,fontSize:14,fontWeight:700,textDecoration:"none",whiteSpace:"nowrap"}}>Ask Us Directly</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Homepage({isMobile}){
   return(
     <>
@@ -1090,6 +1136,7 @@ function Homepage({isMobile}){
       <FrontDeskSection isMobile={isMobile}/>
       <FollowUpSection isMobile={isMobile}/>
       <Trust isMobile={isMobile}/>
+      <BusinessFAQ isMobile={isMobile}/>
       <SocialProof isMobile={isMobile}/>
       <Founder isMobile={isMobile}/>
       <Results isMobile={isMobile}/>
