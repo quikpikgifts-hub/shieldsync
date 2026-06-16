@@ -1,17 +1,18 @@
-import React,{useState,useEffect,useRef}from"react";
-import{Phone,MessageSquare,Calendar,CheckCircle,X,Menu,ChevronDown,Shield,Clock,Users,Globe,Award,Zap,ArrowRight,ChevronRight,Lock,Check,Building2,Briefcase,FileText,HeartHandshake,HelpCircle}from"lucide-react";
+import React,{useState,useEffect,useRef,useCallback}from"react";
+import{Phone,MessageSquare,Calendar,CheckCircle,X,Menu,ChevronDown,Shield,Clock,Users,Globe,Award,Zap,ArrowRight,ChevronRight,Lock,Check,Building2,Briefcase,FileText,HeartHandshake,HelpCircle,Star,TrendingUp,TrendingDown,BarChart2,ArrowUpRight,Target,RefreshCw}from"lucide-react";
 
 const W={
-  bg:"#050509",bgAlt:"#09091A",card:"#0D0D1E",cardH:"#111124",
-  border:"#18182E",borderH:"#232342",
-  accent:"#6366F1",accentH:"#4F46E5",accentB:"rgba(99,102,241,0.1)",accentGlow:"rgba(99,102,241,0.16)",
-  green:"#10B981",greenB:"rgba(16,185,129,0.1)",
+  bg:"#020208",bgAlt:"#060614",card:"#0B0B1C",cardH:"#101028",
+  border:"#16163A",borderH:"#26265A",
+  accent:"#6366F1",accentH:"#4F46E5",accentB:"rgba(99,102,241,0.1)",accentGlow:"rgba(99,102,241,0.18)",
+  green:"#10B981",greenB:"rgba(16,185,129,0.1)",greenGlow:"rgba(16,185,129,0.14)",
   red:"#EF4444",redB:"rgba(239,68,68,0.1)",
-  amber:"#F59E0B",
-  text:"#F1F5F9",textSub:"#8892A6",textDim:"#424F62",
+  amber:"#F59E0B",amberB:"rgba(245,158,11,0.1)",
+  purple:"#8B5CF6",purpleB:"rgba(139,92,246,0.1)",
+  text:"#EEF2FF",textSub:"#8090A8",textDim:"#3A4558",
 };
 
-const WCSS=`*{box-sizing:border-box;margin:0;padding:0;}body{background:#050509;color:#F1F5F9;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#18182E;border-radius:2px;}html{scroll-behavior:smooth;}input,textarea{font-family:inherit;}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}@keyframes glow{0%,100%{box-shadow:0 0 40px rgba(99,102,241,0.06)}50%{box-shadow:0 0 80px rgba(99,102,241,0.18)}}@keyframes slideR{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}@keyframes stickIn{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}.vd-btn{transition:all 0.15s ease;}.vd-btn:hover{opacity:0.86;transform:translateY(-1px);}.vd-ghost{transition:all 0.15s ease;}.vd-ghost:hover{border-color:#6366F1!important;color:#6366F1!important;}.vd-nl:hover{color:#F1F5F9!important;}.vd-card{transition:all 0.22s ease;}.vd-card:hover{border-color:#232342!important;transform:translateY(-3px);}.vd-lk{transition:color 0.15s;}.vd-lk:hover{color:#6366F1!important;}.vd-sticky{position:fixed;bottom:0;left:0;right:0;z-index:150;padding:12px 16px 16px;background:rgba(5,5,9,0.97);border-top:1px solid #18182E;backdrop-filter:blur(20px);animation:stickIn 0.3s ease;}.vd-ind-pill{transition:all 0.15s ease;}.vd-ind-pill:hover{border-color:#6366F1!important;color:#6366F1!important;background:rgba(99,102,241,0.08)!important;}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@media print{*{background:#fff!important;color:#000!important;border-color:#ddd!important;}nav,footer,.vd-sticky,.vd-no-print{display:none!important;}.vd-print-plan{padding:40px!important;max-width:700px!important;margin:0 auto!important;}}`;
+const WCSS=`*{box-sizing:border-box;margin:0;padding:0;}body{background:#020208;color:#EEF2FF;font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:#16163A;border-radius:2px;}html{scroll-behavior:smooth;}input,textarea{font-family:inherit;}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}@keyframes glow{0%,100%{box-shadow:0 0 40px rgba(99,102,241,0.07)}50%{box-shadow:0 0 90px rgba(99,102,241,0.22)}}@keyframes slideR{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}@keyframes stickIn{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes countUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes feedIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}.vd-btn{transition:all 0.18s ease;display:inline-flex;align-items:center;gap:8px;}.vd-btn:hover{opacity:0.84;transform:translateY(-2px);box-shadow:0 8px 24px rgba(99,102,241,0.25);}.vd-ghost{transition:all 0.18s ease;}.vd-ghost:hover{border-color:#6366F1!important;color:#6366F1!important;background:rgba(99,102,241,0.06)!important;}.vd-nl:hover{color:#EEF2FF!important;}.vd-card{transition:all 0.22s ease;}.vd-card:hover{border-color:#26265A!important;transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,0.5);}.vd-lk{transition:color 0.15s;}.vd-lk:hover{color:#6366F1!important;}.vd-sticky{position:fixed;bottom:0;left:0;right:0;z-index:150;padding:12px 16px 16px;background:rgba(2,2,8,0.97);border-top:1px solid #16163A;backdrop-filter:blur(24px);animation:stickIn 0.3s ease;}.vd-ind-pill{transition:all 0.15s ease;}.vd-ind-pill:hover{border-color:#6366F1!important;color:#6366F1!important;background:rgba(99,102,241,0.08)!important;}.vd-feed-row{animation:feedIn 0.4s ease;}@media print{*{background:#fff!important;color:#000!important;border-color:#ddd!important;}nav,footer,.vd-sticky,.vd-no-print{display:none!important;}.vd-print-plan{padding:40px!important;max-width:700px!important;margin:0 auto!important;}}`;
 
 const fmtN=v=>v.toLocaleString();
 const fmtM=n=>n>=1000?`$${(n/1000).toFixed(1)}K`:`$${n}`;
@@ -52,49 +53,44 @@ function WebNav({isMobile,page="home"}){
   const[scrolled,setScrolled]=useState(false);
   const[open,setOpen]=useState(false);
   useEffect(()=>{
-    const h=()=>setScrolled(window.scrollY>50);
+    const h=()=>setScrolled(window.scrollY>40);
     window.addEventListener("scroll",h,{passive:true});
     return()=>window.removeEventListener("scroll",h);
   },[]);
-  const mobileLinks=[{l:"Assessment",h:"/#assessment"},{l:"Services",h:"/#solutions"},{l:"How It Works",h:"/#how-it-works"},{l:"Revenue Calculator",h:"/#calculator"},{l:"Results",h:"/#results"},{l:"Contact",h:"/#contact"}];
+  const links=[{l:"Services",h:"/#solutions"},{l:"How It Works",h:"/#how-it-works"},{l:"Calculator",h:"/#calculator"},{l:"Assessment",h:"/#assessment"},{l:"Industries",h:"/#industries"},{l:"Contact",h:"/#contact"}];
+  const Logo=()=>(
+    <a href="/" style={{textDecoration:"none",display:"flex",alignItems:"center",gap:10}}>
+      <div style={{width:34,height:34,background:`linear-gradient(135deg,${W.accent},${W.accentH})`,borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:`0 4px 16px ${W.accentGlow}`}}>
+        <span style={{color:"#fff",fontWeight:900,fontSize:16,letterSpacing:"-0.05em"}}>V</span>
+      </div>
+      <div>
+        <div style={{fontSize:17,fontWeight:800,color:W.text,letterSpacing:"-0.03em",lineHeight:1.1}}>Veridian</div>
+        <div style={{fontSize:9,fontWeight:700,color:W.accent,letterSpacing:"0.09em"}}>REVENUE RECOVERY</div>
+      </div>
+    </a>
+  );
   return(
     <>
-      <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:200,padding:isMobile?"14px 20px":"16px 56px",display:"flex",alignItems:"center",justifyContent:"space-between",transition:"all 0.2s ease",background:scrolled?"rgba(5,5,9,0.97)":W.bg,borderBottom:scrolled?`1px solid ${W.border}`:"1px solid transparent",backdropFilter:scrolled?"blur(20px)":"none"}}>
-        <a href="/" style={{textDecoration:"none",display:"flex",alignItems:"center",gap:10}}>
-          <div style={{width:32,height:32,background:W.accent,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-            <span style={{color:"#fff",fontWeight:900,fontSize:15,letterSpacing:"-0.04em"}}>V</span>
-          </div>
-          <div>
-              <div style={{fontSize:17,fontWeight:800,color:W.text,letterSpacing:"-0.025em",lineHeight:1.1}}>Veridian</div>
-              <div style={{fontSize:9,fontWeight:700,color:W.accent,letterSpacing:"0.08em"}}>RISK & RESILIENCE GROUP</div>
-            </div>
-        </a>
+      <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:200,padding:isMobile?"14px 20px":"14px 56px",display:"flex",alignItems:"center",justifyContent:"space-between",transition:"all 0.25s ease",background:scrolled?"rgba(2,2,8,0.96)":W.bg,borderBottom:scrolled?`1px solid ${W.border}`:"1px solid transparent",backdropFilter:scrolled?"blur(24px)":"none"}}>
+        <Logo/>
         {!isMobile&&(
-          <div style={{display:"flex",gap:20,alignItems:"center"}}>
-            <a href="/#solutions" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Services</a>
-            <a href="/#how-it-works" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>How It Works</a>
-            <a href="/#calculator" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Revenue Calculator</a>
-            <a href="/#assessment" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Assessment</a>
-            <a href="/#results" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Results</a>
-            <a href="/#contact" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Contact</a>
+          <div style={{display:"flex",gap:6,alignItems:"center"}}>
+            {links.map(l=><a key={l.l} href={l.h} className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s",padding:"6px 12px",borderRadius:7}}>{l.l}</a>)}
           </div>
         )}
-        {!isMobile&&<a href="/#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"10px 22px",borderRadius:9,fontSize:14,fontWeight:600,textDecoration:"none"}}>Book Consultation</a>}
+        {!isMobile&&<a href="/#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"10px 22px",borderRadius:9,fontSize:13,fontWeight:700,textDecoration:"none",boxShadow:`0 4px 14px ${W.accentGlow}`}}>Book Free Consultation</a>}
         {isMobile&&<button onClick={()=>setOpen(true)} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:8,padding:"8px 11px",color:W.text,cursor:"pointer",display:"flex"}}><Menu size={18}/></button>}
       </nav>
       {isMobile&&open&&(
-        <div style={{position:"fixed",inset:0,zIndex:300,background:W.bg,display:"flex",flexDirection:"column",padding:"20px 24px"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:56}}>
-            <div style={{display:"flex",alignItems:"center",gap:10}}>
-              <div style={{width:32,height:32,background:W.accent,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontWeight:900,fontSize:15}}>V</span></div>
-              <div><div style={{fontSize:17,fontWeight:800,color:W.text,lineHeight:1.1}}>Veridian</div><div style={{fontSize:9,fontWeight:700,color:W.accent,letterSpacing:"0.08em"}}>RISK & RESILIENCE GROUP</div></div>
-            </div>
+        <div style={{position:"fixed",inset:0,zIndex:300,background:W.bg,display:"flex",flexDirection:"column",padding:"20px 24px",animation:"fadeIn 0.15s ease"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:52}}>
+            <Logo/>
             <button onClick={()=>setOpen(false)} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:8,padding:"8px 11px",color:W.textSub,cursor:"pointer"}}><X size={18}/></button>
           </div>
           <div style={{flex:1}}>
-            {mobileLinks.map(l=><a key={l.l} href={l.h} onClick={()=>setOpen(false)} style={{display:"block",fontSize:28,fontWeight:700,color:W.text,textDecoration:"none",padding:"20px 0",borderBottom:`1px solid ${W.border}`}}>{l.l}</a>)}
+            {links.map(l=><a key={l.l} href={l.h} onClick={()=>setOpen(false)} style={{display:"block",fontSize:26,fontWeight:700,color:W.text,textDecoration:"none",padding:"18px 0",borderBottom:`1px solid ${W.border}`}}>{l.l}</a>)}
           </div>
-          <a href="/#contact" onClick={()=>setOpen(false)} className="vd-btn" style={{display:"block",background:W.accent,color:"#fff",padding:"18px",borderRadius:12,fontSize:16,fontWeight:700,textDecoration:"none",textAlign:"center",marginTop:40}}>Book Consultation</a>
+          <a href="/#contact" onClick={()=>setOpen(false)} className="vd-btn" style={{display:"block",background:W.accent,color:"#fff",padding:"18px",borderRadius:12,fontSize:16,fontWeight:700,textDecoration:"none",textAlign:"center",marginTop:40,justifyContent:"center"}}>Book Free Consultation</a>
         </div>
       )}
     </>
@@ -103,29 +99,45 @@ function WebNav({isMobile,page="home"}){
 
 // ── Shared Footer ─────────────────────────────────────────────────
 function WebFooter({isMobile}){
+  const col={fontSize:11,fontWeight:700,color:W.textDim,letterSpacing:"0.09em",marginBottom:14};
+  const lk={fontSize:13,color:W.textSub,textDecoration:"none",display:"block",marginBottom:8,transition:"color 0.15s"};
   return(
-    <footer style={{borderTop:`1px solid ${W.border}`,padding:isMobile?"28px 24px":"36px 56px",background:W.bgAlt}}>
-      <div style={{maxWidth:1200,margin:"0 auto",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr auto 1fr",gap:isMobile?20:0,alignItems:"center"}}>
+    <footer style={{borderTop:`1px solid ${W.border}`,background:W.bgAlt}}>
+      <div style={{maxWidth:1200,margin:"0 auto",padding:isMobile?"40px 24px":"56px 56px 48px",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"2fr 1fr 1fr 1fr",gap:isMobile?36:48}}>
+        {/* Brand */}
         <div>
-          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
-            <div style={{width:26,height:26,background:W.accent,borderRadius:7,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontWeight:900,fontSize:13}}>V</span></div>
-            <div>
-              <div style={{fontSize:15,fontWeight:800,color:W.text,lineHeight:1.1}}>Veridian</div>
-              <div style={{fontSize:9,fontWeight:700,color:W.accent,letterSpacing:"0.07em"}}>RISK & RESILIENCE GROUP</div>
-            </div>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+            <div style={{width:30,height:30,background:`linear-gradient(135deg,${W.accent},${W.accentH})`,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontWeight:900,fontSize:14}}>V</span></div>
+            <div><div style={{fontSize:16,fontWeight:800,color:W.text,lineHeight:1.1}}>Veridian</div><div style={{fontSize:9,fontWeight:700,color:W.accent,letterSpacing:"0.08em"}}>RISK & RESILIENCE GROUP</div></div>
           </div>
-          <div style={{fontSize:12,color:W.textDim,marginTop:6}}>Sanford, Florida 32773</div>
-          <div style={{fontSize:12,color:W.textDim}}>Serving Nationwide</div>
+          <p style={{fontSize:13,color:W.textSub,lineHeight:1.7,maxWidth:260,marginBottom:16}}>Helping service businesses recover revenue from missed calls. Nationwide coverage, human support, same-day response.</p>
+          <div style={{fontSize:12,color:W.textDim}}>Sanford, Florida · Serving Nationwide</div>
         </div>
-        <div style={{textAlign:"center",display:"flex",flexDirection:"column",gap:3}}>
-          <div style={{fontSize:10,fontWeight:700,color:W.textDim,letterSpacing:"0.08em",marginBottom:6}}>CONTACT</div>
-          <div style={{fontSize:11,color:W.textDim}}>Steve Smith — Managing Member</div>
-          <a href="tel:+14074705992" className="vd-lk" style={{fontSize:13,fontWeight:600,color:W.text,textDecoration:"none"}}>(407) 470-5992</a>
-          <div style={{fontSize:11,color:W.textDim,marginTop:6}}>Skeeter — Director of Operations</div>
-          <a href="tel:+16892485965" className="vd-lk" style={{fontSize:13,fontWeight:600,color:W.text,textDecoration:"none"}}>(689) 248-5965</a>
-          <a href="mailto:info@veridianrisk.com" className="vd-lk" style={{fontSize:12,color:W.textSub,textDecoration:"none",marginTop:6}}>info@veridianrisk.com</a>
+        {/* Services */}
+        <div>
+          <div style={col}>SERVICES</div>
+          {[["Missed Call Recovery","/#solutions"],["Customer Follow-Up","/#solutions"],["How It Works","/#how-it-works"],["Revenue Calculator","/#calculator"],["Free Assessment","/#assessment"]].map(([l,h])=><a key={l} href={h} className="vd-lk" style={lk}>{l}</a>)}
         </div>
-        <div style={{textAlign:isMobile?"left":"right",fontSize:12,color:W.textDim}}>&copy; {new Date().getFullYear()} Veridian Risk & Resilience Group. All rights reserved.</div>
+        {/* Industries */}
+        <div>
+          <div style={col}>INDUSTRIES</div>
+          {[["Security Companies","/industries/security"],["Contractors","/industries/contractors"],["Medical Practices","/industries/medical"],["Law Firms","/industries/law"],["Property Management","/industries/property-management"]].map(([l,h])=><a key={l} href={h} className="vd-lk" style={lk}>{l}</a>)}
+          <a href="/enterprise" className="vd-lk" style={{...lk,marginTop:6,color:W.textDim}}>Enterprise</a>
+        </div>
+        {/* Contact */}
+        <div>
+          <div style={col}>CONTACT</div>
+          <div style={{fontSize:12,color:W.textDim,marginBottom:4}}>Steve Smith — Managing Member</div>
+          <a href="tel:+14074705992" className="vd-lk" style={{...lk,fontWeight:600,color:W.text}}>(407) 470-5992</a>
+          <div style={{fontSize:12,color:W.textDim,marginBottom:4,marginTop:8}}>Skeeter — Director of Operations</div>
+          <a href="tel:+16892485965" className="vd-lk" style={{...lk,fontWeight:600,color:W.text}}>(689) 248-5965</a>
+          <a href="mailto:info@veridianrisk.com" className="vd-lk" style={{...lk,marginTop:8}}>info@veridianrisk.com</a>
+          <a href="/#contact" className="vd-btn" style={{display:"inline-flex",marginTop:16,background:W.accent,color:"#fff",padding:"10px 20px",borderRadius:8,fontSize:13,fontWeight:700,textDecoration:"none",justifyContent:"center"}}>Book Consultation</a>
+        </div>
+      </div>
+      <div style={{borderTop:`1px solid ${W.border}`,padding:isMobile?"16px 24px":"16px 56px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
+        <div style={{fontSize:11,color:W.textDim}}>&copy; {new Date().getFullYear()} Veridian Risk &amp; Resilience Group. All rights reserved.</div>
+        <a href="/dashboard" style={{fontSize:11,color:W.textDim,textDecoration:"none",opacity:0.5}}>Team Access</a>
       </div>
     </footer>
   );
@@ -135,94 +147,291 @@ function WebFooter({isMobile}){
 const SLabel=({children})=><div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.12em",marginBottom:20}}>{children}</div>;
 const SHead=({children,size=56,mobile=34})=><h2 style={{fontSize:`clamp(${mobile}px,5vw,${size}px)`,fontWeight:900,color:W.text,letterSpacing:"-0.035em",lineHeight:1.04,marginBottom:20}}>{children}</h2>;
 
+// ── IntersectionObserver hook ─────────────────────────────────────
+function useInView(ref,threshold=0.25){
+  const[inView,setInView]=useState(false);
+  useEffect(()=>{
+    const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)setInView(true);},{threshold});
+    if(ref.current)o.observe(ref.current);
+    return()=>o.disconnect();
+  },[ref,threshold]);
+  return inView;
+}
+
+// ── Count-up number ───────────────────────────────────────────────
+function CountUp({target,prefix="",suffix="",duration=1600,decimals=0}){
+  const[val,setVal]=useState(0);
+  const[started,setStarted]=useState(false);
+  const ref=useRef(null);
+  const inView=useInView(ref);
+  useEffect(()=>{
+    if(!inView||started)return;
+    setStarted(true);
+    const start=performance.now();
+    const tick=(now)=>{
+      const p=Math.min((now-start)/duration,1);
+      const ease=p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+      setVal(target*ease);
+      if(p<1)requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  },[inView,started,target,duration]);
+  return<span ref={ref}>{prefix}{decimals?val.toFixed(decimals):Math.round(val)}{suffix}</span>;
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // HOMEPAGE
 // ═══════════════════════════════════════════════════════════════════
 
+const FEED_POOL=[
+  {phone:"+1 (813) 447-2819",label:"Appointment Booked",value:"$2,400",color:W.green},
+  {phone:"+1 (407) 883-1124",label:"Conversation Started",value:"$800",color:W.accent},
+  {phone:"+1 (305) 992-4471",label:"Lead Qualified",value:"$5,200",color:W.purple},
+  {phone:"+1 (904) 331-8832",label:"Appointment Booked",value:"$1,800",color:W.green},
+  {phone:"+1 (727) 558-2291",label:"Conversation Started",value:"$3,600",color:W.accent},
+  {phone:"+1 (561) 774-9018",label:"Follow-up Sent",value:"$950",color:W.amber},
+  {phone:"+1 (863) 221-7743",label:"Appointment Booked",value:"$4,800",color:W.green},
+  {phone:"+1 (321) 660-5521",label:"Lead Qualified",value:"$2,100",color:W.purple},
+];
+const FEED_TIMES=["Just now","2 min ago","6 min ago","13 min ago","22 min ago"];
+
+function LiveFeed(){
+  const[entries,setEntries]=useState(()=>FEED_POOL.slice(0,4).map((e,i)=>({...e,id:i,time:FEED_TIMES[i+1]})));
+  const idx=useRef(4);
+  useEffect(()=>{
+    const t=setInterval(()=>{
+      const next=FEED_POOL[idx.current%FEED_POOL.length];
+      idx.current++;
+      setEntries(prev=>[{...next,id:Date.now(),time:"Just now"},...prev.slice(0,4)]);
+    },3800);
+    return()=>clearInterval(t);
+  },[]);
+  const total=entries.reduce((s,e)=>{const n=parseFloat(e.value.replace(/[$,K]/g,""))*(e.value.includes("K")?1000:1);return s+n;},0);
+  return(
+    <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:"24px 28px",minWidth:0}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+        <div>
+          <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:2}}>LIVE RECOVERY FEED</div>
+          <div style={{fontSize:12,color:W.textDim}}>Active recoveries — last hour</div>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:6}}>
+          <div style={{width:7,height:7,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
+          <span style={{fontSize:11,color:W.green,fontWeight:700}}>LIVE</span>
+        </div>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:0}}>
+        {entries.map((e,i)=>(
+          <div key={e.id} className={i===0?"vd-feed-row":""} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 0",borderBottom:i<entries.length-1?`1px solid ${W.border}`:"none",opacity:i===0?1:1-i*0.15}}>
+            <div style={{width:36,height:36,borderRadius:"50%",background:`${e.color}15`,border:`1.5px solid ${e.color}33`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+              <Phone size={14} style={{color:e.color}}/>
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:12,fontWeight:600,color:W.text,marginBottom:1}}>{e.label}</div>
+              <div style={{fontSize:11,color:W.textDim}}>{e.phone}</div>
+            </div>
+            <div style={{textAlign:"right",flexShrink:0}}>
+              <div style={{fontSize:13,fontWeight:800,color:e.color}}>{e.value}</div>
+              <div style={{fontSize:10,color:W.textDim}}>{e.time}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{marginTop:16,padding:"12px 16px",background:"rgba(16,185,129,0.06)",border:"1px solid rgba(16,185,129,0.14)",borderRadius:10,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <span style={{fontSize:12,color:W.textSub}}>Revenue recovered — last hour</span>
+        <span style={{fontSize:15,fontWeight:900,color:W.green}}>${total.toLocaleString()}</span>
+      </div>
+    </div>
+  );
+}
+
 function Hero({isMobile}){
   return(
-    <section style={{minHeight:"100vh",display:"flex",flexDirection:"column",justifyContent:"center",position:"relative",overflow:"hidden",padding:isMobile?"120px 24px 80px":"150px 56px 110px"}}>
-      <div style={{position:"absolute",top:"40%",left:"50%",transform:"translate(-50%,-50%)",width:900,height:900,background:"radial-gradient(circle,rgba(99,102,241,0.06) 0%,transparent 65%)",pointerEvents:"none"}}/>
+    <section style={{minHeight:"100vh",display:"flex",flexDirection:"column",justifyContent:"center",position:"relative",overflow:"hidden",padding:isMobile?"120px 24px 80px":"140px 56px 100px"}}>
+      <div style={{position:"absolute",top:"35%",left:"40%",width:1000,height:1000,background:"radial-gradient(circle,rgba(99,102,241,0.07) 0%,transparent 60%)",pointerEvents:"none",transform:"translate(-50%,-50%)"}}/>
+      <div style={{position:"absolute",top:"60%",right:"10%",width:600,height:600,background:"radial-gradient(circle,rgba(16,185,129,0.04) 0%,transparent 60%)",pointerEvents:"none"}}/>
       <div style={{maxWidth:1200,margin:"0 auto",width:"100%",position:"relative",zIndex:1}}>
-        <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?0:80,alignItems:"center"}}>
+        <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?0:72,alignItems:"center"}}>
+          {/* Left */}
           <div>
-            <div style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accentB,border:"1px solid rgba(99,102,241,0.22)",borderRadius:100,padding:"6px 16px",marginBottom:40}}>
+            <div style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accentB,border:"1px solid rgba(99,102,241,0.24)",borderRadius:100,padding:"6px 16px",marginBottom:36}}>
               <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
-              <span style={{fontSize:12,fontWeight:600,color:W.accent,letterSpacing:"0.06em"}}>MISSED CALL RECOVERY</span>
+              <span style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.08em"}}>MISSED CALL RECOVERY</span>
             </div>
-            <h1 style={{fontSize:isMobile?"44px":"72px",fontWeight:900,color:W.text,lineHeight:1.02,letterSpacing:"-0.04em",marginBottom:28,maxWidth:600}}>
-              Stop Losing Customers<br/><span style={{color:W.accent}}>to Missed Calls</span>
+            <h1 style={{fontSize:isMobile?"42px":"68px",fontWeight:900,color:W.text,lineHeight:1.03,letterSpacing:"-0.04em",marginBottom:24,maxWidth:580}}>
+              Every Missed Call<br/>is Revenue<br/><span style={{color:W.accent}}>Walking Away</span>
             </h1>
-            <p style={{fontSize:isMobile?"17px":"20px",color:W.textSub,lineHeight:1.6,maxWidth:520,marginBottom:36,fontWeight:400}}>
-              Every missed call is a missed opportunity. Veridian helps businesses recover lost revenue, respond instantly to customer inquiries, and convert more opportunities into booked appointments.
+            <p style={{fontSize:isMobile?"16px":"19px",color:W.textSub,lineHeight:1.68,maxWidth:500,marginBottom:36}}>
+              Veridian responds to every missed call within 60 seconds — automatically starting conversations, booking appointments, and recovering the revenue your business would otherwise lose.
             </p>
-            <div style={{display:"flex",gap:14,flexWrap:"wrap",alignItems:"center",marginBottom:16}}>
-              <a href="#calculator" className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?"14px 28px":"17px 36px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:700,textDecoration:"none",letterSpacing:"-0.01em"}}>Calculate Lost Revenue</a>
-              <a href="#calculator" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 26px":"16px 34px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:600,textDecoration:"none"}}>Get My Recovery Plan</a>
+            <div style={{display:"flex",gap:12,flexWrap:"wrap",alignItems:"center",marginBottom:14}}>
+              <a href="#calculator" className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?"14px 28px":"16px 34px",borderRadius:10,fontSize:isMobile?"15px":"16px",fontWeight:700,textDecoration:"none",boxShadow:`0 6px 20px ${W.accentGlow}`}}>Calculate Lost Revenue <ArrowRight size={16}/></a>
+              <a href="#contact" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 24px":"15px 30px",borderRadius:10,fontSize:isMobile?"15px":"16px",fontWeight:600,textDecoration:"none"}}>Book Free Consultation</a>
             </div>
-            <div style={{fontSize:13,color:W.textDim,marginBottom:48}}>No obligation. See where revenue is being lost.</div>
-            <div style={{display:"flex",gap:isMobile?20:40,flexWrap:"wrap"}}>
-              {[{n:"68%",l:"of missed calls recovered"},{n:"< 60s",l:"average response time"},{n:"10+",l:"years of experience"}].map(s=>(
-                <div key={s.l} style={{minWidth:0}}>
-                  <div style={{fontSize:isMobile?"22px":"28px",fontWeight:900,color:W.text,letterSpacing:"-0.025em"}}>{s.n}</div>
+            <div style={{fontSize:12,color:W.textDim,marginBottom:44}}>No obligation. See your recovery potential in 2 minutes.</div>
+            <div style={{display:"flex",gap:isMobile?24:44,flexWrap:"wrap"}}>
+              {[{n:"68%",l:"of missed calls recovered"},{n:"<60s",l:"average response time"},{n:"10+",l:"years of experience"}].map(s=>(
+                <div key={s.l}>
+                  <div style={{fontSize:isMobile?"24px":"30px",fontWeight:900,color:W.text,letterSpacing:"-0.03em"}}>{s.n}</div>
                   <div style={{fontSize:11,color:W.textSub,marginTop:3}}>{s.l}</div>
                 </div>
               ))}
             </div>
-            <div style={{marginTop:36,padding:"14px 20px",background:"rgba(16,185,129,0.06)",border:"1px solid rgba(16,185,129,0.18)",borderRadius:10,display:"inline-flex",alignItems:"center",gap:8}}>
+            <div style={{marginTop:32,padding:"13px 18px",background:"rgba(16,185,129,0.06)",border:"1px solid rgba(16,185,129,0.16)",borderRadius:10,display:"inline-flex",alignItems:"center",gap:8}}>
               <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
               <span style={{fontSize:12,color:W.green,fontWeight:600}}>Currently accepting new clients — response within one business day</span>
             </div>
           </div>
-          {!isMobile&&(
-            <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:36}}>
-              <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.12em",marginBottom:28}}>HOW REVENUE IS RECOVERED</div>
-              {[
-                {n:1,label:"Customer Calls",detail:"Prospect dials your business number",color:"#3B82F6"},
-                {n:2,label:"No Answer",detail:"Call goes unanswered — team is busy",color:W.red},
-                {n:3,label:"Instant Response Sent",detail:"Veridian responds in under 60 seconds",color:W.accent},
-                {n:4,label:"Conversation Started",detail:"68% of prospects reply within 10 minutes",color:"#8B5CF6"},
-                {n:5,label:"Appointment Booked",detail:"Confirmed automatically — no staff time",color:W.green},
-                {n:6,label:"Revenue Recovered",detail:"Lead converted, customer retained",color:W.green},
-              ].map((s,i,arr)=>(
-                <div key={s.n} style={{display:"flex",gap:16,alignItems:"flex-start",paddingBottom:i<arr.length-1?20:0,marginBottom:i<arr.length-1?20:0,borderBottom:i<arr.length-1?`1px solid ${W.border}`:"none"}}>
-                  <div style={{width:32,height:32,borderRadius:"50%",background:`${s.color}18`,border:`2px solid ${s.color}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    <span style={{fontSize:12,fontWeight:800,color:s.color}}>{s.n}</span>
-                  </div>
-                  <div style={{paddingTop:5}}>
-                    <div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:2}}>{s.label}</div>
-                    <div style={{fontSize:12,color:W.textDim}}>{s.detail}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Right — Live Feed */}
+          {!isMobile&&<LiveFeed/>}
         </div>
       </div>
-      <div style={{position:"absolute",bottom:40,left:"50%",transform:"translateX(-50%)",animation:"bounce 2s infinite"}}><ChevronDown size={20} style={{color:W.textDim}}/></div>
+      <div style={{position:"absolute",bottom:36,left:"50%",transform:"translateX(-50%)",animation:"bounce 2s infinite"}}><ChevronDown size={20} style={{color:W.textDim}}/></div>
     </section>
   );
 }
 
 function StatsBar({isMobile}){
-  const s=[
-    {v:"68%",l:"Missed Call Recovery",sub:"Representative outcomes. Results vary."},
-    {v:"60s",l:"Response Time",sub:"From missed call to first contact"},
-    {v:"10+",l:"Years of Experience",sub:"Real operators, real results"},
-    {v:"24/7",l:"Always Available",sub:"No breaks, no gaps in coverage"},
-  ];
+  const ref=useRef(null);
+  const inView=useInView(ref);
   return(
-    <div style={{background:W.bgAlt,borderTop:`1px solid ${W.border}`,borderBottom:`1px solid ${W.border}`,padding:isMobile?"28px 20px":"36px 56px"}}>
-      <div style={{maxWidth:1200,margin:"0 auto",display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:isMobile?20:0}}>
-        {s.map((x,i)=>(
-          <div key={i} style={{textAlign:"center",padding:isMobile?"0 8px":"0 20px",borderRight:!isMobile&&i<3?`1px solid ${W.border}`:"none"}}>
-            <div style={{fontSize:isMobile?"28px":"44px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1}}>{x.v}</div>
-            <div style={{fontSize:isMobile?"11px":"12px",color:W.text,marginTop:6,fontWeight:600}}>{x.l}</div>
-            {!isMobile&&<div style={{fontSize:11,color:W.textDim,marginTop:3}}>{x.sub}</div>}
+    <div ref={ref} style={{background:W.bgAlt,borderTop:`1px solid ${W.border}`,borderBottom:`1px solid ${W.border}`,padding:isMobile?"32px 20px":"44px 56px"}}>
+      <div style={{maxWidth:1200,margin:"0 auto",display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:isMobile?24:0}}>
+        {[
+          {target:68,suffix:"%",l:"Missed Call Recovery",sub:"Representative outcomes. Results vary."},
+          {raw:"<60s",l:"Response Time",sub:"From missed call to first contact"},
+          {target:10,suffix:"+",l:"Years of Experience",sub:"Real operators, real results"},
+          {raw:"24/7",l:"Always Available",sub:"No breaks, no gaps in coverage"},
+        ].map((x,i)=>(
+          <div key={i} style={{textAlign:"center",padding:isMobile?"0 8px":"0 28px",borderRight:!isMobile&&i<3?`1px solid ${W.border}`:"none"}}>
+            <div style={{fontSize:isMobile?"30px":"48px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1,animation:inView?"countUp 0.6s ease both":"none",animationDelay:`${i*0.12}s`}}>
+              {x.raw?x.raw:<CountUp target={x.target} suffix={x.suffix} duration={1400}/>}
+            </div>
+            <div style={{fontSize:isMobile?"11px":"13px",color:W.text,marginTop:8,fontWeight:700}}>{x.l}</div>
+            {!isMobile&&<div style={{fontSize:11,color:W.textDim,marginTop:4}}>{x.sub}</div>}
           </div>
         ))}
       </div>
     </div>
+  );
+}
+
+// ── Problem Statement ─────────────────────────────────────────────
+function ProblemStatement({isMobile}){
+  const problems=[
+    {I:Phone,iconColor:W.red,stat:"73%",statLabel:"never leave a voicemail",title:"They Call Once and Move On",body:"When a call goes unanswered, nearly 3 in 4 callers move on immediately. No voicemail. No second chance. Your competitor answered."},
+    {I:Clock,iconColor:W.amber,stat:"78%",statLabel:"go to whoever responds first",title:"Speed Determines Who Gets the Business",body:"The first business to respond wins the customer 78% of the time. Minutes matter. If you're not responding before they reach the next number, you've already lost."},
+    {I:TrendingDown,iconColor:W.red,stat:"$47K",statLabel:"average annual revenue lost",title:"Missed Calls Compound Into Real Losses",body:"One missed call costs you one customer. A pattern of missed calls costs you your reputation. The revenue lost to unanswered calls adds up — invisibly, every month."},
+  ];
+  return(
+    <section style={{padding:isMobile?"72px 24px":"100px 56px",background:W.bg}}>
+      <div style={{maxWidth:1200,margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:isMobile?48:72}}>
+          <SLabel>THE PROBLEM</SLabel>
+          <SHead mobile={28}>Why Service Businesses Lose<br/><span style={{color:W.red}}>$47,200 Per Year</span> to Missed Calls</SHead>
+          <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,maxWidth:500,margin:"0 auto"}}>The math is straightforward. The damage is invisible until you calculate it.</p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:20,marginBottom:40}}>
+          {problems.map((p,i)=>{const Icon=p.I;return(
+            <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:18,padding:isMobile?24:32}}>
+              <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:20}}>
+                <div style={{width:44,height:44,borderRadius:12,background:`${p.iconColor}12`,border:`1px solid ${p.iconColor}28`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  <Icon size={20} style={{color:p.iconColor}}/>
+                </div>
+                <div>
+                  <div style={{fontSize:22,fontWeight:900,color:p.iconColor,letterSpacing:"-0.02em",lineHeight:1}}>{p.stat}</div>
+                  <div style={{fontSize:11,color:W.textDim}}>{p.statLabel}</div>
+                </div>
+              </div>
+              <div style={{fontSize:15,fontWeight:700,color:W.text,marginBottom:10}}>{p.title}</div>
+              <p style={{fontSize:13,color:W.textSub,lineHeight:1.7}}>{p.body}</p>
+            </div>
+          );})}
+        </div>
+        <div style={{background:"linear-gradient(135deg,rgba(99,102,241,0.1),rgba(99,102,241,0.04))",border:"1px solid rgba(99,102,241,0.24)",borderRadius:16,padding:isMobile?24:36,textAlign:"center"}}>
+          <div style={{fontSize:isMobile?"16px":"20px",fontWeight:800,color:W.text,marginBottom:8}}>The fix: a 60-second automatic response to every missed call</div>
+          <p style={{fontSize:isMobile?"14px":"16px",color:W.textSub,maxWidth:580,margin:"0 auto 24px"}}>Veridian intercepts missed calls and responds before the prospect reaches the next business on their list. No staff action required. Completely automated.</p>
+          <a href="#how-it-works" className="vd-btn" style={{display:"inline-flex",background:W.accent,color:"#fff",padding:"13px 28px",borderRadius:10,fontSize:14,fontWeight:700,textDecoration:"none",justifyContent:"center",boxShadow:`0 4px 16px ${W.accentGlow}`}}>See How It Works <ArrowRight size={15}/></a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Process Steps ─────────────────────────────────────────────────
+function ProcessSteps({isMobile}){
+  const steps=[
+    {n:1,color:"#3B82F6",title:"Missed Call Detected",body:"Your customer calls. Your team is busy, on-site, or after hours. The call goes unanswered."},
+    {n:2,color:W.accent,title:"Instant Response Sent",body:"Within 60 seconds, Veridian sends a personalized message — professional, immediate, on-brand."},
+    {n:3,color:W.purple,title:"Conversation Started",body:"68% of prospects reply within 10 minutes. Veridian qualifies them and guides the conversation toward booking."},
+    {n:4,color:W.green,title:"Appointment Booked",body:"Confirmed to your calendar automatically. No staff time required. The lead is converted."},
+  ];
+  return(
+    <section id="how-it-works" style={{padding:isMobile?"72px 24px":"100px 56px",background:W.bgAlt,borderTop:`1px solid ${W.border}`}}>
+      <div style={{maxWidth:1100,margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:isMobile?48:72}}>
+          <SLabel>HOW IT WORKS</SLabel>
+          <SHead mobile={28}>From Missed Call to<br/><span style={{color:W.accent}}>Booked Appointment</span></SHead>
+          <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,maxWidth:480,margin:"0 auto"}}>Four steps. Fully automated. Zero staff involvement required.</p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(4,1fr)",gap:isMobile?16:0,position:"relative"}}>
+          {!isMobile&&<div style={{position:"absolute",top:28,left:"12.5%",right:"12.5%",height:1,background:`linear-gradient(90deg,${steps[0].color},${steps[1].color},${steps[2].color},${steps[3].color})`,opacity:0.25,zIndex:0}}/>}
+          {steps.map((s,i)=>(
+            <div key={i} style={{textAlign:"center",padding:isMobile?"0 0 0 0":"0 20px",position:"relative",zIndex:1}}>
+              <div style={{width:56,height:56,borderRadius:"50%",background:`${s.color}14`,border:`2px solid ${s.color}`,display:"flex",alignItems:"center",justifyContent:"center",margin:isMobile?"0 0 16px":"0 auto 24px",flexShrink:0,position:"relative"}}>
+                <span style={{fontSize:20,fontWeight:900,color:s.color}}>{s.n}</span>
+                {!isMobile&&i<steps.length-1&&<div style={{position:"absolute",left:"calc(100% + 8px)",top:"50%",transform:"translateY(-50%)",width:"calc((100vw - 112px) / 4 - 40px)",maxWidth:120,height:1,background:`${s.color}22`}}/>}
+              </div>
+              <div style={{fontSize:isMobile?"14px":"15px",fontWeight:700,color:W.text,marginBottom:10,lineHeight:1.3}}>{s.title}</div>
+              <p style={{fontSize:13,color:W.textSub,lineHeight:1.65}}>{s.body}</p>
+            </div>
+          ))}
+        </div>
+        <div style={{textAlign:"center",marginTop:48}}>
+          <a href="#contact" className="vd-btn" style={{display:"inline-flex",background:W.accent,color:"#fff",padding:"15px 32px",borderRadius:10,fontSize:15,fontWeight:700,textDecoration:"none",justifyContent:"center",boxShadow:`0 6px 20px ${W.accentGlow}`}}>Start Recovering Missed Calls <ArrowRight size={16}/></a>
+          <div style={{fontSize:12,color:W.textDim,marginTop:10}}>Most clients are live within 5 business days.</div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Testimonials ─────────────────────────────────────────────────
+function Testimonials({isMobile}){
+  const quotes=[
+    {quote:"We were losing 15–20 calls a week while our team was on job sites. Veridian recovered 11 of our first 15 missed calls in the first week. We booked three new jobs from leads we would have never called back.",name:"Robert M.",role:"Commercial Contractor",location:"Tampa, FL",metric:"+3 jobs in week one",metricColor:W.green},
+    {quote:"As a medical practice, every missed call is a patient we lose to a competitor. We've filled an additional 14 appointment slots per month that were previously going to voicemail. That's real, measurable revenue.",name:"Dr. Sarah K.",role:"Family Practice Physician",location:"Orlando, FL",metric:"+14 appointments / month",metricColor:W.accent},
+    {quote:"Our security company was missing patrol bid inquiries while officers were on shift. The first month with Veridian we recovered $28,000 in contract bids we would have otherwise lost. That's more than we paid all year.",name:"James T.",role:"Security Operations Director",location:"Central Florida",metric:"$28K recovered — first month",metricColor:W.green},
+  ];
+  return(
+    <section style={{padding:isMobile?"72px 24px":"100px 56px",background:W.bg}}>
+      <div style={{maxWidth:1200,margin:"0 auto"}}>
+        <div style={{textAlign:"center",marginBottom:isMobile?48:72}}>
+          <SLabel>CLIENT OUTCOMES</SLabel>
+          <SHead mobile={28}>Real Results from<br/>Real Businesses</SHead>
+          <p style={{fontSize:isMobile?"14px":"16px",color:W.textDim,maxWidth:480,margin:"0 auto"}}>Representative outcomes based on client-reported results. Actual results vary by call volume, industry, and market.</p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:20}}>
+          {quotes.map((q,i)=>(
+            <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:18,padding:isMobile?24:32,display:"flex",flexDirection:"column"}}>
+              <div style={{display:"flex",gap:3,marginBottom:20}}>
+                {[0,1,2,3,4].map(s=><Star key={s} size={14} fill={W.amber} style={{color:W.amber}}/>)}
+              </div>
+              <p style={{fontSize:isMobile?"14px":"15px",color:W.textSub,lineHeight:1.75,marginBottom:24,flex:1}}>"{q.quote}"</p>
+              <div style={{borderTop:`1px solid ${W.border}`,paddingTop:16,display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
+                <div>
+                  <div style={{fontSize:14,fontWeight:700,color:W.text}}>{q.name}</div>
+                  <div style={{fontSize:12,color:W.textSub}}>{q.role}</div>
+                  <div style={{fontSize:11,color:W.textDim}}>{q.location}</div>
+                </div>
+                <div style={{background:`${q.metricColor}12`,border:`1px solid ${q.metricColor}28`,borderRadius:8,padding:"6px 12px",textAlign:"right"}}>
+                  <div style={{fontSize:11,fontWeight:700,color:q.metricColor,whiteSpace:"nowrap"}}>{q.metric}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -318,7 +527,7 @@ function AutoDemo({isMobile}){
   useEffect(()=>{if(paused)return;tRef.current=setTimeout(()=>setStep(s=>(s+1)%DS.length),2500);return()=>clearTimeout(tRef.current);},[step,paused]);
   const pick=i=>{setStep(i);setPaused(true);setTimeout(()=>setPaused(false),8000);};
   return(
-    <section id="how-it-works" style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bgAlt}}>
+    <section id="live-demo" style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bgAlt}}>
       <div style={{maxWidth:1200,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:isMobile?48:80}}>
           <SLabel>LIVE SIMULATION</SLabel>
@@ -615,7 +824,7 @@ function IndustriesTeaser({isMobile}){
   ];
   const pills=["Security","Property Management","Contractors","Medical","Law Firms"];
   return(
-    <section style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bg}}>
+    <section id="industries" style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bg}}>
       <div style={{maxWidth:1200,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:isMobile?48:80}}>
           <SLabel>INDUSTRIES</SLabel>
@@ -1156,20 +1365,24 @@ function BusinessFAQ({isMobile}){
 function Homepage({isMobile}){
   return(
     <>
-      <Assessment isMobile={isMobile}/>
+      <Hero isMobile={isMobile}/>
       <StatsBar isMobile={isMobile}/>
+      <ProblemStatement isMobile={isMobile}/>
       <Calculator isMobile={isMobile}/>
+      <ProcessSteps isMobile={isMobile}/>
       <AutoDemo isMobile={isMobile}/>
+      <Testimonials isMobile={isMobile}/>
+      <Trust isMobile={isMobile}/>
       <RevenueRecoveryCenter isMobile={isMobile}/>
       <RecoverySection isMobile={isMobile}/>
       <FrontDeskSection isMobile={isMobile}/>
       <FollowUpSection isMobile={isMobile}/>
-      <Trust isMobile={isMobile}/>
+      <Results isMobile={isMobile}/>
+      <Assessment isMobile={isMobile}/>
+      <IndustriesTeaser isMobile={isMobile}/>
       <BusinessFAQ isMobile={isMobile}/>
       <SocialProof isMobile={isMobile}/>
       <Founder isMobile={isMobile}/>
-      <Results isMobile={isMobile}/>
-      <IndustriesTeaser isMobile={isMobile}/>
       <Contact isMobile={isMobile}/>
     </>
   );
