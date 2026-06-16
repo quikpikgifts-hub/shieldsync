@@ -279,8 +279,9 @@ function AuthScreen({onLogin,onDemo}){
     <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:T.bg,padding:16}}>
       <div style={{width:"100%",maxWidth:400}}>
         <div style={{textAlign:"center",marginBottom:40}}>
-          <div style={{fontSize:28,fontWeight:900,color:T.text,letterSpacing:"-0.03em"}}>OperaCore <span style={{color:T.accent}}>2030</span></div>
-          <div style={{fontSize:13,color:T.textSub,marginTop:6}}>Multi-Tenant Business Platform</div>
+          <div style={{fontSize:28,fontWeight:900,color:T.text,letterSpacing:"-0.03em"}}>OperaCore <span style={{color:T.accent}}>AI</span></div>
+          <div style={{fontSize:13,color:T.textSub,marginTop:6}}>Private Operations Platform</div>
+          <div style={{fontSize:11,color:T.textDim,marginTop:4,letterSpacing:"0.06em"}}>AUTHORIZED USERS ONLY</div>
         </div>
         <div style={{background:T.card,border:`1px solid ${T.border}`,borderRadius:16,padding:32}}>
           <form onSubmit={handle}>
@@ -298,22 +299,10 @@ function AuthScreen({onLogin,onDemo}){
             {err&&<div style={{color:T.red,fontSize:12,marginBottom:12}}>{err}</div>}
             <Btn style={{width:"100%",justifyContent:"center"}} disabled={loading}>{loading?<Spinner/>:"Sign In"}</Btn>
           </form>
-          <div style={{marginTop:24,borderTop:`1px solid ${T.border}`,paddingTop:16}}>
-            <div style={{fontSize:11,color:T.textDim,marginBottom:8}}>PLATFORM ACCOUNTS</div>
-            {SU.filter(u=>u.tenantId).slice(0,4).map(u=>(
-              <div key={u.id} onClick={()=>onLogin(u)} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",cursor:"pointer",borderRadius:6}} className="oc-row">
-                <span style={{fontSize:12,color:T.textSub}}>{u.email}</span>
-                <span style={{fontSize:11,color:T.accent}}>{u.role}</span>
-              </div>
-            ))}
-          </div>
         </div>
-        {onDemo&&(
-          <div style={{marginTop:16,textAlign:"center"}}>
-            <button onClick={onDemo} style={{background:"none",border:`1px solid ${T.accent}`,borderRadius:10,padding:"12px 28px",color:T.accent,fontSize:14,fontWeight:600,cursor:"pointer",width:"100%",letterSpacing:"0.01em"}}>
-              See How Revenue Is Recovered
-            </button>
-            <div style={{fontSize:11,color:T.textDim,marginTop:8}}>No login required — see the platform in action</div>
+        {import.meta.env.VITE_ENABLE_EXTERNAL_TENANTS!=="true"&&(
+          <div style={{marginTop:12,textAlign:"center",fontSize:12,color:T.textDim}}>
+            Access by invitation only. Contact your administrator.
           </div>
         )}
       </div>
@@ -2563,7 +2552,7 @@ function DemoCenter({onLogin,onExit}){
         {/* Demo cards */}
         <div style={{marginBottom:24}}>
           <div style={{fontSize:16,fontWeight:800,color:T.text,marginBottom:4}}>Revenue Recovery Simulations</div>
-          <div style={{fontSize:13,color:T.textSub}}>Click any simulation to experience it now — no signup required</div>
+          <div style={{fontSize:13,color:T.textSub}}>Click any simulation to experience it now</div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:14,marginBottom:40}}>
           {demos.map(d=>(
@@ -2662,7 +2651,7 @@ export default function App(){
   const isPlatformAdmin=user?.platformRole==="platform_admin";
 
   if(demoMode)return<DemoCenter onLogin={(u)=>{setDemoMode(false);handleLogin(u);}} onExit={()=>setDemoMode(false)}/>;
-  if(!user)return<AuthScreen onLogin={handleLogin} onDemo={()=>setDemoMode(true)}/>;
+  if(!user)return<AuthScreen onLogin={handleLogin}/>;
 
   const renderModule=()=>{
     if(module==="platform"&&isPlatformAdmin)return<TenantMarketplace user={user} showToast={showToast}/>;
