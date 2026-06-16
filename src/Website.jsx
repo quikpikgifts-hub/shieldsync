@@ -56,7 +56,7 @@ function WebNav({isMobile,page="home"}){
     window.addEventListener("scroll",h,{passive:true});
     return()=>window.removeEventListener("scroll",h);
   },[]);
-  const mobileLinks=[{l:"Assessment",h:"/#assessment"},{l:"Solutions",h:"/#solutions"},{l:"Revenue Recovery Center",h:"/#recovery-center"},{l:"Revenue Calculator",h:"/#calculator"},{l:"Contact",h:"/#contact"}];
+  const mobileLinks=[{l:"Assessment",h:"/#assessment"},{l:"Services",h:"/#solutions"},{l:"How It Works",h:"/#how-it-works"},{l:"Revenue Calculator",h:"/#calculator"},{l:"Results",h:"/#results"},{l:"Contact",h:"/#contact"}];
   return(
     <>
       <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:200,padding:isMobile?"14px 20px":"16px 56px",display:"flex",alignItems:"center",justifyContent:"space-between",transition:"all 0.2s ease",background:scrolled?"rgba(5,5,9,0.97)":W.bg,borderBottom:scrolled?`1px solid ${W.border}`:"1px solid transparent",backdropFilter:scrolled?"blur(20px)":"none"}}>
@@ -71,10 +71,11 @@ function WebNav({isMobile,page="home"}){
         </a>
         {!isMobile&&(
           <div style={{display:"flex",gap:20,alignItems:"center"}}>
-            <a href="/#solutions" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Solutions</a>
-            <a href="/#recovery-center" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Revenue Recovery Center</a>
+            <a href="/#solutions" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Services</a>
+            <a href="/#how-it-works" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>How It Works</a>
             <a href="/#calculator" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Revenue Calculator</a>
             <a href="/#assessment" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Assessment</a>
+            <a href="/#results" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Results</a>
             <a href="/#contact" className="vd-nl" style={{color:W.textSub,fontSize:13,fontWeight:500,textDecoration:"none",transition:"color 0.15s"}}>Contact</a>
           </div>
         )}
@@ -143,31 +144,59 @@ function Hero({isMobile}){
     <section style={{minHeight:"100vh",display:"flex",flexDirection:"column",justifyContent:"center",position:"relative",overflow:"hidden",padding:isMobile?"120px 24px 80px":"150px 56px 110px"}}>
       <div style={{position:"absolute",top:"40%",left:"50%",transform:"translate(-50%,-50%)",width:900,height:900,background:"radial-gradient(circle,rgba(99,102,241,0.06) 0%,transparent 65%)",pointerEvents:"none"}}/>
       <div style={{maxWidth:1200,margin:"0 auto",width:"100%",position:"relative",zIndex:1}}>
-        <div style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accentB,border:"1px solid rgba(99,102,241,0.22)",borderRadius:100,padding:"6px 16px",marginBottom:40}}>
-          <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
-          <span style={{fontSize:12,fontWeight:600,color:W.accent,letterSpacing:"0.06em"}}>MISSED CALL RECOVERY & AUTOMATION</span>
-        </div>
-        <h1 style={{fontSize:isMobile?"44px":"88px",fontWeight:900,color:W.text,lineHeight:1.02,letterSpacing:"-0.04em",marginBottom:28,maxWidth:960}}>
-          Stop Losing Customers<br/><span style={{color:W.accent}}>to Missed Calls</span>
-        </h1>
-        <p style={{fontSize:isMobile?"17px":"22px",color:W.textSub,lineHeight:1.6,maxWidth:580,marginBottom:52,fontWeight:400}}>
-          Veridian captures missed calls, automates follow-up, books appointments, and recovers revenue — automatically.
-        </p>
-        <div style={{display:"flex",gap:14,flexWrap:"wrap",alignItems:"center",marginBottom:64}}>
-          <a href="#calculator" className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?"14px 28px":"17px 36px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:700,textDecoration:"none",letterSpacing:"-0.01em"}}>Calculate Lost Revenue</a>
-          <a href="#assessment" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 26px":"16px 34px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:600,textDecoration:"none"}}>Take Free Assessment</a>
-        </div>
-        <div style={{display:"flex",gap:isMobile?20:48,flexWrap:"wrap"}}>
-          {[{n:"68%",l:"of missed calls recovered"},{n:"< 60s",l:"automated response time"},{n:"10+",l:"years of experience"}].map(s=>(
-            <div key={s.l} style={{minWidth:0}}>
-              <div style={{fontSize:isMobile?"22px":"30px",fontWeight:900,color:W.text,letterSpacing:"-0.025em"}}>{s.n}</div>
-              <div style={{fontSize:11,color:W.textSub,marginTop:3}}>{s.l}</div>
+        <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?0:80,alignItems:"center"}}>
+          <div>
+            <div style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accentB,border:"1px solid rgba(99,102,241,0.22)",borderRadius:100,padding:"6px 16px",marginBottom:40}}>
+              <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
+              <span style={{fontSize:12,fontWeight:600,color:W.accent,letterSpacing:"0.06em"}}>MISSED CALL RECOVERY</span>
             </div>
-          ))}
-        </div>
-        <div style={{marginTop:36,padding:"14px 20px",background:"rgba(16,185,129,0.06)",border:"1px solid rgba(16,185,129,0.18)",borderRadius:10,display:"inline-flex",alignItems:"center",gap:8}}>
-          <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
-          <span style={{fontSize:12,color:W.green,fontWeight:600}}>Currently accepting new clients — response within one business day</span>
+            <h1 style={{fontSize:isMobile?"44px":"72px",fontWeight:900,color:W.text,lineHeight:1.02,letterSpacing:"-0.04em",marginBottom:28,maxWidth:600}}>
+              Stop Losing Customers<br/><span style={{color:W.accent}}>to Missed Calls</span>
+            </h1>
+            <p style={{fontSize:isMobile?"17px":"20px",color:W.textSub,lineHeight:1.6,maxWidth:520,marginBottom:36,fontWeight:400}}>
+              Every missed call is a missed opportunity. Veridian helps businesses recover lost revenue, respond instantly to customer inquiries, and convert more opportunities into booked appointments.
+            </p>
+            <div style={{display:"flex",gap:14,flexWrap:"wrap",alignItems:"center",marginBottom:16}}>
+              <a href="#calculator" className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?"14px 28px":"17px 36px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:700,textDecoration:"none",letterSpacing:"-0.01em"}}>Calculate Lost Revenue</a>
+              <a href="#calculator" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 26px":"16px 34px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:600,textDecoration:"none"}}>Get My Recovery Plan</a>
+            </div>
+            <div style={{fontSize:13,color:W.textDim,marginBottom:48}}>No obligation. See where revenue is being lost.</div>
+            <div style={{display:"flex",gap:isMobile?20:40,flexWrap:"wrap"}}>
+              {[{n:"68%",l:"of missed calls recovered"},{n:"< 60s",l:"average response time"},{n:"10+",l:"years of experience"}].map(s=>(
+                <div key={s.l} style={{minWidth:0}}>
+                  <div style={{fontSize:isMobile?"22px":"28px",fontWeight:900,color:W.text,letterSpacing:"-0.025em"}}>{s.n}</div>
+                  <div style={{fontSize:11,color:W.textSub,marginTop:3}}>{s.l}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{marginTop:36,padding:"14px 20px",background:"rgba(16,185,129,0.06)",border:"1px solid rgba(16,185,129,0.18)",borderRadius:10,display:"inline-flex",alignItems:"center",gap:8}}>
+              <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
+              <span style={{fontSize:12,color:W.green,fontWeight:600}}>Currently accepting new clients — response within one business day</span>
+            </div>
+          </div>
+          {!isMobile&&(
+            <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:36}}>
+              <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.12em",marginBottom:28}}>HOW REVENUE IS RECOVERED</div>
+              {[
+                {n:1,label:"Customer Calls",detail:"Prospect dials your business number",color:"#3B82F6"},
+                {n:2,label:"No Answer",detail:"Call goes unanswered — team is busy",color:W.red},
+                {n:3,label:"Instant Response Sent",detail:"Veridian responds in under 60 seconds",color:W.accent},
+                {n:4,label:"Conversation Started",detail:"68% of prospects reply within 10 minutes",color:"#8B5CF6"},
+                {n:5,label:"Appointment Booked",detail:"Confirmed automatically — no staff time",color:W.green},
+                {n:6,label:"Revenue Recovered",detail:"Lead converted, customer retained",color:W.green},
+              ].map((s,i,arr)=>(
+                <div key={s.n} style={{display:"flex",gap:16,alignItems:"flex-start",paddingBottom:i<arr.length-1?20:0,marginBottom:i<arr.length-1?20:0,borderBottom:i<arr.length-1?`1px solid ${W.border}`:"none"}}>
+                  <div style={{width:32,height:32,borderRadius:"50%",background:`${s.color}18`,border:`2px solid ${s.color}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    <span style={{fontSize:12,fontWeight:800,color:s.color}}>{s.n}</span>
+                  </div>
+                  <div style={{paddingTop:5}}>
+                    <div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:2}}>{s.label}</div>
+                    <div style={{fontSize:12,color:W.textDim}}>{s.detail}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <div style={{position:"absolute",bottom:40,left:"50%",transform:"translateX(-50%)",animation:"bounce 2s infinite"}}><ChevronDown size={20} style={{color:W.textDim}}/></div>
@@ -179,7 +208,7 @@ function StatsBar({isMobile}){
   const s=[
     {v:"68%",l:"Missed Call Recovery",sub:"Representative outcomes. Results vary."},
     {v:"60s",l:"Response Time",sub:"From missed call to first contact"},
-    {v:"10+",l:"Years of Experience",sub:"Real operators behind the platform"},
+    {v:"10+",l:"Years of Experience",sub:"Real operators, real results"},
     {v:"24/7",l:"Always Available",sub:"No breaks, no gaps in coverage"},
   ];
   return(
@@ -434,15 +463,15 @@ function FrontDeskSection({isMobile}){
       <div style={{maxWidth:1200,margin:"0 auto",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?48:80,alignItems:"center"}}>
         <div style={{order:isMobile?1:0,display:"flex",justifyContent:isMobile?"center":"flex-start"}}><FeatureVisual type="frontdesk"/></div>
         <div style={{order:isMobile?0:1}}>
-          <SLabel>ALWAYS AVAILABLE</SLabel>
-          <SHead>Answer Every Call Even When Nobody Is Available</SHead>
-          <p style={{fontSize:isMobile?"16px":"18px",color:W.textSub,lineHeight:1.72,marginBottom:32}}>Your business answers every customer call 24 hours a day — always responsive, always professional, even when your team is unavailable.</p>
+          <SLabel>REVENUE RECOVERY PROGRAM</SLabel>
+          <SHead>Keep Your Business Available — Even When You Can't Answer</SHead>
+          <p style={{fontSize:isMobile?"16px":"18px",color:W.textSub,lineHeight:1.72,marginBottom:32}}>When a customer calls and no one answers, Veridian steps in immediately — reaching back out within 60 seconds, starting the conversation, and guiding them toward a booked appointment. No voicemail. No lost leads.</p>
           <div style={{marginBottom:32,display:"flex",flexDirection:"column",gap:14}}>
-            {["24/7 availability — no voicemail, no missed opportunities","Every caller gets a professional, immediate response","Warm leads handed off to your team, ready to close"].map((p,i)=>(
+            {["Every missed call receives an immediate, professional response","Prospects are qualified and routed before your team spends a minute","Warm, ready-to-close leads delivered directly to your team"].map((p,i)=>(
               <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start"}}><div style={{width:20,height:20,borderRadius:"50%",background:W.greenB,border:`1px solid rgba(16,185,129,0.3)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}><Check size={11} style={{color:W.green}}/></div><span style={{fontSize:15,color:W.textSub}}>{p}</span></div>
             ))}
           </div>
-          <a href="#contact" className="vd-btn" style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accent,color:"#fff",padding:"14px 28px",borderRadius:10,fontSize:15,fontWeight:700,textDecoration:"none"}}>Never Miss Another Call <ArrowRight size={16}/></a>
+          <a href="#contact" className="vd-btn" style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accent,color:"#fff",padding:"14px 28px",borderRadius:10,fontSize:15,fontWeight:700,textDecoration:"none"}}>Start Recovering Missed Calls <ArrowRight size={16}/></a>
         </div>
       </div>
     </section>
@@ -454,11 +483,11 @@ function FollowUpSection({isMobile}){
     <section style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bg}}>
       <div style={{maxWidth:1200,margin:"0 auto",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?48:80,alignItems:"center"}}>
         <div>
-          <SLabel>FOLLOW-UP AUTOMATION</SLabel>
+          <SLabel>CUSTOMER FOLLOW-UP</SLabel>
           <SHead>Convert More Leads Without Hiring More Staff</SHead>
           <p style={{fontSize:isMobile?"16px":"18px",color:W.textSub,lineHeight:1.72,marginBottom:32}}>Most leads die from neglect — not from lack of interest. Veridian follows up at exactly the right time, with exactly the right message, and books the appointment automatically.</p>
           <div style={{marginBottom:32,display:"flex",flexDirection:"column",gap:14}}>
-            {["Automated text and email sequences triggered by missed calls","Intelligent timing — reaches prospects when they're most likely to respond","Books appointments directly to your calendar without manual work"].map((p,i)=>(
+            {["Personalized outreach sequences triggered by missed calls","Intelligent timing — reaches prospects when they're most likely to respond","Books appointments directly to your calendar without manual work"].map((p,i)=>(
               <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start"}}><div style={{width:20,height:20,borderRadius:"50%",background:W.greenB,border:`1px solid rgba(16,185,129,0.3)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}><Check size={11} style={{color:W.green}}/></div><span style={{fontSize:15,color:W.textSub}}>{p}</span></div>
             ))}
           </div>
@@ -473,7 +502,7 @@ function FollowUpSection({isMobile}){
 function Trust({isMobile}){
   const pts=[
     {I:Award,t:"10+ Years of Experience",b:"Built by operators who ran service businesses — not technologists guessing at your problems."},
-    {I:Users,t:"Human Support, Always",b:"Every client has a dedicated support contact. Technology handles automation. Humans handle the relationship."},
+    {I:Users,t:"Human Support, Always",b:"Every client has a dedicated support contact. Dedicated support means real people behind every engagement. Humans handle the relationship."},
     {I:Globe,t:"Nationwide Service",b:"Local expertise backed by national infrastructure. Wherever you operate, we operate."},
     {I:Clock,t:"Same-Day Response",b:"We answer within the same business day. Your customers deserve speed — and so do you."},
     {I:Shield,t:"Business-First Approach",b:"Our measure of success is your revenue recovered — not features delivered or seats sold."},
@@ -541,9 +570,9 @@ function Founder({isMobile}){
         <SLabel>WHY VERIDIAN EXISTS</SLabel>
         <SHead mobile={28}>Built by Operators.<br/><span style={{color:W.accent}}>Not by Technologists.</span></SHead>
         <p style={{fontSize:isMobile?"16px":"20px",color:W.textSub,lineHeight:1.75,marginBottom:24,fontWeight:400}}>Veridian was founded by operators with decades of experience running service businesses. We watched good companies lose customers not because of bad service — but because of a missed call, a slow response, or a follow-up that never happened.</p>
-        <p style={{fontSize:isMobile?"16px":"20px",color:W.textSub,lineHeight:1.75,marginBottom:56,fontWeight:400}}>We built Veridian to fix those three problems. Not with more staff. Not with complicated software. With automation that works the way your business works.</p>
+        <p style={{fontSize:isMobile?"16px":"20px",color:W.textSub,lineHeight:1.75,marginBottom:56,fontWeight:400}}>We built Veridian to fix those three problems. Not with more staff. Not with complicated software. With a recovery program built for the way your business works.</p>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:20,textAlign:"left"}}>
-          {[{t:"Missed Revenue",b:"Every unanswered call is revenue walking out the door. We close that door."},{t:"Slow Response",b:"Speed wins customers. Veridian responds in under 60 seconds, every time."},{t:"Poor Follow-Up",b:"Most leads die from neglect. Automated follow-up converts them instead."}].map((m,i)=>(
+          {[{t:"Missed Revenue",b:"Every unanswered call is revenue walking out the door. We close that door."},{t:"Slow Response",b:"Speed wins customers. Veridian responds in under 60 seconds, every time."},{t:"Poor Follow-Up",b:"Most leads die from neglect. Consistent follow-up converts them instead."}].map((m,i)=>(
             <div key={i} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:24}}>
               <div style={{width:8,height:8,borderRadius:"50%",background:W.accent,marginBottom:14}}/>
               <div style={{fontSize:15,fontWeight:700,color:W.text,marginBottom:8}}>{m.t}</div>
@@ -557,9 +586,9 @@ function Founder({isMobile}){
 }
 
 function Results({isMobile}){
-  const s=[{v:"68%",l:"Recovery Rate",sub:"Representative outcomes. Results vary."},{v:"< 4 min",l:"Time to First Contact",sub:"From missed call to reply"},{v:"10+",l:"Years of Experience",sub:"Real operators behind the platform"},{v:"24/7",l:"Automated Coverage",sub:"No breaks, no missed revenue"}];
+  const s=[{v:"68%",l:"Recovery Rate",sub:"Representative outcomes. Results vary."},{v:"< 4 min",l:"Time to First Contact",sub:"From missed call to reply"},{v:"10+",l:"Years of Experience",sub:"Real operators, real results"},{v:"24/7",l:"Active Coverage",sub:"No breaks, no missed revenue"}];
   return(
-    <section style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bgAlt}}>
+    <section id="results" style={{padding:isMobile?"80px 24px":"120px 56px",background:W.bgAlt}}>
       <div style={{maxWidth:1200,margin:"0 auto"}}>
         <div style={{textAlign:"center",marginBottom:isMobile?48:80}}>
           <SLabel>OUTCOMES</SLabel>
