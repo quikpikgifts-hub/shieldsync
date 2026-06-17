@@ -60,6 +60,7 @@ input,textarea,button{font-family:inherit}
 .vd-sticky{position:fixed;bottom:0;left:0;right:0;z-index:150;padding:12px 16px 16px;background:rgba(4,4,11,.97);border-top:1px solid #12123A;backdrop-filter:blur(20px);animation:stickUp .3s ease}
 input::placeholder,textarea::placeholder{color:#3A4A6A}
 input:focus,textarea:focus{outline:none}
+@media(max-width:380px){.vd-hero-h1{font-size:clamp(32px,9.5vw,40px)!important;letter-spacing:-0.035em!important}.vd-hero-sub{font-size:15px!important}.vd-h2{font-size:clamp(26px,8.5vw,32px)!important}}
 @media print{*{background:#fff!important;color:#000!important}nav,footer,.vd-sticky,.no-print{display:none!important}.print-plan{padding:40px!important;max-width:700px!important;margin:0 auto!important}}
 `;
 
@@ -134,7 +135,7 @@ function WebNav({isMobile}){
     const h=()=>setScrolled(window.scrollY>48);
     window.addEventListener("scroll",h,{passive:true});return()=>window.removeEventListener("scroll",h);
   },[]);
-  const links=[["How It Works","/#how-it-works"],["Revenue Calculator","/#calculator"],["Results","/#results"],["Industries","/#industries"],["Contact","/#contact"]];
+  const links=[["How It Works","/#how-it-works"],["Revenue Calculator","/#calculator"],["Industries","/#industries"],["Contact","/#contact"]];
   const Logo=()=>(
     <a href="/" style={{textDecoration:"none",display:"flex",alignItems:"center",gap:10}}>
       <div style={{width:32,height:32,background:`linear-gradient(135deg,${W.accent},${W.accentH})`,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 2px 12px ${W.accentGlow}`}}>
@@ -192,7 +193,7 @@ function WebFooter({isMobile}){
         </div>
         <div>
           <div style={col}>SERVICES</div>
-          {[["How It Works","/#how-it-works"],["Revenue Calculator","/#calculator"],["Results","/#results"],["Industries","/#industries"]].map(([l,h])=><a key={l} href={h} className="vd-link" style={lk}>{l}</a>)}
+          {[["How It Works","/#how-it-works"],["Revenue Calculator","/#calculator"],["Recovery Program","/#how-it-works"],["Industries","/#industries"]].map(([l,h])=><a key={l} href={h} className="vd-link" style={lk}>{l}</a>)}
         </div>
         <div>
           <div style={col}>INDUSTRIES</div>
@@ -286,21 +287,21 @@ function Hero({isMobile}){
           <div>
             <div style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accentB,border:"1px solid rgba(99,102,241,0.2)",borderRadius:100,padding:"5px 14px",marginBottom:32}}>
               <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
-              <span style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.08em"}}>REVENUE RECOVERY</span>
+              <span style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.08em"}}>VERIDIAN REVENUE RECOVERY PROGRAM™</span>
             </div>
-            <h1 style={{fontSize:isMobile?"44px":"72px",fontWeight:900,color:W.text,lineHeight:1.02,letterSpacing:"-0.04em",marginBottom:24}}>
+            <h1 className="vd-hero-h1" style={{fontSize:isMobile?"44px":"72px",fontWeight:900,color:W.text,lineHeight:1.02,letterSpacing:"-0.04em",marginBottom:24}}>
               Every Missed Call<br/>
               <span style={{background:`linear-gradient(135deg,${W.accent},#8B5CF6)`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Costs Revenue.</span>
             </h1>
-            <p style={{fontSize:isMobile?"17px":"20px",color:W.textSub,lineHeight:1.65,maxWidth:480,marginBottom:40}}>
-              Veridian responds to every missed call within 60 seconds — recovering the appointments, customers, and revenue your business would otherwise lose.
+            <p className="vd-hero-sub" style={{fontSize:isMobile?"17px":"20px",color:W.textSub,lineHeight:1.65,maxWidth:480,marginBottom:40}}>
+              Businesses lose thousands every month from missed calls, delayed responses, and abandoned opportunities. Veridian recovers that revenue — booking appointments and capturing every opportunity your team couldn't reach.
             </p>
             <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:20}}>
               <a href="#calculator" className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?"14px 28px":"16px 36px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:700,boxShadow:`0 4px 20px ${W.accentGlow}`}}>
                 Calculate Lost Revenue <ArrowRight size={16}/>
               </a>
-              <a href="#how-it-works" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 24px":"15px 32px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:600}}>
-                See How It Works
+              <a href="#contact" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 24px":"15px 32px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:600}}>
+                Get My Recovery Plan
               </a>
             </div>
             <div style={{fontSize:12,color:W.textDim,marginBottom:isMobile?44:0}}>No obligation. Results in 60 seconds.</div>
@@ -321,6 +322,104 @@ function Hero({isMobile}){
         </div>
       </div>
       <div style={{position:"absolute",bottom:36,left:"50%",transform:"translateX(-50%)",animation:"bounce 2s infinite"}}><ChevronDown size={20} style={{color:W.textDim}}/></div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// BEFORE / AFTER
+// ─────────────────────────────────────────────────────────────
+function BeforeAfter({isMobile}){
+  const ref=useRef(null);
+  const inView=useInView(ref);
+  const before=[
+    "Missed call → lead gone forever",
+    "Delayed response → prospect calls competitor",
+    "No follow-up → opportunity abandoned",
+    "After-hours calls → unanswered, untracked",
+    "Unknown losses → revenue invisible",
+  ];
+  const after=[
+    "Every call answered within 60 seconds",
+    "First to respond → first to win the business",
+    "Systematic follow-up → no lead left behind",
+    "24/7 coverage → every hour is revenue hours",
+    "Monthly reports → revenue tracked in dollars",
+  ];
+  return(
+    <section style={{padding:isMobile?"80px 24px":"120px 48px",background:W.surface,borderTop:`1px solid ${W.border}`}}>
+      <div style={{maxWidth:1160,margin:"0 auto"}} ref={ref}>
+        <div style={{textAlign:"center",marginBottom:isMobile?48:72}}>
+          <SLabel c={W.red}>THE COST OF DOING NOTHING</SLabel>
+          <h2 style={{fontSize:isMobile?"34px":"52px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:16}}>
+            Two versions of your business.
+          </h2>
+          <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,maxWidth:420,margin:"0 auto"}}>Every missed call is a choice. Recover it — or lose it.</p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:isMobile?16:24,marginBottom:36}}>
+          <div style={{background:"linear-gradient(160deg,rgba(239,68,68,0.06) 0%,rgba(239,68,68,0.02) 100%)",border:"1px solid rgba(239,68,68,0.15)",borderRadius:20,padding:isMobile?28:40,animation:inView?`fadeUp .5s ease .1s both`:"none"}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:28}}>
+              <div style={{width:28,height:28,borderRadius:"50%",background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.25)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <X size={12} style={{color:W.red}}/>
+              </div>
+              <span style={{fontSize:11,fontWeight:700,color:W.red,letterSpacing:"0.1em"}}>WITHOUT VERIDIAN</span>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+              {before.map((t,i)=>{
+                const[bad,outcome]=t.split("→");
+                return(
+                  <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start"}}>
+                    <div style={{width:20,height:20,borderRadius:"50%",background:"rgba(239,68,68,0.07)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}>
+                      <X size={9} style={{color:W.red}}/>
+                    </div>
+                    <div style={{fontSize:14,color:W.text,lineHeight:1.4}}>
+                      <span style={{fontWeight:600}}>{bad.trim()}</span>
+                      {outcome&&<span style={{color:W.red}}> →{outcome}</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{marginTop:28,padding:"14px 18px",background:"rgba(239,68,68,0.05)",borderRadius:10,borderTop:"1px solid rgba(239,68,68,0.12)"}}>
+              <div style={{fontSize:20,fontWeight:900,color:W.red,letterSpacing:"-0.02em"}}>$0 recovered</div>
+              <div style={{fontSize:12,color:W.textSub,marginTop:3}}>Every missed call stays lost</div>
+            </div>
+          </div>
+          <div style={{background:"linear-gradient(160deg,rgba(16,185,129,0.07) 0%,rgba(16,185,129,0.02) 100%)",border:"1px solid rgba(16,185,129,0.18)",borderRadius:20,padding:isMobile?28:40,animation:inView?`fadeUp .5s ease .2s both`:"none"}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:28}}>
+              <div style={{width:28,height:28,borderRadius:"50%",background:"rgba(16,185,129,0.1)",border:"1px solid rgba(16,185,129,0.25)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <CheckCircle size={12} style={{color:W.green}}/>
+              </div>
+              <span style={{fontSize:11,fontWeight:700,color:W.green,letterSpacing:"0.1em"}}>WITH VERIDIAN</span>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+              {after.map((t,i)=>{
+                const[action,outcome]=t.split("→");
+                return(
+                  <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start"}}>
+                    <div style={{width:20,height:20,borderRadius:"50%",background:"rgba(16,185,129,0.07)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}>
+                      <Check size={9} style={{color:W.green}}/>
+                    </div>
+                    <div style={{fontSize:14,color:W.text,lineHeight:1.4}}>
+                      <span style={{fontWeight:600}}>{action.trim()}</span>
+                      {outcome&&<span style={{color:W.green}}> →{outcome}</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{marginTop:28,padding:"14px 18px",background:"rgba(16,185,129,0.05)",borderRadius:10,borderTop:"1px solid rgba(16,185,129,0.12)"}}>
+              <div style={{fontSize:20,fontWeight:900,color:W.green,letterSpacing:"-0.02em"}}>Revenue recovered</div>
+              <div style={{fontSize:12,color:W.textSub,marginTop:3}}>Every missed call becomes an opportunity</div>
+            </div>
+          </div>
+        </div>
+        <div style={{textAlign:"center"}}>
+          <a href="#calculator" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"14px 32px",borderRadius:10,fontSize:15,fontWeight:700,boxShadow:`0 4px 16px ${W.accentGlow}`}}>
+            Calculate What You're Losing <ArrowRight size={16}/>
+          </a>
+        </div>
+      </div>
     </section>
   );
 }
@@ -378,7 +477,7 @@ function Calculator({isMobile}){
               <div style={{fontSize:isMobile?"52px":"72px",fontWeight:900,color:W.text,letterSpacing:"-0.045em",lineHeight:1}}>{fmtM(lostMo*12)}</div>
               <div style={{fontSize:13,color:W.textSub,marginTop:10}}>slipping away from {fmtN(missed)} missed calls/month</div>
             </div>
-            <div style={{background:"linear-gradient(135deg,rgba(99,102,241,0.1),rgba(99,102,241,0.04))",border:"1px solid rgba(99,102,241,0.22)",borderRadius:20,padding:isMobile?24:32,textAlign:"center",animation:"glow 3s infinite"}}>
+            <div style={{background:"linear-gradient(135deg,rgba(99,102,241,0.1),rgba(99,102,241,0.04))",border:"1px solid rgba(99,102,241,0.22)",borderRadius:20,padding:isMobile?24:32,textAlign:"center"}}>
               <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:8}}>VERIDIAN RECOVERY POTENTIAL</div>
               <div style={{fontSize:isMobile?"44px":"60px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1}}>{fmtM(annual)}</div>
               <div style={{fontSize:12,color:W.textSub,marginTop:8}}>per year · based on 68% recovery rate</div>
@@ -402,19 +501,19 @@ function HowItWorks({isMobile}){
   const ref=useRef(null);
   const inView=useInView(ref);
   const steps=[
-    {n:"01",title:"You miss a call",body:"Your team is busy, on-site, or after hours. A prospect calls and no one answers. Without Veridian, that lead is gone.",color:W.red},
-    {n:"02",title:"Veridian responds in 60 seconds",body:"Automatically, immediately, professionally. Before the caller reaches the next business on their list.",color:W.accent},
-    {n:"03",title:"The conversation is handled",body:"Veridian qualifies the prospect, answers questions, and guides them toward a confirmed appointment.",color:"#8B5CF6"},
-    {n:"04",title:"Revenue is recovered",body:"The appointment lands on your calendar. The customer is yours. Zero staff time required.",color:W.green},
+    {n:"01",title:"You miss a call",body:"A prospect calls. Your team is busy or unavailable. Before Veridian, this lead was gone — silently, permanently, to a competitor who answered.",color:W.red},
+    {n:"02",title:"Response in 60 seconds",body:"Veridian replies before the caller reaches the next business on their list. Professional, immediate, and specific to your business.",color:W.accent},
+    {n:"03",title:"Appointment booked",body:"The caller is qualified and scheduled — no staff involvement, no phone tag. A confirmed appointment appears on your calendar automatically.",color:"#8B5CF6"},
+    {n:"04",title:"Revenue recovered",body:"The job is booked. The patient is scheduled. The contract is on the table. Revenue that would have been lost — recovered.",color:W.green},
   ];
   return(
     <section id="how-it-works" style={{padding:isMobile?"80px 24px":"120px 48px",background:W.bg}}>
       <div style={{maxWidth:1160,margin:"0 auto"}} ref={ref}>
         <div style={{textAlign:"center",marginBottom:isMobile?48:80}}>
-          <SLabel>HOW IT WORKS</SLabel>
+          <SLabel>HOW REVENUE IS RECOVERED</SLabel>
           <h2 style={{fontSize:isMobile?"34px":"56px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:16}}>
-            From missed call to<br/>
-            <span style={{background:`linear-gradient(135deg,${W.accent},#8B5CF6,${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>recovered revenue.</span>
+            Four steps.<br/>
+            <span style={{background:`linear-gradient(135deg,${W.accent},#8B5CF6,${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>One outcome.</span>
           </h2>
         </div>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(4,1fr)",gap:isMobile?16:24}}>
@@ -469,27 +568,59 @@ function Results({isMobile}){
             </div>
           ))}
         </div>
-        {/* Outcome framework — placeholder for future testimonials */}
-        <div style={{marginBottom:20}}>
-          <div style={{fontSize:11,fontWeight:700,color:W.textDim,letterSpacing:"0.1em",marginBottom:20,textAlign:"center"}}>WHAT CLIENTS MEASURE</div>
-          <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:16}}>
-            {[
-              {label:"Revenue Recovered",metric:"$X / month",desc:"Tracked monthly. Before-and-after reporting from the first call through recovered revenue.",c:W.green},
-              {label:"Calls Converted",metric:"X% recovery rate",desc:"Every missed call logged. Every recovered conversation tracked. Full transparency.",c:W.accent},
-              {label:"Time to Recovery",metric:"First recovery within 24 hrs",desc:"Most clients see their first recovered appointment within 24 hours of going live.",c:"#8B5CF6"},
-            ].map((o,i)=>(
-              <div key={i} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?22:28}}>
-                <div style={{width:36,height:3,background:o.c,borderRadius:2,marginBottom:20}}/>
-                <div style={{fontSize:22,fontWeight:900,color:o.c,letterSpacing:"-0.02em",marginBottom:8}}>{o.metric}</div>
-                <div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:10}}>{o.label}</div>
-                <p style={{fontSize:13,color:W.textSub,lineHeight:1.65}}>{o.desc}</p>
+        <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?24:36,textAlign:"center"}}>
+          <div style={{fontSize:13,fontWeight:700,color:W.text,marginBottom:10}}>Verified client results being compiled.</div>
+          <p style={{fontSize:13,color:W.textSub,lineHeight:1.72,maxWidth:520,margin:"0 auto 20px"}}>We track every recovery, every appointment, every dollar — before and after Veridian. Client case studies are in progress. Ask us directly and we'll connect you with a reference client in your industry.</p>
+          <a href="#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"12px 28px",borderRadius:9,fontSize:14,fontWeight:700,boxShadow:`0 4px 16px ${W.accentGlow}`,textDecoration:"none",display:"inline-flex"}}>
+            Speak With a Reference Client <ArrowRight size={15}/>
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// PROGRAM OFFER
+// ─────────────────────────────────────────────────────────────
+function ProgramOffer({isMobile}){
+  const ref=useRef(null);
+  const inView=useInView(ref);
+  const features=[
+    {t:"Missed Call Recovery",b:"Every unanswered call gets an immediate professional response within 60 seconds — before the caller reaches a competitor."},
+    {t:"Customer Follow-Up",b:"Systematic outreach sequences that keep every prospect engaged until they book or explicitly opt out."},
+    {t:"Appointment Recovery",b:"Every no-show and cancelled slot is re-engaged automatically with a new scheduling offer."},
+    {t:"Lead Re-Engagement",b:"Dormant prospects are recontacted with a relevant, personalized offer — turning old leads into new revenue."},
+    {t:"Revenue Tracking",b:"Monthly reports showing exactly what was recovered — in dollars, before and after Veridian."},
+  ];
+  return(
+    <section style={{padding:isMobile?"80px 24px":"120px 48px",background:W.bg}}>
+      <div style={{maxWidth:1160,margin:"0 auto"}} ref={ref}>
+        <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?48:80,alignItems:"center"}}>
+          <div style={{animation:inView?`fadeUp .5s ease both`:"none"}}>
+            <SLabel>ONE PROGRAM. ONE OUTCOME.</SLabel>
+            <h2 style={{fontSize:isMobile?"34px":"52px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:20}}>
+              Veridian Revenue<br/>
+              <span style={{background:`linear-gradient(135deg,${W.accent},${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Recovery Program™</span>
+            </h2>
+            <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,lineHeight:1.72,marginBottom:32,maxWidth:400}}>Everything needed to capture and convert missed calls into revenue — in one program, with one team, for one outcome.</p>
+            <a href="#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?"14px 28px":"16px 36px",borderRadius:10,fontSize:16,fontWeight:700,boxShadow:`0 4px 20px ${W.accentGlow}`}}>
+              Start My Recovery Program <ArrowRight size={16}/>
+            </a>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            {features.map((f,i)=>(
+              <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:isMobile?18:22,display:"flex",gap:14,alignItems:"flex-start",animation:inView?`fadeUp .4s ease ${i*0.07}s both`:"none"}}>
+                <div style={{width:26,height:26,borderRadius:7,background:W.accentB,border:`1px solid rgba(99,102,241,0.16)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
+                  <Check size={12} style={{color:W.accent}}/>
+                </div>
+                <div>
+                  <div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:3}}>{f.t}</div>
+                  <p style={{fontSize:12,color:W.textSub,lineHeight:1.65,margin:0}}>{f.b}</p>
+                </div>
               </div>
             ))}
           </div>
-        </div>
-        <div style={{background:W.accentB,border:`1px solid rgba(99,102,241,0.18)`,borderRadius:12,padding:isMobile?16:20,textAlign:"center"}}>
-          <span style={{fontSize:12,color:W.textSub}}>Client case studies in progress. </span>
-          <a href="#contact" style={{fontSize:12,color:W.accent,textDecoration:"none",fontWeight:600}}>Contact us to speak with a reference client →</a>
         </div>
       </div>
     </section>
@@ -500,11 +631,11 @@ function Results({isMobile}){
 // INDUSTRIES
 // ─────────────────────────────────────────────────────────────
 const IND_DATA=[
-  {id:"security",name:"Security Companies",problem:"Security buyers call 3–5 companies and retain the first one that responds. If your dispatcher is on a call, that patrol contract goes to whoever answered.",loss:"$84K–$216K/yr",lossDetail:"Two missed patrol bids per month at $3,500–$9,000 each.",solution:"Every inquiry gets an immediate response. Site assessments scheduled. Follow-up automated.",outcome:"2–4 additional patrol contracts per month from inquiries that previously went unanswered."},
-  {id:"property-management",name:"Property Management",problem:"Tenants don't leave voicemails. They call. If no one answers, they file complaints, break leases, or never sign one. Every unanswered inquiry is a vacancy extending.",loss:"$21K–$84K/yr",lossDetail:"Three leasing calls missed per month at $1,750 average vacancy cost.",solution:"After-hours maintenance requests captured. Leasing inquiries qualified. Showings scheduled automatically.",outcome:"Fewer tenant complaints, faster lease-up, and zero calls going unanswered after hours."},
-  {id:"contractors",name:"Contractors",problem:"You're on a job site. Your phone rings. You can't answer it. That caller found a quote in 90 seconds — from someone who did answer. Your bid was never submitted.",loss:"$96K–$240K/yr",lossDetail:"Eight missed bids per month at $2,500–$12,000 average job value.",solution:"Every missed call gets a response in 60 seconds. Job details collected. Estimate appointments booked to your calendar.",outcome:"Contractors report winning 2–4 additional jobs per month from inquiries that went unanswered before Veridian."},
-  {id:"medical",name:"Medical Practices",problem:"Patients who can't reach your front desk don't wait. They find the next available provider. Every missed call is an empty appointment slot and a lost patient relationship.",loss:"$48K–$192K/yr",lossDetail:"Ten missed new patient calls per week at $200–$800 average value.",solution:"Patient inquiries answered 24/7. Appointments scheduled. No-shows re-engaged. Zero added front desk workload.",outcome:"Medical practices recover an average of 12 additional appointment slots per month from previously missed calls."},
-  {id:"law",name:"Law Firms",problem:"Potential clients call 2–3 firms. They retain the first one that responds professionally. If they reach your voicemail, the probability of them waiting for a callback is less than 25%.",loss:"$60K–$600K/yr",lossDetail:"One retained client per month missed at $5,000–$50,000 average fee.",solution:"Every inquiry receives a professional response. Consultations scheduled. Practice area qualification handled automatically.",outcome:"Law firms report a 45% increase in consultation bookings from the same call volume — zero additional intake staff."},
+  {id:"security",name:"Security Companies",problem:"Security buyers call 3–5 companies and retain the first one that responds. If your dispatcher is on a call, that patrol contract goes to whoever answered.",loss:"$84K–$216K/yr",lossDetail:"Two missed patrol bids per month at $3,500–$9,000 each.",recovery:"$57K–$147K/yr",solution:"Every inquiry gets an immediate response. Site assessments scheduled. Follow-up automated.",outcome:"2–4 additional patrol contracts per month from inquiries that previously went unanswered."},
+  {id:"property-management",name:"Property Management",problem:"Tenants don't leave voicemails. They call. If no one answers, they file complaints, break leases, or never sign one. Every unanswered inquiry is a vacancy extending.",loss:"$21K–$84K/yr",lossDetail:"Three leasing calls missed per month at $1,750 average vacancy cost.",recovery:"$14K–$57K/yr",solution:"After-hours maintenance requests captured. Leasing inquiries qualified. Showings scheduled automatically.",outcome:"Fewer tenant complaints, faster lease-up, and zero calls going unanswered after hours."},
+  {id:"contractors",name:"Contractors",problem:"You're on a job site. Your phone rings. You can't answer it. That caller found a quote in 90 seconds — from someone who did answer. Your bid was never submitted.",loss:"$96K–$240K/yr",lossDetail:"Eight missed bids per month at $2,500–$12,000 average job value.",recovery:"$65K–$163K/yr",solution:"Every missed call gets a response in 60 seconds. Job details collected. Estimate appointments booked to your calendar.",outcome:"Contractors report winning 2–4 additional jobs per month from inquiries that went unanswered before Veridian."},
+  {id:"medical",name:"Medical Practices",problem:"Patients who can't reach your front desk don't wait. They find the next available provider. Every missed call is an empty appointment slot and a lost patient relationship.",loss:"$48K–$192K/yr",lossDetail:"Ten missed new patient calls per week at $200–$800 average value.",recovery:"$33K–$131K/yr",solution:"Patient inquiries answered 24/7. Appointments scheduled. No-shows re-engaged. Zero added front desk workload.",outcome:"Medical practices recover an average of 12 additional appointment slots per month from previously missed calls."},
+  {id:"law",name:"Law Firms",problem:"Potential clients call 2–3 firms. They retain the first one that responds professionally. If they reach your voicemail, the probability of them waiting for a callback is less than 25%.",loss:"$60K–$600K/yr",lossDetail:"One retained client per month missed at $5,000–$50,000 average fee.",recovery:"$41K–$408K/yr",solution:"Every inquiry receives a professional response. Consultations scheduled. Practice area qualification handled automatically.",outcome:"Law firms report a 45% increase in consultation bookings from the same call volume — zero additional intake staff."},
 ];
 
 function Industries({isMobile}){
@@ -531,25 +662,25 @@ function Industries({isMobile}){
         </div>
         {/* Content */}
         <div key={active} style={{animation:"fadeIn .25s ease",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:20}}>
+          {/* Left — Risk */}
           <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:36}}>
-            <div style={{fontSize:10,fontWeight:700,color:W.red,letterSpacing:"0.1em",marginBottom:16}}>THE PROBLEM</div>
-            <p style={{fontSize:isMobile?"15px":"17px",color:W.text,lineHeight:1.72,marginBottom:24}}>{d.problem}</p>
-            <div style={{background:W.redB,border:"1px solid rgba(239,68,68,0.16)",borderRadius:12,padding:"16px 20px"}}>
-              <div style={{fontSize:10,fontWeight:700,color:W.red,letterSpacing:"0.1em",marginBottom:6}}>ANNUAL REVENUE AT RISK</div>
-              <div style={{fontSize:28,fontWeight:900,color:W.text,letterSpacing:"-0.03em",marginBottom:4}}>{d.loss}</div>
-              <div style={{fontSize:12,color:W.textSub}}>{d.lossDetail}</div>
-            </div>
+            <div style={{fontSize:10,fontWeight:700,color:W.red,letterSpacing:"0.1em",marginBottom:16}}>ANNUAL REVENUE AT RISK</div>
+            <div style={{fontSize:isMobile?"36px":"48px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1,marginBottom:8}}>{d.loss}</div>
+            <div style={{fontSize:13,color:W.textSub,marginBottom:24,paddingBottom:24,borderBottom:`1px solid ${W.border}`}}>{d.lossDetail}</div>
+            <p style={{fontSize:isMobile?"14px":"15px",color:W.textSub,lineHeight:1.75}}>{d.problem}</p>
           </div>
+          {/* Right — Recovery + Outcome */}
           <div style={{display:"flex",flexDirection:"column",gap:16}}>
-            <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:36,flex:1}}>
-              <div style={{fontSize:10,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:16}}>THE SOLUTION</div>
-              <p style={{fontSize:isMobile?"15px":"16px",color:W.textSub,lineHeight:1.72}}>{d.solution}</p>
+            <div style={{background:"linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.03))",border:"1px solid rgba(16,185,129,0.22)",borderRadius:20,padding:isMobile?24:32}}>
+              <div style={{fontSize:10,fontWeight:700,color:W.green,letterSpacing:"0.1em",marginBottom:12}}>RECOVERY POTENTIAL</div>
+              <div style={{fontSize:isMobile?"36px":"48px",fontWeight:900,color:W.green,letterSpacing:"-0.04em",lineHeight:1,marginBottom:8}}>{d.recovery}</div>
+              <div style={{fontSize:12,color:W.textSub}}>based on 68% average recovery rate</div>
             </div>
-            <div style={{background:"linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.03))",border:"1px solid rgba(16,185,129,0.2)",borderRadius:20,padding:isMobile?24:32}}>
-              <div style={{fontSize:10,fontWeight:700,color:W.green,letterSpacing:"0.1em",marginBottom:12}}>EXPECTED OUTCOME</div>
-              <p style={{fontSize:isMobile?"15px":"16px",color:W.text,lineHeight:1.65}}>{d.outcome}</p>
+            <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:32,flex:1}}>
+              <div style={{fontSize:10,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:12}}>EXPECTED OUTCOME</div>
+              <p style={{fontSize:isMobile?"14px":"15px",color:W.text,lineHeight:1.72}}>{d.outcome}</p>
             </div>
-            <a href={`/industries/${d.id}`} style={{display:"flex",alignItems:"center",gap:8,fontSize:13,fontWeight:600,color:W.accent,textDecoration:"none"}}>See full {d.name} case <ChevronRight size={14}/></a>
+            <a href={`/industries/${d.id}`} style={{display:"flex",alignItems:"center",gap:8,fontSize:13,fontWeight:600,color:W.accent,textDecoration:"none"}}>Full {d.name} overview <ChevronRight size={14}/></a>
           </div>
         </div>
       </div>
@@ -602,12 +733,12 @@ function Trust({isMobile}){
 function FAQ({isMobile}){
   const[open,setOpen]=useState(null);
   const faqs=[
-    {q:"How quickly does Veridian respond to a missed call?",a:"Under 60 seconds — automatically. The moment a call goes unanswered, Veridian sends a personalized response and begins the conversation. No staff action required."},
-    {q:"What do I need to do to get started?",a:"Almost nothing. We handle all configuration. You make a simple call forwarding change — most clients are fully live within 5 business days."},
-    {q:"Will this replace my receptionist or team?",a:"No. Veridian recovers revenue that's already being lost to missed calls. Your team stays focused on serving current clients, not chasing leads that slipped through."},
-    {q:"How quickly will I see results?",a:"Most clients see their first recovered appointment within 24 hours of going live. Monthly reports show exactly what was recovered before and after Veridian."},
-    {q:"What if my call volume is low?",a:"Low volume means every missed call matters more. Whether you miss 5 calls per month or 500, Veridian makes sure none go unanswered."},
-    {q:"Is there a long-term contract?",a:"We start with a free consultation. If Veridian isn't the right fit, we'll tell you. No pressure, no hidden fees, no obligation to start."},
+    {q:"How quickly can we start?",a:"Most clients are fully live within 5 business days. Onboarding requires a simple call forwarding setup — no new phone system, no IT project, no disruption to your current operations. We handle all configuration."},
+    {q:"Do I need to change phone providers?",a:"No. Veridian works with any business phone number. The setup is a simple call forwarding change that takes minutes — your existing number, carrier, and team stay exactly as they are."},
+    {q:"How do appointments get booked?",a:"Veridian responds to every missed call, qualifies the prospect, and schedules appointments directly to your calendar — automatically. No staff action required. The appointment appears as if your team booked it."},
+    {q:"What industries do you work with?",a:"Security companies, property management, contractors, medical practices, and law firms are our primary verticals. Any service business that books appointments, closes projects, or retains clients over the phone is a strong fit."},
+    {q:"How is pricing determined?",a:"Pricing is based on your call volume and the services included in your Recovery Program. We discuss specifics during your free consultation — after we've reviewed your actual numbers and built your recovery estimate."},
+    {q:"What happens after I contact Veridian?",a:"We respond within one business day. We'll schedule a 30-minute call to review where revenue is being lost and determine if Veridian is the right fit — at no cost and no obligation. If we're not the right fit, we'll tell you."},
   ];
   return(
     <section style={{padding:isMobile?"80px 24px":"120px 48px",background:W.bg,borderTop:`1px solid ${W.border}`}}>
@@ -706,11 +837,11 @@ function Contact({isMobile}){
       <div style={{maxWidth:1160,margin:"0 auto",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?48:80,alignItems:"start"}}>
         {/* Left — intro */}
         <div style={{paddingTop:isMobile?0:8}}>
-          <SLabel>GET STARTED</SLabel>
+          <SLabel>START YOUR RECOVERY PROGRAM</SLabel>
           <h2 style={{fontSize:isMobile?"34px":"52px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.06,marginBottom:20}}>
-            Let's recover your<br/>revenue.
+            Where is revenue<br/>slipping through?
           </h2>
-          <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,lineHeight:1.72,marginBottom:36}}>Tell us about your business. We'll show you exactly what's being lost and how to recover it — in a free 30-minute consultation.</p>
+          <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,lineHeight:1.72,marginBottom:36}}>Tell us about your business. We'll show you exactly what's being lost and how to recover it — at no cost, no obligation, in 30 minutes.</p>
           <div style={{display:"flex",flexDirection:"column",gap:16,marginBottom:40}}>
             {[{I:Clock,t:"Response within one business day"},{I:CheckCircle,t:"No obligation, no pressure"},{I:Shield,t:"Free revenue recovery consultation"}].map((p,i)=>{const Icon=p.I;return(
               <div key={i} style={{display:"flex",gap:12,alignItems:"center"}}>
@@ -842,10 +973,12 @@ function Homepage({isMobile}){
   return(
     <>
       <Hero isMobile={isMobile}/>
+      <BeforeAfter isMobile={isMobile}/>
       <Calculator isMobile={isMobile}/>
       <HowItWorks isMobile={isMobile}/>
-      <Results isMobile={isMobile}/>
+      <ProgramOffer isMobile={isMobile}/>
       <Industries isMobile={isMobile}/>
+      <Results isMobile={isMobile}/>
       <Trust isMobile={isMobile}/>
       <FAQ isMobile={isMobile}/>
       <Contact isMobile={isMobile}/>
