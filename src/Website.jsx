@@ -20,6 +20,7 @@ const W={
   red:"#EF4444",
   redB:"rgba(239,68,68,0.08)",
   amber:"#F59E0B",
+  amberB:"rgba(245,158,11,0.08)",
   text:"#EEEEFF",
   textSub:"#6878A0",
   textDim:"#2A3450",
@@ -57,6 +58,8 @@ input,textarea,button{font-family:inherit}
 .vd-lk:hover{color:#6366F1!important}
 .vd-tab{transition:all .15s ease;cursor:pointer;border:none;background:none}
 .vd-sticky{position:fixed;bottom:0;left:0;right:0;z-index:150;padding:12px 16px 16px;background:rgba(4,4,11,.97);border-top:1px solid #12123A;backdrop-filter:blur(20px);animation:stickUp .3s ease}
+input::placeholder,textarea::placeholder{color:#3A4A6A}
+input:focus,textarea:focus{outline:none}
 @media print{*{background:#fff!important;color:#000!important}nav,footer,.vd-sticky,.no-print{display:none!important}.print-plan{padding:40px!important;max-width:700px!important;margin:0 auto!important}}
 `;
 
@@ -89,6 +92,19 @@ function useInView(ref,threshold=0.2){
 // PRIMITIVES
 // ─────────────────────────────────────────────────────────────
 const SLabel=({c,children})=><div style={{fontSize:11,fontWeight:700,color:c||W.accent,letterSpacing:"0.12em",marginBottom:16}}>{children}</div>;
+
+function FormField({label,value,onChange,type="text",placeholder=""}){
+  const[focused,setFocused]=useState(false);
+  return(
+    <div style={{marginBottom:18}}>
+      <label style={{fontSize:11,fontWeight:700,color:W.textSub,display:"block",marginBottom:7,letterSpacing:"0.05em"}}>{label}</label>
+      <input type={type} value={value} onChange={onChange}
+        onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)}
+        placeholder={placeholder}
+        style={{width:"100%",background:W.surface,border:`1px solid ${focused?W.accent:W.border}`,borderRadius:9,padding:"12px 14px",color:W.text,fontSize:14,outline:"none",transition:"border-color .15s",boxShadow:focused?`0 0 0 3px ${W.accentB}`:"none"}}/>
+    </div>
+  );
+}
 
 // ─────────────────────────────────────────────────────────────
 // STICKY MOBILE CTA
@@ -328,8 +344,10 @@ function Calculator({isMobile}){
         <span style={{fontSize:13,color:W.textSub}}>{label}</span>
         <span style={{fontSize:14,fontWeight:700,color:W.text}}>{fmt(value)}</span>
       </div>
-      <div style={{position:"relative",height:4,background:W.border,borderRadius:2}}>
-        <div style={{position:"absolute",left:0,top:0,height:"100%",width:`${((value-min)/(max-min))*100}%`,background:W.accent,borderRadius:2}}/>
+      <div style={{position:"relative",height:24,display:"flex",alignItems:"center"}}>
+        <div style={{position:"absolute",left:0,right:0,height:4,background:W.border,borderRadius:2,overflow:"hidden"}}>
+          <div style={{height:"100%",width:`${((value-min)/(max-min))*100}%`,background:W.accent,borderRadius:2}}/>
+        </div>
         <input type="range" min={min} max={max} step={step} value={value} onChange={e=>set(Number(e.target.value))} style={{position:"absolute",inset:0,opacity:0,width:"100%",cursor:"pointer",height:"100%"}}/>
       </div>
     </div>
@@ -645,6 +663,7 @@ function Contact({isMobile}){
   const[plan,setPlan]=useState(null);
   const[planLoading,setPlanLoading]=useState(false);
   const[bookingLoading,setBookingLoading]=useState(false);
+  const[taFocused,setTaFocused]=useState(false);
   useEffect(()=>{
     const h=e=>setCalcHint({...e.detail});
     window.addEventListener("veridian:calcdata",h);
@@ -682,12 +701,6 @@ function Contact({isMobile}){
     setPlanLoading(false);
   };
   const slots=getSlots();
-  const FI=({label,k,type="text",placeholder=""})=>(
-    <div style={{marginBottom:18}}>
-      <label style={{fontSize:11,fontWeight:700,color:W.textSub,display:"block",marginBottom:7,letterSpacing:"0.05em"}}>{label}</label>
-      <input type={type} value={f[k]} onChange={e=>setF(x=>({...x,[k]:e.target.value}))} placeholder={placeholder} style={{width:"100%",background:W.surface,border:`1px solid ${W.border}`,borderRadius:9,padding:"12px 14px",color:W.text,fontSize:14,outline:"none",transition:"border-color .15s"}}/>
-    </div>
-  );
   return(
     <section id="contact" style={{padding:isMobile?"80px 24px":"120px 48px",background:W.surface}}>
       <div style={{maxWidth:1160,margin:"0 auto",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?48:80,alignItems:"start"}}>
@@ -726,16 +739,16 @@ function Contact({isMobile}){
               )}
               <form onSubmit={sub}>
                 <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?0:16}}>
-                  <FI label="YOUR NAME" k="name" placeholder="First and last name"/>
-                  <FI label="BUSINESS NAME" k="biz" placeholder="Company name"/>
+                  <FormField label="YOUR NAME" value={f.name} onChange={e=>setF(x=>({...x,name:e.target.value}))} placeholder="First and last name"/>
+                  <FormField label="BUSINESS NAME" value={f.biz} onChange={e=>setF(x=>({...x,biz:e.target.value}))} placeholder="Company name"/>
                 </div>
                 <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?0:16}}>
-                  <FI label="PHONE" k="phone" type="tel" placeholder="+1 (555) 000-0000"/>
-                  <FI label="EMAIL" k="email" type="email" placeholder="you@company.com"/>
+                  <FormField label="PHONE" value={f.phone} onChange={e=>setF(x=>({...x,phone:e.target.value}))} type="tel" placeholder="+1 (555) 000-0000"/>
+                  <FormField label="EMAIL" value={f.email} onChange={e=>setF(x=>({...x,email:e.target.value}))} type="email" placeholder="you@company.com"/>
                 </div>
                 <div style={{marginBottom:24}}>
                   <label style={{fontSize:11,fontWeight:700,color:W.textSub,display:"block",marginBottom:7,letterSpacing:"0.05em"}}>WHERE IS REVENUE SLIPPING THROUGH THE CRACKS?</label>
-                  <textarea value={f.challenge} onChange={e=>setF(x=>({...x,challenge:e.target.value}))} placeholder="Missed calls, slow follow-up, lost appointments — tell us where the biggest gaps are..." rows={4} style={{width:"100%",background:W.surface,border:`1px solid ${W.border}`,borderRadius:9,padding:"12px 14px",color:W.text,fontSize:14,outline:"none",resize:"vertical",lineHeight:1.6}}/>
+                  <textarea value={f.challenge} onChange={e=>setF(x=>({...x,challenge:e.target.value}))} onFocus={()=>setTaFocused(true)} onBlur={()=>setTaFocused(false)} placeholder="Missed calls, slow follow-up, lost appointments — tell us where the biggest gaps are..." rows={4} style={{width:"100%",background:W.surface,border:`1px solid ${taFocused?W.accent:W.border}`,borderRadius:9,padding:"12px 14px",color:W.text,fontSize:14,outline:"none",resize:"vertical",lineHeight:1.6,boxShadow:taFocused?`0 0 0 3px ${W.accentB}`:"none",transition:"border-color .15s"}}/>
                 </div>
                 {err&&<div style={{marginBottom:14,padding:"11px 14px",background:W.redB,border:"1px solid rgba(239,68,68,0.2)",borderRadius:8,fontSize:13,color:W.red}}>{err}</div>}
                 <button type="submit" disabled={loading} className="vd-btn" style={{width:"100%",background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:16,fontSize:15,fontWeight:700,cursor:loading?"not-allowed":"pointer",opacity:loading?0.7:1,justifyContent:"center",boxShadow:`0 4px 20px ${W.accentGlow}`}}>
