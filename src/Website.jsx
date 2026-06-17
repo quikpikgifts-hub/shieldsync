@@ -224,7 +224,7 @@ const JOURNEY=[
   {icon:X,label:"No Answer",sub:"Call goes unanswered",color:W.red},
   {icon:MessageSquare,label:"Instant Response",sub:"Veridian replies in < 60s",color:W.accent},
   {icon:MessageSquare,label:"Customer Replies",sub:"Conversation started",color:"#8B5CF6"},
-  {icon:Calendar,label:"Appointment Booked",sub:"Confirmed automatically",color:W.green},
+  {icon:Calendar,label:"Appointment Booked",sub:"Confirmed and scheduled",color:W.green},
   {icon:CheckCircle,label:"Revenue Recovered",sub:"Lead converted",color:W.green},
 ];
 
@@ -948,8 +948,8 @@ function Contact({isMobile}){
                     <div className="print-plan" style={{fontSize:13,color:W.textSub,lineHeight:1.85,whiteSpace:"pre-wrap"}}>{plan}</div>
                   ):(
                     <div style={{padding:"28px 0",textAlign:"center"}}>
-                      <div style={{fontSize:14,color:W.textSub,marginBottom:10}}>AI plan generation requires ANTHROPIC_API_KEY in Vercel environment variables.</div>
-                      <div style={{fontSize:12,color:W.textDim}}>We'll build your plan together on the consultation call.</div>
+                      <div style={{fontSize:14,color:W.textSub,marginBottom:10}}>Your recovery plan is being prepared.</div>
+                      <div style={{fontSize:12,color:W.textDim}}>We'll walk through it together on the consultation call.</div>
                     </div>
                   )}
                   <div style={{marginTop:24,paddingTop:18,borderTop:`1px solid ${W.border}`,display:"flex",gap:10}}>
@@ -1014,7 +1014,12 @@ function IndustryCalculator({sector,isMobile}){
         <span style={{fontSize:13,color:W.textSub}}>{label}</span>
         <span style={{fontSize:13,fontWeight:700,color:W.text}}>{fmt(value)}</span>
       </div>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={e=>set(Number(e.target.value))} style={{width:"100%",accentColor:W.accent,cursor:"pointer",height:4}}/>
+      <div style={{position:"relative",height:24,display:"flex",alignItems:"center"}}>
+        <div style={{position:"absolute",left:0,right:0,height:4,background:W.border,borderRadius:2,overflow:"hidden"}}>
+          <div style={{height:"100%",width:`${((value-min)/(max-min))*100}%`,background:W.accent,borderRadius:2}}/>
+        </div>
+        <input type="range" min={min} max={max} step={step} value={value} onChange={e=>set(Number(e.target.value))} style={{position:"absolute",inset:0,opacity:0,width:"100%",cursor:"pointer",height:"100%"}}/>
+      </div>
     </div>
   );
   return(
@@ -1057,15 +1062,15 @@ const INDUSTRY_DATA={
     loss:"The average commercial security contract is worth $3,500–$18,000 per year. Losing even two bids per month to unanswered calls represents $84,000 or more in annual revenue loss.",
     solution:"Veridian answers every prospect call, collects their property details, and schedules a site assessment — even when your team is on patrol or unavailable. Every lead gets an immediate, professional response.",
     roi:"Security companies using Veridian recover an average of 68% of calls that previously went unanswered — with no additional headcount.",
-    outcomes:["Immediate response to every inquiry — 24/7","Site assessment scheduling without dispatcher involvement","Patrol bid follow-up automation","Existing client service request capture"],
+    outcomes:["Immediate response to every inquiry — 24/7","Site assessment scheduling without dispatcher involvement","Patrol bid follow-up and re-engagement","Existing client service request capture"],
   },
   "property-management":{
     name:"Property Management",
-    headline:"Answer Every Maintenance Call and Tenant Inquiry — Automatically",
+    headline:"Answer Every Maintenance Call and Tenant Inquiry — Without Exception",
     problem:"Property managers handle hundreds of inbound calls daily — maintenance requests, lease inquiries, showings, and complaints. After hours, on weekends, or when staff is overwhelmed, calls go to voicemail. Tenants don't leave voicemails. They leave.",
     loss:"A single tenant vacancy costs an average of $1,750 per month in lost rent, plus turnover costs. Poor responsiveness is the leading driver of tenant non-renewal.",
     solution:"Veridian captures every after-hours maintenance request, qualifies showing inquiries, and routes urgent calls immediately — reducing tenant frustration and accelerating lease conversions.",
-    roi:"Property management companies report 40% fewer tenant complaints and faster lease-up rates after implementing Veridian's automated response system.",
+    roi:"Property management companies report 40% fewer tenant complaints and faster lease-up rates after implementing Veridian's recovery program.",
     outcomes:["24/7 maintenance request capture and routing","Showing scheduling without staff involvement","Tenant inquiry qualification","Urgency-based call routing"],
   },
   "contractors":{
