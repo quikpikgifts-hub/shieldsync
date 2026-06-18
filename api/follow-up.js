@@ -27,9 +27,9 @@ function template(sequence, lead) {
   const lostMo = calcData?.lostMonthly ? `$${calcData.lostMonthly.toLocaleString()}` : null;
   const recMo = calcData?.recoveryMonthly ? `$${calcData.recoveryMonthly.toLocaleString()}` : null;
   const missRate = calcData?.miss ? `${calcData.miss}%` : null;
-  const toEmail = process.env.TEAM_EMAIL || "hello@veridian.io";
+  const toEmail = process.env.TEAM_EMAIL || "info@veridianrisk.com";
 
-  const ctaLine = `Book your free 30-minute consultation: ${process.env.BOOKING_URL || `https://${process.env.FROM_DOMAIN || "veridian.io"}/#contact`}`;
+  const ctaLine = `Book your free 30-minute consultation: ${process.env.BOOKING_URL || `https://${process.env.FROM_DOMAIN || "veridianrisk.com"}/#contact`}`;
 
   if (sequence === "24h") {
     const estLine = annual ? `${annual}/yr` : "a significant amount";
@@ -156,7 +156,7 @@ async function processSequence(sequence, resendKey, fromDomain) {
       if (!tmpl) { await kv("ZREM", `veridian:fu:${sequence}`, leadId); continue; }
 
       if (resendKey) {
-        const toEmail = process.env.TEAM_EMAIL || "hello@veridian.io";
+        const toEmail = process.env.TEAM_EMAIL || "info@veridianrisk.com";
         const r = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
@@ -204,7 +204,7 @@ export default async function handler(req) {
   }
 
   const resendKey = process.env.RESEND_API_KEY;
-  const fromDomain = process.env.FROM_DOMAIN || "veridian.io";
+  const fromDomain = process.env.FROM_DOMAIN || "veridianrisk.com";
 
   if (req.method === "GET") {
     // Vercel Cron sends Authorization: Bearer {CRON_SECRET}
@@ -257,7 +257,7 @@ export default async function handler(req) {
       if (!tmpl) return new Response(JSON.stringify({ error: "Unknown sequence" }), { status: 400, headers: { "Content-Type": "application/json" } });
 
       if (resendKey) {
-        const toEmail = process.env.TEAM_EMAIL || "hello@veridian.io";
+        const toEmail = process.env.TEAM_EMAIL || "info@veridianrisk.com";
         await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },

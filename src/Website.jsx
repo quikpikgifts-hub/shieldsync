@@ -60,6 +60,7 @@ input,textarea,button{font-family:inherit}
 .vd-sticky{position:fixed;bottom:0;left:0;right:0;z-index:150;padding:12px 16px 16px;background:rgba(4,4,11,.97);border-top:1px solid #12123A;backdrop-filter:blur(20px);animation:stickUp .3s ease}
 input::placeholder,textarea::placeholder{color:#3A4A6A}
 input:focus,textarea:focus{outline:none}
+@media(max-width:768px){input,textarea,select{font-size:16px!important}}
 @media(max-width:380px){.vd-hero-h1{font-size:clamp(32px,9.5vw,40px)!important;letter-spacing:-0.035em!important}.vd-hero-sub{font-size:15px!important}.vd-h2{font-size:clamp(26px,8.5vw,32px)!important}}
 @media print{*{background:#fff!important;color:#000!important}nav,footer,.vd-sticky,.no-print{display:none!important}.print-plan{padding:40px!important;max-width:700px!important;margin:0 auto!important}}
 `;
@@ -94,7 +95,7 @@ function useInView(ref,threshold=0.2){
 // ─────────────────────────────────────────────────────────────
 const SLabel=({c,children})=><div style={{fontSize:11,fontWeight:700,color:c||W.accent,letterSpacing:"0.12em",marginBottom:16}}>{children}</div>;
 
-function FormField({label,value,onChange,type="text",placeholder=""}){
+function FormField({label,value,onChange,type="text",placeholder="",autoComplete,inputMode}){
   const[focused,setFocused]=useState(false);
   return(
     <div style={{marginBottom:18}}>
@@ -102,6 +103,8 @@ function FormField({label,value,onChange,type="text",placeholder=""}){
       <input type={type} value={value} onChange={onChange}
         onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)}
         placeholder={placeholder}
+        autoComplete={autoComplete}
+        inputMode={inputMode}
         style={{width:"100%",background:W.surface,border:`1px solid ${focused?W.accent:W.border}`,borderRadius:9,padding:"12px 14px",color:W.text,fontSize:14,outline:"none",transition:"border-color .15s",boxShadow:focused?`0 0 0 3px ${W.accentB}`:"none"}}/>
     </div>
   );
@@ -870,12 +873,12 @@ function Contact({isMobile}){
               )}
               <form onSubmit={sub}>
                 <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?0:16}}>
-                  <FormField label="YOUR NAME" value={f.name} onChange={e=>setF(x=>({...x,name:e.target.value}))} placeholder="First and last name"/>
-                  <FormField label="BUSINESS NAME" value={f.biz} onChange={e=>setF(x=>({...x,biz:e.target.value}))} placeholder="Company name"/>
+                  <FormField label="YOUR NAME" value={f.name} onChange={e=>setF(x=>({...x,name:e.target.value}))} placeholder="First and last name" autoComplete="name"/>
+                  <FormField label="BUSINESS NAME" value={f.biz} onChange={e=>setF(x=>({...x,biz:e.target.value}))} placeholder="Company name" autoComplete="organization"/>
                 </div>
                 <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?0:16}}>
-                  <FormField label="PHONE" value={f.phone} onChange={e=>setF(x=>({...x,phone:e.target.value}))} type="tel" placeholder="+1 (555) 000-0000"/>
-                  <FormField label="EMAIL" value={f.email} onChange={e=>setF(x=>({...x,email:e.target.value}))} type="email" placeholder="you@company.com"/>
+                  <FormField label="PHONE" value={f.phone} onChange={e=>setF(x=>({...x,phone:e.target.value}))} type="tel" placeholder="+1 (555) 000-0000" autoComplete="tel" inputMode="tel"/>
+                  <FormField label="EMAIL" value={f.email} onChange={e=>setF(x=>({...x,email:e.target.value}))} type="email" placeholder="you@company.com" autoComplete="email"/>
                 </div>
                 <div style={{marginBottom:24}}>
                   <label style={{fontSize:11,fontWeight:700,color:W.textSub,display:"block",marginBottom:7,letterSpacing:"0.05em"}}>WHERE IS REVENUE SLIPPING THROUGH THE CRACKS?</label>
