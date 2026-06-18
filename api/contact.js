@@ -265,21 +265,19 @@ export default async function handler(req) {
   const promises = [];
 
   // Supabase — insert into public.leads
-  // Column names match a standard leads table; adjust if your schema differs.
   promises.push(supabaseInsert({
-    lead_id:           leadId,
-    name:              name.trim(),
-    email:             email.trim(),
-    phone:             phone || null,
-    business_name:     biz  || null,
-    challenge:         challenge || null,
-    priority:          p,
-    source:            "veridian-website",
-    annual_potential:  annual || null,
-    calc_data:         calcData || null,
-    recovery_estimate: fmtAnnual(annual) || null,
-    follow_up_trigger: true,
-    created_at:        ts,
+    lead_id:   leadId,
+    name:      name.trim(),
+    business:  biz || null,
+    email:     email.trim(),
+    phone:     phone || null,
+    challenge: challenge || null,
+    priority:  p,
+    status:    "new",
+    notes:     calcData
+      ? `Recovery: ${fmtAnnual(annual) || "N/A"} | Calls/mo: ${calcData.calls} | Miss rate: ${calcData.miss}% | Avg value: $${calcData.val} | Conv: ${calcData.conv}%`
+      : null,
+    created_at: ts,
   }));
 
   // KV storage
