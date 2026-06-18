@@ -70,6 +70,8 @@ input:focus,textarea:focus{outline:none}
 const fmtN=v=>v.toLocaleString();
 const fmtM=n=>n>=10000?`$${(n/1000).toFixed(0)}K`:n>=1000?`$${(n/1000).toFixed(1)}K`:`$${n}`;
 const _lead={};
+const BOOKING_URL=import.meta.env.VITE_BOOKING_URL||"";
+const track=(event,params={})=>window.gtag?.("event",event,params);
 function getSlots(){
   const s=[];const d=new Date();const labels=["10:00 AM","2:00 PM","4:00 PM"];
   while(s.length<9){d.setDate(d.getDate()+1);const day=d.getDay();if(day!==0&&day!==6){const ds=d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});labels.forEach(t=>s.push({date:ds,time:t,id:`${d.toISOString().slice(0,10)}_${t.replace(/[: ]/g,"")}`}));}}
@@ -482,7 +484,7 @@ function Calculator({isMobile}){
               <div style={{fontSize:isMobile?"44px":"60px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1}}>{fmtM(annual)}</div>
               <div style={{fontSize:12,color:W.textSub,marginTop:8}}>per year · based on 68% recovery rate</div>
             </div>
-            <a href="#contact" onClick={()=>{Object.assign(_lead,{calls,miss,val,conv,missed,lostMo,recMo,annual});window.dispatchEvent(new CustomEvent("veridian:calcdata",{detail:{..._lead}}));}}
+            <a href="#contact" onClick={()=>{Object.assign(_lead,{calls,miss,val,conv,missed,lostMo,recMo,annual});window.dispatchEvent(new CustomEvent("veridian:calcdata",{detail:{..._lead}}));track("calculator_cta_click",{value:annual,currency:"USD"});}}
               className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?16:18,borderRadius:12,fontSize:15,fontWeight:700,justifyContent:"center",boxShadow:`0 6px 24px ${W.accentGlow}`}}>
               Get My Recovery Plan <ArrowRight size={16}/>
             </a>
@@ -569,10 +571,11 @@ function Results({isMobile}){
           ))}
         </div>
         <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?24:36,textAlign:"center"}}>
-          <div style={{fontSize:13,fontWeight:700,color:W.text,marginBottom:10}}>Verified client results being compiled.</div>
-          <p style={{fontSize:13,color:W.textSub,lineHeight:1.72,maxWidth:520,margin:"0 auto 20px"}}>We track every recovery, every appointment, every dollar — before and after Veridian. Client case studies are in progress. Ask us directly and we'll connect you with a reference client in your industry.</p>
+          <div style={{display:"inline-block",background:W.accentB,border:"1px solid rgba(99,102,241,0.22)",borderRadius:6,padding:"4px 12px",fontSize:10,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:14}}>FOUNDING CLIENT PROGRAM</div>
+          <div style={{fontSize:isMobile?"18px":"22px",fontWeight:800,color:W.text,marginBottom:12}}>Now accepting founding clients.</div>
+          <p style={{fontSize:13,color:W.textSub,lineHeight:1.72,maxWidth:520,margin:"0 auto 20px"}}>We are currently onboarding a limited number of founding clients. Participants receive priority onboarding, direct access to leadership, and monthly recovery reporting.</p>
           <a href="#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"12px 28px",borderRadius:9,fontSize:14,fontWeight:700,boxShadow:`0 4px 16px ${W.accentGlow}`,textDecoration:"none",display:"inline-flex"}}>
-            Speak With a Reference Client <ArrowRight size={15}/>
+            Apply for Founding Access <ArrowRight size={15}/>
           </a>
         </div>
       </div>
@@ -790,7 +793,7 @@ function Contact({isMobile}){
   const[err,setErr]=useState(null);
   const[calcHint,setCalcHint]=useState(null);
   const[leadId,setLeadId]=useState(null);
-  const[slot,setSlot]=useState(null);
+  const[slot,setSlot]=useState(null); // eslint-disable-line no-unused-vars
   const[plan,setPlan]=useState(null);
   const[planLoading,setPlanLoading]=useState(false);
   const[bookingLoading,setBookingLoading]=useState(false);
@@ -811,14 +814,14 @@ function Contact({isMobile}){
       const r=await fetch("/api/contact",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
       const data=await r.json();
       if(!r.ok||!data.success)throw new Error(data.error||"Submission failed");
-      setLeadId(data.leadId||null);setStep("success");
+      setLeadId(data.leadId||null);setStep("success");track("contact_form_submit",{lead_id:data.leadId});
     }catch{setErr("Something went wrong — please try again or email us directly.");}
     setLoading(false);
   };
   const confirmBooking=async()=>{
-    if(!slot)return;
     setBookingLoading(true);
-    try{await fetch("/api/book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({leadId,slot,name:f.name,email:f.email,biz:f.biz})});}catch{}
+    try{await fetch("/api/book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({leadId,name:f.name,email:f.email,biz:f.biz})});}catch{}
+    track("consultation_booked");
     setStep("booked");setBookingLoading(false);
   };
   const generatePlan=async()=>{
@@ -831,7 +834,6 @@ function Contact({isMobile}){
     }catch{setPlan(null);}
     setPlanLoading(false);
   };
-  const slots=getSlots();
   return(
     <section id="contact" style={{padding:isMobile?"80px 24px":"120px 48px",background:W.surface}}>
       <div style={{maxWidth:1160,margin:"0 auto",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?48:80,alignItems:"start"}}>
@@ -905,17 +907,24 @@ function Contact({isMobile}){
                 <div style={{fontSize:18,fontWeight:800,color:W.text,marginBottom:6}}>Book Your Free Consultation</div>
                 <div style={{fontSize:13,color:W.textSub}}>30 minutes — we'll review your numbers and build your recovery plan live.</div>
               </div>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:20}}>
-                {slots.map(s=>(
-                  <button key={s.id} onClick={()=>setSlot(s)} style={{background:slot?.id===s.id?W.accentB:W.surface,border:`1.5px solid ${slot?.id===s.id?W.accent:W.border}`,borderRadius:10,padding:"12px 8px",cursor:"pointer",textAlign:"center",transition:"all .15s"}}>
-                    <div style={{fontSize:11,fontWeight:700,color:slot?.id===s.id?W.accent:W.text,marginBottom:3}}>{s.date}</div>
-                    <div style={{fontSize:11,color:slot?.id===s.id?W.accent:W.textSub}}>{s.time}</div>
-                  </button>
-                ))}
-              </div>
-              {slot&&<button onClick={confirmBooking} disabled={bookingLoading} className="vd-btn" style={{width:"100%",background:W.green,color:"#fff",border:"none",borderRadius:10,padding:14,fontSize:14,fontWeight:700,cursor:"pointer",marginBottom:10,justifyContent:"center"}}>
-                {bookingLoading?"Confirming...":"Confirm — "+slot.date+" at "+slot.time}
-              </button>}
+              {BOOKING_URL?(
+                <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer"
+                  onClick={()=>track("booking_calendar_opened")}
+                  className="vd-btn" style={{display:"flex",background:W.accent,color:"#fff",borderRadius:10,padding:16,fontSize:15,fontWeight:700,textDecoration:"none",justifyContent:"center",marginBottom:16,boxShadow:`0 4px 20px ${W.accentGlow}`}}>
+                  Open Booking Calendar <ArrowRight size={15} style={{marginLeft:6}}/>
+                </a>
+              ):(
+                <div style={{background:W.accentB,border:"1px solid rgba(99,102,241,0.2)",borderRadius:10,padding:"20px 24px",marginBottom:16,textAlign:"center"}}>
+                  <div style={{fontSize:12,fontWeight:700,color:W.textSub,letterSpacing:"0.06em",marginBottom:10}}>CALL TO SCHEDULE</div>
+                  <a href="tel:+14074705992" style={{fontSize:20,fontWeight:800,color:W.accent,textDecoration:"none",display:"block",marginBottom:4}}>(407) 470-5992</a>
+                  <div style={{fontSize:12,color:W.textSub}}>Steve Smith · Managing Member</div>
+                </div>
+              )}
+              <div style={{fontSize:12,color:W.textDim,textAlign:"center",marginBottom:14}}>Once you've selected a time, click below to confirm your spot.</div>
+              <button onClick={confirmBooking} disabled={bookingLoading} className="vd-btn"
+                style={{width:"100%",background:W.greenB,color:W.green,border:`1px solid rgba(16,185,129,0.3)`,borderRadius:10,padding:13,fontSize:14,fontWeight:700,cursor:"pointer",marginBottom:10,justifyContent:"center"}}>
+                {bookingLoading?"Confirming...":"✓ I've Booked My Consultation"}
+              </button>
               <button onClick={()=>setStep("success")} style={{background:"none",border:"none",color:W.textDim,fontSize:13,cursor:"pointer",width:"100%",padding:8}}>← Back</button>
             </div>
           )}
@@ -923,11 +932,7 @@ function Contact({isMobile}){
             <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?28:44,textAlign:"center"}}>
               <div style={{width:56,height:56,borderRadius:"50%",background:W.greenB,border:`1px solid ${W.green}`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}><Calendar size={24} style={{color:W.green}}/></div>
               <div style={{fontSize:20,fontWeight:800,color:W.text,marginBottom:8}}>Consultation Confirmed</div>
-              <div style={{background:W.surface,border:`1px solid ${W.border}`,borderRadius:12,padding:"16px 20px",margin:"16px auto",display:"inline-block"}}>
-                <div style={{fontSize:16,fontWeight:700,color:W.text}}>{slot?.date}</div>
-                <div style={{fontSize:13,color:W.textSub}}>{slot?.time} — 30 minutes</div>
-              </div>
-              <div style={{fontSize:14,color:W.textSub,lineHeight:1.65,marginBottom:20}}>Check your email for confirmation details. We'll send prep notes before the call.</div>
+              <div style={{fontSize:14,color:W.textSub,lineHeight:1.65,marginBottom:20,maxWidth:340,margin:"12px auto 20px"}}>Check your email for confirmation details. We'll send prep notes before the call so we arrive with your numbers ready.</div>
               {calcHint?.annual>0&&<button onClick={generatePlan} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:10,padding:"12px 24px",fontSize:13,fontWeight:600,color:W.text,cursor:"pointer"}}>Generate My Recovery Plan While You Wait</button>}
             </div>
           )}
