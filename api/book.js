@@ -74,9 +74,9 @@ export default async function handler(req) {
     });
   }
 
-  const { leadId, slot, name, email, biz } = body;
-  if (!slot || !email) {
-    return new Response(JSON.stringify({ error: "Slot and email required." }), {
+  const { leadId, name, email, biz } = body;
+  if (!email) {
+    return new Response(JSON.stringify({ error: "Email required." }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
@@ -85,9 +85,9 @@ export default async function handler(req) {
   const bookingId = mkId();
   const ts = new Date().toISOString();
   const firstName = (name || "").split(" ")[0] || "there";
-  const booking = { bookingId, leadId, slot, name, email, biz, timestamp: ts };
+  const booking = { bookingId, leadId, name, email, biz, timestamp: ts };
 
-  console.log(`[book] new booking: ${bookingId} — ${name} | ${slot.date} at ${slot.time}`);
+  console.log(`[book] new booking: ${bookingId} — ${name} | ${email}`);
 
   await kv("LPUSH", "veridian:bookings", JSON.stringify(booking));
   if (leadId) await kv("SET", `veridian:booked:${leadId}`, "1");
@@ -99,16 +99,16 @@ export default async function handler(req) {
       sendEmail(resendKey, {
         from: `Veridian <noreply@${fromDomain}>`,
         to: [toEmail],
-        subject: `Appointment Booked: ${name || "Unknown"} — ${slot.date} at ${slot.time}`,
-        text: `APPOINTMENT BOOKED\nBooking ID: ${bookingId}\nLead ID: ${leadId || "direct"}\n\nClient: ${name || "Unknown"}\nBusiness: ${biz || "(not provided)"}\nEmail: ${email}\n\nSlot: ${slot.date} at ${slot.time} (30 minutes)\n\nAction: Send calendar invite and prep notes to ${email}.`,
+        subject: `Consultation Booked: ${name || "Unknown"} — ${biz || "Unknown Business"}`,
+        text: `CONSULTATION BOOKED\nBooking ID: ${bookingId}\nLead ID: ${leadId || "direct"}\n\nClient: ${name || "Unknown"}\nBusiness: ${biz || "(not provided)"}\nEmail: ${email}\n\nAction: Client booked via external calendar. Send prep notes to ${email}.`,
       }, "team-booking"),
 
       sendEmail(resendKey, {
         from: `Veridian <hello@${fromDomain}>`,
         to: [email],
         reply_to: toEmail,
-        subject: `Consultation Confirmed — ${slot.date} at ${slot.time}`,
-        text: `Hi ${firstName},\n\nYour free consultation is confirmed.\n\nDate: ${slot.date}\nTime: ${slot.time}\nDuration: 30 minutes\n\nWe'll send a calendar invite and prep notes shortly. If you need to reschedule, just reply to this email.\n\nSee you then,\n— The Veridian Team\n${toEmail}`,
+        subject: `Consultation Confirmed — We'll See You Soon`,
+        text: `Hi ${firstName},\n\nYou're confirmed. We've received your booking and we're looking forward to speaking with you.\n\nIn the meantime, if you have any questions or need to reschedule, just reply to this email.\n\nSee you soon,\n— The Veridian Team\n${toEmail}`,
       }, "client-confirm"),
     ]);
   }
