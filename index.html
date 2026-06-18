@@ -24,8 +24,31 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Veridian" />
 
+    <!-- Google Search Console verification — replace content with your GSC verification token -->
+    <meta name="google-site-verification" content="REPLACE_WITH_GSC_VERIFICATION_TOKEN" />
+
     <meta http-equiv="X-DNS-Prefetch-Control" content="off" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!-- Google Analytics GA4 — replace G-XXXXXXXXXX with your Measurement ID -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+
+    <!-- Meta Pixel — replace XXXXXXXXXXXXXXXX with your Pixel ID -->
+    <script>
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init','XXXXXXXXXXXXXXXX');
+      fbq('track','PageView');
+    </script>
 
     <script type="application/ld+json">
     {
@@ -34,7 +57,7 @@
       "name": "Veridian Risk & Resilience Group",
       "description": "Revenue recovery for service businesses. We turn missed calls into booked appointments and recovered revenue.",
       "telephone": "+14074705992",
-      "email": "info@veridianrisk.com",
+      "email": "info@veridianriskgroup.org",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Sanford",
