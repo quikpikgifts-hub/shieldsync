@@ -136,6 +136,37 @@ async function ghlIntegration(crmEntry, annual, calcBlock, fmtAnnual) {
   }
 }
 
+async function supabaseInsert(row) {
+  const url = ((process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/^=+/, "").trim());
+  const key = ((process.env.SUPABASE_SERVICE_ROLE_KEY || "").replace(/^=+/, "").trim());
+  if (!url || !key) {
+    console.warn("[contact] Supabase not configured (missing URL or SERVICE_ROLE_KEY) — skipping DB insert");
+    return { skipped: true };
+  }
+  try {
+    const r = await fetch(`${url}/rest/v1/leads`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": key,
+        "Authorization": `Bearer ${key}`,
+        "Prefer": "return=minimal",
+      },
+      body: JSON.stringify(row),
+    });
+    if (!r.ok) {
+      const msg = await r.text().catch(() => "");
+      console.error(`[contact] Supabase insert FAIL: HTTP ${r.status} —`, msg);
+      return { ok: false, status: r.status, msg };
+    }
+    console.log("[contact] Supabase insert OK");
+    return { ok: true };
+  } catch (err) {
+    console.error("[contact] Supabase insert ERROR:", err?.message || String(err));
+    return { ok: false, error: err?.message };
+  }
+}
+
 export default async function handler(req) {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -158,14 +189,16 @@ export default async function handler(req) {
   const toEmail    = cleanEnv(process.env.TEAM_EMAIL)   || "info@veridianriskgroup.org";
 
   console.log("[contact] ENV:", {
-    RESEND_API_KEY:        resendKey  ? `set (${resendKey.slice(0,6)}…)` : "MISSING",
-    FROM_DOMAIN:           process.env.FROM_DOMAIN           || "NOT SET — using default: veridianriskgroup.org",
-    TEAM_EMAIL:            process.env.TEAM_EMAIL            || "NOT SET — using default: info@veridianriskgroup.org",
-    KV_REST_API_URL:       process.env.KV_REST_API_URL       ? "set" : "MISSING",
-    KV_REST_API_TOKEN:     process.env.KV_REST_API_TOKEN     ? "set" : "MISSING",
-    GOHIGHLEVEL_API_KEY:   process.env.GOHIGHLEVEL_API_KEY   ? "set" : "not set",
-    GOHIGHLEVEL_LOCATION_ID: process.env.GOHIGHLEVEL_LOCATION_ID ? "set" : "not set",
-    CONTACT_WEBHOOK_URL:   process.env.CONTACT_WEBHOOK_URL   ? "set" : "not set",
+    RESEND_API_KEY:           resendKey  ? `set (${resendKey.slice(0,6)}…)` : "MISSING",
+    FROM_DOMAIN:              process.env.FROM_DOMAIN           || "NOT SET — using default: veridianriskgroup.org",
+    TEAM_EMAIL:               process.env.TEAM_EMAIL            || "NOT SET — using default: info@veridianriskgroup.org",
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ? "set" : "MISSING",
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ? "set" : "MISSING",
+    KV_REST_API_URL:          process.env.KV_REST_API_URL       ? "set" : "MISSING",
+    KV_REST_API_TOKEN:        process.env.KV_REST_API_TOKEN     ? "set" : "MISSING",
+    GOHIGHLEVEL_API_KEY:      process.env.GOHIGHLEVEL_API_KEY   ? "set" : "not set",
+    GOHIGHLEVEL_LOCATION_ID:  process.env.GOHIGHLEVEL_LOCATION_ID ? "set" : "not set",
+    CONTACT_WEBHOOK_URL:      process.env.CONTACT_WEBHOOK_URL   ? "set" : "not set",
   });
 
   let body;
@@ -215,6 +248,24 @@ export default async function handler(req) {
   const subjectSuffix = annual > 0 ? ` | Est. ${fmtAnnual(annual)}/yr` : "";
 
   const promises = [];
+
+  // Supabase — insert into public.leads
+  // Column names match a standard leads table; adjust if your schema differs.
+  promises.push(supabaseInsert({
+    lead_id:           leadId,
+    name:              name.trim(),
+    email:             email.trim(),
+    phone:             phone || null,
+    business_name:     biz  || null,
+    challenge:         challenge || null,
+    priority:          p,
+    source:            "veridian-website",
+    annual_potential:  annual || null,
+    calc_data:         calcData || null,
+    recovery_estimate: fmtAnnual(annual) || null,
+    follow_up_trigger: true,
+    created_at:        ts,
+  }));
 
   // KV storage
   promises.push(kv("SET", `veridian:lead:${leadId}`, JSON.stringify(crmEntry)));
