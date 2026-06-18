@@ -30,9 +30,33 @@ function fmtAnnual(n) {
   return n >= 1000 ? `$${(n / 1000).toFixed(1)}K` : `$${n}`;
 }
 
+async function sendEmail(apiKey, payload, label) {
+  console.log(`[contact] send: ${label} → to=${JSON.stringify(payload.to)} from=${payload.from}`);
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      console.error(`[contact] RESEND FAIL: ${label} — HTTP ${r.status} —`, JSON.stringify(data));
+    } else {
+      console.log(`[contact] RESEND OK: ${label} — id=${data.id}`);
+    }
+    return { ok: r.ok, status: r.status, data };
+  } catch (err) {
+    console.error(`[contact] RESEND ERROR: ${label} —`, err?.message || String(err));
+    return { ok: false, error: err?.message };
+  }
+}
+
 async function ghlIntegration(crmEntry, annual, calcBlock, fmtAnnual) {
   const ghlKey = process.env.GOHIGHLEVEL_API_KEY;
-  if (!ghlKey) return;
+  if (!ghlKey) {
+    console.log("[contact] GHL: no GOHIGHLEVEL_API_KEY — skipping");
+    return;
+  }
 
   const { contact, challenge, priority: p, leadId, calcData } = crmEntry;
   const nameParts = contact.name.split(" ");
@@ -60,10 +84,17 @@ async function ghlIntegration(crmEntry, annual, calcBlock, fmtAnnual) {
       body: JSON.stringify(ghlPayload),
     });
     const ghlData = await ghlRes.json();
+    if (!ghlRes.ok) {
+      console.error(`[contact] GHL contact FAIL — HTTP ${ghlRes.status}:`, JSON.stringify(ghlData));
+      return;
+    }
     const contactId = ghlData.contact?.id;
-    if (!contactId) return;
+    if (!contactId) {
+      console.error("[contact] GHL: no contactId in response:", JSON.stringify(ghlData));
+      return;
+    }
+    console.log(`[contact] GHL contact OK — id=${contactId}`);
 
-    // Add note with full recovery data
     const noteText = [
       `VERIDIAN LEAD — ${p} PRIORITY`,
       `Lead ID: ${leadId}`,
@@ -83,7 +114,6 @@ async function ghlIntegration(crmEntry, annual, calcBlock, fmtAnnual) {
       body: JSON.stringify({ body: noteText }),
     });
 
-    // Create pipeline opportunity if configured and lead has value
     const pipelineId = process.env.GOHIGHLEVEL_PIPELINE_ID;
     const stageId = process.env.GOHIGHLEVEL_STAGE_ID;
     if (pipelineId && stageId && annual > 0) {
@@ -95,13 +125,15 @@ async function ghlIntegration(crmEntry, annual, calcBlock, fmtAnnual) {
           pipelineId,
           pipelineStageId: stageId,
           status: "open",
-          monetaryValue: Math.round(annual * 0.1), // ~10% of annual recovery = est. first year fee
+          monetaryValue: Math.round(annual * 0.1),
           contactId,
           source: "Veridian Website",
         }),
       });
     }
-  } catch {}
+  } catch (err) {
+    console.error("[contact] GHL ERROR:", err?.message || String(err));
+  }
 }
 
 export default async function handler(req) {
@@ -118,6 +150,22 @@ export default async function handler(req) {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
+
+  // ── Env var audit ────────────────────────────────────────────
+  const resendKey  = process.env.RESEND_API_KEY;
+  const fromDomain = process.env.FROM_DOMAIN || "veridianrisk.com";
+  const toEmail    = process.env.TEAM_EMAIL   || "info@veridianrisk.com";
+
+  console.log("[contact] ENV:", {
+    RESEND_API_KEY:        resendKey  ? `set (${resendKey.slice(0,6)}…)` : "MISSING",
+    FROM_DOMAIN:           process.env.FROM_DOMAIN           || "NOT SET — using default: veridianrisk.com",
+    TEAM_EMAIL:            process.env.TEAM_EMAIL            || "NOT SET — using default: info@veridianrisk.com",
+    KV_REST_API_URL:       process.env.KV_REST_API_URL       ? "set" : "MISSING",
+    KV_REST_API_TOKEN:     process.env.KV_REST_API_TOKEN     ? "set" : "MISSING",
+    GOHIGHLEVEL_API_KEY:   process.env.GOHIGHLEVEL_API_KEY   ? "set" : "not set",
+    GOHIGHLEVEL_LOCATION_ID: process.env.GOHIGHLEVEL_LOCATION_ID ? "set" : "not set",
+    CONTACT_WEBHOOK_URL:   process.env.CONTACT_WEBHOOK_URL   ? "set" : "not set",
+  });
 
   let body;
   try { body = await req.json(); }
@@ -140,6 +188,8 @@ export default async function handler(req) {
   const p = priority(annual, challenge);
   const firstName = name.trim().split(" ")[0];
 
+  console.log(`[contact] new lead: ${leadId} | priority=${p} | annual=$${annual} | from=${email.trim()}`);
+
   const calcBlock = calcData
     ? [
         `Monthly calls: ${calcData.calls}  |  Miss rate: ${calcData.miss}%  |  Avg value: $${calcData.val}  |  Conv: ${calcData.conv}%`,
@@ -160,30 +210,29 @@ export default async function handler(req) {
     recoveryEstimate: fmtAnnual(annual),
   };
 
-  const resendKey = process.env.RESEND_API_KEY;
   const webhookUrl = process.env.CONTACT_WEBHOOK_URL;
-  const fromDomain = process.env.FROM_DOMAIN || "veridian.io";
-  const toEmail = process.env.TEAM_EMAIL || "hello@veridian.io";
   const subjectSuffix = annual > 0 ? ` | Est. ${fmtAnnual(annual)}/yr` : "";
 
   const promises = [];
 
-  // KV: indexed lead (fast lookup for follow-up engine)
+  // KV storage
   promises.push(kv("SET", `veridian:lead:${leadId}`, JSON.stringify(crmEntry)));
-  // KV: lead list (dashboard)
   promises.push(kv("LPUSH", "veridian:leads", JSON.stringify(crmEntry)));
 
-  // KV: schedule follow-up sequences
+  // KV follow-up queue
   const now = Date.now();
   promises.push(kv("ZADD", "veridian:fu:24h",  String(now + 86400000),   leadId));
   promises.push(kv("ZADD", "veridian:fu:3d",   String(now + 259200000),  leadId));
   promises.push(kv("ZADD", "veridian:fu:7d",   String(now + 604800000),  leadId));
   promises.push(kv("ZADD", "veridian:fu:14d",  String(now + 1209600000), leadId));
 
-  // GHL integration
+  // GHL
   promises.push(ghlIntegration(crmEntry, annual, calcBlock, fmtAnnual));
 
-  if (resendKey) {
+  // Email
+  if (!resendKey) {
+    console.error("[contact] RESEND_API_KEY is missing — no emails will be sent");
+  } else {
     const teamText = `[${p}] NEW LEAD — VERIDIAN\nLead ID: ${leadId}\nSubmitted: ${ts}\n\nCONTACT\nName:     ${name.trim()}\nBusiness: ${biz || "(not provided)"}\nEmail:    ${email.trim()}\nPhone:    ${phone || "(not provided)"}\n\nREVENUE CALCULATOR\n${calcBlock}\n\nCHALLENGE\n${challenge || "(not provided)"}\n\n---\nPriority: ${p} — follow up within 1 business day.`;
 
     const recoveryLine = annual > 0
@@ -193,27 +242,20 @@ export default async function handler(req) {
     const prospectText = `Hi ${firstName},\n\nThanks for reaching out to Veridian.\n\n${recoveryLine}\n\nA member of our team will be in touch within one business day with your personalized revenue recovery assessment.\n\nWhat to expect:\n- Review your business type and call volume\n- Identify your highest-impact recovery opportunities\n- Propose a specific plan with projected outcomes\n\n— The Veridian Team\n${toEmail}`;
 
     promises.push(
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          from: `Veridian <noreply@${fromDomain}>`,
-          to: [toEmail],
-          subject: `[${p}] New lead: ${name.trim()} — ${biz || "Unknown"}${subjectSuffix}`,
-          text: teamText,
-        }),
-      }),
-      fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          from: `Veridian <hello@${fromDomain}>`,
-          to: [email.trim()],
-          reply_to: toEmail,
-          subject: "Your Veridian Revenue Assessment — We're on it",
-          text: prospectText,
-        }),
-      })
+      sendEmail(resendKey, {
+        from: `Veridian <noreply@${fromDomain}>`,
+        to: [toEmail],
+        subject: `[${p}] New lead: ${name.trim()} — ${biz || "Unknown"}${subjectSuffix}`,
+        text: teamText,
+      }, "team-alert"),
+
+      sendEmail(resendKey, {
+        from: `Veridian <hello@${fromDomain}>`,
+        to: [email.trim()],
+        reply_to: toEmail,
+        subject: "Your Veridian Revenue Assessment — We're on it",
+        text: prospectText,
+      }, "prospect-confirm"),
     );
   }
 
@@ -223,11 +265,16 @@ export default async function handler(req) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(crmEntry),
-      })
+      }).catch(err => console.error("[contact] webhook ERROR:", err?.message))
     );
   }
 
-  await Promise.allSettled(promises);
+  const results = await Promise.allSettled(promises);
+  const failed = results.filter(r => r.status === "rejected");
+  if (failed.length > 0) {
+    console.error(`[contact] ${failed.length} promise(s) rejected:`, failed.map(r => r.reason?.message || r.reason));
+  }
+  console.log(`[contact] done — leadId=${leadId} priority=${p}`);
 
   return new Response(JSON.stringify({ success: true, leadId, priority: p }), {
     headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
