@@ -139,10 +139,20 @@ async function ghlIntegration(crmEntry, annual, calcBlock, fmtAnnual) {
 async function supabaseInsert(row) {
   const url = ((process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/^=+/, "").trim());
   const key = ((process.env.SUPABASE_SERVICE_ROLE_KEY || "").replace(/^=+/, "").trim());
+
+  console.log("[supabase] config check:", {
+    url_exists: !!url,
+    key_exists: !!key,
+    url_prefix: url ? url.slice(0, 30) + "…" : "MISSING",
+  });
+
   if (!url || !key) {
-    console.warn("[contact] Supabase not configured (missing URL or SERVICE_ROLE_KEY) — skipping DB insert");
+    console.error("[supabase] ABORT: missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY — row not inserted");
     return { skipped: true };
   }
+
+  console.log("[supabase] inserting payload:", JSON.stringify(row));
+
   try {
     const r = await fetch(`${url}/rest/v1/leads`, {
       method: "POST",
@@ -154,15 +164,20 @@ async function supabaseInsert(row) {
       },
       body: JSON.stringify(row),
     });
+
+    const responseText = await r.text().catch(() => "");
+
+    console.log(`[supabase] HTTP ${r.status} — response: ${responseText || "(empty body)"}`);
+
     if (!r.ok) {
-      const msg = await r.text().catch(() => "");
-      console.error(`[contact] Supabase insert FAIL: HTTP ${r.status} —`, msg);
-      return { ok: false, status: r.status, msg };
+      console.error(`[supabase] INSERT FAILED: HTTP ${r.status} — full response: ${responseText}`);
+      return { ok: false, status: r.status, body: responseText };
     }
-    console.log("[contact] Supabase insert OK");
+
+    console.log("[supabase] INSERT OK");
     return { ok: true };
   } catch (err) {
-    console.error("[contact] Supabase insert ERROR:", err?.message || String(err));
+    console.error("[supabase] FETCH ERROR (network/timeout):", err?.message || String(err));
     return { ok: false, error: err?.message };
   }
 }
