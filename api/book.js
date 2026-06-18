@@ -53,9 +53,10 @@ export default async function handler(req) {
     return new Response("Method not allowed", { status: 405 });
   }
 
+  const cleanEnv = v => (v || "").replace(/^=+/, "").trim();
   const resendKey  = process.env.RESEND_API_KEY;
-  const toEmail    = process.env.TEAM_EMAIL   || "info@veridianriskgroup.org";
-  const fromDomain = process.env.FROM_DOMAIN  || "veridianriskgroup.org";
+  const toEmail    = cleanEnv(process.env.TEAM_EMAIL)   || "info@veridianriskgroup.org";
+  const fromDomain = cleanEnv(process.env.FROM_DOMAIN)  || "veridianriskgroup.org";
 
   console.log("[book] ENV:", {
     RESEND_API_KEY:  resendKey ? `set (${resendKey.slice(0,6)}…)` : "MISSING",

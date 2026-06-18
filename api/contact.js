@@ -152,9 +152,10 @@ export default async function handler(req) {
   }
 
   // ── Env var audit ────────────────────────────────────────────
+  const cleanEnv = v => (v || "").replace(/^=+/, "").trim();
   const resendKey  = process.env.RESEND_API_KEY;
-  const fromDomain = process.env.FROM_DOMAIN || "veridianriskgroup.org";
-  const toEmail    = process.env.TEAM_EMAIL   || "info@veridianriskgroup.org";
+  const fromDomain = cleanEnv(process.env.FROM_DOMAIN) || "veridianriskgroup.org";
+  const toEmail    = cleanEnv(process.env.TEAM_EMAIL)   || "info@veridianriskgroup.org";
 
   console.log("[contact] ENV:", {
     RESEND_API_KEY:        resendKey  ? `set (${resendKey.slice(0,6)}…)` : "MISSING",
