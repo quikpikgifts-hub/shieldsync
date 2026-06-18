@@ -137,22 +137,38 @@ async function ghlIntegration(crmEntry, annual, calcBlock, fmtAnnual) {
 }
 
 async function supabaseInsert(row) {
-  const url = ((process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/^=+/, "").trim());
-  const key = ((process.env.SUPABASE_SERVICE_ROLE_KEY || "").replace(/^=+/, "").trim());
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  const rawKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  const url = rawUrl.replace(/^=+/, "").trim();
+  const key = rawKey.replace(/^=+/, "").trim();
 
-  console.log("[supabase] config check:", {
-    url_exists: !!url,
-    key_exists: !!key,
-    url_prefix: url ? url.slice(0, 30) + "…" : "MISSING",
-  });
+  // Hard diagnostic — every value logged
+  console.log("[supabase] === DIAGNOSTIC START ===");
+  console.log("[supabase] raw URL length:", rawUrl.length, "| cleaned:", url ? url.slice(0, 60) : "EMPTY");
+  console.log("[supabase] raw KEY length:", rawKey.length, "| prefix:", key ? key.slice(0, 20) + "..." : "EMPTY");
+  console.log("[supabase] payload keys:", Object.keys(row).join(", "));
+  console.log("[supabase] payload:", JSON.stringify(row));
 
   if (!url || !key) {
-    console.error("[supabase] ABORT: missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY — row not inserted");
+    console.error("[supabase] ABORT — env vars missing or empty after cleaning");
     return { skipped: true };
   }
 
-  console.log("[supabase] inserting payload:", JSON.stringify(row));
+  // Step 1: schema probe — confirm table exists, RLS allows service_role read
+  try {
+    const probeRes = await fetch(`${url}/rest/v1/leads?select=*&limit=0`, {
+      headers: { "apikey": key, "Authorization": `Bearer ${key}`, "Accept": "application/json" },
+    });
+    const probeBody = await probeRes.text().catch(() => "");
+    console.log(`[supabase] schema probe HTTP ${probeRes.status} — body: ${probeBody || "(empty)"}`);
+    const probeHeaders = {};
+    probeRes.headers.forEach((v, k) => { probeHeaders[k] = v; });
+    console.log("[supabase] schema probe headers:", JSON.stringify(probeHeaders));
+  } catch (err) {
+    console.error("[supabase] schema probe ERROR:", err?.message || String(err));
+  }
 
+  // Step 2: insert — return=representation gives back the full inserted row (or detailed error)
   try {
     const r = await fetch(`${url}/rest/v1/leads`, {
       method: "POST",
@@ -160,24 +176,24 @@ async function supabaseInsert(row) {
         "Content-Type": "application/json",
         "apikey": key,
         "Authorization": `Bearer ${key}`,
-        "Prefer": "return=minimal",
+        "Prefer": "return=representation",
       },
       body: JSON.stringify(row),
     });
 
-    const responseText = await r.text().catch(() => "");
-
-    console.log(`[supabase] HTTP ${r.status} — response: ${responseText || "(empty body)"}`);
+    const responseBody = await r.text().catch(() => "");
+    console.log(`[supabase] INSERT HTTP ${r.status}`);
+    console.log(`[supabase] INSERT response body: ${responseBody || "(empty)"}`);
 
     if (!r.ok) {
-      console.error(`[supabase] INSERT FAILED: HTTP ${r.status} — full response: ${responseText}`);
-      return { ok: false, status: r.status, body: responseText };
+      console.error(`[supabase] INSERT FAILED — HTTP ${r.status} — ${responseBody}`);
+      return { ok: false, status: r.status, body: responseBody };
     }
 
-    console.log("[supabase] INSERT OK");
-    return { ok: true };
+    console.log("[supabase] INSERT OK — returned row:", responseBody);
+    return { ok: true, data: responseBody };
   } catch (err) {
-    console.error("[supabase] FETCH ERROR (network/timeout):", err?.message || String(err));
+    console.error("[supabase] INSERT EXCEPTION:", err?.message || String(err));
     return { ok: false, error: err?.message };
   }
 }
@@ -262,10 +278,8 @@ export default async function handler(req) {
   const webhookUrl = process.env.CONTACT_WEBHOOK_URL;
   const subjectSuffix = annual > 0 ? ` | Est. ${fmtAnnual(annual)}/yr` : "";
 
-  const promises = [];
-
-  // Supabase — insert into public.leads
-  promises.push(supabaseInsert({
+  // Supabase — awaited separately so the result is always captured in logs
+  const sbResult = await supabaseInsert({
     lead_id:   leadId,
     name:      name.trim(),
     business:  biz || null,
@@ -277,8 +291,10 @@ export default async function handler(req) {
     notes:     calcData
       ? `Recovery: ${fmtAnnual(annual) || "N/A"} | Calls/mo: ${calcData.calls} | Miss rate: ${calcData.miss}% | Avg value: $${calcData.val} | Conv: ${calcData.conv}%`
       : null,
-    created_at: ts,
-  }));
+  });
+  console.log("[contact] supabase result:", JSON.stringify(sbResult));
+
+  const promises = [];
 
   // KV storage
   promises.push(kv("SET", `veridian:lead:${leadId}`, JSON.stringify(crmEntry)));
