@@ -57,8 +57,8 @@ export default async function handler(req) {
   const ts = new Date().toISOString();
   const firstName = (name || "").trim().split(" ")[0] || "there";
   const resendKey = process.env.RESEND_API_KEY;
-  const toEmail = process.env.TEAM_EMAIL || "info@veridianrisk.com";
-  const fromDomain = process.env.FROM_DOMAIN || "veridianrisk.com";
+  const toEmail = process.env.TEAM_EMAIL || "info@veridianriskgroup.org";
+  const fromDomain = process.env.FROM_DOMAIN || "veridianriskgroup.org";
   const bookingUrl = process.env.BOOKING_URL || `https://${fromDomain}/#contact`;
 
   const priority = (overallPct || 100) < 40 ? "HOT" : (overallPct || 100) < 60 ? "HIGH" : (overallPct || 100) < 80 ? "MEDIUM" : "LOW";

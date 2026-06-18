@@ -207,7 +207,7 @@ function WebFooter({isMobile}){
           <a href="tel:+14074705992" className="vd-lk" style={{...lk,color:W.text,fontWeight:600}}>(407) 470-5992</a>
           <div style={{fontSize:12,color:W.textDim,marginBottom:4,marginTop:8}}>Skeeter · Director of Operations</div>
           <a href="tel:+16892485965" className="vd-lk" style={{...lk,color:W.text,fontWeight:600}}>(689) 248-5965</a>
-          <a href="mailto:info@veridianrisk.com" className="vd-lk" style={{...lk,marginTop:8}}>info@veridianrisk.com</a>
+          <a href="mailto:info@veridianriskgroup.org" className="vd-lk" style={{...lk,marginTop:8}}>info@veridianriskgroup.org</a>
         </div>
       </div>
       <div style={{borderTop:`1px solid ${W.border}`,padding:isMobile?"16px 24px":"14px 48px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>

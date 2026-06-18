@@ -153,13 +153,13 @@ export default async function handler(req) {
 
   // ── Env var audit ────────────────────────────────────────────
   const resendKey  = process.env.RESEND_API_KEY;
-  const fromDomain = process.env.FROM_DOMAIN || "veridianrisk.com";
-  const toEmail    = process.env.TEAM_EMAIL   || "info@veridianrisk.com";
+  const fromDomain = process.env.FROM_DOMAIN || "veridianriskgroup.org";
+  const toEmail    = process.env.TEAM_EMAIL   || "info@veridianriskgroup.org";
 
   console.log("[contact] ENV:", {
     RESEND_API_KEY:        resendKey  ? `set (${resendKey.slice(0,6)}…)` : "MISSING",
-    FROM_DOMAIN:           process.env.FROM_DOMAIN           || "NOT SET — using default: veridianrisk.com",
-    TEAM_EMAIL:            process.env.TEAM_EMAIL            || "NOT SET — using default: info@veridianrisk.com",
+    FROM_DOMAIN:           process.env.FROM_DOMAIN           || "NOT SET — using default: veridianriskgroup.org",
+    TEAM_EMAIL:            process.env.TEAM_EMAIL            || "NOT SET — using default: info@veridianriskgroup.org",
     KV_REST_API_URL:       process.env.KV_REST_API_URL       ? "set" : "MISSING",
     KV_REST_API_TOKEN:     process.env.KV_REST_API_TOKEN     ? "set" : "MISSING",
     GOHIGHLEVEL_API_KEY:   process.env.GOHIGHLEVEL_API_KEY   ? "set" : "not set",
