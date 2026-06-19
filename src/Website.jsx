@@ -823,12 +823,29 @@ function Contact({isMobile}){
   };
   const confirmBooking=async()=>{
     setBookingLoading(true);
+    const payload={leadId,name:f.name,email:f.email,biz:f.biz,phone:f.phone};
+    console.log("[confirmBooking] payload →",JSON.stringify(payload));
+    let dbResult=null;
     try{
-      const r=await fetch("/api/book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({leadId,name:f.name,email:f.email,biz:f.biz,phone:f.phone})});
-      if(!r.ok){const t=await r.text().catch(()=>"");console.error("[confirmBooking] server error",r.status,t);}
-    }catch(err){console.error("[confirmBooking] network error",err?.message);}
-    track("consultation_booked");
-    setStep("booked");setBookingLoading(false);
+      const r=await fetch("/api/book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+      let data={};
+      try{data=await r.json();}catch(e){console.warn("[confirmBooking] could not parse response JSON",e);}
+      dbResult={http:r.status,bookingInserted:data.bookingInserted,bookingId:data.bookingId,bookingStatus:data.bookingStatus,bookingBody:data.bookingBody,error:data.error};
+      console.log("[confirmBooking] response →",JSON.stringify(dbResult));
+      if(!r.ok){
+        console.error("[confirmBooking] HTTP error",r.status,data.error||"");
+      }else if(data.bookingInserted!==true){
+        console.error("[confirmBooking] NOT inserted — bookingStatus:",data.bookingStatus,"bookingBody:",data.bookingBody);
+      }else{
+        console.log("[confirmBooking] ✓ saved — bookingId:",data.bookingId);
+      }
+    }catch(err){
+      console.error("[confirmBooking] network error",err?.message);
+      dbResult={error:err?.message};
+    }
+    track("consultation_booked",{bookingId:dbResult?.bookingId,inserted:dbResult?.bookingInserted});
+    setStep("booked");
+    setBookingLoading(false);
   };
   const generatePlan=async()=>{
     setStep("plan");setPlanLoading(true);
