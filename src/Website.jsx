@@ -116,13 +116,28 @@ function FormField({label,value,onChange,type="text",placeholder="",autoComplete
 // CHAT WIDGET — AI CONCIERGE
 // ─────────────────────────────────────────────────────────────
 function ChatWidget(){
+  const GREETING="Hi, I'm Alex from Veridian.\n\nIf your business is missing calls, leads, appointments, or revenue opportunities, tell me what's happening and I'll show you how much revenue may be leaking.";
   const[open,setOpen]=useState(false);
-  const[msgs,setMsgs]=useState([{role:"assistant",content:"Hi! I'm Alex, your Veridian AI Front Desk. What's your biggest revenue challenge right now?"}]);
+  const[msgs,setMsgs]=useState([{role:"assistant",content:GREETING}]);
   const[input,setInput]=useState("");
   const[loading,setLoading]=useState(false);
-  const[showBook,setShowBook]=useState(false);
+  const[showCapture,setShowCapture]=useState(false);
+  const[captured,setCaptured]=useState(false);
+  const[lead,setLead]=useState({name:"",biz:"",email:"",phone:"",challenge:""});
+  const[submitting,setSubmitting]=useState(false);
   const bottomRef=useRef(null);
-  useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:"smooth"});},[msgs]);
+  useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:"smooth"});},[msgs,showCapture]);
+  const msgCount=msgs.filter(m=>m.role==="user").length;
+  const submitLead=async()=>{
+    if(!lead.email||submitting)return;
+    setSubmitting(true);
+    try{
+      await fetch("/api/contact",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:lead.name,email:lead.email,phone:lead.phone,biz:lead.biz,challenge:lead.challenge||msgs.filter(m=>m.role==="user").map(m=>m.content).join(" / ").slice(0,300)})});
+    }catch{}
+    setSubmitting(false);
+    setCaptured(true);
+    setMsgs(m=>[...m,{role:"assistant",content:`Perfect, ${lead.name?lead.name.split(" ")[0]:"I've"} got your details. A Veridian advisor will reach out within 1 business day with your personalized revenue recovery assessment.\n\nReady to move faster? Book your free consultation now.`}]);
+  };
   const send=async e=>{
     if(e)e.preventDefault();
     const msg=input.trim();
@@ -136,18 +151,19 @@ function ChatWidget(){
       const d=await r.json();
       const reply=d.reply||"I'd love to help — what's your biggest revenue challenge?";
       setMsgs(m=>[...m,{role:"assistant",content:reply}]);
-      if(reply.toLowerCase().includes("book")||reply.toLowerCase().includes("assessment")||reply.toLowerCase().includes("consultation"))setShowBook(true);
+      if(!showCapture&&!captured&&msgCount>=2){setShowCapture(true);}
     }catch{
       setMsgs(m=>[...m,{role:"assistant",content:"Connection issue. Please use the contact form below — we respond within 1 business day."}]);
     }
     setLoading(false);
   };
   const handleKey=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}};
+  const ld=(k,v)=>setLead(l=>({...l,[k]:v}));
   return(
     <>
       {open&&(
-        <div style={{position:"fixed",bottom:88,right:20,zIndex:400,width:340,maxHeight:520,background:W.card,border:`1px solid ${W.borderH}`,borderRadius:20,display:"flex",flexDirection:"column",boxShadow:"0 24px 80px rgba(0,0,0,.7)",animation:"fadeUp .2s ease"}}>
-          <div style={{padding:"14px 18px",borderBottom:`1px solid ${W.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div style={{position:"fixed",bottom:88,right:20,zIndex:400,width:340,maxHeight:580,background:W.card,border:`1px solid ${W.borderH}`,borderRadius:20,display:"flex",flexDirection:"column",boxShadow:"0 24px 80px rgba(0,0,0,.7)",animation:"fadeUp .2s ease"}}>
+          <div style={{padding:"14px 18px",borderBottom:`1px solid ${W.border}`,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
               <div style={{width:32,height:32,borderRadius:"50%",background:`linear-gradient(135deg,${W.accent},${W.accentH})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Bot size={16} style={{color:"#fff"}}/></div>
               <div>
@@ -160,20 +176,33 @@ function ChatWidget(){
           <div style={{flex:1,overflowY:"auto",padding:"14px 16px",display:"flex",flexDirection:"column",gap:10}}>
             {msgs.map((m,i)=>(
               <div key={i} style={{display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start"}}>
-                <div style={{maxWidth:"82%",padding:"10px 14px",borderRadius:m.role==="user"?"14px 14px 4px 14px":"14px 14px 14px 4px",background:m.role==="user"?W.accent:W.surface,color:W.text,fontSize:13,lineHeight:1.55}}>{m.content}</div>
+                <div style={{maxWidth:"84%",padding:"10px 14px",borderRadius:m.role==="user"?"14px 14px 4px 14px":"14px 14px 14px 4px",background:m.role==="user"?W.accent:W.surface,color:W.text,fontSize:13,lineHeight:1.55,whiteSpace:"pre-wrap"}}>{m.content}</div>
               </div>
             ))}
             {loading&&<div style={{display:"flex",justifyContent:"flex-start"}}><div style={{padding:"10px 14px",borderRadius:"14px 14px 14px 4px",background:W.surface,display:"flex",gap:5,alignItems:"center"}}><div style={{width:6,height:6,borderRadius:"50%",background:W.textDim,animation:"pulse 1s infinite"}}/><div style={{width:6,height:6,borderRadius:"50%",background:W.textDim,animation:"pulse 1s infinite .2s"}}/><div style={{width:6,height:6,borderRadius:"50%",background:W.textDim,animation:"pulse 1s infinite .4s"}}/></div></div>}
+            {showCapture&&!captured&&(
+              <div style={{background:W.surface,border:`1px solid ${W.accent}44`,borderRadius:14,padding:14,marginTop:4}}>
+                <div style={{fontSize:12,fontWeight:700,color:W.accent,marginBottom:10,letterSpacing:"0.05em"}}>GET YOUR FREE ASSESSMENT</div>
+                {[["name","Your name","text"],["biz","Business name","text"],["email","Email address","email"],["phone","Phone (optional)","tel"]].map(([k,ph,t])=>(
+                  <input key={k} type={t} placeholder={ph} value={lead[k]} onChange={e=>ld(k,e.target.value)}
+                    style={{width:"100%",background:W.card,border:`1px solid ${W.border}`,borderRadius:8,padding:"9px 12px",color:W.text,fontSize:12,outline:"none",marginBottom:8}}/>
+                ))}
+                <button onClick={submitLead} disabled={!lead.email||submitting} style={{width:"100%",background:W.accent,border:"none",borderRadius:8,padding:"10px",fontSize:13,fontWeight:700,color:"#fff",cursor:!lead.email||submitting?"not-allowed":"pointer",opacity:!lead.email||submitting?0.5:1}}>
+                  {submitting?"Sending...":"Send My Assessment Request"}
+                </button>
+              </div>
+            )}
+            {captured&&(
+              <div style={{padding:"10px 14px",background:W.greenB,border:`1px solid ${W.green}44`,borderRadius:12,textAlign:"center"}}>
+                <div style={{fontSize:13,color:W.green,fontWeight:700,marginBottom:6}}>✓ We'll be in touch within 1 business day</div>
+                <a href="#contact" onClick={()=>setOpen(false)} style={{fontSize:12,color:W.accent,textDecoration:"none",fontWeight:600}}>Book a call instead →</a>
+              </div>
+            )}
             <div ref={bottomRef}/>
           </div>
-          {showBook&&(
-            <div style={{padding:"0 14px 10px"}}>
-              <a href="#contact" onClick={()=>setOpen(false)} style={{display:"block",background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",borderRadius:10,padding:"10px 14px",fontSize:13,fontWeight:700,textDecoration:"none",textAlign:"center"}}>Book My Free Assessment →</a>
-            </div>
-          )}
-          <form onSubmit={send} style={{padding:"10px 12px",borderTop:`1px solid ${W.border}`,display:"flex",gap:8,alignItems:"center"}}>
-            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={handleKey} placeholder="Ask anything..." style={{flex:1,background:W.surface,border:`1px solid ${W.border}`,borderRadius:10,padding:"9px 12px",color:W.text,fontSize:13,outline:"none"}}/>
-            <button type="submit" disabled={loading||!input.trim()} style={{background:W.accent,border:"none",borderRadius:10,width:36,height:36,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",opacity:!input.trim()||loading?0.4:1}}><Send size={14} style={{color:"#fff"}}/></button>
+          <form onSubmit={send} style={{padding:"10px 12px",borderTop:`1px solid ${W.border}`,display:"flex",gap:8,alignItems:"center",flexShrink:0}}>
+            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={handleKey} placeholder="Describe your challenge..." style={{flex:1,background:W.surface,border:`1px solid ${W.border}`,borderRadius:10,padding:"9px 12px",color:W.text,fontSize:13,outline:"none"}}/>
+            <button type="submit" disabled={loading||!input.trim()} style={{background:W.accent,border:"none",borderRadius:10,width:36,height:36,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",opacity:!input.trim()||loading?0.4:1,flexShrink:0}}><Send size={14} style={{color:"#fff"}}/></button>
           </form>
         </div>
       )}
@@ -660,17 +689,111 @@ function Results({isMobile}){
 }
 
 // ─────────────────────────────────────────────────────────────
+// MISSED CALL TEXT RECOVERY
+// ─────────────────────────────────────────────────────────────
+function MissedCallTextRecovery({isMobile}){
+  const ref=useRef(null);
+  const inView=useInView(ref);
+  const steps=[
+    {n:"01",label:"Prospect Calls",body:"A potential customer dials your number looking for your service.",icon:Phone,color:"#3B82F6"},
+    {n:"02",label:"Call Is Missed",body:"Your team is on a job, in a meeting, or after hours. The call goes unanswered.",icon:X,color:W.red},
+    {n:"03",label:"Instant Text Sent",body:"In under 60 seconds, Veridian sends a professional text response on your behalf.",icon:MessageSquare,color:W.accent},
+    {n:"04",label:"Prospect Replies",body:"The prospect engages. Veridian qualifies the opportunity and captures their information.",icon:MessageSquare,color:"#8B5CF6"},
+    {n:"05",label:"Appointment Booked",body:"The qualified lead is automatically scheduled into your calendar. No staff required.",icon:Calendar,color:W.green},
+    {n:"06",label:"Revenue Recovered",body:"The job is booked. The revenue that was about to be lost — is now yours.",icon:CheckCircle,color:W.green},
+  ];
+  const benefits=["Respond in under 60 seconds","Capture lost opportunities","Book more appointments","Recover missed revenue","24/7 availability — nights, weekends, holidays"];
+  const roi=[
+    {biz:"HVAC Contractor",calls:80,miss:40,recovery:"$67K",period:"/year"},
+    {biz:"Plumbing Company",calls:120,miss:35,recovery:"$89K",period:"/year"},
+    {biz:"Medical Practice",calls:200,miss:25,recovery:"$102K",period:"/year"},
+    {biz:"Law Firm",calls:60,miss:40,recovery:"$148K",period:"/year"},
+  ];
+  return(
+    <section id="missed-call-recovery" style={{padding:isMobile?"80px 24px":"120px 48px",background:W.surface,borderTop:`1px solid ${W.border}`}}>
+      <div style={{maxWidth:1160,margin:"0 auto"}} ref={ref}>
+        {/* Hero block */}
+        <div style={{textAlign:"center",marginBottom:isMobile?56:80}}>
+          <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(99,102,241,0.08)",border:"1px solid rgba(99,102,241,0.2)",borderRadius:100,padding:"5px 16px",marginBottom:24}}>
+            <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
+            <span style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em"}}>MISSED CALL TEXT RECOVERY™</span>
+          </div>
+          <h2 style={{fontSize:isMobile?"34px":"56px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:20}}>
+            Every Missed Call Gets an<br/>
+            <span style={{background:`linear-gradient(135deg,${W.accent},#10B981)`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Instant Text Response.</span>
+          </h2>
+          <p style={{fontSize:isMobile?"16px":"20px",color:W.textSub,lineHeight:1.65,maxWidth:600,margin:"0 auto 32px"}}>
+            When a prospect calls and nobody answers, Veridian immediately sends a text, captures the lead, qualifies the opportunity, and books the appointment automatically.
+          </p>
+          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:12,marginBottom:40}}>
+            {benefits.map((b,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:8,background:W.card,border:`1px solid ${W.border}`,borderRadius:100,padding:"8px 16px"}}>
+                <Check size={12} style={{color:W.green,flexShrink:0}}/>
+                <span style={{fontSize:13,color:W.text,fontWeight:500}}>{b}</span>
+              </div>
+            ))}
+          </div>
+          <a href="#contact" className="vd-btn" style={{background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",padding:isMobile?"14px 28px":"16px 36px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:700,boxShadow:`0 4px 20px ${W.accentGlow}`,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:8}}>
+            Start Recovering Missed Revenue <ArrowRight size={16}/>
+          </a>
+        </div>
+        {/* 6-step flow */}
+        <div style={{marginBottom:isMobile?56:80}}>
+          <div style={{textAlign:"center",marginBottom:isMobile?32:48}}>
+            <SLabel>HOW IT WORKS</SLabel>
+            <h3 style={{fontSize:isMobile?"26px":"36px",fontWeight:900,color:W.text,letterSpacing:"-0.03em"}}>From missed call to booked appointment in minutes.</h3>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(6,1fr)",gap:isMobile?12:16,position:"relative"}}>
+            {steps.map((s,i)=>{
+              const Icon=s.icon;
+              return(
+                <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${i===2||i===4?s.color+"44":W.border}`,borderRadius:16,padding:isMobile?16:20,textAlign:"center",animation:inView?`fadeUp .4s ease ${i*0.08}s both`:"none",position:"relative"}}>
+                  <div style={{width:40,height:40,borderRadius:"50%",background:`${s.color}14`,border:`1.5px solid ${s.color}44`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 12px"}}>
+                    <Icon size={16} style={{color:s.color}}/>
+                  </div>
+                  <div style={{fontSize:10,fontWeight:700,color:W.textDim,letterSpacing:"0.08em",marginBottom:6}}>{s.n}</div>
+                  <div style={{fontSize:12,fontWeight:700,color:W.text,marginBottom:6,lineHeight:1.3}}>{s.label}</div>
+                  <div style={{fontSize:11,color:W.textSub,lineHeight:1.5}}>{s.body}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        {/* ROI examples */}
+        <div>
+          <div style={{textAlign:"center",marginBottom:isMobile?28:40}}>
+            <SLabel>ROI EXAMPLES</SLabel>
+            <h3 style={{fontSize:isMobile?"24px":"32px",fontWeight:900,color:W.text,letterSpacing:"-0.03em",marginBottom:8}}>What recovery looks like for businesses like yours.</h3>
+            <p style={{fontSize:14,color:W.textSub}}>Based on 68% recovery rate applied to representative call volumes. Actual results vary.</p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:14}}>
+            {roi.map((r,i)=>(
+              <div key={i} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?18:24,textAlign:"center"}}>
+                <div style={{fontSize:11,fontWeight:700,color:W.textDim,letterSpacing:"0.06em",marginBottom:12}}>{r.biz.toUpperCase()}</div>
+                <div style={{fontSize:isMobile?"28px":"36px",fontWeight:900,color:W.green,letterSpacing:"-0.04em",lineHeight:1,marginBottom:4}}>{r.recovery}</div>
+                <div style={{fontSize:12,color:W.textDim,marginBottom:12}}>{r.period} recovered</div>
+                <div style={{fontSize:11,color:W.textSub}}>{r.calls} calls/mo · {r.miss}% miss rate</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
 // PROGRAM OFFER
 // ─────────────────────────────────────────────────────────────
 function ProgramOffer({isMobile}){
   const ref=useRef(null);
   const inView=useInView(ref);
   const features=[
-    {t:"Missed Call Recovery",b:"Every unanswered call gets an immediate professional response within 60 seconds — before the caller reaches a competitor."},
-    {t:"Customer Follow-Up",b:"Systematic outreach sequences that keep every prospect engaged until they book or explicitly opt out."},
-    {t:"Appointment Recovery",b:"Every no-show and cancelled slot is re-engaged automatically with a new scheduling offer."},
-    {t:"Lead Re-Engagement",b:"Dormant prospects are recontacted with a relevant, personalized offer — turning old leads into new revenue."},
-    {t:"Revenue Tracking",b:"Monthly reports showing exactly what was recovered — in dollars, before and after Veridian."},
+    {t:"Missed Call Text Recovery™",b:"Every unanswered call gets an immediate professional text response within 60 seconds — before the caller reaches a competitor."},
+    {t:"AI Front Desk (Voice + Chat)",b:"Inbound calls answered by your AI receptionist. Website visitors engaged by your AI chat concierge. Every channel covered."},
+    {t:"SMS Concierge",b:"Automated SMS nurture sequences keep every prospect engaged until they book or explicitly opt out."},
+    {t:"Appointment Booking",b:"Leads are automatically qualified and scheduled into your calendar. No staff involvement required."},
+    {t:"Revenue Dashboard",b:"Track every lead, booking, and recovery opportunity in one PIN-protected dashboard."},
   ];
   return(
     <section style={{padding:isMobile?"80px 24px":"120px 48px",background:W.bg}}>
@@ -679,13 +802,18 @@ function ProgramOffer({isMobile}){
           <div style={{animation:inView?`fadeUp .5s ease both`:"none"}}>
             <SLabel>ONE PROGRAM. ONE OUTCOME.</SLabel>
             <h2 style={{fontSize:isMobile?"34px":"52px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:20}}>
-              Veridian Revenue<br/>
-              <span style={{background:`linear-gradient(135deg,${W.accent},${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Recovery Program™</span>
+              Veridian 24/7<br/>
+              <span style={{background:`linear-gradient(135deg,${W.accent},${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Revenue Front Desk™</span>
             </h2>
-            <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,lineHeight:1.72,marginBottom:32,maxWidth:400}}>Everything needed to capture and convert missed calls into revenue — in one program, with one team, for one outcome.</p>
-            <a href="#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?"14px 28px":"16px 36px",borderRadius:10,fontSize:16,fontWeight:700,boxShadow:`0 4px 20px ${W.accentGlow}`}}>
-              Start My Recovery Program <ArrowRight size={16}/>
-            </a>
+            <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,lineHeight:1.72,marginBottom:32,maxWidth:400}}>Every channel. Every lead. Every opportunity — captured, qualified, and booked automatically.</p>
+            <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+              <a href="#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?"14px 28px":"16px 36px",borderRadius:10,fontSize:16,fontWeight:700,boxShadow:`0 4px 20px ${W.accentGlow}`}}>
+                Start My Program <ArrowRight size={16}/>
+              </a>
+              <a href="/pricing" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 20px":"15px 28px",borderRadius:10,fontSize:15,fontWeight:600,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:8}}>
+                See Pricing <ChevronRight size={15}/>
+              </a>
+            </div>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             {features.map((f,i)=>(
@@ -1076,6 +1204,7 @@ function Homepage({isMobile}){
       <BeforeAfter isMobile={isMobile}/>
       <Calculator isMobile={isMobile}/>
       <HowItWorks isMobile={isMobile}/>
+      <MissedCallTextRecovery isMobile={isMobile}/>
       <ProgramOffer isMobile={isMobile}/>
       <Industries isMobile={isMobile}/>
       <Results isMobile={isMobile}/>
@@ -1266,16 +1395,55 @@ function IndustryPage({sector,isMobile}){
 // ─────────────────────────────────────────────────────────────
 function PricingPage({isMobile}){
   const plans=[
-    {name:"Starter",price:497,badge:null,sub:"For solo operators and small teams ready to stop losing leads",color:W.textSub,features:["AI Website Chat Concierge","Lead capture & CRM pipeline","Email follow-up (24h, 3d, 7d, 14d)","Pipeline dashboard","Up to 200 leads/mo","Email support"]},
-    {name:"Professional",price:997,badge:"MOST POPULAR",sub:"For established businesses serious about revenue recovery",color:W.accent,features:["Everything in Starter","AI Voice Receptionist (inbound)","SMS missed-call text-back","SMS nurture campaigns","Appointment booking automation","Advanced analytics & reporting","Up to 1,000 leads/mo","Priority support"]},
-    {name:"Enterprise",price:1997,badge:"BEST VALUE",sub:"For high-volume operations with custom requirements",color:W.amber,features:["Everything in Professional","Custom AI voice persona & name","Unlimited leads","CRM integrations (GHL, HubSpot)","Dedicated success manager","Revenue guarantee","White-label available","Custom onboarding & training"]},
+    {
+      name:"Starter",price:497,setup:500,badge:null,
+      sub:"For solo operators and small teams ready to stop losing leads",
+      color:W.textSub,
+      features:[
+        "Missed Call Text Recovery™",
+        "Lead capture & CRM pipeline",
+        "Booking automation",
+        "Revenue dashboard",
+        "Email follow-up sequences (24h, 3d, 7d, 14d)",
+        "Up to 200 leads/month",
+        "Email support",
+      ],
+    },
+    {
+      name:"Professional",price:997,setup:1000,badge:"MOST POPULAR",
+      sub:"For established businesses serious about revenue recovery",
+      color:W.accent,
+      features:[
+        "Everything in Starter",
+        "AI Front Desk (voice + inbound calls)",
+        "SMS Concierge & nurture campaigns",
+        "Website Chat Concierge (Alex AI)",
+        "Advanced analytics & reporting",
+        "Up to 1,000 leads/month",
+        "Priority support",
+      ],
+    },
+    {
+      name:"Enterprise",price:1997,setup:2500,badge:"BEST VALUE",
+      sub:"For multi-location operations with custom requirements",
+      color:W.amber,
+      features:[
+        "Everything in Professional",
+        "Multi-location management",
+        "Advanced automation workflows",
+        "Custom AI persona & voice",
+        "CRM integrations (GHL, HubSpot)",
+        "Dedicated success manager",
+        "Priority support",
+      ],
+    },
   ];
   return(
     <div style={{minHeight:"100vh",background:W.bg,paddingTop:80}}>
       <div style={{maxWidth:1100,margin:"0 auto",padding:isMobile?"60px 24px 80px":"80px 48px 100px",textAlign:"center"}}>
         <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.12em",marginBottom:16}}>PRICING</div>
         <h1 style={{fontSize:isMobile?32:48,fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.1,marginBottom:16}}>Revenue recovery, fully managed</h1>
-        <p style={{fontSize:isMobile?15:18,color:W.textSub,lineHeight:1.7,maxWidth:580,margin:"0 auto 56px"}}>No setup fees. No long-term contracts. Cancel anytime. Every plan starts with a free Revenue Recovery Assessment.</p>
+        <p style={{fontSize:isMobile?15:18,color:W.textSub,lineHeight:1.7,maxWidth:580,margin:"0 auto 56px"}}>No long-term contracts. Cancel anytime. Every plan starts with a free Revenue Recovery Assessment.</p>
         <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"repeat(3,1fr)",gap:20,textAlign:"left"}}>
           {plans.map((p,i)=>(
             <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${i===1?p.color:W.border}`,borderRadius:20,padding:"28px 26px",position:"relative",boxShadow:i===1?`0 0 40px ${W.accentGlow}`:undefined}}>
@@ -1285,8 +1453,9 @@ function PricingPage({isMobile}){
                 <span style={{fontSize:44,fontWeight:900,color:W.text,letterSpacing:"-0.04em"}}>${p.price.toLocaleString()}</span>
                 <span style={{fontSize:15,color:W.textSub}}>/mo</span>
               </div>
-              <div style={{fontSize:13,color:W.textSub,lineHeight:1.6,marginBottom:24,minHeight:48}}>{p.sub}</div>
-              <a href="#contact" className="vd-btn" style={{display:"flex",justifyContent:"center",background:i===1?p.color:W.surface,color:i===1?"#fff":W.text,border:`1px solid ${i===1?"transparent":W.border}`,borderRadius:10,padding:"12px 20px",fontSize:14,fontWeight:700,textDecoration:"none",marginBottom:24}}>Start Free Assessment →</a>
+              <div style={{fontSize:13,color:W.amber,fontWeight:600,marginBottom:4}}>+ ${p.setup.toLocaleString()} one-time setup</div>
+              <div style={{fontSize:13,color:W.textSub,lineHeight:1.6,marginBottom:24,minHeight:40}}>{p.sub}</div>
+              <a href="/#contact" className="vd-btn" style={{display:"flex",justifyContent:"center",background:i===1?p.color:W.surface,color:i===1?"#fff":W.text,border:`1px solid ${i===1?"transparent":W.border}`,borderRadius:10,padding:"12px 20px",fontSize:14,fontWeight:700,textDecoration:"none",marginBottom:24}}>Start Free Assessment →</a>
               <div style={{display:"flex",flexDirection:"column",gap:10}}>
                 {p.features.map((f,fi)=>(
                   <div key={fi} style={{display:"flex",gap:10,alignItems:"flex-start"}}>
@@ -1300,12 +1469,12 @@ function PricingPage({isMobile}){
         </div>
         <div style={{marginTop:56,background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?"24px":"36px 48px",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:28,alignItems:"center",textAlign:"left"}}>
           <div>
-            <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:10}}>REVENUE GUARANTEE</div>
+            <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:10}}>ENTERPRISE REVENUE GUARANTEE</div>
             <div style={{fontSize:isMobile?20:24,fontWeight:800,color:W.text,letterSpacing:"-0.03em",lineHeight:1.3,marginBottom:10}}>Enterprise clients: we guarantee measurable results or we work for free until you see them.</div>
             <div style={{fontSize:13,color:W.textSub,lineHeight:1.7}}>We put our fee on the line because we know what we're doing. Average client sees first recovered revenue within 30 days.</div>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
-            {[["30-Day Money-Back","No risk on your first month"],["No Setup Fees","Go live in under 48 hours"],["Cancel Anytime","No long-term contracts"],["Free Migration","We move your existing leads"]].map(([t,s],i)=>(
+            {[["30-Day Money-Back","No risk on your first month"],["Go Live in 48 Hours","Fast setup, immediate results"],["Cancel Anytime","No long-term contracts required"],["Free Migration","We move your existing leads over"]].map(([t,s],i)=>(
               <div key={i} style={{display:"flex",gap:12,alignItems:"center"}}>
                 <div style={{width:36,height:36,borderRadius:10,background:W.accentB,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Check size={14} style={{color:W.accent}}/></div>
                 <div><div style={{fontSize:13,fontWeight:700,color:W.text}}>{t}</div><div style={{fontSize:12,color:W.textDim}}>{s}</div></div>
@@ -1313,7 +1482,7 @@ function PricingPage({isMobile}){
             ))}
           </div>
         </div>
-        <div style={{marginTop:24,fontSize:12,color:W.textDim}}>All plans billed monthly. Annual plans available at 2 months free. Prices in USD.</div>
+        <div style={{marginTop:24,fontSize:12,color:W.textDim}}>All plans billed monthly. Setup fee is one-time and non-refundable. Annual plans available at 2 months free. Prices in USD.</div>
       </div>
     </div>
   );
