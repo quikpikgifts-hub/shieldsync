@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veridian Business Card — Print Ready</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 40px;
+    padding: 40px 20px;
+  }
+
+  .label {
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  /* Standard business card: 3.5in × 2in at 96dpi = 336px × 192px
+     For screen preview we scale 2.5× → 840px × 480px */
+  .card {
+    width: 840px;
+    height: 480px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+  }
+
+  /* ─── FRONT ─── */
+  .front {
+    background: linear-gradient(135deg, #0d1117 0%, #111827 60%, #0f172a 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 40px 48px;
+    position: relative;
+  }
+
+  .front::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6);
+  }
+
+  .front::after {
+    content: '';
+    position: absolute;
+    top: -120px; right: -80px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .front-top {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .brand-name {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    color: #ffffff;
+    text-transform: uppercase;
+  }
+
+  .brand-tagline {
+    font-size: 9.5px;
+    font-weight: 500;
+    color: #10b981;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .divider {
+    width: 48px;
+    height: 2px;
+    background: linear-gradient(90deg, #10b981, transparent);
+    margin: 18px 0;
+  }
+
+  .person-name {
+    font-size: 19px;
+    font-weight: 700;
+    color: #f9fafb;
+    letter-spacing: 0.01em;
+  }
+
+  .person-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: #6b7280;
+    letter-spacing: 0.05em;
+    margin-top: 3px;
+    text-transform: uppercase;
+  }
+
+  .value-props {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 16px;
+  }
+
+  .value-prop {
+    font-size: 9.5px;
+    color: #9ca3af;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .value-prop::before {
+    content: '—';
+    color: #10b981;
+    margin-right: 6px;
+    font-weight: 700;
+  }
+
+  .front-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .contact-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10.5px;
+    color: #9ca3af;
+    font-weight: 500;
+  }
+
+  .contact-icon {
+    font-size: 10px;
+    width: 14px;
+    text-align: center;
+  }
+
+  .contact-row a {
+    color: #d1d5db;
+    text-decoration: none;
+  }
+
+  .feature-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .chip {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #10b981;
+    text-transform: uppercase;
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.25);
+    border-radius: 3px;
+    padding: 3px 7px;
+  }
+
+  /* ─── BACK ─── */
+  .back {
+    background: linear-gradient(145deg, #0b1120 0%, #0f1928 50%, #0d1117 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 44px 52px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .back::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #8b5cf6, #3b82f6, #10b981);
+  }
+
+  .back-glow-1 {
+    position: absolute;
+    top: -80px; left: -60px;
+    width: 260px; height: 260px;
+    background: radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .back-glow-2 {
+    position: absolute;
+    bottom: -60px; right: 200px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .back-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1;
+    max-width: 480px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .back-headline {
+    font-size: 16px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.25;
+  }
+
+  .back-headline span {
+    color: #10b981;
+  }
+
+  .back-sub {
+    font-size: 10px;
+    color: #6b7280;
+    font-weight: 500;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  .benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-top: 18px;
+  }
+
+  .benefit {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 10.5px;
+    color: #d1d5db;
+    font-weight: 500;
+  }
+
+  .check {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(16,185,129,0.15);
+    border: 1.5px solid #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 8px;
+    color: #10b981;
+    font-weight: 800;
+  }
+
+  .back-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+    margin-left: 32px;
+  }
+
+  .qr-box {
+    width: 130px;
+    height: 130px;
+    background: #ffffff;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px;
+  }
+
+  .qr-placeholder {
+    width: 100px;
+    height: 100px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    gap: 2px;
+  }
+
+  .qr-cell {
+    background: #111827;
+    border-radius: 1px;
+  }
+
+  .qr-cell.w { background: #ffffff; }
+
+  .cta-label {
+    font-size: 9px;
+    font-weight: 700;
+    color: #ffffff;
+    text-align: center;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+
+  .cta-label .accent { color: #10b981; }
+
+  .back-url {
+    font-size: 8.5px;
+    color: #4b5563;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-align: center;
+  }
+
+  /* Print styles */
+  @media print {
+    body {
+      background: white;
+      padding: 0;
+      gap: 0;
+    }
+
+    .label { display: none; }
+    .print-note { display: none; }
+
+    /* Each card prints on its own page at exact size */
+    .card-wrap { page-break-after: always; }
+
+    .card {
+      width: 3.5in;
+      height: 2in;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .brand-name { font-size: 13px; }
+    .person-name { font-size: 9px; }
+    .person-title { font-size: 5px; }
+    .value-prop { font-size: 4.5px; }
+    .contact-row { font-size: 5px; }
+    .chip { font-size: 3.5px; padding: 1.5px 3.5px; }
+    .brand-tagline { font-size: 4.5px; }
+    .front { padding: 18px 22px; }
+    .divider { margin: 8px 0; }
+    .feature-chips { margin-top: 5px; gap: 3px; }
+
+    .back { padding: 20px 24px; }
+    .back-headline { font-size: 7.5px; }
+    .back-sub { font-size: 4.5px; margin-top: 5px; }
+    .benefits { gap: 3.5px; margin-top: 8px; }
+    .benefit { font-size: 5px; gap: 4px; }
+    .check { width: 7px; height: 7px; font-size: 4px; }
+    .qr-box { width: 60px; height: 60px; padding: 5px; }
+    .qr-placeholder { width: 46px; height: 46px; }
+    .cta-label { font-size: 4px; }
+    .back-url { font-size: 4px; }
+    .back-right { margin-left: 14px; gap: 5px; }
+  }
+
+  .print-note {
+    color: #4b5563;
+    font-size: 12px;
+    text-align: center;
+    max-width: 600px;
+    line-height: 1.6;
+  }
+
+  .print-note strong { color: #9ca3af; }
+
+  .print-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+  }
+
+  .print-btn:hover { opacity: 0.9; }
+</style>
+</head>
+<body>
+
+<div class="print-note">
+  <strong>Veridian Business Card — Print Ready</strong><br>
+  3.5" × 2" standard business card · Set print margins to None · Print at 100% scale
+</div>
+
+<button class="print-btn" onclick="window.print()">Print Cards</button>
+
+<!-- FRONT -->
+<div class="card-wrap">
+  <p class="label">Front</p>
+  <div class="card front">
+    <div class="front-top">
+      <div class="brand-name">Veridian</div>
+      <div class="brand-tagline">Risk Group · Revenue Recovery</div>
+      <div class="divider"></div>
+      <div class="person-name">Steve Smith</div>
+      <div class="person-title">Revenue Recovery Consultant</div>
+      <div class="value-props">
+        <div class="value-prop">Recover Lost Revenue</div>
+        <div class="value-prop">Capture Every Lead</div>
+        <div class="value-prop">Never Miss Another Opportunity</div>
+      </div>
+    </div>
+    <div class="front-bottom">
+      <div class="contact-row"><span class="contact-icon">📞</span>(Your Phone Number)</div>
+      <div class="contact-row"><span class="contact-icon">📧</span><a href="mailto:info@veridianriskgroup.org">info@veridianriskgroup.org</a></div>
+      <div class="contact-row"><span class="contact-icon">🌐</span>veridianresiliencegroupllc.org</div>
+      <div class="feature-chips">
+        <span class="chip">24/7 Revenue Front Desk™</span>
+        <span class="chip">Missed Call Text Recovery™</span>
+        <span class="chip">AI Lead Capture & Booking</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BACK -->
+<div class="card-wrap">
+  <p class="label">Back</p>
+  <div class="card back">
+    <div class="back-glow-1"></div>
+    <div class="back-glow-2"></div>
+
+    <div class="back-left">
+      <div class="back-headline">Every Missed Call<br><span>Costs Revenue.</span></div>
+      <div class="back-sub">When your team misses a call, Veridian responds instantly — capturing the lead before they call your competition.</div>
+      <div class="benefits">
+        <div class="benefit"><span class="check">✓</span>Missed Call Text Recovery</div>
+        <div class="benefit"><span class="check">✓</span>Lead Capture Automation</div>
+        <div class="benefit"><span class="check">✓</span>Appointment Booking</div>
+        <div class="benefit"><span class="check">✓</span>AI Front Desk</div>
+        <div class="benefit"><span class="check">✓</span>Revenue Recovery Dashboard</div>
+      </div>
+    </div>
+
+    <div class="back-right">
+      <div class="cta-label"><span class="accent">Free</span> Revenue<br>Leak Assessment</div>
+      <div class="qr-box">
+        <!-- QR code placeholder grid — replace with real QR image before printing -->
+        <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <!-- Corner squares -->
+          <rect x="2" y="2" width="28" height="28" rx="2" fill="#111827"/>
+          <rect x="5" y="5" width="22" height="22" rx="1" fill="white"/>
+          <rect x="9" y="9" width="14" height="14" rx="1" fill="#111827"/>
+
+          <rect x="70" y="2" width="28" height="28" rx="2" fill="#111827"/>
+          <rect x="73" y="5" width="22" height="22" rx="1" fill="white"/>
+          <rect x="77" y="9" width="14" height="14" rx="1" fill="#111827"/>
+
+          <rect x="2" y="70" width="28" height="28" rx="2" fill="#111827"/>
+          <rect x="5" y="73" width="22" height="22" rx="1" fill="white"/>
+          <rect x="9" y="77" width="14" height="14" rx="1" fill="#111827"/>
+
+          <!-- Data dots (sample pattern) -->
+          <rect x="35" y="2" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="46" y="2" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="57" y="2" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="35" y="13" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="57" y="13" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="46" y="24" width="6" height="6" rx="1" fill="#111827"/>
+
+          <rect x="2" y="35" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="13" y="35" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="24" y="35" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="35" y="35" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="57" y="35" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="68" y="35" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="79" y="35" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="90" y="35" width="6" height="6" rx="1" fill="#111827"/>
+
+          <rect x="2" y="46" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="24" y="46" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="46" y="46" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="68" y="46" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="90" y="46" width="6" height="6" rx="1" fill="#111827"/>
+
+          <rect x="13" y="57" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="35" y="57" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="57" y="57" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="79" y="57" width="6" height="6" rx="1" fill="#111827"/>
+
+          <rect x="35" y="68" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="46" y="68" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="68" y="68" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="90" y="68" width="6" height="6" rx="1" fill="#111827"/>
+
+          <rect x="35" y="79" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="57" y="79" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="79" y="79" width="6" height="6" rx="1" fill="#111827"/>
+
+          <rect x="46" y="90" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="68" y="90" width="6" height="6" rx="1" fill="#111827"/>
+          <rect x="90" y="90" width="6" height="6" rx="1" fill="#111827"/>
+        </svg>
+      </div>
+      <div class="cta-label" style="font-size:8.5px; color:#6b7280; letter-spacing:0.04em;">Replace with real QR code<br>before sending to print</div>
+      <div class="back-url">veridianresiliencegroupllc.org</div>
+    </div>
+  </div>
+</div>
+
+<div class="print-note" style="margin-top:8px;">
+  <strong>Before printing:</strong> Replace the QR code with a real one pointing to veridianresiliencegroupllc.org — use qr-code-generator.com or similar.<br>
+  Update the phone number on the front. Print on 100lb gloss card stock for best results.
+</div>
+
+</body>
+</html>
