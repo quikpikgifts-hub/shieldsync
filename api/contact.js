@@ -12,6 +12,33 @@ async function kv(cmd, ...args) {
   return (await r.json()).result;
 }
 
+async function kvRateLimit(req, opts) {
+  const max = (opts && opts.max) || 3;
+  const window = (opts && opts.window) || 600;
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return false;
+  const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || "anon";
+  const bucket = Math.floor(Date.now() / 1000 / window);
+  const key = `rl:contact:${ip}:${bucket}`;
+  try {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(["INCR", key]),
+    });
+    const d = await r.json();
+    if (d.result === 1) {
+      await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify(["EXPIRE", key, window * 2]),
+      });
+    }
+    return d.result > max;
+  } catch { return false; }
+}
+
 function mkId() {
   return `vrd_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
@@ -190,6 +217,13 @@ export default async function handler(req) {
     return new Response("Method not allowed", { status: 405 });
   }
 
+  if (await kvRateLimit(req)) {
+    return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    });
+  }
+
   // ── Env var audit ────────────────────────────────────────────
   const cleanEnv = v => (v || "").replace(/^=+/, "").trim();
   const resendKey  = process.env.RESEND_API_KEY;
@@ -208,6 +242,12 @@ export default async function handler(req) {
   if (!name?.trim() || !email?.trim()) {
     return new Response(JSON.stringify({ error: "Name and email are required." }), {
       status: 400, headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (body._hp) {
+    return new Response(JSON.stringify({ success: true, leadId: "filtered" }), {
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     });
   }
 

@@ -1,5 +1,5 @@
 import React,{useState,useEffect,useRef}from"react";
-import{Phone,MessageSquare,Calendar,CheckCircle,X,Menu,ChevronDown,ArrowRight,Lock,Check,ChevronRight,Users,Globe,Award,Clock,Shield,Zap,HelpCircle,TrendingDown}from"lucide-react";
+import{Phone,MessageSquare,Calendar,CheckCircle,X,Menu,ChevronDown,ArrowRight,Lock,Check,ChevronRight,Users,Globe,Award,Clock,Shield,Zap,HelpCircle,TrendingDown,Send,Star,Bot,MessageCircle}from"lucide-react";
 
 // ─────────────────────────────────────────────────────────────
 // DESIGN TOKENS
@@ -113,6 +113,79 @@ function FormField({label,value,onChange,type="text",placeholder="",autoComplete
 }
 
 // ─────────────────────────────────────────────────────────────
+// CHAT WIDGET — AI CONCIERGE
+// ─────────────────────────────────────────────────────────────
+function ChatWidget(){
+  const[open,setOpen]=useState(false);
+  const[msgs,setMsgs]=useState([{role:"assistant",content:"Hi! I'm Alex, your Veridian AI Front Desk. What's your biggest revenue challenge right now?"}]);
+  const[input,setInput]=useState("");
+  const[loading,setLoading]=useState(false);
+  const[showBook,setShowBook]=useState(false);
+  const bottomRef=useRef(null);
+  useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:"smooth"});},[msgs]);
+  const send=async e=>{
+    if(e)e.preventDefault();
+    const msg=input.trim();
+    if(!msg||loading)return;
+    setInput("");
+    const next=[...msgs,{role:"user",content:msg}];
+    setMsgs(next);
+    setLoading(true);
+    try{
+      const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:msg,history:next.slice(-10)})});
+      const d=await r.json();
+      const reply=d.reply||"I'd love to help — what's your biggest revenue challenge?";
+      setMsgs(m=>[...m,{role:"assistant",content:reply}]);
+      if(reply.toLowerCase().includes("book")||reply.toLowerCase().includes("assessment")||reply.toLowerCase().includes("consultation"))setShowBook(true);
+    }catch{
+      setMsgs(m=>[...m,{role:"assistant",content:"Connection issue. Please use the contact form below — we respond within 1 business day."}]);
+    }
+    setLoading(false);
+  };
+  const handleKey=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}};
+  return(
+    <>
+      {open&&(
+        <div style={{position:"fixed",bottom:88,right:20,zIndex:400,width:340,maxHeight:520,background:W.card,border:`1px solid ${W.borderH}`,borderRadius:20,display:"flex",flexDirection:"column",boxShadow:"0 24px 80px rgba(0,0,0,.7)",animation:"fadeUp .2s ease"}}>
+          <div style={{padding:"14px 18px",borderBottom:`1px solid ${W.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <div style={{width:32,height:32,borderRadius:"50%",background:`linear-gradient(135deg,${W.accent},${W.accentH})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Bot size={16} style={{color:"#fff"}}/></div>
+              <div>
+                <div style={{fontSize:13,fontWeight:700,color:W.text}}>Alex — Veridian AI</div>
+                <div style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:6,height:6,borderRadius:"50%",background:W.green}}/><div style={{fontSize:10,color:W.green}}>Online now</div></div>
+              </div>
+            </div>
+            <button onClick={()=>setOpen(false)} style={{background:"none",border:"none",color:W.textSub,cursor:"pointer",padding:4}}><X size={16}/></button>
+          </div>
+          <div style={{flex:1,overflowY:"auto",padding:"14px 16px",display:"flex",flexDirection:"column",gap:10}}>
+            {msgs.map((m,i)=>(
+              <div key={i} style={{display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start"}}>
+                <div style={{maxWidth:"82%",padding:"10px 14px",borderRadius:m.role==="user"?"14px 14px 4px 14px":"14px 14px 14px 4px",background:m.role==="user"?W.accent:W.surface,color:W.text,fontSize:13,lineHeight:1.55}}>{m.content}</div>
+              </div>
+            ))}
+            {loading&&<div style={{display:"flex",justifyContent:"flex-start"}}><div style={{padding:"10px 14px",borderRadius:"14px 14px 14px 4px",background:W.surface,display:"flex",gap:5,alignItems:"center"}}><div style={{width:6,height:6,borderRadius:"50%",background:W.textDim,animation:"pulse 1s infinite"}}/><div style={{width:6,height:6,borderRadius:"50%",background:W.textDim,animation:"pulse 1s infinite .2s"}}/><div style={{width:6,height:6,borderRadius:"50%",background:W.textDim,animation:"pulse 1s infinite .4s"}}/></div></div>}
+            <div ref={bottomRef}/>
+          </div>
+          {showBook&&(
+            <div style={{padding:"0 14px 10px"}}>
+              <a href="#contact" onClick={()=>setOpen(false)} style={{display:"block",background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",borderRadius:10,padding:"10px 14px",fontSize:13,fontWeight:700,textDecoration:"none",textAlign:"center"}}>Book My Free Assessment →</a>
+            </div>
+          )}
+          <form onSubmit={send} style={{padding:"10px 12px",borderTop:`1px solid ${W.border}`,display:"flex",gap:8,alignItems:"center"}}>
+            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={handleKey} placeholder="Ask anything..." style={{flex:1,background:W.surface,border:`1px solid ${W.border}`,borderRadius:10,padding:"9px 12px",color:W.text,fontSize:13,outline:"none"}}/>
+            <button type="submit" disabled={loading||!input.trim()} style={{background:W.accent,border:"none",borderRadius:10,width:36,height:36,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",opacity:!input.trim()||loading?0.4:1}}><Send size={14} style={{color:"#fff"}}/></button>
+          </form>
+        </div>
+      )}
+      <button onClick={()=>{setOpen(o=>!o);track("chat_open");}} style={{position:"fixed",bottom:24,right:20,zIndex:400,width:52,height:52,borderRadius:"50%",background:`linear-gradient(135deg,${W.accent},${W.accentH})`,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 4px 24px ${W.accentGlow}`,transition:"transform .2s"}}>
+        {open?<X size={22} style={{color:"#fff"}}/>:<MessageCircle size={22} style={{color:"#fff"}}/>}
+        {!open&&<div style={{position:"absolute",top:10,right:10,width:10,height:10,borderRadius:"50%",background:W.green,border:`2px solid ${W.card}`}}/>}
+      </button>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
 // STICKY MOBILE CTA
 // ─────────────────────────────────────────────────────────────
 function StickyMobileCTA(){
@@ -140,7 +213,7 @@ function WebNav({isMobile}){
     const h=()=>setScrolled(window.scrollY>48);
     window.addEventListener("scroll",h,{passive:true});return()=>window.removeEventListener("scroll",h);
   },[]);
-  const links=[["How It Works","/#how-it-works"],["Revenue Calculator","/#calculator"],["Industries","/#industries"],["Contact","/#contact"]];
+  const links=[["How It Works","/#how-it-works"],["Revenue Calculator","/#calculator"],["Pricing","/pricing"],["Industries","/#industries"],["Contact","/#contact"]];
   const Logo=()=>(
     <a href="/" style={{textDecoration:"none",display:"flex",alignItems:"center",gap:10}}>
       <div style={{width:32,height:32,background:`linear-gradient(135deg,${W.accent},${W.accentH})`,borderRadius:9,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 2px 12px ${W.accentGlow}`}}>
@@ -1189,6 +1262,161 @@ function IndustryPage({sector,isMobile}){
 }
 
 // ─────────────────────────────────────────────────────────────
+// PRICING PAGE
+// ─────────────────────────────────────────────────────────────
+function PricingPage({isMobile}){
+  const plans=[
+    {name:"Starter",price:497,badge:null,sub:"For solo operators and small teams ready to stop losing leads",color:W.textSub,features:["AI Website Chat Concierge","Lead capture & CRM pipeline","Email follow-up (24h, 3d, 7d, 14d)","Pipeline dashboard","Up to 200 leads/mo","Email support"]},
+    {name:"Professional",price:997,badge:"MOST POPULAR",sub:"For established businesses serious about revenue recovery",color:W.accent,features:["Everything in Starter","AI Voice Receptionist (inbound)","SMS missed-call text-back","SMS nurture campaigns","Appointment booking automation","Advanced analytics & reporting","Up to 1,000 leads/mo","Priority support"]},
+    {name:"Enterprise",price:1997,badge:"BEST VALUE",sub:"For high-volume operations with custom requirements",color:W.amber,features:["Everything in Professional","Custom AI voice persona & name","Unlimited leads","CRM integrations (GHL, HubSpot)","Dedicated success manager","Revenue guarantee","White-label available","Custom onboarding & training"]},
+  ];
+  return(
+    <div style={{minHeight:"100vh",background:W.bg,paddingTop:80}}>
+      <div style={{maxWidth:1100,margin:"0 auto",padding:isMobile?"60px 24px 80px":"80px 48px 100px",textAlign:"center"}}>
+        <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.12em",marginBottom:16}}>PRICING</div>
+        <h1 style={{fontSize:isMobile?32:48,fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.1,marginBottom:16}}>Revenue recovery, fully managed</h1>
+        <p style={{fontSize:isMobile?15:18,color:W.textSub,lineHeight:1.7,maxWidth:580,margin:"0 auto 56px"}}>No setup fees. No long-term contracts. Cancel anytime. Every plan starts with a free Revenue Recovery Assessment.</p>
+        <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"repeat(3,1fr)",gap:20,textAlign:"left"}}>
+          {plans.map((p,i)=>(
+            <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${i===1?p.color:W.border}`,borderRadius:20,padding:"28px 26px",position:"relative",boxShadow:i===1?`0 0 40px ${W.accentGlow}`:undefined}}>
+              {p.badge&&<div style={{position:"absolute",top:-1,right:24,background:p.color,color:"#fff",fontSize:10,fontWeight:800,letterSpacing:"0.08em",padding:"5px 12px",borderRadius:"0 0 10px 10px"}}>{p.badge}</div>}
+              <div style={{fontSize:11,fontWeight:700,color:p.color,letterSpacing:"0.1em",marginBottom:10}}>{p.name.toUpperCase()}</div>
+              <div style={{marginBottom:4}}>
+                <span style={{fontSize:44,fontWeight:900,color:W.text,letterSpacing:"-0.04em"}}>${p.price.toLocaleString()}</span>
+                <span style={{fontSize:15,color:W.textSub}}>/mo</span>
+              </div>
+              <div style={{fontSize:13,color:W.textSub,lineHeight:1.6,marginBottom:24,minHeight:48}}>{p.sub}</div>
+              <a href="#contact" className="vd-btn" style={{display:"flex",justifyContent:"center",background:i===1?p.color:W.surface,color:i===1?"#fff":W.text,border:`1px solid ${i===1?"transparent":W.border}`,borderRadius:10,padding:"12px 20px",fontSize:14,fontWeight:700,textDecoration:"none",marginBottom:24}}>Start Free Assessment →</a>
+              <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                {p.features.map((f,fi)=>(
+                  <div key={fi} style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+                    <Check size={14} style={{color:p.color,flexShrink:0,marginTop:2}}/>
+                    <span style={{fontSize:13,color:W.textSub,lineHeight:1.5}}>{f}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:56,background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?"24px":"36px 48px",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:28,alignItems:"center",textAlign:"left"}}>
+          <div>
+            <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:10}}>REVENUE GUARANTEE</div>
+            <div style={{fontSize:isMobile?20:24,fontWeight:800,color:W.text,letterSpacing:"-0.03em",lineHeight:1.3,marginBottom:10}}>Enterprise clients: we guarantee measurable results or we work for free until you see them.</div>
+            <div style={{fontSize:13,color:W.textSub,lineHeight:1.7}}>We put our fee on the line because we know what we're doing. Average client sees first recovered revenue within 30 days.</div>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:14}}>
+            {[["30-Day Money-Back","No risk on your first month"],["No Setup Fees","Go live in under 48 hours"],["Cancel Anytime","No long-term contracts"],["Free Migration","We move your existing leads"]].map(([t,s],i)=>(
+              <div key={i} style={{display:"flex",gap:12,alignItems:"center"}}>
+                <div style={{width:36,height:36,borderRadius:10,background:W.accentB,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Check size={14} style={{color:W.accent}}/></div>
+                <div><div style={{fontSize:13,fontWeight:700,color:W.text}}>{t}</div><div style={{fontSize:12,color:W.textDim}}>{s}</div></div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{marginTop:24,fontSize:12,color:W.textDim}}>All plans billed monthly. Annual plans available at 2 months free. Prices in USD.</div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// DEMO PAGE — PROSPECT DEMO ENVIRONMENT
+// ─────────────────────────────────────────────────────────────
+function DemoPage({isMobile}){
+  const demoMetrics=[
+    {l:"Leads Captured",v:"847",sub:"Last 90 days",c:W.accent},
+    {l:"Booking Rate",v:"38%",sub:"Leads → consultations",c:W.green},
+    {l:"Revenue Recovered",v:"$94K",sub:"Annualized",c:W.green},
+    {l:"Avg Response Time",v:"< 2 min",sub:"AI + SMS combined",c:W.amber},
+    {l:"Calls Answered",v:"2,341",sub:"Zero missed (AI handled)",c:W.accent},
+    {l:"Pipeline Value",v:"$312K",sub:"Active opportunities",c:W.text},
+  ];
+  const pipeline=[
+    {stage:"New Lead",count:12,color:W.textDim},
+    {stage:"Contacted",count:8,color:W.accent},
+    {stage:"Qualified",count:5,color:W.amber},
+    {stage:"Consultation Booked",count:4,color:W.green},
+    {stage:"Proposal Sent",count:3,color:W.amber},
+    {stage:"Won",count:2,color:W.green},
+  ];
+  const demoLeads=[
+    {name:"Sarah Mitchell",biz:"Elite Plumbing & Drain",priority:"HOT",status:"Consultation Booked",value:"$84K/yr",time:"2 min ago"},
+    {name:"Carlos Rivera",biz:"Apex HVAC Services",priority:"HIGH",status:"Contacted",value:"$67K/yr",time:"18 min ago"},
+    {name:"Jennifer Walsh",biz:"Walsh Roofing LLC",priority:"HOT",status:"Qualified",value:"$112K/yr",time:"1 hr ago"},
+    {name:"David Park",biz:"Summit Electrical",priority:"MEDIUM",status:"New Lead",value:"$38K/yr",time:"3 hr ago"},
+  ];
+  const PC2={HOT:W.red,HIGH:W.amber,MEDIUM:W.accent};
+  return(
+    <div style={{minHeight:"100vh",background:W.bg,paddingTop:80}}>
+      <div style={{background:`linear-gradient(90deg,${W.accentB},transparent)`,borderBottom:`1px solid ${W.border}`,padding:"10px 24px",textAlign:"center"}}>
+        <span style={{fontSize:12,fontWeight:700,color:W.accent,letterSpacing:"0.08em"}}>⚡ LIVE DEMO ENVIRONMENT — This is a fully functional preview. All features shown are production-ready.</span>
+      </div>
+      <div style={{maxWidth:1200,margin:"0 auto",padding:isMobile?"24px 20px 80px":"40px 48px 80px"}}>
+        <div style={{marginBottom:36,textAlign:isMobile?"center":undefined}}>
+          <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.12em",marginBottom:8}}>DEMO — ACME HOME SERVICES (SAMPLE CLIENT)</div>
+          <div style={{fontSize:isMobile?26:36,fontWeight:900,color:W.text,letterSpacing:"-0.03em",marginBottom:8}}>Your 24/7 Revenue Front Desk™</div>
+          <div style={{fontSize:14,color:W.textSub}}>This is what Veridian looks like when it's working for your business.</div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(3,1fr)",gap:12,marginBottom:24}}>
+          {demoMetrics.map((m,i)=>(
+            <div key={i} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:isMobile?"14px":"20px"}}>
+              <div style={{fontSize:10,color:W.textDim,fontWeight:700,letterSpacing:"0.06em",marginBottom:6}}>{m.l.toUpperCase()}</div>
+              <div style={{fontSize:isMobile?22:28,fontWeight:900,color:m.c,lineHeight:1,marginBottom:4}}>{m.v}</div>
+              <div style={{fontSize:11,color:W.textDim}}>{m.sub}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:24}}>
+          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,overflow:"hidden"}}>
+            <div style={{padding:"14px 20px",borderBottom:`1px solid ${W.border}`}}>
+              <div style={{fontSize:13,fontWeight:700,color:W.text}}>Live Pipeline</div>
+            </div>
+            {pipeline.map((p,i)=>(
+              <div key={i} style={{padding:"12px 20px",borderBottom:i<pipeline.length-1?`1px solid ${W.border}`:"none",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div style={{fontSize:13,color:W.textSub}}>{p.stage}</div>
+                <div style={{display:"flex",alignItems:"center",gap:10}}>
+                  <div style={{height:6,width:Math.max(p.count*8,24),background:p.color,borderRadius:3,opacity:0.7}}/>
+                  <div style={{fontSize:13,fontWeight:700,color:p.color,minWidth:20,textAlign:"right"}}>{p.count}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,overflow:"hidden"}}>
+            <div style={{padding:"14px 20px",borderBottom:`1px solid ${W.border}`}}>
+              <div style={{fontSize:13,fontWeight:700,color:W.text}}>Recent Leads — AI Captured</div>
+            </div>
+            {demoLeads.map((l,i)=>(
+              <div key={i} style={{padding:"11px 20px",borderBottom:i<demoLeads.length-1?`1px solid ${W.border}`:"none"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
+                  <div style={{minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:600,color:W.text,marginBottom:1}}>{l.name}</div>
+                    <div style={{fontSize:11,color:W.textSub}}>{l.biz}</div>
+                  </div>
+                  <div style={{textAlign:"right",flexShrink:0}}>
+                    <div style={{fontSize:12,fontWeight:700,color:W.green,marginBottom:3}}>{l.value}</div>
+                    <span style={{fontSize:10,fontWeight:700,color:PC2[l.priority]||W.textDim,border:`1px solid ${PC2[l.priority]||W.border}`,borderRadius:4,padding:"1px 6px"}}>{l.priority}</span>
+                  </div>
+                </div>
+                <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
+                  <div style={{fontSize:11,color:W.accent}}>{l.status}</div>
+                  <div style={{fontSize:10,color:W.textDim}}>{l.time}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{background:`linear-gradient(135deg,${W.accentB},rgba(16,185,129,0.06))`,border:`1px solid ${W.borderH}`,borderRadius:20,padding:isMobile?"28px 24px":"40px 48px",textAlign:"center"}}>
+          <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.12em",marginBottom:12}}>READY TO SEE THIS FOR YOUR BUSINESS?</div>
+          <div style={{fontSize:isMobile?24:36,fontWeight:900,color:W.text,letterSpacing:"-0.03em",marginBottom:12}}>We'll build your custom demo in 24 hours</div>
+          <div style={{fontSize:14,color:W.textSub,marginBottom:28,lineHeight:1.7,maxWidth:520,margin:"0 auto 28px"}}>Book a free Revenue Recovery Assessment. We'll show you exactly what Veridian captures for businesses like yours — with your numbers, your industry, your pipeline.</div>
+          <a href="/#contact" className="vd-btn" style={{background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",padding:"15px 32px",borderRadius:12,fontSize:15,fontWeight:700,textDecoration:"none",display:"inline-flex",boxShadow:`0 4px 24px ${W.accentGlow}`}}>Book My Free Assessment →</a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
 // REVENUE DASHBOARD (internal — /dashboard)
 // ─────────────────────────────────────────────────────────────
 function DashboardPage(){
@@ -1376,9 +1604,14 @@ export default function Website(){
       <WebNav isMobile={isMobile}/>
       {sector&&<IndustryPage sector={sector} isMobile={isMobile}/>}
       {path==="/dashboard"&&<DashboardPage/>}
-      {!sector&&path!=="/dashboard"&&<Homepage isMobile={isMobile}/>}
-      {!sector&&path!=="/dashboard"&&<WebFooter isMobile={isMobile}/>}
+      {path==="/pricing"&&<PricingPage isMobile={isMobile}/>}
+      {path==="/demo"&&<DemoPage isMobile={isMobile}/>}
+      {!sector&&path!=="/dashboard"&&path!=="/pricing"&&path!=="/demo"&&<Homepage isMobile={isMobile}/>}
+      {!sector&&path!=="/dashboard"&&path!=="/pricing"&&path!=="/demo"&&<WebFooter isMobile={isMobile}/>}
+      {path==="/pricing"&&<WebFooter isMobile={isMobile}/>}
+      {path==="/demo"&&<WebFooter isMobile={isMobile}/>}
       {isMobile&&<StickyMobileCTA/>}
+      <ChatWidget/>
     </div>
   );
 }

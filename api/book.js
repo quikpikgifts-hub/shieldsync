@@ -13,6 +13,33 @@ async function kv(cmd, ...args) {
   return data.result;
 }
 
+async function kvRateLimit(req, opts) {
+  const max = (opts && opts.max) || 5;
+  const window = (opts && opts.window) || 3600;
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return false;
+  const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || "anon";
+  const bucket = Math.floor(Date.now() / 1000 / window);
+  const key = `rl:book:${ip}:${bucket}`;
+  try {
+    const r = await fetch(url, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(["INCR", key]),
+    });
+    const d = await r.json();
+    if (d.result === 1) {
+      await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify(["EXPIRE", key, window * 2]),
+      });
+    }
+    return d.result > max;
+  } catch { return false; }
+}
+
 function mkId() {
   return `bkg_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
@@ -115,6 +142,13 @@ export default async function handler(req) {
 
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
+  }
+
+  if (await kvRateLimit(req)) {
+    return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
+      status: 429,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    });
   }
 
   const cleanEnv = v => (v || "").replace(/^=+/, "").trim();
