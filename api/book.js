@@ -17,6 +17,45 @@ function mkId() {
   return `bkg_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
+async function supabaseInsert(row) {
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  const rawKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  const url = rawUrl.replace(/^=+/, "").trim();
+  const key = rawKey.replace(/^=+/, "").trim();
+
+  if (!url || !key) {
+    console.error("[book/supabase] ABORT — env vars missing");
+    return { skipped: true };
+  }
+
+  const endpoint = `${url}/rest/v1/bookings`;
+  console.log("[book/supabase] Exact URL:", endpoint);
+  console.log("[book/supabase] Payload:", JSON.stringify(row));
+
+  const r = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": key,
+      "Authorization": `Bearer ${key}`,
+      "Prefer": "return=representation",
+    },
+    body: JSON.stringify(row),
+  });
+
+  const responseText = await r.text().catch(() => "");
+  console.log("[book/supabase] HTTP status:", r.status);
+  console.log("[book/supabase] Response body:", responseText || "(empty)");
+
+  if (!r.ok) {
+    console.error("[book/supabase] INSERT FAILED — HTTP", r.status);
+    throw new Error(responseText);
+  }
+
+  console.log("[book/supabase] INSERT OK");
+  return { ok: true, status: r.status, body: responseText };
+}
+
 async function sendEmail(apiKey, payload, label) {
   console.log(`[book] send: ${label} → to=${JSON.stringify(payload.to)} from=${payload.from}`);
   try {
@@ -74,7 +113,7 @@ export default async function handler(req) {
     });
   }
 
-  const { leadId, name, email, biz } = body;
+  const { leadId, name, email, biz, phone, notes } = body;
   if (!email) {
     return new Response(JSON.stringify({ error: "Email required." }), {
       status: 400,
@@ -88,6 +127,25 @@ export default async function handler(req) {
   const booking = { bookingId, leadId, name, email, biz, timestamp: ts };
 
   console.log(`[book] new booking: ${bookingId} — ${name} | ${email}`);
+
+  // Supabase insert — before emails, errors are non-fatal
+  let sbResult = { skipped: true };
+  try {
+    sbResult = await supabaseInsert({
+      booking_id: bookingId,
+      lead_id:    leadId || null,
+      name:       name || null,
+      business:   biz || null,
+      email:      email,
+      phone:      phone || null,
+      status:     "confirmed",
+      notes:      notes || null,
+    });
+  } catch (err) {
+    sbResult = { ok: false, error: err.message };
+    console.error("[book] supabase insert threw:", err.message);
+  }
+  console.log("[book] supabase result:", JSON.stringify(sbResult));
 
   await kv("LPUSH", "veridian:bookings", JSON.stringify(booking));
   if (leadId) await kv("SET", `veridian:booked:${leadId}`, "1");
@@ -157,7 +215,12 @@ export default async function handler(req) {
 
   console.log(`[book] done — bookingId=${bookingId}`);
 
-  return new Response(JSON.stringify({ success: true, bookingId }), {
+  return new Response(JSON.stringify({
+    success: true,
+    bookingId,
+    bookingStatus: sbResult?.status ?? null,
+    bookingBody: sbResult?.body ?? sbResult?.error ?? null,
+  }), {
     headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
   });
 }
