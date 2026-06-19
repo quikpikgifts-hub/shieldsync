@@ -60,6 +60,17 @@ export default async function handler(req) {
     ]);
     result.supabase = { leads, bookings };
 
+    // Count bookings before insert
+    try {
+      const beforeR = await fetch(`${supabaseUrl}/rest/v1/bookings?select=booking_id,created_at&order=created_at.desc&limit=5`, {
+        headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}`, "Accept": "application/json" },
+      });
+      const beforeBody = await beforeR.text().catch(() => "");
+      result.bookings_before_insert = { http_status: beforeR.status, ok: beforeR.ok, rows: beforeBody };
+    } catch (err) {
+      result.bookings_before_insert = { error: err?.message || String(err) };
+    }
+
     // Test insert into public.bookings — safe to delete row after review
     const testRow = {
       booking_id: `health_${Date.now()}`,
@@ -91,6 +102,17 @@ export default async function handler(req) {
       };
     } catch (err) {
       result.bookings_insert_test = { error: err?.message || String(err) };
+    }
+
+    // Count bookings after insert — verifies the row actually committed
+    try {
+      const afterR = await fetch(`${supabaseUrl}/rest/v1/bookings?select=booking_id,created_at&order=created_at.desc&limit=5`, {
+        headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}`, "Accept": "application/json" },
+      });
+      const afterBody = await afterR.text().catch(() => "");
+      result.bookings_after_insert = { http_status: afterR.status, ok: afterR.ok, rows: afterBody };
+    } catch (err) {
+      result.bookings_after_insert = { error: err?.message || String(err) };
     }
   } else {
     result.supabase = {
