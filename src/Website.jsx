@@ -822,11 +822,8 @@ function Contact({isMobile}){
     setLoading(false);
   };
   const confirmBooking=async()=>{
-    console.log("CONFIRM BOOKING FIRED");
-    alert("CONFIRM BOOKING FIRED");
     setBookingLoading(true);
     const payload={leadId,name:f.name,email:f.email,biz:f.biz,phone:f.phone};
-    console.log("POSTING TO /api/book",payload);
     let dbResult=null;
     try{
       const r=await fetch("/api/book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
