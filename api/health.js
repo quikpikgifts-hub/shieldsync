@@ -59,6 +59,39 @@ export default async function handler(req) {
       probeTable(supabaseUrl, supabaseKey, "bookings"),
     ]);
     result.supabase = { leads, bookings };
+
+    // Test insert into public.bookings — safe to delete row after review
+    const testRow = {
+      booking_id: `health_${Date.now()}`,
+      lead_id:    null,
+      name:       "Health Check",
+      business:   "Diagnostic",
+      email:      "health@test.internal",
+      phone:      null,
+      status:     "confirmed",
+      notes:      "inserted by /api/health — safe to delete",
+    };
+    try {
+      const insR = await fetch(`${supabaseUrl}/rest/v1/bookings`, {
+        method: "POST",
+        headers: {
+          "Content-Type":  "application/json",
+          "apikey":        supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`,
+          "Prefer":        "return=representation",
+        },
+        body: JSON.stringify(testRow),
+      });
+      const insBody = await insR.text().catch(() => "");
+      result.bookings_insert_test = {
+        payload:     testRow,
+        http_status: insR.status,
+        ok:          insR.ok,
+        body:        insBody || "(empty)",
+      };
+    } catch (err) {
+      result.bookings_insert_test = { error: err?.message || String(err) };
+    }
   } else {
     result.supabase = {
       skipped: supabaseUrl && supabaseKey
