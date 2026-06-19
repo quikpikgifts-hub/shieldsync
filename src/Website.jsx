@@ -823,7 +823,10 @@ function Contact({isMobile}){
   };
   const confirmBooking=async()=>{
     setBookingLoading(true);
-    try{await fetch("/api/book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({leadId,name:f.name,email:f.email,biz:f.biz})});}catch{}
+    try{
+      const r=await fetch("/api/book",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({leadId,name:f.name,email:f.email,biz:f.biz,phone:f.phone})});
+      if(!r.ok){const t=await r.text().catch(()=>"");console.error("[confirmBooking] server error",r.status,t);}
+    }catch(err){console.error("[confirmBooking] network error",err?.message);}
     track("consultation_booked");
     setStep("booked");setBookingLoading(false);
   };
