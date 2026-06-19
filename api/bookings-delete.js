@@ -12,8 +12,8 @@ const TARGET_IDS = [
 ];
 
 export default async function handler(req) {
-  if (req.method !== "POST") {
-    return new Response("POST only", { status: 405 });
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204 });
   }
 
   const cleanEnv = v => (v || "").replace(/^=+/, "").trim();
