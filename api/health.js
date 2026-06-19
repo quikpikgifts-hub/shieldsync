@@ -114,6 +114,49 @@ export default async function handler(req) {
     } catch (err) {
       result.bookings_after_insert = { error: err?.message || String(err) };
     }
+
+    // ?livetest=1 — inserts a realistic customer booking to verify the full write path
+    const url2 = new URL(req.url);
+    if (url2.searchParams.get("livetest") === "1") {
+      const liveRow = {
+        booking_id: `bkg_${Date.now()}_livetest`,
+        lead_id:    null,
+        name:       "Marcus Rivera",
+        business:   "Rivera Security Solutions",
+        email:      "marcus.rivera@riverasecurity.com",
+        phone:      "(407) 555-0192",
+        status:     "confirmed",
+        notes:      "Live test booking — submitted via /api/health?livetest=1",
+      };
+      try {
+        const liveR = await fetch(`${supabaseUrl}/rest/v1/bookings`, {
+          method: "POST",
+          headers: {
+            "Content-Type":  "application/json",
+            "apikey":        supabaseKey,
+            "Authorization": `Bearer ${supabaseKey}`,
+            "Prefer":        "return=representation",
+          },
+          body: JSON.stringify(liveRow),
+        });
+        const liveBody = await liveR.text().catch(() => "");
+
+        // Read back to confirm persistence
+        const readR = await fetch(
+          `${supabaseUrl}/rest/v1/bookings?email=eq.marcus.rivera%40riverasecurity.com&select=*&order=created_at.desc&limit=1`,
+          { headers: { "apikey": supabaseKey, "Authorization": `Bearer ${supabaseKey}`, "Accept": "application/json" } }
+        );
+        const readBody = await readR.text().catch(() => "");
+
+        result.live_booking_test = {
+          payload:     liveRow,
+          insert:      { http_status: liveR.status, ok: liveR.ok, body: liveBody },
+          readback:    { http_status: readR.status, ok: readR.ok, body: readBody },
+        };
+      } catch (err) {
+        result.live_booking_test = { error: err?.message || String(err) };
+      }
+    }
   } else {
     result.supabase = {
       skipped: supabaseUrl && supabaseKey
