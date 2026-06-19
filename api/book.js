@@ -26,9 +26,6 @@ async function supabaseInsert(row) {
   const url = rawUrl.replace(/^=+/, "").trim();
   const key = rawKey.replace(/^=+/, "").trim();
 
-  console.log("[book/supabase] NEXT_PUBLIC_SUPABASE_URL exists:", !!url, "| preview:", url ? url.slice(0, 60) : "EMPTY");
-  console.log("[book/supabase] SUPABASE_SERVICE_ROLE_KEY exists:", !!key, "| prefix:", key ? key.slice(0, 20) + "..." : "EMPTY");
-
   if (!url || !key) {
     console.error("[book/supabase] ABORT — env vars missing");
     return { skipped: true };
@@ -39,9 +36,6 @@ async function supabaseInsert(row) {
   }
 
   const endpoint = `${url}/rest/v1/bookings`;
-  console.log("[book/supabase] Exact URL:", endpoint);
-  console.log("[book/supabase] Payload:", JSON.stringify(row));
-
   const r = await fetch(endpoint, {
     method: "POST",
     headers: {
@@ -54,15 +48,11 @@ async function supabaseInsert(row) {
   });
 
   const responseText = await r.text().catch(() => "");
-  console.log("[book/supabase] HTTP status:", r.status);
-  console.log("[book/supabase] Response body:", responseText || "(empty)");
-
   if (!r.ok) {
     console.error("[book/supabase] INSERT FAILED — HTTP", r.status);
     throw new Error(responseText);
   }
 
-  console.log("[book/supabase] INSERT OK");
   return { ok: true, status: r.status, body: responseText };
 }
 
@@ -107,12 +97,6 @@ export default async function handler(req) {
   const toEmail    = cleanEnv(process.env.TEAM_EMAIL)   || "info@veridianriskgroup.org";
   const fromDomain = cleanEnv(process.env.FROM_DOMAIN)  || "veridianriskgroup.org";
 
-  console.log("[book] ENV:", {
-    RESEND_API_KEY:  resendKey ? `set (${resendKey.slice(0,6)}…)` : "MISSING",
-    FROM_DOMAIN:     process.env.FROM_DOMAIN  || "NOT SET — using default: veridianriskgroup.org",
-    TEAM_EMAIL:      process.env.TEAM_EMAIL   || "NOT SET — using default: info@veridianriskgroup.org",
-  });
-
   let body;
   try {
     body = await req.json();
@@ -149,8 +133,6 @@ export default async function handler(req) {
     status:     "confirmed",
     notes:      notes || null,
   };
-  console.log("[book] supabase payload:", JSON.stringify(sbPayload));
-
   let sbResult = { skipped: true };
   try {
     sbResult = await supabaseInsert(sbPayload);
@@ -159,8 +141,6 @@ export default async function handler(req) {
     console.error("[book] supabase insert threw:", err.message);
   }
   const bookingInserted = sbResult?.ok === true;
-  console.log("[book] supabase result:", JSON.stringify(sbResult));
-  console.log("[book] bookingInserted:", bookingInserted);
 
   await kv("LPUSH", "veridian:bookings", JSON.stringify(booking));
   if (leadId) await kv("SET", `veridian:booked:${leadId}`, "1");
