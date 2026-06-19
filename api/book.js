@@ -95,22 +95,66 @@ export default async function handler(req) {
   if (!resendKey) {
     console.error("[book] RESEND_API_KEY is missing — no emails will be sent");
   } else {
-    await Promise.allSettled([
+    const teamText = [
+      `CONSULTATION BOOKED`,
+      `Booking ID: ${bookingId}`,
+      `Lead ID:    ${leadId || "direct (no lead ID)"}`,
+      `Time:       ${ts}`,
+      ``,
+      `CLIENT`,
+      `Name:     ${name || "(not provided)"}`,
+      `Business: ${biz  || "(not provided)"}`,
+      `Email:    ${email}`,
+      ``,
+      `Action: Client booked via external calendar. Confirm calendar invite and send prep notes to ${email}.`,
+    ].join("\n");
+
+    const clientText = [
+      `Hi ${firstName},`,
+      ``,
+      `Your Veridian Revenue Recovery consultation is confirmed.`,
+      ``,
+      `BOOKING DETAILS`,
+      `Booking ID: ${bookingId}`,
+      leadId ? `Lead ID:    ${leadId}` : null,
+      ``,
+      `PREPARING FOR YOUR CALL`,
+      `To make the most of our 30 minutes together, please have the following ready:`,
+      ``,
+      `1. Monthly call volume — roughly how many inbound calls does your business receive per month?`,
+      `2. Missed call estimate — what percentage go unanswered or to voicemail?`,
+      `3. Average transaction value — what is your typical job, service, or sale worth?`,
+      `4. Current setup — how are calls handled today (staff, service, voicemail)?`,
+      `5. Top challenge — what is the single biggest revenue problem you want to solve?`,
+      ``,
+      `You do not need to have exact numbers. Estimates are fine. We will work through the specifics together.`,
+      ``,
+      `If you need to reschedule or have questions before the call, reply to this email and we will respond within one business day.`,
+      ``,
+      `See you soon,`,
+      `— The Veridian Team`,
+      toEmail,
+    ].filter(line => line !== null).join("\n");
+
+    const [teamResult, clientResult] = await Promise.allSettled([
       sendEmail(resendKey, {
         from: `Veridian <noreply@${fromDomain}>`,
         to: [toEmail],
         subject: `Consultation Booked: ${name || "Unknown"} — ${biz || "Unknown Business"}`,
-        text: `CONSULTATION BOOKED\nBooking ID: ${bookingId}\nLead ID: ${leadId || "direct"}\n\nClient: ${name || "Unknown"}\nBusiness: ${biz || "(not provided)"}\nEmail: ${email}\n\nAction: Client booked via external calendar. Send prep notes to ${email}.`,
+        text: teamText,
       }, "team-booking"),
 
       sendEmail(resendKey, {
         from: `Veridian <hello@${fromDomain}>`,
         to: [email],
         reply_to: toEmail,
-        subject: `Consultation Confirmed — We'll See You Soon`,
-        text: `Hi ${firstName},\n\nYou're confirmed. We've received your booking and we're looking forward to speaking with you.\n\nIn the meantime, if you have any questions or need to reschedule, just reply to this email.\n\nSee you soon,\n— The Veridian Team\n${toEmail}`,
+        subject: `Your Veridian Consultation Is Confirmed`,
+        text: clientText,
       }, "client-confirm"),
     ]);
+
+    console.log("[book] team-booking:", teamResult.status, teamResult.value?.ok ?? teamResult.reason?.message);
+    console.log("[book] client-confirm:", clientResult.status, clientResult.value?.ok ?? clientResult.reason?.message);
   }
 
   console.log(`[book] done — bookingId=${bookingId}`);
