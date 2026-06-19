@@ -17,6 +17,31 @@ function mkId() {
   return `bkg_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
+async function supabaseGet(url, key, path) {
+  try {
+    const r = await fetch(`${url}${path}`, {
+      headers: { "apikey": key, "Authorization": `Bearer ${key}`, "Accept": "application/json" },
+    });
+    if (!r.ok) return null;
+    return await r.json().catch(() => null);
+  } catch { return null; }
+}
+
+async function supabaseUpdate(url, key, table, filter, data) {
+  try {
+    await fetch(`${url}/rest/v1/${table}?${filter}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": key,
+        "Authorization": `Bearer ${key}`,
+        "Prefer": "return=minimal",
+      },
+      body: JSON.stringify(data),
+    });
+  } catch {}
+}
+
 async function supabaseInsert(row) {
   const PLACEHOLDERS = ["YOUR-PROJECT", "your Supabase", "(your ", "REPLACE_WITH"];
   const isPlaceholder = v => PLACEHOLDERS.some(p => v.includes(p));
@@ -108,11 +133,28 @@ export default async function handler(req) {
   }
 
   const { leadId, name, email, biz, phone, notes } = body;
-  if (!email) {
-    return new Response(JSON.stringify({ error: "Email required." }), {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {
+    return new Response(JSON.stringify({ error: "Valid email required." }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  // Duplicate booking guard — one booking per leadId
+  const cleanEnvSb = v => (v || "").replace(/^=+/, "").trim();
+  const sbUrl = cleanEnvSb(process.env.NEXT_PUBLIC_SUPABASE_URL);
+  const sbKey = cleanEnvSb(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  if (leadId && sbUrl && sbKey) {
+    const existing = await supabaseGet(sbUrl, sbKey,
+      `/rest/v1/bookings?lead_id=eq.${encodeURIComponent(leadId)}&select=booking_id&limit=1`);
+    if (Array.isArray(existing) && existing.length > 0) {
+      const existingId = existing[0].booking_id;
+      console.log(`[book] duplicate blocked — leadId=${leadId} already has bookingId=${existingId}`);
+      return new Response(JSON.stringify({ success: true, bookingId: existingId, duplicate: true }), {
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      });
+    }
   }
 
   const bookingId = mkId();
@@ -143,7 +185,20 @@ export default async function handler(req) {
   const bookingInserted = sbResult?.ok === true;
 
   await kv("LPUSH", "veridian:bookings", JSON.stringify(booking));
-  if (leadId) await kv("SET", `veridian:booked:${leadId}`, "1");
+  if (leadId) {
+    await kv("SET", `veridian:booked:${leadId}`, "1");
+    // Remove from all follow-up queues — they've booked
+    await Promise.all(["24h", "3d", "7d", "14d"].map(s =>
+      kv("ZREM", `veridian:fu:${s}`, leadId)
+    ));
+    // Update lead status in Supabase
+    if (sbUrl && sbKey) {
+      await supabaseUpdate(sbUrl, sbKey, "leads",
+        `lead_id=eq.${encodeURIComponent(leadId)}`,
+        { status: "consultation_booked" }
+      );
+    }
+  }
 
   if (!resendKey) {
     console.error("[book] RESEND_API_KEY is missing — no emails will be sent");

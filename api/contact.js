@@ -145,9 +145,6 @@ async function supabaseInsert(row) {
   const url = rawUrl.replace(/^=+/, "").trim();
   const key = rawKey.replace(/^=+/, "").trim();
 
-  console.log("[supabase] NEXT_PUBLIC_SUPABASE_URL exists:", !!url, "| preview:", url ? url.slice(0, 60) : "EMPTY");
-  console.log("[supabase] SUPABASE_SERVICE_ROLE_KEY exists:", !!key, "| prefix:", key ? key.slice(0, 20) + "..." : "EMPTY");
-
   if (!url || !key) {
     console.error("[supabase] ABORT — env vars missing");
     return { skipped: true };
@@ -158,9 +155,6 @@ async function supabaseInsert(row) {
   }
 
   const endpoint = `${url}/rest/v1/leads`;
-  console.log("[supabase] Exact URL:", endpoint);
-  console.log("[supabase] Payload:", JSON.stringify(row));
-
   const r = await fetch(endpoint, {
     method: "POST",
     headers: {
@@ -173,15 +167,11 @@ async function supabaseInsert(row) {
   });
 
   const responseText = await r.text().catch(() => "");
-  console.log("[supabase] HTTP status:", r.status);
-  console.log("[supabase] Response body:", responseText || "(empty)");
-
   if (!r.ok) {
     console.error("[supabase] INSERT FAILED — HTTP", r.status);
     throw new Error(responseText);
   }
 
-  console.log("[supabase] INSERT OK");
   return { ok: true, status: r.status, body: responseText };
 }
 
@@ -205,19 +195,6 @@ export default async function handler(req) {
   const resendKey  = process.env.RESEND_API_KEY;
   const fromDomain = cleanEnv(process.env.FROM_DOMAIN) || "veridianriskgroup.org";
   const toEmail    = cleanEnv(process.env.TEAM_EMAIL)   || "info@veridianriskgroup.org";
-
-  console.log("[contact] ENV:", {
-    RESEND_API_KEY:           resendKey  ? `set (${resendKey.slice(0,6)}…)` : "MISSING",
-    FROM_DOMAIN:              process.env.FROM_DOMAIN           || "NOT SET — using default: veridianriskgroup.org",
-    TEAM_EMAIL:               process.env.TEAM_EMAIL            || "NOT SET — using default: info@veridianriskgroup.org",
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ? "set" : "MISSING",
-    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ? "set" : "MISSING",
-    KV_REST_API_URL:          process.env.KV_REST_API_URL       ? "set" : "MISSING",
-    KV_REST_API_TOKEN:        process.env.KV_REST_API_TOKEN     ? "set" : "MISSING",
-    GOHIGHLEVEL_API_KEY:      process.env.GOHIGHLEVEL_API_KEY   ? "set" : "not set",
-    GOHIGHLEVEL_LOCATION_ID:  process.env.GOHIGHLEVEL_LOCATION_ID ? "set" : "not set",
-    CONTACT_WEBHOOK_URL:      process.env.CONTACT_WEBHOOK_URL   ? "set" : "not set",
-  });
 
   let body;
   try { body = await req.json(); }
@@ -285,8 +262,6 @@ export default async function handler(req) {
     sbResult = { ok: false, error: err.message };
     console.error("[contact] supabase insert threw:", err.message);
   }
-  console.log("[contact] supabase result:", JSON.stringify(sbResult));
-
   const promises = [];
 
   // KV storage
