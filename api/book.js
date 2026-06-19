@@ -139,23 +139,28 @@ export default async function handler(req) {
   console.log(`[book] new booking: ${bookingId} — ${name} | ${email}`);
 
   // Supabase insert — before emails, errors are non-fatal
+  const sbPayload = {
+    booking_id: bookingId,
+    lead_id:    leadId || null,
+    name:       name || null,
+    business:   biz || null,
+    email:      email,
+    phone:      phone || null,
+    status:     "confirmed",
+    notes:      notes || null,
+  };
+  console.log("[book] supabase payload:", JSON.stringify(sbPayload));
+
   let sbResult = { skipped: true };
   try {
-    sbResult = await supabaseInsert({
-      booking_id: bookingId,
-      lead_id:    leadId || null,
-      name:       name || null,
-      business:   biz || null,
-      email:      email,
-      phone:      phone || null,
-      status:     "confirmed",
-      notes:      notes || null,
-    });
+    sbResult = await supabaseInsert(sbPayload);
   } catch (err) {
     sbResult = { ok: false, error: err.message };
     console.error("[book] supabase insert threw:", err.message);
   }
+  const bookingInserted = sbResult?.ok === true;
   console.log("[book] supabase result:", JSON.stringify(sbResult));
+  console.log("[book] bookingInserted:", bookingInserted);
 
   await kv("LPUSH", "veridian:bookings", JSON.stringify(booking));
   if (leadId) await kv("SET", `veridian:booked:${leadId}`, "1");
@@ -228,8 +233,9 @@ export default async function handler(req) {
   return new Response(JSON.stringify({
     success: true,
     bookingId,
+    bookingInserted,
     bookingStatus: sbResult?.status ?? null,
-    bookingBody: sbResult?.body ?? sbResult?.error ?? null,
+    bookingBody:   sbResult?.body ?? sbResult?.error ?? null,
   }), {
     headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
   });
