@@ -137,6 +137,9 @@ async function ghlIntegration(crmEntry, annual, calcBlock, fmtAnnual) {
 }
 
 async function supabaseInsert(row) {
+  const PLACEHOLDERS = ["YOUR-PROJECT", "your Supabase", "(your ", "REPLACE_WITH"];
+  const isPlaceholder = v => PLACEHOLDERS.some(p => v.includes(p));
+
   const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
   const rawKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
   const url = rawUrl.replace(/^=+/, "").trim();
@@ -148,6 +151,10 @@ async function supabaseInsert(row) {
   if (!url || !key) {
     console.error("[supabase] ABORT — env vars missing");
     return { skipped: true };
+  }
+  if (isPlaceholder(url) || isPlaceholder(key)) {
+    console.error("[supabase] ABORT — env vars contain placeholder values");
+    return { skipped: true, reason: "placeholder" };
   }
 
   const endpoint = `${url}/rest/v1/leads`;
