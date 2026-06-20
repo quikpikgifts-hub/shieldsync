@@ -1673,7 +1673,20 @@ function PricingPage({isMobile}){
             </div>
           ))}
         </div>
-        <div style={{marginTop:56,background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?"24px":"36px 48px",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:28,alignItems:"center",textAlign:"left"}}>
+        <div style={{marginTop:40,background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?"24px":"36px 48px",textAlign:"left"}}>
+          <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:16}}>SETUP INCLUDES</div>
+          <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(5,1fr)",gap:16,marginBottom:0}}>
+            {["Configuration","CRM Setup","SMS Setup","Automation Deployment","Testing & Launch"].map((item,i)=>(
+              <div key={i} style={{display:"flex",gap:10,alignItems:"center"}}>
+                <div style={{width:20,height:20,borderRadius:"50%",background:W.accentB,border:"1px solid rgba(99,102,241,0.22)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  <Check size={10} style={{color:W.accent}}/>
+                </div>
+                <span style={{fontSize:13,color:W.textSub}}>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{marginTop:24,background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?"24px":"36px 48px",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:28,alignItems:"center",textAlign:"left"}}>
           <div>
             <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:10}}>ENTERPRISE REVENUE GUARANTEE</div>
             <div style={{fontSize:isMobile?20:24,fontWeight:800,color:W.text,letterSpacing:"-0.03em",lineHeight:1.3,marginBottom:10}}>Enterprise clients: we guarantee measurable results or we work for free until you see them.</div>
@@ -2028,11 +2041,14 @@ export default function Website(){
       document.title=d?`${d.name} — Veridian`:"Industries — Veridian";
     }else if(path==="/dashboard"){
       document.title="Command Center — Veridian";
+    }else if(path==="/missed-call-text-recovery"){
+      document.title="Missed Call Text Recovery™ — Veridian";
     }else{
       document.title="Veridian — Turn Missed Calls Into Revenue";
     }
   },[path]);
   const sector=path.startsWith("/industries/")?path.replace("/industries/",""):null;
+  const isMCTR=path==="/missed-call-text-recovery";
   return(
     <div style={{background:W.bg,color:W.text,minHeight:"100vh",paddingBottom:isMobile?80:0}}>
       <WebNav isMobile={isMobile}/>
@@ -2040,10 +2056,12 @@ export default function Website(){
       {path==="/dashboard"&&<DashboardPage/>}
       {path==="/pricing"&&<PricingPage isMobile={isMobile}/>}
       {path==="/demo"&&<DemoPage isMobile={isMobile}/>}
-      {!sector&&path!=="/dashboard"&&path!=="/pricing"&&path!=="/demo"&&<Homepage isMobile={isMobile}/>}
-      {!sector&&path!=="/dashboard"&&path!=="/pricing"&&path!=="/demo"&&<WebFooter isMobile={isMobile}/>}
+      {isMCTR&&<MCTRLandingPage isMobile={isMobile}/>}
+      {!sector&&path!=="/dashboard"&&path!=="/pricing"&&path!=="/demo"&&!isMCTR&&<Homepage isMobile={isMobile}/>}
+      {!sector&&path!=="/dashboard"&&path!=="/pricing"&&path!=="/demo"&&!isMCTR&&<WebFooter isMobile={isMobile}/>}
       {path==="/pricing"&&<WebFooter isMobile={isMobile}/>}
       {path==="/demo"&&<WebFooter isMobile={isMobile}/>}
+      {isMCTR&&<WebFooter isMobile={isMobile}/>}
       {isMobile&&<StickyMobileCTA/>}
       <ChatWidget/>
     </div>

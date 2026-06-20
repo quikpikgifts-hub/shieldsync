@@ -152,7 +152,7 @@ export default async function handler(req) {
 
   let smsBody;
   if (type === "missed_call") {
-    smsBody = `Hi ${firstName}, this is Veridian — we just missed your call. We'd love to show you how to recover $30K–$120K in lost revenue. Reply here or book at https://www.veridianresiliencegroupllc.org/#contact`;
+    smsBody = `Hi ${firstName}, this is Veridian.\n\nSorry we missed your call.\n\nMany businesses lose revenue when calls go unanswered.\n\nWhat challenge are you trying to solve today?\n\nReply here and we'll respond right away.`;
   } else if (type === "reminder_24h") {
     smsBody = `Hi ${firstName}, following up from Veridian. Have you had a chance to calculate your missed revenue? Most of our clients recover over $50K in year one: https://www.veridianresiliencegroupllc.org/#calculator`;
   } else if (type === "reminder_3d") {
