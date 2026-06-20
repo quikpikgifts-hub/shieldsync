@@ -190,6 +190,7 @@ function ChatWidget(){
                 <button onClick={submitLead} disabled={!lead.email||submitting} style={{width:"100%",background:W.accent,border:"none",borderRadius:8,padding:"10px",fontSize:13,fontWeight:700,color:"#fff",cursor:!lead.email||submitting?"not-allowed":"pointer",opacity:!lead.email||submitting?0.5:1}}>
                   {submitting?"Sending...":"Send My Assessment Request"}
                 </button>
+                <div style={{marginTop:8,fontSize:10,color:W.textDim,lineHeight:1.6}}>By submitting, you agree to receive SMS from Veridian. Reply STOP to opt out. <a href="/privacy" style={{color:W.textSub,textDecoration:"none"}}>Privacy Policy</a></div>
               </div>
             )}
             {captured&&(
@@ -317,7 +318,12 @@ function WebFooter({isMobile}){
       </div>
       <div style={{borderTop:`1px solid ${W.border}`,padding:isMobile?"16px 24px":"14px 48px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
         <div style={{fontSize:11,color:W.textDim}}>&copy; {new Date().getFullYear()} Veridian Risk &amp; Resilience Group. All rights reserved.</div>
-        <a href="/dashboard" style={{fontSize:11,color:W.textDim,textDecoration:"none",opacity:.4}}>Team Access</a>
+        <div style={{display:"flex",gap:16,alignItems:"center",flexWrap:"wrap"}}>
+          <a href="/privacy" style={{fontSize:11,color:W.textDim,textDecoration:"none"}}>Privacy Policy</a>
+          <a href="/terms" style={{fontSize:11,color:W.textDim,textDecoration:"none"}}>Terms of Service</a>
+          <a href="/hvac" style={{fontSize:11,color:W.textDim,textDecoration:"none"}}>HVAC</a>
+          <a href="/dashboard" style={{fontSize:11,color:W.textDim,textDecoration:"none",opacity:.4}}>Team Access</a>
+        </div>
       </div>
     </footer>
   );
@@ -1300,6 +1306,9 @@ function Contact({isMobile}){
                 <button type="submit" disabled={loading} className="vd-btn" style={{width:"100%",background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:16,fontSize:15,fontWeight:700,cursor:loading?"not-allowed":"pointer",opacity:loading?0.7:1,justifyContent:"center",boxShadow:`0 4px 20px ${W.accentGlow}`}}>
                   {loading?"Sending...":"Start Recovering Revenue"}
                 </button>
+                <div style={{marginTop:12,fontSize:11,color:W.textDim,lineHeight:1.65,textAlign:"center"}}>
+                  By submitting, you agree to receive SMS text messages from Veridian regarding your inquiry. Reply STOP to opt out at any time. Message &amp; data rates may apply. View our <a href="/privacy" style={{color:W.textSub,textDecoration:"underline"}}>Privacy Policy</a> and <a href="/terms" style={{color:W.textSub,textDecoration:"underline"}}>Terms of Service</a>.
+                </div>
               </form>
             </div>
           )}
@@ -2229,6 +2238,361 @@ function MCTRLandingPage({isMobile}){
 }
 
 // ─────────────────────────────────────────────────────────────
+// PRIVACY POLICY PAGE
+// ─────────────────────────────────────────────────────────────
+function PrivacyPage({isMobile}){
+  const s={fontSize:14,color:W.textSub,lineHeight:1.85,marginBottom:16};
+  const h={fontSize:18,fontWeight:800,color:W.text,marginBottom:10,marginTop:32};
+  return(
+    <div style={{maxWidth:780,margin:"0 auto",padding:isMobile?"80px 24px 120px":"100px 48px 140px"}}>
+      <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.12em",marginBottom:16}}>LEGAL</div>
+      <h1 style={{fontSize:isMobile?"32px":"48px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",marginBottom:8}}>Privacy Policy</h1>
+      <p style={{fontSize:13,color:W.textDim,marginBottom:40}}>Effective Date: June 1, 2026 · Last Updated: June 20, 2026</p>
+      <p style={s}>Veridian Risk &amp; Resilience Group LLC ("Veridian," "we," "us," or "our") operates the website at veridianresiliencegroupllc.org and provides revenue recovery services including Missed Call Text Recovery™. This Privacy Policy describes how we collect, use, and protect your information.</p>
+      <div style={h}>1. Information We Collect</div>
+      <p style={s}><strong style={{color:W.text}}>Information you provide directly:</strong> When you submit our contact form, chat with Alex AI, or book a consultation, we collect your name, business name, email address, phone number, and any information you share about your business challenges.</p>
+      <p style={s}><strong style={{color:W.text}}>Usage data:</strong> We collect standard web analytics data including pages visited, time on site, referring URLs, and browser/device information.</p>
+      <p style={s}><strong style={{color:W.text}}>SMS communications:</strong> If you opt in to receive SMS messages, we collect your mobile phone number and maintain records of SMS communications sent and received.</p>
+      <div style={h}>2. How We Use Your Information</div>
+      <p style={s}>We use the information we collect to: (a) respond to your inquiries and provide our services; (b) send SMS text messages you have consented to receive; (c) send email follow-up communications about our services; (d) analyze and improve our website and services; and (e) comply with legal obligations.</p>
+      <div style={h}>3. SMS Text Messaging — TCPA Compliance</div>
+      <p style={s}>By submitting our contact form or lead capture form and providing your phone number, you expressly consent to receive recurring SMS text messages from Veridian Risk &amp; Resilience Group LLC at the number you provide, including messages sent by automated technology. Consent is not a condition of any purchase.</p>
+      <p style={s}><strong style={{color:W.text}}>Message frequency:</strong> Message frequency varies based on your inquiry and service engagement. You may receive up to 4 messages per month.</p>
+      <p style={s}><strong style={{color:W.text}}>Message &amp; data rates:</strong> Standard message and data rates may apply depending on your carrier and plan.</p>
+      <p style={s}><strong style={{color:W.text}}>Opt-out:</strong> You may opt out of SMS communications at any time by replying STOP to any message we send. You will receive a single confirmation message and no further SMS messages will be sent.</p>
+      <p style={s}><strong style={{color:W.text}}>Help:</strong> Reply HELP to any SMS message for support information or contact us at info@veridianriskgroup.org.</p>
+      <div style={h}>4. Information Sharing</div>
+      <p style={s}>We do not sell, rent, or trade your personal information to third parties for their marketing purposes. We may share your information with service providers who assist us in operating our website and delivering our services (including Twilio for SMS, Resend for email, Supabase for data storage, and Anthropic for AI features). These providers are contractually obligated to protect your information.</p>
+      <div style={h}>5. Data Retention</div>
+      <p style={s}>We retain your contact and business information for as long as necessary to provide our services and comply with legal obligations. Lead and booking records are retained for a minimum of 36 months. You may request deletion of your personal information at any time by contacting us at info@veridianriskgroup.org.</p>
+      <div style={h}>6. Your Rights (California Residents — CCPA)</div>
+      <p style={s}>If you are a California resident, you have the right to: (a) know what personal information we collect and how it is used; (b) request deletion of your personal information; (c) opt out of the sale of personal information (we do not sell personal information); and (d) non-discrimination for exercising your privacy rights. To exercise these rights, contact us at info@veridianriskgroup.org.</p>
+      <div style={h}>7. Security</div>
+      <p style={s}>We implement industry-standard technical and organizational measures to protect your personal information. However, no method of electronic transmission or storage is 100% secure. We cannot guarantee absolute security of your information.</p>
+      <div style={h}>8. Contact Us</div>
+      <p style={s}>For privacy-related questions, data deletion requests, or to opt out of communications:</p>
+      <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:"20px 24px",marginTop:8}}>
+        <div style={{fontSize:14,color:W.text,fontWeight:700,marginBottom:4}}>Veridian Risk &amp; Resilience Group LLC</div>
+        <div style={{fontSize:13,color:W.textSub,marginBottom:2}}>Sanford, Florida</div>
+        <a href="mailto:info@veridianriskgroup.org" style={{fontSize:13,color:W.accent,display:"block",marginBottom:2}}>info@veridianriskgroup.org</a>
+        <a href="tel:+14074705992" style={{fontSize:13,color:W.accent}}>(407) 470-5992</a>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// TERMS OF SERVICE PAGE
+// ─────────────────────────────────────────────────────────────
+function TermsPage({isMobile}){
+  const s={fontSize:14,color:W.textSub,lineHeight:1.85,marginBottom:16};
+  const h={fontSize:18,fontWeight:800,color:W.text,marginBottom:10,marginTop:32};
+  return(
+    <div style={{maxWidth:780,margin:"0 auto",padding:isMobile?"80px 24px 120px":"100px 48px 140px"}}>
+      <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.12em",marginBottom:16}}>LEGAL</div>
+      <h1 style={{fontSize:isMobile?"32px":"48px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",marginBottom:8}}>Terms of Service</h1>
+      <p style={{fontSize:13,color:W.textDim,marginBottom:40}}>Effective Date: June 1, 2026 · Last Updated: June 20, 2026</p>
+      <p style={s}>These Terms of Service ("Terms") govern your use of the Veridian Risk &amp; Resilience Group LLC ("Veridian," "we," "us," "our") website and services. By accessing our website or purchasing our services, you agree to these Terms.</p>
+      <div style={h}>1. Services</div>
+      <p style={s}>Veridian provides revenue recovery services for service businesses, including Missed Call Text Recovery™, AI concierge, lead capture automation, and related services as described in our current pricing plans. Service details, features, and pricing are subject to change with 30 days' notice to active clients.</p>
+      <div style={h}>2. Subscriptions and Billing</div>
+      <p style={s}><strong style={{color:W.text}}>Setup fees:</strong> One-time setup fees are charged at the time of account creation and are non-refundable after the service has been activated and configured.</p>
+      <p style={s}><strong style={{color:W.text}}>Monthly subscriptions:</strong> Monthly plans are billed in advance on the same date each month. Cancellations take effect at the end of the current billing period — no partial-month refunds are issued.</p>
+      <p style={s}><strong style={{color:W.text}}>Lead limits:</strong> Plans include a monthly lead limit. Exceeding your plan limit may result in service throttling or automatic upgrade to the next tier with your prior consent.</p>
+      <div style={h}>3. Acceptable Use</div>
+      <p style={s}>You agree not to use Veridian services to: (a) send unsolicited SMS or email communications to individuals who have not consented; (b) violate any applicable law including the Telephone Consumer Protection Act (TCPA), CAN-SPAM Act, or state consumer protection laws; (c) transmit false or misleading information; (d) interfere with or disrupt our services or infrastructure.</p>
+      <div style={h}>4. TCPA Compliance — Client Responsibility</div>
+      <p style={s}>You are responsible for ensuring that your use of Veridian SMS services complies with the TCPA and all applicable federal, state, and local laws. You represent and warrant that you have obtained all necessary consents from your customers before their contact information is enrolled in any automated messaging program. Veridian provides technology services — you are the "sender" for TCPA purposes and bear primary responsibility for compliance.</p>
+      <div style={h}>5. Intellectual Property</div>
+      <p style={s}>The Veridian name, logo, "Missed Call Text Recovery™" trademark, "24/7 Revenue Front Desk™" trademark, website content, software, and AI personas are proprietary to Veridian Risk &amp; Resilience Group LLC. You may not copy, reproduce, distribute, or create derivative works without our express written permission.</p>
+      <div style={h}>6. Limitation of Liability</div>
+      <p style={s}>TO THE MAXIMUM EXTENT PERMITTED BY LAW, VERIDIAN SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOST REVENUE OR PROFITS, ARISING FROM YOUR USE OF OUR SERVICES. OUR TOTAL LIABILITY TO YOU SHALL NOT EXCEED THE AMOUNT YOU PAID FOR THE SERVICES IN THE 3 MONTHS PRECEDING THE CLAIM.</p>
+      <div style={h}>7. Disclaimer of Warranties</div>
+      <p style={s}>OUR SERVICES ARE PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. WE DO NOT WARRANT THAT OUR SERVICES WILL BE UNINTERRUPTED, ERROR-FREE, OR THAT SPECIFIC RESULTS (INCLUDING REVENUE RECOVERY AMOUNTS) WILL BE ACHIEVED. REVENUE RECOVERY ESTIMATES ARE PROJECTIONS ONLY AND ARE NOT GUARANTEES.</p>
+      <div style={h}>8. Termination</div>
+      <p style={s}>Either party may terminate the service relationship with 30 days' written notice. We may terminate immediately for material breach of these Terms, non-payment, or illegal use of our services. Upon termination, your access to our systems will be discontinued and data may be deleted after a 90-day retention period.</p>
+      <div style={h}>9. Governing Law</div>
+      <p style={s}>These Terms are governed by the laws of the State of Florida. Any disputes shall be resolved in the courts of Seminole County, Florida, or through binding arbitration administered by the American Arbitration Association under its Commercial Arbitration Rules.</p>
+      <div style={h}>10. Contact</div>
+      <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:"20px 24px",marginTop:8}}>
+        <div style={{fontSize:14,color:W.text,fontWeight:700,marginBottom:4}}>Veridian Risk &amp; Resilience Group LLC</div>
+        <div style={{fontSize:13,color:W.textSub,marginBottom:2}}>Sanford, Florida</div>
+        <a href="mailto:info@veridianriskgroup.org" style={{fontSize:13,color:W.accent,display:"block",marginBottom:2}}>info@veridianriskgroup.org</a>
+        <a href="tel:+14074705992" style={{fontSize:13,color:W.accent}}>(407) 470-5992</a>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// HVAC LANDING PAGE
+// ─────────────────────────────────────────────────────────────
+const HVAC_STATS=[
+  {label:"Average Service Call Value",value:"$285",sub:"Residential HVAC"},
+  {label:"Average Install Value",value:"$6,800",sub:"New system replacement"},
+  {label:"Typical Miss Rate",value:"23%",sub:"Industry average"},
+  {label:"Annual Revenue at Risk",value:"$78K+",sub:"Per 10 missed calls/day"},
+];
+const HVAC_OBJECTIONS=[
+  {q:"We already have voicemail.",a:"Voicemail is a dead end — 87% of callers who reach voicemail hang up and call the next contractor. Missed Call Text Recovery™ responds in under 60 seconds while the customer is still deciding."},
+  {q:"We don't miss that many calls.",a:"Most HVAC owners are surprised when they see the data. 10 missed calls per day at $285 average job value equals $28,500/month in potential revenue. Our calculator shows your exact number."},
+  {q:"We already use a call center / answering service.",a:"Answering services cost $300-$900/month and still miss calls after-hours and during peak season. MCTR works 24/7, responds in seconds, and costs $199/month flat."},
+  {q:"We're too busy — we can't handle more calls.",a:"That's the best problem to have. Our system qualifies leads and books appointments automatically — you only deal with jobs that are ready to schedule."},
+];
+const HVAC_TIMELINE=[
+  {day:"Day 1",title:"Setup Call (30 min)",desc:"We configure your text-back response, set your business hours, and test the system live with your number."},
+  {day:"Day 3",title:"Go Live",desc:"Your MCTR system is active. Every missed call triggers an automatic text within 60 seconds."},
+  {day:"Day 7",title:"First Report",desc:"You receive a summary showing every missed call captured, conversation started, and appointment request made."},
+  {day:"Day 30",title:"ROI Review",desc:"We review your first month together. Average HVAC client sees 3-7 recovered jobs in month one."},
+];
+
+function HVACLandingPage({isMobile}){
+  const[oIdx,setOIdx]=useState(null);
+  const[calls,setCalls]=useState(15);
+  const[val,setVal]=useState(285);
+  const miss=0.23;
+  const conv=0.35;
+  const missedMo=Math.round(calls*30*miss);
+  const recMo=Math.round(missedMo*conv);
+  const recRevMo=recMo*val;
+  const recRevAnn=recRevMo*12;
+  const roi=Math.round((recRevAnn-199*12-299)/((199*12)+299)*100);
+  return(
+    <div>
+      {/* Hero */}
+      <section style={{padding:isMobile?"100px 24px 80px":"140px 48px 100px",background:`linear-gradient(180deg,${W.surface} 0%,${W.bg} 100%)`,borderBottom:`1px solid ${W.border}`}}>
+        <div style={{maxWidth:1100,margin:"0 auto",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?48:80,alignItems:"center"}}>
+          <div>
+            <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(245,158,11,0.1)",border:"1px solid rgba(245,158,11,0.25)",borderRadius:100,padding:"6px 14px",marginBottom:24}}>
+              <span style={{fontSize:10,fontWeight:700,color:W.amber,letterSpacing:"0.12em"}}>HVAC CONTRACTORS</span>
+            </div>
+            <h1 style={{fontSize:isMobile?"36px":"58px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:20}}>
+              Stop losing HVAC jobs to<br style={{display:isMobile?"none":"block"}}/> <span style={{color:W.amber}}>missed calls.</span>
+            </h1>
+            <p style={{fontSize:isMobile?"15px":"18px",color:W.textSub,lineHeight:1.75,marginBottom:32,maxWidth:500}}>
+              Every missed call during a heat wave or freeze event is a $285–$6,800 job walking to your competitor. Missed Call Text Recovery™ responds in under 60 seconds — 24/7, including nights and weekends.
+            </p>
+            <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+              <a href="/#contact" className="vd-btn" style={{background:`linear-gradient(135deg,${W.amber},#D97706)`,color:"#fff",padding:"15px 32px",borderRadius:12,fontSize:16,fontWeight:700,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:8,boxShadow:"0 4px 24px rgba(245,158,11,0.35)"}}>
+                Get My Free HVAC Assessment <ArrowRight size={15}/>
+              </a>
+            </div>
+            <div style={{marginTop:20,fontSize:12,color:W.textDim}}>$199/month · No contracts · Setup in 5 business days</div>
+          </div>
+          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:"28px 32px"}}>
+            <div style={{fontSize:11,fontWeight:700,color:W.amber,letterSpacing:"0.12em",marginBottom:20}}>YOUR HVAC RECOVERY ESTIMATE</div>
+            {[{label:"Daily calls",value:calls,setValue:setCalls,min:5,max:60,step:5},{label:"Average job value ($)",value:val,setValue:setVal,min:100,max:2000,step:50}].map(({label,value,setValue,min,max,step})=>(
+              <div key={label} style={{marginBottom:20}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
+                  <span style={{fontSize:12,color:W.textSub,fontWeight:600}}>{label}</span>
+                  <span style={{fontSize:14,fontWeight:800,color:W.text}}>{label.includes("$")?`$${value.toLocaleString()}`:value}</span>
+                </div>
+                <input type="range" min={min} max={max} step={step} value={value} onChange={e=>setValue(Number(e.target.value))}
+                  style={{width:"100%",accentColor:W.amber}}/>
+              </div>
+            ))}
+            <div style={{borderTop:`1px solid ${W.border}`,paddingTop:20,marginTop:4}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
+                {[{l:"Calls recovered/mo",v:`${recMo} jobs`},{l:"Revenue recovered/mo",v:`$${recRevMo.toLocaleString()}`},{l:"Annual recovery",v:`$${recRevAnn.toLocaleString()}`},{l:"First-year ROI",v:`${roi}%`}].map(({l,v})=>(
+                  <div key={l} style={{background:W.surface,borderRadius:10,padding:"12px 14px"}}>
+                    <div style={{fontSize:10,color:W.textDim,marginBottom:4}}>{l}</div>
+                    <div style={{fontSize:16,fontWeight:800,color:W.amber}}>{v}</div>
+                  </div>
+                ))}
+              </div>
+              <a href="/#contact" className="vd-btn" style={{display:"flex",background:`linear-gradient(135deg,${W.amber},#D97706)`,color:"#fff",borderRadius:10,padding:"13px 20px",fontSize:14,fontWeight:700,textDecoration:"none",justifyContent:"center",gap:8,boxShadow:"0 4px 20px rgba(245,158,11,0.3)"}}>
+                Start Recovering ${recRevMo.toLocaleString()}/mo <ArrowRight size={14}/>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* Stats */}
+      <section style={{padding:isMobile?"60px 24px":"80px 48px",background:W.bg}}>
+        <div style={{maxWidth:1100,margin:"0 auto",display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:16}}>
+          {HVAC_STATS.map((s,i)=>(
+            <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:"24px 20px",textAlign:"center"}}>
+              <div style={{fontSize:isMobile?"26px":"32px",fontWeight:900,color:W.amber,marginBottom:4}}>{s.value}</div>
+              <div style={{fontSize:12,fontWeight:700,color:W.text,marginBottom:4}}>{s.label}</div>
+              <div style={{fontSize:11,color:W.textDim}}>{s.sub}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+      {/* How it works for HVAC */}
+      <section style={{padding:isMobile?"60px 24px":"100px 48px",background:W.surface,borderTop:`1px solid ${W.border}`,borderBottom:`1px solid ${W.border}`}}>
+        <div style={{maxWidth:900,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:56}}>
+            <div style={{fontSize:11,fontWeight:700,color:W.amber,letterSpacing:"0.12em",marginBottom:12}}>HOW IT WORKS FOR HVAC</div>
+            <h2 style={{fontSize:isMobile?"28px":"42px",fontWeight:900,color:W.text,letterSpacing:"-0.04em"}}>Customer calls. You miss it. We recover it.</h2>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(4,1fr)",gap:16}}>
+            {[{n:1,t:"Missed Call Detected",d:"A customer calls your number. You're on a job, driving, or after hours. The call goes unanswered.",c:W.red},{n:2,t:"60-Second Text Back",d:"MCTR automatically sends a personalized text message within 60 seconds. The customer is still thinking about you.",c:W.amber},{n:3,t:"Conversation Started",d:"The customer replies. Our system (and optionally Alex AI) keeps the conversation moving — qualifying, scheduling.",c:W.accent},{n:4,t:"Job Booked",d:"The appointment is requested and captured. You get notified. Revenue that was walking out the door is now on your calendar.",c:W.green}].map((step)=>(
+              <div key={step.n} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:"24px 20px",textAlign:"center"}}>
+                <div style={{width:40,height:40,borderRadius:"50%",background:`${step.c}18`,border:`2px solid ${step.c}`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",fontSize:16,fontWeight:900,color:step.c}}>{step.n}</div>
+                <div style={{fontSize:14,fontWeight:800,color:W.text,marginBottom:8}}>{step.t}</div>
+                <div style={{fontSize:12,color:W.textSub,lineHeight:1.65}}>{step.d}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      {/* Timeline */}
+      <section style={{padding:isMobile?"60px 24px":"100px 48px",background:W.bg}}>
+        <div style={{maxWidth:780,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:56}}>
+            <div style={{fontSize:11,fontWeight:700,color:W.amber,letterSpacing:"0.12em",marginBottom:12}}>ONBOARDING TIMELINE</div>
+            <h2 style={{fontSize:isMobile?"28px":"42px",fontWeight:900,color:W.text,letterSpacing:"-0.04em"}}>Live in 5 business days.</h2>
+          </div>
+          <div style={{position:"relative",paddingLeft:isMobile?0:32}}>
+            {HVAC_TIMELINE.map((t,i)=>(
+              <div key={i} style={{display:"flex",gap:24,marginBottom:i<HVAC_TIMELINE.length-1?32:0,alignItems:"flex-start"}}>
+                <div style={{flexShrink:0,background:`${W.amber}18`,border:`2px solid ${W.amber}`,borderRadius:10,padding:"6px 12px",fontSize:11,fontWeight:800,color:W.amber,whiteSpace:"nowrap"}}>{t.day}</div>
+                <div>
+                  <div style={{fontSize:15,fontWeight:800,color:W.text,marginBottom:4}}>{t.title}</div>
+                  <div style={{fontSize:13,color:W.textSub,lineHeight:1.65}}>{t.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      {/* Objection handling */}
+      <section style={{padding:isMobile?"60px 24px":"100px 48px",background:W.surface,borderTop:`1px solid ${W.border}`,borderBottom:`1px solid ${W.border}`}}>
+        <div style={{maxWidth:780,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:48}}>
+            <div style={{fontSize:11,fontWeight:700,color:W.amber,letterSpacing:"0.12em",marginBottom:12}}>COMMON QUESTIONS</div>
+            <h2 style={{fontSize:isMobile?"28px":"40px",fontWeight:900,color:W.text,letterSpacing:"-0.04em"}}>We've heard every objection.</h2>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            {HVAC_OBJECTIONS.map((o,i)=>(
+              <div key={i} style={{background:W.card,border:`1px solid ${oIdx===i?W.amber:W.border}`,borderRadius:14,overflow:"hidden",transition:"border-color .2s"}}>
+                <button onClick={()=>setOIdx(oIdx===i?null:i)} style={{width:"100%",background:"none",border:"none",padding:"18px 24px",display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer",gap:16}}>
+                  <span style={{fontSize:14,fontWeight:700,color:W.text,textAlign:"left"}}>{o.q}</span>
+                  <ChevronDown size={16} style={{color:W.textSub,flexShrink:0,transform:oIdx===i?"rotate(180deg)":"none",transition:"transform .2s"}}/>
+                </button>
+                {oIdx===i&&<div style={{padding:"0 24px 18px",fontSize:13,color:W.textSub,lineHeight:1.75}}>{o.a}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      {/* Final CTA */}
+      <section style={{padding:isMobile?"80px 24px":"120px 48px",background:W.bg}}>
+        <div style={{maxWidth:680,margin:"0 auto",textAlign:"center"}}>
+          <div style={{fontSize:11,fontWeight:700,color:W.amber,letterSpacing:"0.12em",marginBottom:16}}>HVAC CONTRACTORS — GET STARTED</div>
+          <h2 style={{fontSize:isMobile?"30px":"48px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:16}}>Your next job is already calling.</h2>
+          <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,lineHeight:1.72,maxWidth:480,margin:"0 auto 32px"}}>Book a free HVAC Revenue Recovery Assessment. We'll show you exactly how many jobs you're losing to missed calls — and set up Missed Call Text Recovery™ within 5 business days.</p>
+          <a href="/#contact" className="vd-btn" style={{background:`linear-gradient(135deg,${W.amber},#D97706)`,color:"#fff",padding:"16px 40px",borderRadius:12,fontSize:17,fontWeight:700,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:8,boxShadow:"0 4px 24px rgba(245,158,11,0.35)"}}>
+            Book My Free HVAC Assessment <ArrowRight size={16}/>
+          </a>
+          <div style={{marginTop:20,fontSize:12,color:W.textDim}}>$199/month · No long-term contracts · Live in 5 business days</div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// CLIENT PORTAL PAGE
+// ─────────────────────────────────────────────────────────────
+function ClientPortalPage({isMobile}){
+  const[pin,setPin]=useState("");
+  const[authed,setAuthed]=useState(false);
+  const[loading,setLoading]=useState(false);
+  const[err,setErr]=useState(null);
+  const[data,setData]=useState(null);
+  const submit=async e=>{
+    e.preventDefault();
+    if(!pin.trim())return;
+    setLoading(true);setErr(null);
+    try{
+      const r=await fetch(`/api/metrics?pin=${encodeURIComponent(pin)}`);
+      if(r.status===401||r.status===403){setErr("Incorrect PIN. Contact info@veridianriskgroup.org to access your portal.");setLoading(false);return;}
+      if(!r.ok)throw new Error("Server error");
+      const d=await r.json();
+      setData(d);setAuthed(true);
+    }catch{setErr("Unable to connect. Please try again or contact us directly.");}
+    setLoading(false);
+  };
+  if(!authed){
+    return(
+      <div style={{minHeight:"80vh",display:"flex",alignItems:"center",justifyContent:"center",padding:"40px 24px"}}>
+        <div style={{width:"100%",maxWidth:400}}>
+          <div style={{textAlign:"center",marginBottom:40}}>
+            <div style={{width:48,height:48,background:`linear-gradient(135deg,${W.accent},${W.accentH})`,borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}><Lock size={20} style={{color:"#fff"}}/></div>
+            <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.12em",marginBottom:8}}>CLIENT PORTAL</div>
+            <h1 style={{fontSize:28,fontWeight:900,color:W.text,marginBottom:8}}>Your Recovery Dashboard</h1>
+            <p style={{fontSize:13,color:W.textSub,lineHeight:1.65}}>Enter your client PIN to view your leads, texts sent, and recovery metrics.</p>
+          </div>
+          <form onSubmit={submit} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:32}}>
+            <div style={{marginBottom:20}}>
+              <label style={{fontSize:11,fontWeight:700,color:W.textSub,display:"block",marginBottom:8,letterSpacing:"0.05em"}}>CLIENT PIN</label>
+              <input type="password" value={pin} onChange={e=>setPin(e.target.value)} placeholder="Enter your PIN" style={{width:"100%",background:W.surface,border:`1px solid ${W.border}`,borderRadius:9,padding:"12px 14px",color:W.text,fontSize:15,outline:"none",letterSpacing:"0.2em",textAlign:"center"}}/>
+            </div>
+            {err&&<div style={{marginBottom:16,padding:"11px 14px",background:W.redB,border:"1px solid rgba(239,68,68,0.2)",borderRadius:8,fontSize:12,color:W.red,lineHeight:1.55}}>{err}</div>}
+            <button type="submit" disabled={loading||!pin.trim()} className="vd-btn" style={{width:"100%",background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:14,fontSize:15,fontWeight:700,cursor:"pointer",justifyContent:"center",opacity:loading||!pin.trim()?0.6:1}}>
+              {loading?"Checking...":"Access My Dashboard"}
+            </button>
+            <div style={{marginTop:20,textAlign:"center",fontSize:12,color:W.textDim}}>Don't have a PIN? <a href="mailto:info@veridianriskgroup.org" style={{color:W.accent,textDecoration:"none"}}>Contact your account manager</a></div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+  const leads=data?.leads||[];
+  const totalLeads=leads.length;
+  const booked=leads.filter(l=>l.status==="consultation_booked"||l.status==="won").length;
+  const hot=leads.filter(l=>l.priority==="HOT").length;
+  const recent=leads.slice(0,10);
+  return(
+    <div style={{maxWidth:1100,margin:"0 auto",padding:isMobile?"80px 24px 120px":"100px 48px 140px"}}>
+      <div style={{marginBottom:40}}>
+        <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.12em",marginBottom:8}}>CLIENT PORTAL</div>
+        <h1 style={{fontSize:isMobile?"28px":"40px",fontWeight:900,color:W.text,marginBottom:4}}>Your Recovery Dashboard</h1>
+        <p style={{fontSize:13,color:W.textSub}}>All metrics are live from your account.</p>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:16,marginBottom:40}}>
+        {[{l:"Total Leads",v:totalLeads,c:W.accent},{l:"Consultations Booked",v:booked,c:W.green},{l:"HOT Leads",v:hot,c:W.red},{l:"Active Follow-Ups",v:Math.max(0,totalLeads-booked),c:W.amber}].map(({l,v,c})=>(
+          <div key={l} style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:"20px 22px"}}>
+            <div style={{fontSize:11,color:W.textDim,marginBottom:8,fontWeight:600}}>{l}</div>
+            <div style={{fontSize:32,fontWeight:900,color:c}}>{v}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,overflow:"hidden"}}>
+        <div style={{padding:"20px 24px",borderBottom:`1px solid ${W.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div style={{fontSize:14,fontWeight:800,color:W.text}}>Recent Leads</div>
+          <div style={{fontSize:11,color:W.textDim}}>Last {Math.min(10,totalLeads)} of {totalLeads}</div>
+        </div>
+        {recent.length===0?(
+          <div style={{padding:"48px 24px",textAlign:"center",color:W.textDim,fontSize:13}}>No leads yet. Your recovery system is active and monitoring.</div>
+        ):(
+          <div>
+            {recent.map((l,i)=>(
+              <div key={i} style={{padding:"16px 24px",borderBottom:i<recent.length-1?`1px solid ${W.border}`:undefined,display:"flex",justifyContent:"space-between",alignItems:"center",gap:16,flexWrap:"wrap"}}>
+                <div>
+                  <div style={{fontSize:13,fontWeight:700,color:W.text}}>{l.name||"Anonymous"}</div>
+                  <div style={{fontSize:11,color:W.textDim}}>{l.business||"—"} · {l.email}</div>
+                </div>
+                <div style={{display:"flex",gap:10,alignItems:"center",flexShrink:0}}>
+                  <span style={{fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:100,background:l.priority==="HOT"?W.redB:l.priority==="HIGH"?W.amberB:W.accentB,color:l.priority==="HOT"?W.red:l.priority==="HIGH"?W.amber:W.accent}}>{l.priority}</span>
+                  <span style={{fontSize:10,color:W.textDim}}>{l.status||"new"}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      <div style={{marginTop:32,padding:"20px 24px",background:W.card,border:`1px solid ${W.border}`,borderRadius:16,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
+        <div style={{fontSize:13,color:W.textSub}}>Questions about your results? Your account manager is available 24/7.</div>
+        <a href="tel:+14074705992" style={{fontSize:14,fontWeight:700,color:W.accent,textDecoration:"none"}}>(407) 470-5992</a>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
 // WEBSITE ROUTING
 // ─────────────────────────────────────────────────────────────
 export default function Website(){
@@ -2251,12 +2615,25 @@ export default function Website(){
       document.title="Command Center — Veridian";
     }else if(path==="/missed-call-text-recovery"){
       document.title="Missed Call Text Recovery™ — Veridian";
+    }else if(path==="/hvac"){
+      document.title="HVAC Missed Call Recovery — Veridian";
+    }else if(path==="/privacy"){
+      document.title="Privacy Policy — Veridian";
+    }else if(path==="/terms"){
+      document.title="Terms of Service — Veridian";
+    }else if(path==="/portal"){
+      document.title="Client Portal — Veridian";
     }else{
       document.title="Veridian — Turn Missed Calls Into Revenue";
     }
   },[path]);
   const sector=path.startsWith("/industries/")?path.replace("/industries/",""):null;
   const isMCTR=path==="/missed-call-text-recovery";
+  const isPrivacy=path==="/privacy";
+  const isTerms=path==="/terms";
+  const isHVAC=path==="/hvac";
+  const isPortal=path==="/portal";
+  const isSpecial=sector||path==="/dashboard"||path==="/pricing"||path==="/demo"||isMCTR||isPrivacy||isTerms||isHVAC||isPortal;
   return(
     <div style={{background:W.bg,color:W.text,minHeight:"100vh",paddingBottom:isMobile?80:0}}>
       <WebNav isMobile={isMobile}/>
@@ -2265,11 +2642,13 @@ export default function Website(){
       {path==="/pricing"&&<PricingPage isMobile={isMobile}/>}
       {path==="/demo"&&<DemoPage isMobile={isMobile}/>}
       {isMCTR&&<MCTRLandingPage isMobile={isMobile}/>}
-      {!sector&&path!=="/dashboard"&&path!=="/pricing"&&path!=="/demo"&&!isMCTR&&<Homepage isMobile={isMobile}/>}
-      {!sector&&path!=="/dashboard"&&path!=="/pricing"&&path!=="/demo"&&!isMCTR&&<WebFooter isMobile={isMobile}/>}
-      {path==="/pricing"&&<WebFooter isMobile={isMobile}/>}
-      {path==="/demo"&&<WebFooter isMobile={isMobile}/>}
-      {isMCTR&&<WebFooter isMobile={isMobile}/>}
+      {isPrivacy&&<PrivacyPage isMobile={isMobile}/>}
+      {isTerms&&<TermsPage isMobile={isMobile}/>}
+      {isHVAC&&<HVACLandingPage isMobile={isMobile}/>}
+      {isPortal&&<ClientPortalPage isMobile={isMobile}/>}
+      {!isSpecial&&<Homepage isMobile={isMobile}/>}
+      {!isSpecial&&<WebFooter isMobile={isMobile}/>}
+      {(path==="/pricing"||path==="/demo"||isMCTR||isPrivacy||isTerms||isHVAC||isPortal)&&<WebFooter isMobile={isMobile}/>}
       {isMobile&&<StickyMobileCTA/>}
       <ChatWidget/>
     </div>
