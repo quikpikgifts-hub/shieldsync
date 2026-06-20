@@ -310,7 +310,7 @@ function WebFooter({isMobile}){
         <div>
           <div style={col}>CONTACT</div>
           <div style={{fontSize:12,color:W.textDim,marginBottom:4}}>Steve Smith · Managing Member</div>
-          <a href="tel:+13212574492" className="vd-lk" style={{...lk,color:W.text,fontWeight:600}}>(321) 257-4492</a>
+          <a href="tel:+14074568902" className="vd-lk" style={{...lk,color:W.text,fontWeight:600}}>(407) 456-8902</a>
           <div style={{fontSize:12,color:W.textDim,marginBottom:4,marginTop:8}}>Skeeter · Director of Operations</div>
           <a href="tel:+16892485965" className="vd-lk" style={{...lk,color:W.text,fontWeight:600}}>(689) 248-5965</a>
           <a href="mailto:info@veridianriskgroup.org" className="vd-lk" style={{...lk,marginTop:8}}>info@veridianriskgroup.org</a>
@@ -1274,7 +1274,7 @@ function Contact({isMobile}){
           <div style={{padding:"20px 24px",background:W.card,border:`1px solid ${W.border}`,borderRadius:14}}>
             <div style={{fontSize:11,fontWeight:700,color:W.textDim,letterSpacing:"0.08em",marginBottom:12}}>DIRECT LINE</div>
             <div style={{fontSize:13,color:W.textSub,marginBottom:4}}>Steve Smith · Managing Member</div>
-            <a href="tel:+13212574492" style={{fontSize:16,fontWeight:700,color:W.text,textDecoration:"none",display:"block",marginBottom:14}}>(321) 257-4492</a>
+            <a href="tel:+14074568902" style={{fontSize:16,fontWeight:700,color:W.text,textDecoration:"none",display:"block",marginBottom:14}}>(407) 456-8902</a>
             <div style={{fontSize:13,color:W.textSub,marginBottom:4}}>Skeeter · Director of Operations</div>
             <a href="tel:+16892485965" style={{fontSize:16,fontWeight:700,color:W.text,textDecoration:"none"}}>(689) 248-5965</a>
           </div>
@@ -1338,7 +1338,7 @@ function Contact({isMobile}){
               ):(
                 <div style={{background:W.accentB,border:"1px solid rgba(99,102,241,0.2)",borderRadius:10,padding:"20px 24px",marginBottom:16,textAlign:"center"}}>
                   <div style={{fontSize:12,fontWeight:700,color:W.textSub,letterSpacing:"0.06em",marginBottom:10}}>CALL TO SCHEDULE</div>
-                  <a href="tel:+13212574492" style={{fontSize:20,fontWeight:800,color:W.accent,textDecoration:"none",display:"block",marginBottom:4}}>(321) 257-4492</a>
+                  <a href="tel:+14074568902" style={{fontSize:20,fontWeight:800,color:W.accent,textDecoration:"none",display:"block",marginBottom:4}}>(407) 456-8902</a>
                   <div style={{fontSize:12,color:W.textSub}}>Steve Smith · Managing Member</div>
                 </div>
               )}
@@ -2007,7 +2007,7 @@ function DemoNumberSection({isMobile}){
         </p>
         <div style={{display:"inline-flex",flexDirection:"column",alignItems:"center",gap:14,background:W.card,border:"1px solid rgba(16,185,129,0.3)",borderRadius:24,padding:isMobile?"28px 24px":"40px 64px",boxShadow:"0 0 60px rgba(16,185,129,0.08)"}}>
           <div style={{fontSize:11,fontWeight:700,color:W.green,letterSpacing:"0.14em"}}>DEMO NUMBER</div>
-          <a href="tel:+13212574492" style={{fontSize:isMobile?"42px":"64px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1,textDecoration:"none",transition:"color .15s"}}>(321) 257-4492</a>
+          <a href="tel:+14074568902" style={{fontSize:isMobile?"42px":"64px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1,textDecoration:"none",transition:"color .15s"}}>(407) 456-8902</a>
           <div style={{fontSize:14,color:W.textSub,lineHeight:1.65,maxWidth:360,textAlign:"center"}}>Call this number and hang up. You'll receive a text in under 60 seconds — exactly what your customers experience.</div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"center"}}>
             {["< 60s response","Real SMS to your phone","No download required"].map((t,i)=>(
@@ -2275,7 +2275,7 @@ function PrivacyPage({isMobile}){
         <div style={{fontSize:14,color:W.text,fontWeight:700,marginBottom:4}}>Veridian Risk &amp; Resilience Group LLC</div>
         <div style={{fontSize:13,color:W.textSub,marginBottom:2}}>Sanford, Florida</div>
         <a href="mailto:info@veridianriskgroup.org" style={{fontSize:13,color:W.accent,display:"block",marginBottom:2}}>info@veridianriskgroup.org</a>
-        <a href="tel:+13212574492" style={{fontSize:13,color:W.accent}}>(321) 257-4492</a>
+        <a href="tel:+14074568902" style={{fontSize:13,color:W.accent}}>(407) 456-8902</a>
       </div>
     </div>
   );
@@ -2318,7 +2318,7 @@ function TermsPage({isMobile}){
         <div style={{fontSize:14,color:W.text,fontWeight:700,marginBottom:4}}>Veridian Risk &amp; Resilience Group LLC</div>
         <div style={{fontSize:13,color:W.textSub,marginBottom:2}}>Sanford, Florida</div>
         <a href="mailto:info@veridianriskgroup.org" style={{fontSize:13,color:W.accent,display:"block",marginBottom:2}}>info@veridianriskgroup.org</a>
-        <a href="tel:+13212574492" style={{fontSize:13,color:W.accent}}>(321) 257-4492</a>
+        <a href="tel:+14074568902" style={{fontSize:13,color:W.accent}}>(407) 456-8902</a>
       </div>
     </div>
   );
@@ -2586,7 +2586,7 @@ function ClientPortalPage({isMobile}){
       </div>
       <div style={{marginTop:32,padding:"20px 24px",background:W.card,border:`1px solid ${W.border}`,borderRadius:16,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
         <div style={{fontSize:13,color:W.textSub}}>Questions about your results? Your account manager is available 24/7.</div>
-        <a href="tel:+13212574492" style={{fontSize:14,fontWeight:700,color:W.accent,textDecoration:"none"}}>(321) 257-4492</a>
+        <a href="tel:+14074568902" style={{fontSize:14,fontWeight:700,color:W.accent,textDecoration:"none"}}>(407) 456-8902</a>
       </div>
     </div>
   );
