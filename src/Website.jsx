@@ -1131,6 +1131,133 @@ function Trust({isMobile}){
 }
 
 // ─────────────────────────────────────────────────────────────
+// FOUNDER AUTHORITY
+// ─────────────────────────────────────────────────────────────
+function FounderAuthority({isMobile}){
+  const ref=useRef(null);
+  const inView=useInView(ref);
+  const credentials=[
+    {icon:Shield,label:"Law Enforcement & Investigations",detail:"Over a decade in law enforcement and private investigations, building the operational discipline that drives every Veridian engagement."},
+    {icon:Users,label:"Security Operations",detail:"Managed multi-site security programs including patrol, access control, and emergency response across commercial and residential portfolios."},
+    {icon:Globe,label:"Fleet & Field Operations",detail:"Directed fleet management and field operations for distributed teams — logistics, compliance, and performance at scale."},
+    {icon:Zap,label:"Business Operations",detail:"Built and operated service businesses from the ground up. Veridian exists because we lived the problem before we solved it."},
+  ];
+  return(
+    <section style={{padding:isMobile?"80px 24px":"120px 48px",background:W.bg,borderTop:`1px solid ${W.border}`}}>
+      <div style={{maxWidth:1000,margin:"0 auto"}} ref={ref}>
+        <div style={{display:isMobile?"block":"flex",gap:64,alignItems:"flex-start"}}>
+          <div style={{flex:"0 0 320px",marginBottom:isMobile?40:0}}>
+            <SLabel>LEADERSHIP</SLabel>
+            <h2 style={{fontSize:isMobile?"30px":"42px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.1,marginBottom:16}}>
+              Built by an operator,<br/>not a startup.
+            </h2>
+            <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:18,padding:isMobile?24:32,animation:inView?"fadeUp .5s ease both":"none"}}>
+              <div style={{fontSize:20,fontWeight:800,color:W.text,marginBottom:4}}>Steve Smith</div>
+              <div style={{fontSize:13,fontWeight:600,color:W.accent,marginBottom:16}}>Managing Member</div>
+              <p style={{fontSize:14,color:W.textSub,lineHeight:1.75,marginBottom:16}}>
+                27+ years of operational leadership spanning law enforcement, investigations, security operations, fleet management, and business operations.
+              </p>
+              <p style={{fontSize:13,color:W.textSub,lineHeight:1.72}}>
+                Veridian was founded on a simple observation: service businesses lose thousands every month to calls that go unanswered — and most don't even know it. Steve built Veridian to solve the problem he watched happen for over two decades.
+              </p>
+            </div>
+          </div>
+          <div style={{flex:1}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr",gap:16}}>
+              {credentials.map((c,i)=>{const Icon=c.icon;return(
+                <div key={i} className="vd-card" style={{background:W.surface,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?20:24,display:"flex",gap:16,alignItems:"flex-start",animation:inView?`fadeUp .5s ease ${0.1+i*0.08}s both`:"none"}}>
+                  <div style={{width:40,height:40,borderRadius:10,background:W.accentB,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                    <Icon size={18} style={{color:W.accent}}/>
+                  </div>
+                  <div>
+                    <div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:6}}>{c.label}</div>
+                    <p style={{fontSize:13,color:W.textSub,lineHeight:1.7}}>{c.detail}</p>
+                  </div>
+                </div>
+              );})}
+            </div>
+            <div style={{marginTop:24,padding:isMobile?20:24,background:"linear-gradient(135deg,rgba(99,102,241,0.06),rgba(99,102,241,0.02))",border:"1px solid rgba(99,102,241,0.15)",borderRadius:14,display:"flex",alignItems:"center",gap:16,flexWrap:"wrap"}}>
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                <Phone size={16} style={{color:W.accent}}/>
+                <a href="tel:+14074705992" style={{fontSize:14,fontWeight:700,color:W.text,textDecoration:"none"}}>(407) 470-5992</a>
+              </div>
+              <span style={{color:W.textDim}}>|</span>
+              <a href="#contact" className="vd-btn" style={{fontSize:13,fontWeight:700,color:W.accent,textDecoration:"none"}}>
+                Schedule a call with Steve <ArrowRight size={14}/>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// RECOVERY EXAMPLES (representative, not testimonials)
+// ─────────────────────────────────────────────────────────────
+function RecoveryExamples({isMobile}){
+  const ref=useRef(null);
+  const inView=useInView(ref);
+  const examples=[
+    {industry:"Security",icon:Shield,color:W.accent,scenario:"A commercial security firm was missing 8–12 after-hours inquiry calls per week. Prospects requesting patrol proposals were calling competitors who answered first.",result:"Missed Call Text Recovery™ engaged every caller within 60 seconds. Site assessment requests captured automatically. Estimated 3 additional patrol contracts per month entered the pipeline.",metric:"$126K",metricLabel:"estimated annual recovery"},
+    {industry:"Property Management",icon:Users,color:W.green,scenario:"A 400-unit property manager's leasing office was missing 30% of prospective tenant calls during showings and peak hours. Vacancies extended an average of 12 days.",result:"Every unanswered leasing call received an immediate text response with showing availability. Maintenance requests captured 24/7 without after-hours staff.",metric:"$48K",metricLabel:"estimated annual recovery"},
+    {industry:"Medical",icon:Clock,color:"#3B82F6",scenario:"A multi-provider practice was losing new patient appointments to hold times and voicemail. Front desk staff handled 200+ calls daily — overflow went unanswered.",result:"Overflow calls triggered instant text responses. Appointment scheduling automated. No-show re-engagement reduced empty slots.",metric:"$96K",metricLabel:"estimated annual recovery"},
+    {industry:"Contractors",icon:Zap,color:W.amber,scenario:"An HVAC company's technicians couldn't answer calls while on service calls. 40–50% of new business inquiries went to voicemail. Fewer than 20% called back.",result:"Every missed call generated an immediate text response collecting job details. Estimate appointments booked directly to the dispatch calendar.",metric:"$180K",metricLabel:"estimated annual recovery"},
+    {industry:"Law Firms",icon:Award,color:"#8B5CF6",scenario:"A personal injury firm's intake team missed 15–20 potential client calls per week during court appearances and consultations. Callers retained competing counsel.",result:"Prospective clients received immediate professional text responses. Consultation scheduling handled automatically. Practice area qualification completed before the first call.",metric:"$240K",metricLabel:"estimated annual recovery"},
+  ];
+  return(
+    <section style={{padding:isMobile?"80px 24px":"120px 48px",background:W.bg,borderTop:`1px solid ${W.border}`}}>
+      <div style={{maxWidth:1160,margin:"0 auto"}} ref={ref}>
+        <div style={{textAlign:"center",marginBottom:isMobile?48:72}}>
+          <SLabel c={W.green}>REPRESENTATIVE RECOVERY SCENARIOS</SLabel>
+          <h2 style={{fontSize:isMobile?"30px":"48px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:16}}>
+            What recovery looks like<br/>in your industry.
+          </h2>
+          <p style={{fontSize:isMobile?"14px":"16px",color:W.textSub,maxWidth:560,margin:"0 auto"}}>
+            These are representative scenarios based on typical call volumes and industry economics. Actual results vary by business size, market, and engagement level.
+          </p>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:20}}>
+          {examples.map((e,i)=>{const Icon=e.icon;return(
+            <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:32,animation:inView?`fadeUp .5s ease ${i*0.08}s both`:"none",display:"flex",flexDirection:"column"}}>
+              <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
+                <div style={{width:40,height:40,borderRadius:10,background:`${e.color}12`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  <Icon size={18} style={{color:e.color}}/>
+                </div>
+                <div style={{fontSize:15,fontWeight:800,color:W.text}}>{e.industry}</div>
+              </div>
+              <div style={{marginBottom:16}}>
+                <div style={{fontSize:11,fontWeight:700,color:W.red,letterSpacing:"0.08em",marginBottom:8}}>THE PROBLEM</div>
+                <p style={{fontSize:13,color:W.textSub,lineHeight:1.72}}>{e.scenario}</p>
+              </div>
+              <div style={{marginBottom:20}}>
+                <div style={{fontSize:11,fontWeight:700,color:W.green,letterSpacing:"0.08em",marginBottom:8}}>THE RECOVERY</div>
+                <p style={{fontSize:13,color:W.textSub,lineHeight:1.72}}>{e.result}</p>
+              </div>
+              <div style={{marginTop:"auto",background:`linear-gradient(135deg,${e.color}08,${e.color}03)`,border:`1px solid ${e.color}22`,borderRadius:12,padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                <div>
+                  <div style={{fontSize:28,fontWeight:900,color:e.color,letterSpacing:"-0.03em"}}>{e.metric}</div>
+                  <div style={{fontSize:11,color:W.textSub,fontWeight:600}}>{e.metricLabel}</div>
+                </div>
+                <a href="#contact" className="vd-btn" style={{background:e.color,color:"#fff",padding:"10px 20px",borderRadius:8,fontSize:12,fontWeight:700,textDecoration:"none",whiteSpace:"nowrap"}}>
+                  Get Your Estimate
+                </a>
+              </div>
+            </div>
+          );})}
+        </div>
+        <div style={{textAlign:"center",marginTop:40}}>
+          <p style={{fontSize:12,color:W.textDim,fontStyle:"italic",maxWidth:480,margin:"0 auto"}}>
+            These scenarios are representative examples, not client testimonials. Recovery estimates are based on industry averages and typical engagement outcomes.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
 // FAQ
 // ─────────────────────────────────────────────────────────────
 function FAQ({isMobile}){
@@ -1408,8 +1535,10 @@ function Homepage({isMobile}){
       <ProgramOffer isMobile={isMobile}/>
       <PilotCaseStudy isMobile={isMobile}/>
       <Industries isMobile={isMobile}/>
+      <RecoveryExamples isMobile={isMobile}/>
       <Results isMobile={isMobile}/>
       <Trust isMobile={isMobile}/>
+      <FounderAuthority isMobile={isMobile}/>
       <FAQ isMobile={isMobile}/>
       <Contact isMobile={isMobile}/>
     </>

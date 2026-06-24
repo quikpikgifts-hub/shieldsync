@@ -1,2 +1,8 @@
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /portal
+Disallow: /app
+
+Sitemap: https://www.veridianresiliencegroupllc.org/sitemap.xml
