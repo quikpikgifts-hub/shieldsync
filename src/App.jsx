@@ -1551,11 +1551,12 @@ function InspModal({vehicle,onClose}){
 // ─────────────────────────────────────────────────────────────────
 // INCIDENT MODAL
 // ─────────────────────────────────────────────────────────────────
-function IncModal({onClose,showToast}){
+function IncModal({onClose,showToast,user,onSave}){
   const[form,setForm]=useState({type:"Trespass",site:"Northgate Tower",desc:"",sev:"Medium"});
   const[done,setDone]=useState(false);
   const[gen,setGen]=useState(false);
   const[ai,setAi]=useState("");
+  const[incidentId]=useState(()=>"INC-"+String(Math.floor(Math.random()*9000)+1000));
   const upd=(k,v)=>setForm(f=>({...f,[k]:v}));
 
   const genNarrative=async()=>{
@@ -1572,8 +1573,14 @@ function IncModal({onClose,showToast}){
   };
 
   const submit=()=>{
+    const now=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    const newInc={id:incidentId,type:form.type,site:form.site,officer:user?.name||"Officer",time:now,sev:form.sev,status:"Open",desc:form.desc,narrative:ai};
+    const existing=LS.get("ss_incidents_v1",INCIDENTS);
+    LS.set("ss_incidents_v1",[newInc,...existing]);
+    onSave?.(newInc);
+    logAction(user,"INCIDENT_CREATE",`${incidentId} — ${form.type} @ ${form.site} (${form.sev})`);
     setDone(true);
-    showToast("INC-2848 created and submitted for supervisor review","success");
+    showToast(`${incidentId} created and submitted for supervisor review`,"success");
   };
 
   if(done)return(
@@ -1582,8 +1589,8 @@ function IncModal({onClose,showToast}){
         <CB style={{padding:"48px 32px"}}>
           <div style={{marginBottom:16,display:"flex",justifyContent:"center"}}><ClipboardList size={52} color={T.green} strokeWidth={1.5}/></div>
           <div style={{fontSize:18,fontWeight:800,color:T.green,marginBottom:8}}>Incident Logged</div>
-          <div style={{fontSize:13,color:T.textSub}}>INC-2848 created and submitted for supervisor review.</div>
-          <button onClick={onClose} style={{marginTop:24,background:T.green,border:"none",color:"#000",padding:"13px 36px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14,width:"100%"}}>Done →</button>
+          <div style={{fontSize:13,color:T.textSub}}>{incidentId} created and submitted for supervisor review.</div>
+          <button onClick={onClose} style={{marginTop:24,background:T.green,border:"none",color:"#000",padding:"13px 36px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14,width:"100%"}}>Done</button>
         </CB>
       </Card>
     </ModalWrap>
@@ -1596,7 +1603,7 @@ function IncModal({onClose,showToast}){
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
             <div>
               <div style={{fontSize:10,color:T.textSub,letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:4}}>New Incident</div>
-              <div style={{fontSize:18,fontWeight:800,color:T.text}}>INC-2848</div>
+              <div style={{fontSize:18,fontWeight:800,color:T.text}}>{incidentId}</div>
             </div>
             <button onClick={onClose} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:34,height:34,borderRadius:8,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={14} strokeWidth={2.5}/></button>
           </div>
@@ -1657,7 +1664,7 @@ const LIVE_TICKER=[
   {t:119000,msg:"Ava Simmons — Started patrol route, Eastside Mall",type:"info"},
 ];
 
-function Dashboard({openModal,showToast,isMobile}){
+function Dashboard({openModal,showToast,isMobile,incidents=INCIDENTS}){
   const[feed,setFeed]=useState([]);
   const[positions,setPositions]=useState(
     OFFICERS.filter(o=>o.status!=="Off Duty").map(o=>({...o,cx:o.x,cy:o.y}))
@@ -1794,8 +1801,8 @@ function Dashboard({openModal,showToast,isMobile}){
                 </tr>
               </thead>
               <tbody>
-                {INCIDENTS.map((inc,i)=>(
-                  <tr key={inc.id} className="ss-row" style={{borderBottom:i<INCIDENTS.length-1?`1px solid ${T.border}20`:"none"}}>
+                {incidents.map((inc,i)=>(
+                  <tr key={inc.id} className="ss-row" style={{borderBottom:i<incidents.length-1?`1px solid ${T.border}20`:"none"}}>
                     <td style={{padding:"10px 10px",color:T.accent,fontWeight:700,fontFamily:"monospace",whiteSpace:"nowrap",fontSize:12}}>{inc.id}</td>
                     <td style={{padding:"10px 10px",color:T.text,whiteSpace:"nowrap"}}>{inc.type}</td>
                     <td style={{padding:"10px 10px",color:T.textSub,whiteSpace:"nowrap"}}>{inc.site}</td>
@@ -3773,7 +3780,7 @@ function GuardTours({user,showToast,isMobile}){
   },[]);
 
   const rCps=(rid)=>TOUR_CHECKPOINTS.filter(c=>c.routeId===rid).sort((a,b)=>a.order-b.order);
-  const tKey=(rid)=>`${rid}:${new Date().toDateString()}`;
+  const tKey=(rid)=>`${rid}:${new Date().toISOString().slice(0,10)}`;
   const isCid=(rid,cpId)=>!!(checkIns[tKey(rid)]||[]).find(c=>c.cpId===cpId);
   const getCi=(rid,cpId)=>(checkIns[tKey(rid)]||[]).find(c=>c.cpId===cpId)||null;
 
@@ -3798,7 +3805,7 @@ function GuardTours({user,showToast,isMobile}){
   const syncQueue=()=>{
     if(!queue.length){showToast("Nothing to sync","info");return;}
     queue.forEach(q=>{
-      const k=`${q.routeId}:${new Date().toDateString()}`;
+      const k=`${q.routeId}:${new Date().toISOString().slice(0,10)}`;
       setCheckIns(p=>{const ex=p[k]||[];return{...p,[k]:[...ex,{cpId:q.cpId,ts:q.ts,method:q.method,officer:q.officer,badge:q.badge,gps:true}]};});
     });
     logAction(user,"TOUR_SYNC",`${queue.length} record(s) synced`);
@@ -4433,7 +4440,7 @@ function MyShift({user,showToast,isMobile}){
 // EQUIPMENT TRACKING
 // ─────────────────────────────────────────────────────────────────
 function EquipmentModule({user,showToast,isMobile}){
-  const[items,setItems]=useState(EQUIPMENT);
+  const[items,setItems]=useLS("ss_equipment_v1",EQUIPMENT);
   const[checkOutModal,setCheckOutModal]=useState(null);
   const[checkInModal,setCheckInModal]=useState(null);
   const isOfficer=user?.role==="Officer";
@@ -4441,14 +4448,18 @@ function EquipmentModule({user,showToast,isMobile}){
 
   const doCheckOut=(id,officerName,badgeNum)=>{
     const now=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+    const item=items.find(e=>e.id===id);
     setItems(prev=>prev.map(e=>e.id===id?{...e,status:"Checked Out",officer:officerName,badge:badgeNum,checkedOut:now}:e));
     setCheckOutModal(null);
-    showToast(`${items.find(e=>e.id===id)?.name} checked out to ${officerName}`,"success");
+    logAction(user,"EQUIP_CHECKOUT",`${item?.name} (${id}) issued to ${officerName} [${badgeNum}]`);
+    showToast(`${item?.name} checked out to ${officerName}`,"success");
   };
   const doCheckIn=(id,condition)=>{
+    const item=items.find(e=>e.id===id);
     setItems(prev=>prev.map(e=>e.id===id?{...e,status:"Available",officer:"—",badge:"—",checkedOut:"—",condition}:e));
     setCheckInModal(null);
-    showToast(`${items.find(e=>e.id===id)?.name} checked in`,"success");
+    logAction(user,"EQUIP_CHECKIN",`${item?.name} (${id}) returned — condition: ${condition}`);
+    showToast(`${item?.name} checked in`,"success");
   };
 
   const statusColor=(s)=>s==="Checked Out"?T.accent:s==="Available"?T.green:T.amber;
@@ -4558,17 +4569,21 @@ function CheckInModalEq({item,onClose,onConfirm}){
 // LEAVE / PTO
 // ─────────────────────────────────────────────────────────────────
 function LeaveModule({user,showToast,isMobile}){
-  const[requests,setRequests]=useState(LEAVE_REQUESTS);
+  const[requests,setRequests]=useLS("ss_leave_v1",LEAVE_REQUESTS);
   const[showForm,setShowForm]=useState(false);
   const[form,setForm]=useState({type:"Annual",from:"",to:"",notes:""});
   const isManager=user?.role==="Company Admin"||user?.role==="Supervisor";
 
   const approve=(id)=>{
+    const req=requests.find(x=>x.id===id);
     setRequests(r=>r.map(x=>x.id===id?{...x,status:"Approved"}:x));
+    logAction(user,"LEAVE_APPROVE",`${id} — ${req?.officer||""} (${req?.type||""} ${req?.from||""}–${req?.to||""})`);
     showToast("Leave request approved","success");
   };
   const deny=(id)=>{
+    const req=requests.find(x=>x.id===id);
     setRequests(r=>r.map(x=>x.id===id?{...x,status:"Denied"}:x));
+    logAction(user,"LEAVE_DENY",`${id} — ${req?.officer||""} (${req?.type||""} ${req?.from||""}–${req?.to||""})`);
     showToast("Leave request denied","info");
   };
   const submit=()=>{
@@ -6655,8 +6670,10 @@ function ClientPortal({user,showToast,isMobile}){
 // ─────────────────────────────────────────────────────────────────
 function ITCyberCommand({user,showToast,isMobile}){
   const[tab,setTab]=useState("threats");
+  const[alerts,setAlerts]=useState(CYBER_ALERTS);
 
   const resolve=(id)=>{
+    setAlerts(prev=>prev.map(a=>a.id===id?{...a,status:"Resolved"}:a));
     showToast(`Alert ${id} marked resolved`,"success");
     logAction(user,"CYBER_RESOLVE",`Alert ${id}`);
   };
@@ -6690,7 +6707,7 @@ function ITCyberCommand({user,showToast,isMobile}){
 
       {tab==="threats"&&(
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
-          {CYBER_ALERTS.map(a=>{
+          {alerts.map(a=>{
             const sc=a.severity==="Critical"?T.red:a.severity==="High"?T.amber:T.gold;
             return(
               <Card key={a.id} glow={sc}>
@@ -6781,6 +6798,7 @@ export default function App(){
   const[now,setNow]=useState(new Date());
   const[isMobile,setIsMobile]=useState(false);
   const[toasts,setToasts]=useState([]);
+  const[incidents,setIncidents]=useLS("ss_incidents_v1",INCIDENTS);
 
   const[online,setOnline]=useState(navigator.onLine);
   useEffect(()=>{const c=()=>setIsMobile(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c);},[]);
@@ -6820,7 +6838,7 @@ export default function App(){
   const renderMod=()=>{
     if(!perms.includes(mod))return <Dashboard openModal={openModal} showToast={showToast} isMobile={isMobile}/>;
     switch(mod){
-      case "dashboard": return <Dashboard openModal={openModal} showToast={showToast} isMobile={isMobile}/>;
+      case "dashboard": return <Dashboard openModal={openModal} showToast={showToast} isMobile={isMobile} incidents={incidents}/>;
       case "myshift":   return <MyShift user={user} showToast={showToast} isMobile={isMobile}/>;
       case "workforce": return <Workforce isMobile={isMobile}/>;
       case "patrol":    return <Patrol user={user} showToast={showToast} openModal={openModal} isMobile={isMobile}/>;
@@ -6910,7 +6928,7 @@ export default function App(){
       {isMobile&&<MobileNav items={visNav} active={mod} onChange={setMod}/>}
 
       {modal?.type==="inspection"&&<InspModal vehicle={modal.vehicle} onClose={closeModal}/>}
-      {modal?.type==="incident"&&<IncModal onClose={closeModal} showToast={showToast}/>}
+      {modal?.type==="incident"&&<IncModal onClose={closeModal} showToast={showToast} user={user} onSave={inc=>setIncidents(prev=>[inc,...prev])}/>}
       {modal?.type==="checkin"&&<CheckInModal onClose={closeModal} showToast={showToast}/>}
     </div>
   );
