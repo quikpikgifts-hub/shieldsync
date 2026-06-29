@@ -991,11 +991,11 @@ function AuthScreen({onLogin,onRegister}){
               <button onClick={()=>{setForgotStep(0);setForgotErr("");setForgotCode("");}} style={{background:"none",border:`1px solid ${T.border}`,color:T.textSub,width:30,height:30,borderRadius:8,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center"}}>←</button>
               <div>
                 <div style={{fontSize:17,fontWeight:800,color:T.text}}>
-                  {forgotStep===1?"Forgot Password":forgotStep===2?"Check Your Email":forgotStep===3?"New Password":"Reset Complete"}
+                  {forgotStep===1?"Forgot Password":forgotStep===2?"Verify Your Identity":forgotStep===3?"New Password":"Reset Complete"}
                 </div>
                 <div style={{fontSize:12,color:T.textSub,marginTop:2}}>
                   {forgotStep===1?"Enter your registered email"
-                   :forgotStep===2?`Code sent to ${forgotEmail} · demo: ${DEMO_CODE}`
+                   :forgotStep===2?`Enter the reset code — demo: ${DEMO_CODE}`
                    :forgotStep===3?"Choose a new secure password"
                    :"Sign in with your new password"}
                 </div>
@@ -1011,7 +1011,7 @@ function AuthScreen({onLogin,onRegister}){
             {forgotStep===1&&(
               <div style={{display:"flex",flexDirection:"column",gap:12}}>
                 <input value={forgotEmail} onChange={e=>setForgotEmail(e.target.value)} placeholder="your@email.com" style={inp()} onKeyDown={e=>e.key==="Enter"&&forgotSend()}/>
-                <button onClick={forgotSend} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:14,color:"#000",fontWeight:800,fontSize:15,cursor:"pointer"}}>Send Reset Code</button>
+                <button onClick={forgotSend} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:14,color:"#000",fontWeight:800,fontSize:15,cursor:"pointer"}}>Get Reset Code</button>
               </div>
             )}
             {forgotStep===2&&(
@@ -6093,7 +6093,7 @@ function OnboardingWizard({user,onComplete}){
           {step===2&&(
             <div>
               <div style={{fontSize:17,fontWeight:800,color:T.text,marginBottom:5}}>Invite First Officer</div>
-              <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>They'll receive an email with login credentials.</div>
+              <div style={{fontSize:13,color:T.textSub,marginBottom:20,lineHeight:1.6}}>Their account is created instantly. Share their temporary password (<span style={{fontFamily:"monospace",color:T.accent}}>Welcome2026!</span>) directly.</div>
               <div style={{display:"flex",flexDirection:"column",gap:14}}>
                 {[{label:"Full Name",k:"officer",ph:"Jane Smith"},{label:"Email",k:"email",ph:"officer@yourcompany.com"},{label:"Badge Number",k:"badge",ph:"S-0001"}].map(({label,k,ph})=>(
                   <div key={k}>
@@ -6307,8 +6307,8 @@ function UserManagement({user,showToast,isMobile}){
               </div>
               {inviteDone?(
                 <div style={{textAlign:"center",padding:"16px 0"}}>
-                  <div style={{marginBottom:12,display:"flex",justifyContent:"center"}}><Mail size={40} color={T.green} strokeWidth={1.5}/></div>
-                  <div style={{fontSize:17,fontWeight:800,color:T.green,marginBottom:8}}>Invitation Sent!</div>
+                  <div style={{marginBottom:12,display:"flex",justifyContent:"center"}}><CheckCircle2 size={40} color={T.green} strokeWidth={1.5}/></div>
+                  <div style={{fontSize:17,fontWeight:800,color:T.green,marginBottom:8}}>User Added!</div>
                   <div style={{fontSize:13,color:T.textSub,lineHeight:1.7,marginBottom:18}}><strong style={{color:T.text}}>{invite.name}</strong> can sign in with temp password: <span style={{fontFamily:"monospace",color:T.accent}}>Welcome1!</span></div>
                   <button onClick={()=>setShowInvite(false)} style={{background:T.accent,border:"none",color:"#000",padding:"12px 28px",borderRadius:12,fontWeight:800,cursor:"pointer",fontSize:14}}>Done</button>
                 </div>
@@ -6328,7 +6328,7 @@ function UserManagement({user,showToast,isMobile}){
                     </select>
                   </div>
                   <div style={{background:T.raised,border:`1px solid ${T.border}`,borderRadius:10,padding:"12px 14px",fontSize:12,color:T.textSub}}>Temporary password: <span style={{fontFamily:"monospace",color:T.accent}}>Welcome1!</span> — user must change on first login.</div>
-                  <button onClick={doInvite} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:14,color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Send Invitation →</button>
+                  <button onClick={doInvite} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:14,color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Add User →</button>
                 </div>
               )}
             </CB>
@@ -6421,7 +6421,7 @@ function CompanySettings({user,showToast,isMobile}){
             <Toggle k="n_clock" label="Officer Clock-In / Out" sub="Log and notify on each clock event"/>
             <Toggle k="n_fuel" label="Low Fuel Alert" sub="Alert when a vehicle drops below 25% fuel"/>
             <Toggle k="n_cert" label="Certification Expiry" sub="30-day advance warning on expiring SIA and training certs"/>
-            <Toggle k="n_daily" label="Daily Operations Summary" sub="Auto-generate and email daily ops summary at shift end"/>
+            <Toggle k="n_daily" label="Daily Operations Summary" sub="Auto-generate daily operations summary at shift end"/>
           </div>
           <button onClick={save} style={{background:`linear-gradient(135deg,${T.accent},${T.accentH})`,border:"none",borderRadius:12,padding:"12px 28px",color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Save Preferences</button>
         </CB></Card>
