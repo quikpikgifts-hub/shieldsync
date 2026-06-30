@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 560" font-family="Montserrat, Arial, sans-serif" role="img" aria-label="Viridian Pressure Wash — driver side wrap mockup">
+  <defs>
+    <linearGradient id="wave" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#0C6B3A"/>
+      <stop offset="0.55" stop-color="#118a4a"/>
+      <stop offset="1" stop-color="#1FA7E1"/>
+    </linearGradient>
+    <linearGradient id="vmark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1FA7E1"/><stop offset="0.5" stop-color="#0C6B3A"/><stop offset="1" stop-color="#0B5A30"/>
+    </linearGradient>
+    <clipPath id="body"><path d="M70 360 C70 300 120 250 210 232 L300 150 C330 120 380 108 440 106 L820 106 C980 106 1090 150 1150 232 C1175 250 1180 300 1180 350 L1180 372 C1180 384 1172 392 1160 392 L92 392 C80 392 70 382 70 372 Z"/></clipPath>
+  </defs>
+
+  <!-- label -->
+  <text x="40" y="40" font-size="22" font-weight="800" fill="#0B1F3A">DRIVER SIDE VIEW</text>
+  <rect x="38" y="52" width="210" height="4" fill="#0C6B3A"/>
+
+  <!-- ground shadow -->
+  <ellipse cx="620" cy="470" rx="540" ry="26" fill="#0B1F3A" opacity="0.08"/>
+
+  <!-- ===== Vehicle body (compact MPV silhouette) ===== -->
+  <g>
+    <!-- upper body / greenhouse stays light -->
+    <path d="M70 360 C70 300 120 250 210 232 L300 150 C330 120 380 108 440 106 L820 106 C980 106 1090 150 1150 232 C1175 250 1180 300 1180 350 L1180 372 C1180 384 1172 392 1160 392 L92 392 C80 392 70 382 70 372 Z"
+          fill="#dfe8f0" stroke="#0B1F3A" stroke-width="3"/>
+
+    <!-- wrap base + wave (clipped to body) -->
+    <g clip-path="url(#body)">
+      <!-- navy lower two-thirds -->
+      <rect x="60" y="250" width="1130" height="160" fill="#0B1F3A"/>
+      <!-- green-aqua wave sweep front-low to rear-high -->
+      <path d="M60 300 C260 250 470 360 700 290 C900 230 1080 250 1200 210 L1200 410 L60 410 Z" fill="url(#wave)" opacity="0.95"/>
+      <path d="M60 330 C280 290 470 380 720 320 C920 270 1080 290 1200 250 L1200 410 L60 410 Z" fill="#0B1F3A" opacity="0.35"/>
+      <!-- splash dots -->
+      <g fill="#9fe0ff" opacity="0.8">
+        <circle cx="250" cy="300" r="4"/><circle cx="280" cy="285" r="2.5"/><circle cx="225" cy="315" r="2"/>
+        <circle cx="980" cy="262" r="4"/><circle cx="1010" cy="250" r="2.5"/><circle cx="950" cy="275" r="2"/>
+      </g>
+    </g>
+
+    <!-- windows -->
+    <g fill="#1a2c45" stroke="#0B1F3A" stroke-width="2">
+      <path d="M320 162 C342 138 384 128 432 126 L520 126 L520 226 L300 226 Z"/>
+      <rect x="536" y="126" width="150" height="100" rx="6"/>
+      <rect x="702" y="126" width="120" height="100" rx="6"/>
+      <path d="M838 126 L900 128 C980 134 1040 168 1090 222 L1090 226 L838 226 Z"/>
+    </g>
+    <!-- A/B/C pillars hint -->
+    <g stroke="#cdd8e3" stroke-width="3" opacity="0.5"><line x1="528" y1="126" x2="528" y2="226"/><line x1="694" y1="126" x2="694" y2="226"/></g>
+    <!-- door handles + seam -->
+    <g stroke="#9fb1c4" stroke-width="3" fill="none" opacity="0.6"><line x1="420" y1="300" x2="470" y2="300"/><line x1="760" y1="300" x2="810" y2="300"/></g>
+    <line x1="625" y1="240" x2="625" y2="388" stroke="#9fb1c4" stroke-width="2" opacity="0.4"/>
+
+    <!-- wheels -->
+    <g>
+      <circle cx="290" cy="392" r="62" fill="#11151c"/><circle cx="290" cy="392" r="30" fill="#c9d2db"/><circle cx="290" cy="392" r="9" fill="#6b7886"/>
+      <circle cx="950" cy="392" r="62" fill="#11151c"/><circle cx="950" cy="392" r="30" fill="#c9d2db"/><circle cx="950" cy="392" r="9" fill="#6b7886"/>
+    </g>
+  </g>
+
+  <!-- ===== Wrap graphics overlay ===== -->
+  <!-- Big V mark on rear quarter -->
+  <g transform="translate(760,250)">
+    <path d="M0 8 L42 8 L70 86 L96 4 L132 4 L92 120 L58 120 Z" fill="url(#vmark)"/>
+    <path d="M14 120 q22 -16 44 0 t44 0" fill="none" stroke="#1FA7E1" stroke-width="7" stroke-linecap="round"/>
+  </g>
+
+  <!-- Wordmark + tagline across doors -->
+  <text x="150" y="290" font-size="58" font-weight="800" fill="#ffffff" letter-spacing="1">VIRIDIAN</text>
+  <text x="152" y="330" font-size="33" font-weight="800" fill="#1FA7E1" letter-spacing="5">PRESSURE WASH</text>
+  <text x="154" y="354" font-size="15" font-weight="700" fill="#9fe0ff" letter-spacing="5">CLEAN. PROTECT. IMPRESS.</text>
+
+  <!-- Services list (two rows, clear of wheel arches & body edge) -->
+  <g font-size="13.5" font-weight="700" fill="#ffffff">
+    <text x="372" y="372">✓ House Washing</text>
+    <text x="520" y="372">✓ Driveway Cleaning</text>
+    <text x="372" y="390">✓ Patios &amp; Sidewalks</text>
+    <text x="520" y="390">✓ Roof Soft Wash · Commercial</text>
+  </g>
+
+  <!-- Phone + website (largest contact info) -->
+  <text x="620" y="448" font-size="30" font-weight="800" fill="#0B1F3A" text-anchor="middle">📞 407-555-0123   ·   ViridianWash.com</text>
+
+  <!-- QR placeholder -->
+  <g transform="translate(1010,250)">
+    <rect x="0" y="0" width="86" height="86" rx="8" fill="#ffffff" stroke="#0B1F3A" stroke-width="2"/>
+    <g fill="#0B1F3A"><rect x="10" y="10" width="22" height="22"/><rect x="54" y="10" width="22" height="22"/><rect x="10" y="54" width="22" height="22"/><rect x="40" y="40" width="8" height="8"/><rect x="52" y="52" width="8" height="8"/><rect x="64" y="64" width="10" height="10"/><rect x="40" y="64" width="8" height="8"/></g>
+    <text x="43" y="104" font-size="11" font-weight="700" fill="#0B1F3A" text-anchor="middle">SCAN TO QUOTE</text>
+  </g>
+
+  <!-- Social icons -->
+  <g transform="translate(905,250)" font-size="13" font-weight="800">
+    <circle cx="14" cy="14" r="14" fill="#1FA7E1"/><text x="14" y="19" fill="#fff" text-anchor="middle">f</text>
+    <rect x="0" y="34" width="28" height="28" rx="8" fill="#0C6B3A"/><text x="14" y="53" fill="#fff" text-anchor="middle">◉</text>
+  </g>
+</svg>

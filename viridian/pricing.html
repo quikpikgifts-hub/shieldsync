@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pressure Washing Prices Central Florida | Viridian Pressure Wash</title>
+  <meta name="description" content="Transparent pressure washing pricing for Sanford & Central Florida. Driveways from $100, house washing from $150, roof soft wash from $300. Free written estimates." />
+  <meta name="theme-color" content="#0B1F3A" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M12 18 L40 18 L58 64 L76 6 L94 6 L66 88 L46 88 Z' fill='%230C6B3A'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="breadcrumb"><a href="index.html">Home</a> / Pricing</p>
+      <h1>Honest, transparent pricing</h1>
+      <p>Published ranges so you know what to expect before the first call. Every job is confirmed with a written estimate based on square footage, surface condition, and access.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="pricing-wrap">
+        <div class="price-table">
+          <h3>Residential</h3>
+          <table>
+            <tbody>
+              <tr><td>Driveway Cleaning</td><td>$100 – $200</td></tr>
+              <tr><td>House Washing</td><td>$150 – $450</td></tr>
+              <tr><td>Sidewalk Cleaning</td><td>$75 – $175</td></tr>
+              <tr><td>Patio Cleaning</td><td>$100 – $250</td></tr>
+              <tr><td>Pool Deck Cleaning</td><td>$150 – $300</td></tr>
+              <tr><td>Fence Cleaning</td><td>$150 – $350</td></tr>
+              <tr><td>Screen Enclosure</td><td>$100 – $200</td></tr>
+              <tr><td>Gutter Exterior</td><td>$100 – $250</td></tr>
+              <tr><td>Roof Soft Wash</td><td>$300 – $800</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="price-table">
+          <h3>Commercial</h3>
+          <table>
+            <tbody>
+              <tr><td>Storefront Sidewalks</td><td>$0.15 – $0.25 / sq ft</td></tr>
+              <tr><td>Parking Lots</td><td>$0.05 – $0.15 / sq ft</td></tr>
+              <tr><td>Apartment Breezeways</td><td>$0.15 – $0.30 / sq ft</td></tr>
+              <tr><td>Restaurants / Patios</td><td>$200 – $500</td></tr>
+              <tr><td>Commercial Buildings</td><td>$300 – $2,000+</td></tr>
+              <tr><td>HOA Common Areas</td><td>Custom quote</td></tr>
+              <tr><td>Property Management</td><td>Custom quote</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="price-note">Final price depends on square footage, surface condition, water/sewer access, and travel distance. <strong>Bundle discounts</strong> (e.g. house wash + driveway) lower your total. Recurring maintenance contracts available for HOAs, property managers, and storefronts.</p>
+    </div>
+  </section>
+
+  <!-- Inline quick estimator -->
+  <section class="section section-dark">
+    <div class="container quote-grid">
+      <div class="quote-intro">
+        <p class="kicker kicker-light">Instant Ballpark</p>
+        <h2>Estimate your service</h2>
+        <p class="section-lead">Pick a service to see its typical range, then request a free written quote tailored to your property.</p>
+        <ul class="quote-contact">
+          <li><span>Phone</span><a href="tel:4075550123">407-555-0123</a></li>
+          <li><span>Hours</span><span>Mon–Sat 7:30am–6:00pm</span></li>
+        </ul>
+      </div>
+      <form class="quote-form" id="quote-form" novalidate>
+        <div class="field-row">
+          <label class="field"><span>Name</span><input type="text" name="name" autocomplete="name" /></label>
+          <label class="field"><span>Phone</span><input type="tel" name="phone" autocomplete="tel" /></label>
+        </div>
+        <label class="field"><span>Service</span><select name="service" id="quote-service"></select></label>
+        <div class="estimate-box" id="estimate-box" hidden>
+          <span>Typical range</span>
+          <strong id="estimate-value">—</strong>
+          <small>Indicative only — final quote confirmed after review.</small>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Request Free Written Quote</button>
+        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+        <p class="form-disclaimer">Demo form — connect to your booking/email backend to go live.</p>
+      </form>
+    </div>
+  </section>
+
+  <div id="site-footer"></div>
+  <script src="app.js"></script>
+</body>
+</html>

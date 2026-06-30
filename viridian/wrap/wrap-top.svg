@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 460" font-family="Montserrat, Arial, sans-serif" role="img" aria-label="Viridian Pressure Wash — roof / top wrap mockup">
+  <defs>
+    <linearGradient id="tv" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1FA7E1"/><stop offset="0.5" stop-color="#0C6B3A"/><stop offset="1" stop-color="#0B5A30"/>
+    </linearGradient>
+    <linearGradient id="twave" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0C6B3A"/><stop offset="1" stop-color="#1FA7E1"/></linearGradient>
+    <clipPath id="tbody"><rect x="120" y="90" width="1000" height="280" rx="120"/></clipPath>
+  </defs>
+
+  <text x="40" y="40" font-size="22" font-weight="800" fill="#0B1F3A">TOP / ROOF VIEW</text>
+  <rect x="38" y="52" width="170" height="4" fill="#0C6B3A"/>
+
+  <!-- roof outline (top-down van) -->
+  <rect x="120" y="90" width="1000" height="280" rx="120" fill="#dfe8f0" stroke="#0B1F3A" stroke-width="3"/>
+  <g clip-path="url(#tbody)">
+    <rect x="120" y="90" width="1000" height="280" fill="#0B1F3A"/>
+    <path d="M120 150 C400 110 820 330 1120 200 L1120 370 L120 370 Z" fill="url(#twave)" opacity="0.9"/>
+    <path d="M120 190 C400 150 820 360 1120 240 L1120 370 L120 370 Z" fill="#0B1F3A" opacity="0.3"/>
+    <g fill="#9fe0ff" opacity="0.7"><circle cx="300" cy="150" r="5"/><circle cx="340" cy="135" r="3"/><circle cx="900" cy="250" r="5"/></g>
+  </g>
+  <!-- windshield + rear glass hint -->
+  <path d="M1010 110 q70 90 0 240" fill="none" stroke="#9fb1c4" stroke-width="3" opacity="0.5"/>
+  <path d="M230 110 q-70 90 0 240" fill="none" stroke="#9fb1c4" stroke-width="3" opacity="0.5"/>
+
+  <!-- Big V mark -->
+  <g transform="translate(360,150)">
+    <path d="M0 8 L46 8 L76 96 L104 4 L144 4 L100 134 L64 134 Z" fill="url(#tv)"/>
+    <path d="M16 134 q24 -17 48 0 t48 0" fill="none" stroke="#1FA7E1" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <!-- wordmark -->
+  <text x="640" y="220" font-size="56" font-weight="800" fill="#ffffff" letter-spacing="2">VIRIDIAN</text>
+  <text x="642" y="262" font-size="30" font-weight="800" fill="#1FA7E1" letter-spacing="6">PRESSURE WASH</text>
+  <text x="644" y="292" font-size="18" font-weight="700" fill="#9fe0ff" letter-spacing="4">407-555-0123 · ViridianWash.com</text>
+</svg>

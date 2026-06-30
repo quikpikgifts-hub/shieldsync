@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vehicle Wrap Mockups | Viridian Pressure Wash</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --navy:#0B1F3A; --green:#0C6B3A; --aqua:#1FA7E1; --gray:#E0E0E0; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:'Open Sans',Arial,sans-serif; color:#11243d; background:#f4f7fa; }
+    header { background:linear-gradient(135deg,#08182f,var(--navy) 55%,#0a2b22); color:#fff; padding:40px 24px; }
+    .wrap { max-width:1180px; margin:0 auto; }
+    h1 { font-family:'Montserrat',sans-serif; font-weight:800; margin:0 0 6px; font-size:2rem; }
+    header p { color:#cdddec; margin:0; }
+    .note { background:#fff; border:1px solid var(--gray); border-left:4px solid var(--green); border-radius:10px; padding:16px 20px; margin:24px auto; max-width:1180px; color:#5a6b7e; font-size:.95rem; }
+    .panel { background:#fff; border:1px solid var(--gray); border-radius:14px; padding:20px; margin:0 auto 24px; max-width:1180px; box-shadow:0 18px 40px -24px rgba(11,31,58,.4); }
+    .panel h2 { font-family:'Montserrat',sans-serif; font-weight:800; color:var(--navy); font-size:1.1rem; margin:0 0 12px; }
+    .panel img { width:100%; height:auto; display:block; border-radius:8px; }
+    .two { display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:1180px; margin:0 auto 24px; }
+    .two .panel { margin:0; }
+    .palette { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
+    .sw { display:flex; align-items:center; gap:8px; font-size:.8rem; font-weight:600; }
+    .chip { width:26px; height:26px; border-radius:6px; border:1px solid #ccc; }
+    @media (max-width:820px){ .two{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Vehicle Wrap Mockups — Viridian Pressure Wash</h1>
+      <p>2012 Mazda5 Grand Touring · Clean. Protect. Impress.</p>
+      <div class="palette" style="margin-top:14px">
+        <span class="sw"><span class="chip" style="background:#0B1F3A"></span>Deep Navy</span>
+        <span class="sw"><span class="chip" style="background:#0C6B3A"></span>Viridian Green</span>
+        <span class="sw"><span class="chip" style="background:#1FA7E1"></span>Aqua Blue</span>
+        <span class="sw"><span class="chip" style="background:#fff"></span>White</span>
+      </div>
+    </div>
+  </header>
+
+  <p class="note">📐 These are <strong>vector design schematics</strong> for a wrap shop — they show layout, copy, color, and placement, not a photo-composite of the actual vehicle. Hand them to your installer along with the manufacturer's wrap template for print-ready artwork. Full spec: <code>../docs/10-vehicle-wrap-design.md</code>.</p>
+
+  <div class="panel"><h2>Driver Side</h2><img src="wrap-driver-side.svg" alt="Driver side wrap" /></div>
+  <div class="panel"><h2>Passenger Side</h2><img src="wrap-passenger-side.svg" alt="Passenger side wrap" /></div>
+
+  <div class="two">
+    <div class="panel"><h2>Rear</h2><img src="wrap-rear.svg" alt="Rear wrap" /></div>
+    <div class="panel"><h2>Front</h2><img src="wrap-front.svg" alt="Front wrap" /></div>
+  </div>
+
+  <div class="panel"><h2>Top / Roof (aerial &amp; drone visibility)</h2><img src="wrap-top.svg" alt="Top roof wrap" /></div>
+</body>
+</html>

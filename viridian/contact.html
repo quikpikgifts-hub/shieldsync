@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact &amp; Free Quote | Viridian Pressure Wash — Sanford FL</title>
+  <meta name="description" content="Request a free pressure washing quote in Sanford & Central Florida. Call 407-555-0123 or fill out our quick form for a same-day written estimate." />
+  <meta name="theme-color" content="#0B1F3A" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M12 18 L40 18 L58 64 L76 6 L94 6 L66 88 L46 88 Z' fill='%230C6B3A'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <section class="page-hero">
+    <div class="container">
+      <p class="breadcrumb"><a href="index.html">Home</a> / Contact</p>
+      <h1>Request your free quote</h1>
+      <p>Tell us about your property and we'll send a written estimate — usually the same day. Prefer to talk? Call us anytime during business hours.</p>
+    </div>
+  </section>
+
+  <section class="section section-dark">
+    <div class="container quote-grid">
+      <div class="quote-intro">
+        <p class="kicker kicker-light">Get in Touch</p>
+        <h2>We'd love to help</h2>
+        <p class="section-lead">No pressure, no obligation — just an honest estimate from a local team that takes pride in the details.</p>
+        <ul class="quote-contact">
+          <li><span>Phone</span><a href="tel:4075550123">407-555-0123</a></li>
+          <li><span>Email</span><a href="mailto:hello@viridianwash.com">hello@viridianwash.com</a></li>
+          <li><span>Area</span><span>Sanford &amp; Central Florida</span></li>
+          <li><span>Hours</span><span>Mon–Sat 7:30am–6:00pm</span></li>
+          <li><span>Social</span><span>@ViridianPressureWash</span></li>
+        </ul>
+      </div>
+
+      <form class="quote-form" id="quote-form" novalidate>
+        <div class="field-row">
+          <label class="field"><span>Name</span><input type="text" name="name" required autocomplete="name" /></label>
+          <label class="field"><span>Phone</span><input type="tel" name="phone" required autocomplete="tel" /></label>
+        </div>
+        <label class="field"><span>Email</span><input type="email" name="email" autocomplete="email" /></label>
+        <div class="field-row">
+          <label class="field">
+            <span>Property type</span>
+            <select name="propertyType">
+              <option>Residential — Home</option>
+              <option>HOA / Community</option>
+              <option>Commercial — Retail / Office</option>
+              <option>Restaurant / Storefront</option>
+              <option>Apartment Complex</option>
+            </select>
+          </label>
+          <label class="field"><span>Service needed</span><select name="service" id="quote-service"></select></label>
+        </div>
+        <label class="field"><span>City</span>
+          <select name="city">
+            <option>Sanford</option><option>Lake Mary</option><option>Longwood</option>
+            <option>Oviedo</option><option>Winter Springs</option><option>Deltona</option>
+            <option>DeBary</option><option>Apopka</option><option>Orlando</option><option>Other</option>
+          </select>
+        </label>
+        <label class="field"><span>Project details</span>
+          <textarea name="details" rows="3" placeholder="Driveway size, number of stories, surfaces, timing…"></textarea>
+        </label>
+        <div class="estimate-box" id="estimate-box" hidden>
+          <span>Ballpark estimate</span>
+          <strong id="estimate-value">—</strong>
+          <small>Indicative only — final quote confirmed after review.</small>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Request Free Quote</button>
+        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+        <p class="form-disclaimer">This demo form does not transmit data. Connect it to your booking/email backend (e.g. Formspree, Netlify Forms, or your CRM) to go live.</p>
+      </form>
+    </div>
+  </section>
+
+  <div id="site-footer"></div>
+  <script src="app.js"></script>
+</body>
+</html>
