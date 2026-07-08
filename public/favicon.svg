@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Veridian">
+  <rect width="64" height="64" rx="14" fill="#06060F"/>
+  <path d="M17 19 L32 45 L47 19" fill="none" stroke="url(#vg)" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs>
+    <linearGradient id="vg" x1="17" y1="19" x2="47" y2="45" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8B5CF6"/>
+      <stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+  </defs>
+</svg>

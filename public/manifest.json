@@ -1,19 +1,19 @@
 {
-  "name": "ShieldSync Sentinel",
-  "short_name": "ShieldSync",
-  "description": "Enterprise physical security operations platform",
+  "name": "Veridian — Turn Missed Calls Into Revenue",
+  "short_name": "Veridian",
+  "description": "Veridian recovers missed calls, captures leads, and books appointments — turning lost opportunities into revenue for service businesses.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#060910",
-  "theme_color": "#00C8F0",
+  "background_color": "#06060F",
+  "theme_color": "#8B5CF6",
   "orientation": "any",
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23060910'/%3E%3Ctext x='96' y='130' font-size='110' text-anchor='middle'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E",
-      "sizes": "192x192",
+      "src": "/favicon.svg",
+      "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "productivity", "security"]
+  "categories": ["business", "productivity"]
 }
