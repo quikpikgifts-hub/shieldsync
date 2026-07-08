@@ -259,14 +259,14 @@ function WebNav({isMobile}){
   );
   return(
     <>
-      <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:200,padding:isMobile?"14px 20px":"14px 48px",display:"flex",alignItems:"center",justifyContent:"space-between",transition:"all .25s ease",background:scrolled?"rgba(4,4,11,.96)":W.bg,borderBottom:scrolled?`1px solid ${W.border}`:"1px solid transparent",backdropFilter:scrolled?"blur(24px)":"none"}}>
+      <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:200,padding:isMobile?"14px 20px":"14px 48px",display:"flex",alignItems:"center",justifyContent:"space-between",transition:"all .25s ease",background:scrolled?"rgba(4,5,10,.85)":W.bg,borderBottom:scrolled?`1px solid ${W.border}`:"1px solid transparent",backdropFilter:scrolled?"blur(24px) saturate(140%)":"none",boxShadow:scrolled?"0 6px 28px rgba(0,0,0,0.45)":"none"}}>
         <Logo/>
         {!isMobile&&(
           <div style={{display:"flex",gap:4,alignItems:"center"}}>
             {links.map(([l,h])=><a key={l} href={h} className="vd-link" style={{fontSize:13,fontWeight:500,padding:"7px 13px",borderRadius:7}}>{l}</a>)}
           </div>
         )}
-        {!isMobile&&<a href="#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"9px 20px",borderRadius:8,fontSize:13,fontWeight:700}}>Get Started</a>}
+        {!isMobile&&<a href="#contact" className="vd-btn" style={{background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",padding:"10px 22px",borderRadius:W.radiusSm,fontSize:13,fontWeight:700,boxShadow:W.shadowGlow}}>Get Started</a>}
         {isMobile&&<button onClick={()=>setOpen(true)} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:8,padding:"8px 11px",color:W.text,cursor:"pointer",display:"flex"}}><Menu size={18}/></button>}
       </nav>
       {isMobile&&open&&(
@@ -280,7 +280,7 @@ function WebNav({isMobile}){
               <a key={l} href={h} onClick={()=>setOpen(false)} style={{display:"block",fontSize:28,fontWeight:700,color:W.text,textDecoration:"none",padding:"18px 0",borderBottom:`1px solid ${W.border}`}}>{l}</a>
             ))}
           </div>
-          <a href="#contact" onClick={()=>setOpen(false)} className="vd-btn" style={{background:W.accent,color:"#fff",padding:18,borderRadius:12,fontSize:16,fontWeight:700,justifyContent:"center",marginTop:40}}>Get Started</a>
+          <a href="#contact" onClick={()=>setOpen(false)} className="vd-btn" style={{background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",padding:18,borderRadius:W.radius,fontSize:16,fontWeight:700,justifyContent:"center",marginTop:40,boxShadow:W.shadowGlow}}>Get Started</a>
         </div>
       )}
     </>
