@@ -1063,7 +1063,7 @@ function Industries({isMobile}){
         <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:32,justifyContent:isMobile?"flex-start":"center"}}>
           {IND_DATA.map((ind,i)=>(
             <button key={ind.id} onClick={()=>setActive(i)} className="vd-tab"
-              style={{padding:"8px 18px",borderRadius:100,fontSize:13,fontWeight:600,color:i===active?W.text:W.textSub,background:i===active?W.card:"none",border:`1px solid ${i===active?W.accent:W.border}`}}>
+              style={{padding:"8px 18px",borderRadius:100,fontSize:13,fontWeight:600,color:i===active?W.accent:W.textSub,background:i===active?W.accentB:"none",border:`1px solid ${i===active?W.accent:W.border}`,transition:"all .15s ease"}}>
               {ind.name}
             </button>
           ))}
@@ -1071,7 +1071,7 @@ function Industries({isMobile}){
         {/* Content */}
         <div key={active} style={{animation:"fadeIn .25s ease",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:20}}>
           {/* Left — Risk */}
-          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:36}}>
+          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:W.radiusLg,padding:isMobile?24:36,boxShadow:W.shadow}}>
             <div style={{fontSize:10,fontWeight:700,color:W.red,letterSpacing:"0.1em",marginBottom:16}}>ANNUAL REVENUE AT RISK</div>
             <div style={{fontSize:isMobile?"36px":"48px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1,marginBottom:8}}>{d.loss}</div>
             <div style={{fontSize:13,color:W.textSub,marginBottom:24,paddingBottom:24,borderBottom:`1px solid ${W.border}`}}>{d.lossDetail}</div>
@@ -1084,7 +1084,7 @@ function Industries({isMobile}){
               <div style={{fontSize:isMobile?"36px":"48px",fontWeight:900,color:W.green,letterSpacing:"-0.04em",lineHeight:1,marginBottom:8}}>{d.recovery}</div>
               <div style={{fontSize:12,color:W.textSub}}>based on 68% average recovery rate</div>
             </div>
-            <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:32,flex:1}}>
+            <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:W.radiusLg,padding:isMobile?24:32,flex:1,boxShadow:W.shadow}}>
               <div style={{fontSize:10,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:12}}>EXPECTED OUTCOME</div>
               <p style={{fontSize:isMobile?"14px":"15px",color:W.text,lineHeight:1.72}}>{d.outcome}</p>
             </div>
