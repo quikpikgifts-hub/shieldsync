@@ -409,7 +409,7 @@ function Hero({isMobile}){
             </div>
             <h1 className="vd-hero-h1" style={{fontSize:isMobile?"44px":"72px",fontWeight:900,color:W.text,lineHeight:1.02,letterSpacing:"-0.04em",marginBottom:24}}>
               Every Missed Call<br/>
-              <span style={{background:`linear-gradient(135deg,${W.accent},${W.accent2})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Costs Revenue.</span>
+              <span style={{backgroundImage:`linear-gradient(135deg,${W.accent},${W.accent2})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Costs Revenue.</span>
             </h1>
             <p className="vd-hero-sub" style={{fontSize:isMobile?"17px":"20px",color:W.textSub,lineHeight:1.65,maxWidth:480,marginBottom:40}}>
               Businesses lose thousands every month from missed calls, delayed responses, and abandoned opportunities. Veridian recovers that revenue — booking appointments and capturing every opportunity your team couldn't reach.
@@ -693,7 +693,7 @@ function HowItWorks({isMobile}){
           <SLabel>HOW REVENUE IS RECOVERED</SLabel>
           <h2 style={{fontSize:isMobile?"34px":"56px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:16}}>
             Four steps.<br/>
-            <span style={{background:`linear-gradient(135deg,${W.accent},${W.accent2},${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>One outcome.</span>
+            <span style={{backgroundImage:`linear-gradient(135deg,${W.accent},${W.accent2},${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>One outcome.</span>
           </h2>
         </div>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(4,1fr)",gap:isMobile?16:24}}>
@@ -793,7 +793,7 @@ function MissedCallTextRecovery({isMobile}){
           </div>
           <h2 style={{fontSize:isMobile?"34px":"56px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:20}}>
             Every Missed Call Gets an<br/>
-            <span style={{background:`linear-gradient(135deg,${W.accent},#10B981)`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Instant Text Response.</span>
+            <span style={{backgroundImage:`linear-gradient(135deg,${W.accent},#10B981)`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Instant Text Response.</span>
           </h2>
           <p style={{fontSize:isMobile?"16px":"20px",color:W.textSub,lineHeight:1.65,maxWidth:600,margin:"0 auto 32px"}}>
             When a prospect calls and nobody answers, Veridian immediately sends a text, captures the lead, qualifies the opportunity, and books the appointment automatically.
@@ -880,7 +880,7 @@ function TryItYourself({isMobile}){
           <SLabel c={W.amber}>TRY IT YOURSELF</SLabel>
           <h2 style={{fontSize:isMobile?"30px":"52px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:16}}>
             Call. Hang Up.<br/>
-            <span style={{background:`linear-gradient(135deg,${W.accent},${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Watch What Happens.</span>
+            <span style={{backgroundImage:`linear-gradient(135deg,${W.accent},${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Watch What Happens.</span>
           </h2>
           <p style={{fontSize:isMobile?"15px":"18px",color:W.textSub,maxWidth:520,margin:"0 auto"}}>Experience Missed Call Text Recovery™ exactly the way your customers will.</p>
         </div>
@@ -956,7 +956,7 @@ function ProgramOffer({isMobile}){
             <SLabel>ONE PROGRAM. ONE OUTCOME.</SLabel>
             <h2 style={{fontSize:isMobile?"34px":"52px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:20}}>
               Veridian 24/7<br/>
-              <span style={{background:`linear-gradient(135deg,${W.accent},${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Revenue Front Desk™</span>
+              <span style={{backgroundImage:`linear-gradient(135deg,${W.accent},${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Revenue Front Desk™</span>
             </h2>
             <p style={{fontSize:isMobile?"15px":"17px",color:W.textSub,lineHeight:1.72,marginBottom:32,maxWidth:400}}>Every channel. Every lead. Every opportunity — captured, qualified, and booked automatically.</p>
             <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
@@ -2323,7 +2323,7 @@ function MCTRLandingPage({isMobile}){
           </div>
           <h1 style={{fontSize:isMobile?"40px":"72px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.02,marginBottom:24}}>
             Every Missed Call Gets<br/>
-            <span style={{background:`linear-gradient(135deg,${W.green},${W.accent})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>An Instant Response.</span>
+            <span style={{backgroundImage:`linear-gradient(135deg,${W.green},${W.accent})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>An Instant Response.</span>
           </h1>
           <p style={{fontSize:isMobile?"17px":"21px",color:W.textSub,lineHeight:1.65,maxWidth:640,margin:"0 auto 40px"}}>
             When a prospect calls and nobody answers, Veridian immediately responds by text, captures the lead, and creates an opportunity for follow-up.
