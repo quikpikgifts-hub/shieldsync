@@ -23,7 +23,7 @@ const W={
   amberB:"rgba(245,158,11,0.08)",
   text:"#F8FAFC",
   textSub:"#94A3B8",
-  textDim:"#475569",
+  textDim:"#6B7A99",
   accent2:"#A78BFA",
   radiusSm:10, radius:14, radiusLg:20,
   shadow:"0 4px 24px rgba(0,0,0,0.35)",
@@ -65,6 +65,9 @@ input,textarea,button{font-family:inherit}
 .vd-sticky{position:fixed;bottom:0;left:0;right:0;z-index:150;padding:12px 16px 16px;background:rgba(4,4,11,.97);border-top:1px solid #12123A;backdrop-filter:blur(20px);animation:stickUp .3s ease}
 input::placeholder,textarea::placeholder{color:#3A4A6A}
 input:focus,textarea:focus{outline:none}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:2px solid #8B5CF6;outline-offset:2px;border-radius:4px}
+.vd-skip{position:absolute;left:-9999px;top:0;z-index:1000;background:#8B5CF6;color:#fff;padding:10px 16px;border-radius:0 0 8px 0;font-size:14px;font-weight:700;text-decoration:none}
+.vd-skip:focus{left:0}
 @media(max-width:768px){input,textarea,select{font-size:16px!important}}
 @media(max-width:380px){.vd-hero-h1{font-size:clamp(32px,9.5vw,40px)!important;letter-spacing:-0.035em!important}.vd-hero-sub{font-size:15px!important}.vd-h2{font-size:clamp(26px,8.5vw,32px)!important}}
 @media print{*{background:#fff!important;color:#000!important}nav,footer,.vd-sticky,.no-print{display:none!important}.print-plan{padding:40px!important;max-width:700px!important;margin:0 auto!important}}
@@ -207,12 +210,12 @@ function ChatWidget(){
             <div ref={bottomRef}/>
           </div>
           <form onSubmit={send} style={{padding:"10px 12px",borderTop:`1px solid ${W.border}`,display:"flex",gap:8,alignItems:"center",flexShrink:0}}>
-            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={handleKey} placeholder="Describe your challenge..." style={{flex:1,background:W.surface,border:`1px solid ${W.border}`,borderRadius:10,padding:"9px 12px",color:W.text,fontSize:13,outline:"none"}}/>
-            <button type="submit" disabled={loading||!input.trim()} style={{background:`linear-gradient(135deg,${W.accent},${W.accentH})`,border:"none",borderRadius:10,width:36,height:36,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",opacity:!input.trim()||loading?0.4:1,flexShrink:0}}><Send size={14} style={{color:"#fff"}}/></button>
+            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={handleKey} aria-label="Type your message to Alex" placeholder="Describe your challenge..." style={{flex:1,background:W.surface,border:`1px solid ${W.border}`,borderRadius:10,padding:"9px 12px",color:W.text,fontSize:13,outline:"none"}}/>
+            <button type="submit" aria-label="Send message" disabled={loading||!input.trim()} style={{background:`linear-gradient(135deg,${W.accent},${W.accentH})`,border:"none",borderRadius:10,width:36,height:36,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",opacity:!input.trim()||loading?0.4:1,flexShrink:0}}><Send size={14} style={{color:"#fff"}}/></button>
           </form>
         </div>
       )}
-      <button onClick={()=>{setOpen(o=>!o);track("chat_open");}} style={{position:"fixed",bottom:24,right:20,zIndex:400,width:52,height:52,borderRadius:"50%",background:`linear-gradient(135deg,${W.accent},${W.accentH})`,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:W.shadowGlow,transition:"transform .2s"}}>
+      <button onClick={()=>{setOpen(o=>!o);track("chat_open");}} aria-label={open?"Close chat":"Chat with Alex"} style={{position:"fixed",bottom:24,right:20,zIndex:400,width:52,height:52,borderRadius:"50%",background:`linear-gradient(135deg,${W.accent},${W.accentH})`,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:W.shadowGlow,transition:"transform .2s"}}>
         {open?<X size={22} style={{color:"#fff"}}/>:<MessageCircle size={22} style={{color:"#fff"}}/>}
         {!open&&<div style={{position:"absolute",top:10,right:10,width:10,height:10,borderRadius:"50%",background:W.green,border:`2px solid ${W.card}`}}/>}
       </button>
@@ -267,13 +270,13 @@ function WebNav({isMobile}){
           </div>
         )}
         {!isMobile&&<a href="#contact" className="vd-btn" style={{background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",padding:"10px 22px",borderRadius:W.radiusSm,fontSize:13,fontWeight:700,boxShadow:W.shadowGlow}}>Get Started</a>}
-        {isMobile&&<button onClick={()=>setOpen(true)} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:8,padding:"8px 11px",color:W.text,cursor:"pointer",display:"flex"}}><Menu size={18}/></button>}
+        {isMobile&&<button onClick={()=>setOpen(true)} aria-label="Open menu" style={{background:"none",border:`1px solid ${W.border}`,borderRadius:8,padding:"8px 11px",color:W.text,cursor:"pointer",display:"flex"}}><Menu size={18}/></button>}
       </nav>
       {isMobile&&open&&(
         <div style={{position:"fixed",inset:0,zIndex:300,background:W.bg,display:"flex",flexDirection:"column",padding:"20px 24px",animation:"fadeIn .15s ease"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:48}}>
             <Logo/>
-            <button onClick={()=>setOpen(false)} style={{background:"none",border:`1px solid ${W.border}`,borderRadius:8,padding:"8px 11px",color:W.textSub,cursor:"pointer"}}><X size={18}/></button>
+            <button onClick={()=>setOpen(false)} aria-label="Close menu" style={{background:"none",border:`1px solid ${W.border}`,borderRadius:8,padding:"8px 11px",color:W.textSub,cursor:"pointer"}}><X size={18}/></button>
           </div>
           <div style={{flex:1}}>
             {links.map(([l,h])=>(
@@ -565,7 +568,7 @@ function Calculator({isMobile}){
         <div style={{position:"absolute",left:0,right:0,height:4,background:W.border,borderRadius:2,overflow:"hidden"}}>
           <div style={{height:"100%",width:`${((value-min)/(max-min))*100}%`,background:`linear-gradient(90deg,${W.accent},${W.accent2})`,borderRadius:2}}/>
         </div>
-        <input type="range" min={min} max={max} step={step} value={value} onChange={e=>set(Number(e.target.value))} style={{position:"absolute",inset:0,opacity:0,width:"100%",cursor:"pointer",height:"100%"}}/>
+        <input type="range" aria-label={label} min={min} max={max} step={step} value={value} onChange={e=>set(Number(e.target.value))} style={{position:"absolute",inset:0,opacity:0,width:"100%",cursor:"pointer",height:"100%"}}/>
       </div>
     </div>
   );
@@ -631,7 +634,7 @@ function MCTRCalculator({isMobile}){
         <div style={{position:"absolute",left:0,right:0,height:4,background:W.border,borderRadius:2,overflow:"hidden"}}>
           <div style={{height:"100%",width:`${((val-min)/(max-min))*100}%`,background:W.green,borderRadius:2}}/>
         </div>
-        <input type="range" min={min} max={max} step={step} value={val} onChange={e=>setVal(Number(e.target.value))} style={{position:"absolute",inset:0,opacity:0,width:"100%",cursor:"pointer",height:"100%"}}/>
+        <input type="range" aria-label={label} min={min} max={max} step={step} value={val} onChange={e=>setVal(Number(e.target.value))} style={{position:"absolute",inset:0,opacity:0,width:"100%",cursor:"pointer",height:"100%"}}/>
       </div>
     </div>
   );
@@ -1582,7 +1585,7 @@ function IndustryCalculator({sector,isMobile}){
         <div style={{position:"absolute",left:0,right:0,height:4,background:W.border,borderRadius:2,overflow:"hidden"}}>
           <div style={{height:"100%",width:`${((value-min)/(max-min))*100}%`,background:`linear-gradient(90deg,${W.accent},${W.accent2})`,borderRadius:2}}/>
         </div>
-        <input type="range" min={min} max={max} step={step} value={value} onChange={e=>set(Number(e.target.value))} style={{position:"absolute",inset:0,opacity:0,width:"100%",cursor:"pointer",height:"100%"}}/>
+        <input type="range" aria-label={label} min={min} max={max} step={step} value={value} onChange={e=>set(Number(e.target.value))} style={{position:"absolute",inset:0,opacity:0,width:"100%",cursor:"pointer",height:"100%"}}/>
       </div>
     </div>
   );
@@ -1797,7 +1800,7 @@ function PricingPage({isMobile}){
           {plans.map((p,i)=>(
             <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${i===0?p.color:W.border}`,borderRadius:W.radius,padding:"28px 26px",position:"relative",boxShadow:i===0?`0 0 40px rgba(16,185,129,0.2)`:W.shadow}}>
               {p.badge&&<div style={{position:"absolute",top:-1,right:24,background:p.color,color:"#fff",fontSize:10,fontWeight:800,letterSpacing:"0.08em",padding:"5px 12px",borderRadius:"0 0 10px 10px"}}>{p.badge}</div>}
-              <div style={{fontSize:11,fontWeight:700,color:p.color,letterSpacing:"0.1em",marginBottom:10}}>{p.name.toUpperCase()}</div>
+              <h2 style={{fontSize:11,fontWeight:700,color:p.color,letterSpacing:"0.1em",marginBottom:10}}>{p.name.toUpperCase()}</h2>
               <div style={{marginBottom:4}}>
                 <span style={{fontSize:44,fontWeight:900,color:W.text,letterSpacing:"-0.04em"}}>${p.price.toLocaleString()}</span>
                 <span style={{fontSize:15,color:W.textSub}}>/mo</span>
@@ -2521,7 +2524,7 @@ function HVACLandingPage({isMobile}){
                   <span style={{fontSize:12,color:W.textSub,fontWeight:600}}>{label}</span>
                   <span style={{fontSize:14,fontWeight:800,color:W.text}}>{label.includes("$")?`$${value.toLocaleString()}`:value}</span>
                 </div>
-                <input type="range" min={min} max={max} step={step} value={value} onChange={e=>setValue(Number(e.target.value))}
+                <input type="range" aria-label={label} min={min} max={max} step={step} value={value} onChange={e=>setValue(Number(e.target.value))}
                   style={{width:"100%",accentColor:W.amber}}/>
               </div>
             ))}
@@ -2770,7 +2773,9 @@ export default function Website(){
   const isSpecial=sector||path==="/dashboard"||path==="/pricing"||path==="/demo"||isMCTR||isPrivacy||isTerms||isHVAC||isPortal;
   return(
     <div style={{background:W.bg,color:W.text,minHeight:"100vh",paddingBottom:isMobile?80:0}}>
+      <a href="#main-content" className="vd-skip">Skip to content</a>
       <WebNav isMobile={isMobile}/>
+      <main id="main-content" tabIndex={-1} style={{outline:"none"}}>
       {sector&&<IndustryPage sector={sector} isMobile={isMobile}/>}
       {path==="/dashboard"&&<DashboardPage/>}
       {path==="/pricing"&&<PricingPage isMobile={isMobile}/>}
@@ -2781,6 +2786,7 @@ export default function Website(){
       {isHVAC&&<HVACLandingPage isMobile={isMobile}/>}
       {isPortal&&<ClientPortalPage isMobile={isMobile}/>}
       {!isSpecial&&<Homepage isMobile={isMobile}/>}
+      </main>
       {!isSpecial&&<WebFooter isMobile={isMobile}/>}
       {(path==="/pricing"||path==="/demo"||isMCTR||isPrivacy||isTerms||isHVAC||isPortal)&&<WebFooter isMobile={isMobile}/>}
       {isMobile&&<StickyMobileCTA/>}
