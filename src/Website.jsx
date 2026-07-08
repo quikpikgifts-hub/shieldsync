@@ -1301,12 +1301,12 @@ function FAQ({isMobile}){
             </div>
           ))}
         </div>
-        <div style={{marginTop:40,background:W.accentB,border:`1px solid rgba(139,92,246,0.2)`,borderRadius:14,padding:isMobile?20:28,display:"flex",flexDirection:isMobile?"column":"row",alignItems:isMobile?"flex-start":"center",justifyContent:"space-between",gap:16}}>
+        <div style={{marginTop:40,background:W.accentB,border:`1px solid rgba(139,92,246,0.2)`,borderRadius:W.radius,padding:isMobile?20:28,display:"flex",flexDirection:isMobile?"column":"row",alignItems:isMobile?"flex-start":"center",justifyContent:"space-between",gap:16,boxShadow:W.shadow}}>
           <div>
             <div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:4}}>Still have questions?</div>
             <div style={{fontSize:13,color:W.textSub}}>No scripts, no pressure — just honest answers.</div>
           </div>
-          <a href="#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"12px 24px",borderRadius:9,fontSize:14,fontWeight:700,whiteSpace:"nowrap",boxShadow:`0 4px 16px ${W.accentGlow}`}}>
+          <a href="#contact" className="vd-btn" style={{background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",padding:"12px 24px",borderRadius:W.radiusSm,fontSize:14,fontWeight:700,whiteSpace:"nowrap",boxShadow:W.shadowGlow}}>
             Ask Us Directly
           </a>
         </div>
