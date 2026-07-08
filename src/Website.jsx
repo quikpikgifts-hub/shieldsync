@@ -292,9 +292,9 @@ function WebNav({isMobile}){
 // ─────────────────────────────────────────────────────────────
 function WebFooter({isMobile}){
   const lk={fontSize:13,color:W.textSub,textDecoration:"none",display:"block",marginBottom:10};
-  const col={fontSize:10,fontWeight:700,color:W.textDim,letterSpacing:"0.1em",marginBottom:16};
+  const col={fontSize:10,fontWeight:700,color:W.textSub,letterSpacing:"0.1em",marginBottom:16};
   return(
-    <footer style={{borderTop:`1px solid ${W.border}`,background:W.surface}}>
+    <footer style={{borderTop:`1px solid ${W.border}`,background:W.surface,boxShadow:"inset 0 1px 0 rgba(139,92,246,0.18)"}}>
       <div style={{maxWidth:1160,margin:"0 auto",padding:isMobile?"44px 24px":"60px 48px 48px",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"2fr 1fr 1fr 1fr",gap:isMobile?36:40}}>
         <div>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
