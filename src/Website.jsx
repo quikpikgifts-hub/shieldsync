@@ -1795,7 +1795,7 @@ function PricingPage({isMobile}){
         <p style={{fontSize:isMobile?15:18,color:W.textSub,lineHeight:1.7,maxWidth:580,margin:"0 auto 56px"}}>No long-term contracts. Cancel anytime. Every plan starts with a free Revenue Recovery Assessment.</p>
         <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"repeat(2,1fr)",gap:20,textAlign:"left"}}>
           {plans.map((p,i)=>(
-            <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${i===0?p.color:W.border}`,borderRadius:20,padding:"28px 26px",position:"relative",boxShadow:i===0?`0 0 40px rgba(16,185,129,0.2)`:undefined}}>
+            <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${i===0?p.color:W.border}`,borderRadius:W.radius,padding:"28px 26px",position:"relative",boxShadow:i===0?`0 0 40px rgba(16,185,129,0.2)`:W.shadow}}>
               {p.badge&&<div style={{position:"absolute",top:-1,right:24,background:p.color,color:"#fff",fontSize:10,fontWeight:800,letterSpacing:"0.08em",padding:"5px 12px",borderRadius:"0 0 10px 10px"}}>{p.badge}</div>}
               <div style={{fontSize:11,fontWeight:700,color:p.color,letterSpacing:"0.1em",marginBottom:10}}>{p.name.toUpperCase()}</div>
               <div style={{marginBottom:4}}>
@@ -1816,7 +1816,7 @@ function PricingPage({isMobile}){
             </div>
           ))}
         </div>
-        <div style={{marginTop:40,background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?"24px":"36px 48px",textAlign:"left"}}>
+        <div style={{marginTop:40,background:W.card,border:`1px solid ${W.border}`,borderRadius:W.radius,padding:isMobile?"24px":"36px 48px",textAlign:"left",boxShadow:W.shadow}}>
           <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:16}}>SETUP INCLUDES</div>
           <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(5,1fr)",gap:16,marginBottom:0}}>
             {["Configuration","CRM Setup","SMS Setup","Automation Deployment","Testing & Launch"].map((item,i)=>(
@@ -1829,7 +1829,7 @@ function PricingPage({isMobile}){
             ))}
           </div>
         </div>
-        <div style={{marginTop:24,background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?"24px":"36px 48px",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:28,alignItems:"center",textAlign:"left"}}>
+        <div style={{marginTop:24,background:W.card,border:`1px solid ${W.border}`,borderRadius:W.radius,padding:isMobile?"24px":"36px 48px",display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:28,alignItems:"center",textAlign:"left",boxShadow:W.shadow}}>
           <div>
             <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:10}}>ENTERPRISE REVENUE GUARANTEE</div>
             <div style={{fontSize:isMobile?20:24,fontWeight:800,color:W.text,letterSpacing:"-0.03em",lineHeight:1.3,marginBottom:10}}>Enterprise clients: we guarantee measurable results or we work for free until you see them.</div>
