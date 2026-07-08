@@ -192,7 +192,7 @@ function ChatWidget(){
                   <input key={k} type={t} placeholder={ph} value={lead[k]} onChange={e=>ld(k,e.target.value)}
                     style={{width:"100%",background:W.card,border:`1px solid ${W.border}`,borderRadius:8,padding:"9px 12px",color:W.text,fontSize:12,outline:"none",marginBottom:8}}/>
                 ))}
-                <button onClick={submitLead} disabled={!lead.email||submitting} style={{width:"100%",background:W.accent,border:"none",borderRadius:8,padding:"10px",fontSize:13,fontWeight:700,color:"#fff",cursor:!lead.email||submitting?"not-allowed":"pointer",opacity:!lead.email||submitting?0.5:1}}>
+                <button onClick={submitLead} disabled={!lead.email||submitting} style={{width:"100%",background:`linear-gradient(135deg,${W.accent},${W.accentH})`,border:"none",borderRadius:W.radiusSm,padding:"11px",fontSize:13,fontWeight:700,color:"#fff",cursor:!lead.email||submitting?"not-allowed":"pointer",opacity:!lead.email||submitting?0.5:1,boxShadow:W.shadowGlow}}>
                   {submitting?"Sending...":"Send My Assessment Request"}
                 </button>
                 <div style={{marginTop:8,fontSize:10,color:W.textDim,lineHeight:1.6}}>By submitting, you agree to receive SMS from Veridian. Reply STOP to opt out. <a href="/privacy" style={{color:W.textSub,textDecoration:"none"}}>Privacy Policy</a></div>
@@ -208,11 +208,11 @@ function ChatWidget(){
           </div>
           <form onSubmit={send} style={{padding:"10px 12px",borderTop:`1px solid ${W.border}`,display:"flex",gap:8,alignItems:"center",flexShrink:0}}>
             <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={handleKey} placeholder="Describe your challenge..." style={{flex:1,background:W.surface,border:`1px solid ${W.border}`,borderRadius:10,padding:"9px 12px",color:W.text,fontSize:13,outline:"none"}}/>
-            <button type="submit" disabled={loading||!input.trim()} style={{background:W.accent,border:"none",borderRadius:10,width:36,height:36,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",opacity:!input.trim()||loading?0.4:1,flexShrink:0}}><Send size={14} style={{color:"#fff"}}/></button>
+            <button type="submit" disabled={loading||!input.trim()} style={{background:`linear-gradient(135deg,${W.accent},${W.accentH})`,border:"none",borderRadius:10,width:36,height:36,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",opacity:!input.trim()||loading?0.4:1,flexShrink:0}}><Send size={14} style={{color:"#fff"}}/></button>
           </form>
         </div>
       )}
-      <button onClick={()=>{setOpen(o=>!o);track("chat_open");}} style={{position:"fixed",bottom:24,right:20,zIndex:400,width:52,height:52,borderRadius:"50%",background:`linear-gradient(135deg,${W.accent},${W.accentH})`,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 4px 24px ${W.accentGlow}`,transition:"transform .2s"}}>
+      <button onClick={()=>{setOpen(o=>!o);track("chat_open");}} style={{position:"fixed",bottom:24,right:20,zIndex:400,width:52,height:52,borderRadius:"50%",background:`linear-gradient(135deg,${W.accent},${W.accentH})`,border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:W.shadowGlow,transition:"transform .2s"}}>
         {open?<X size={22} style={{color:"#fff"}}/>:<MessageCircle size={22} style={{color:"#fff"}}/>}
         {!open&&<div style={{position:"absolute",top:10,right:10,width:10,height:10,borderRadius:"50%",background:W.green,border:`2px solid ${W.card}`}}/>}
       </button>
