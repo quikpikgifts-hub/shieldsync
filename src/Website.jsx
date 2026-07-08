@@ -11,19 +11,24 @@ const W={
   cardH:"#0E0E26",
   border:"#12123A",
   borderH:"#20204A",
-  accent:"#6366F1",
-  accentH:"#4F46E5",
-  accentB:"rgba(99,102,241,0.08)",
-  accentGlow:"rgba(99,102,241,0.22)",
+  accent:"#8B5CF6",
+  accentH:"#7C3AED",
+  accentB:"rgba(139,92,246,0.08)",
+  accentGlow:"rgba(139,92,246,0.22)",
   green:"#10B981",
   greenB:"rgba(16,185,129,0.08)",
   red:"#EF4444",
   redB:"rgba(239,68,68,0.08)",
   amber:"#F59E0B",
   amberB:"rgba(245,158,11,0.08)",
-  text:"#EEEEFF",
-  textSub:"#6878A0",
-  textDim:"#2A3450",
+  text:"#F8FAFC",
+  textSub:"#94A3B8",
+  textDim:"#475569",
+  accent2:"#A78BFA",
+  radiusSm:10, radius:14, radiusLg:20,
+  shadow:"0 4px 24px rgba(0,0,0,0.35)",
+  shadowLg:"0 20px 60px rgba(0,0,0,0.45)",
+  shadowGlow:"0 10px 34px rgba(139,92,246,0.28)",
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -42,20 +47,20 @@ input,textarea,button{font-family:inherit}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes glow{0%,100%{box-shadow:0 0 0 rgba(99,102,241,0)}50%{box-shadow:0 0 60px rgba(99,102,241,.18)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 rgba(139,92,246,0)}50%{box-shadow:0 0 60px rgba(139,92,246,.18)}}
 @keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
 @keyframes stickUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
-@keyframes stepGlow{0%,100%{box-shadow:0 0 0 rgba(99,102,241,0)}50%{box-shadow:0 0 24px rgba(99,102,241,.3)}}
+@keyframes stepGlow{0%,100%{box-shadow:0 0 0 rgba(139,92,246,0)}50%{box-shadow:0 0 24px rgba(139,92,246,.3)}}
 .vd-btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:all .2s ease;cursor:pointer}
 .vd-btn:hover{opacity:.85;transform:translateY(-2px)}
 .vd-ghost{display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:all .2s ease;cursor:pointer}
-.vd-ghost:hover{border-color:#6366F1!important;color:#6366F1!important}
+.vd-ghost:hover{border-color:#8B5CF6!important;color:#8B5CF6!important}
 .vd-card{transition:all .22s ease}
 .vd-card:hover{transform:translateY(-3px);border-color:#20204A!important;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .vd-link{color:#6878A0;text-decoration:none;transition:color .15s}
 .vd-link:hover{color:#EEEEFF}
 .vd-lk{transition:color .15s}
-.vd-lk:hover{color:#6366F1!important}
+.vd-lk:hover{color:#8B5CF6!important}
 .vd-tab{transition:all .15s ease;cursor:pointer;border:none;background:none}
 .vd-sticky{position:fixed;bottom:0;left:0;right:0;z-index:150;padding:12px 16px 16px;background:rgba(4,4,11,.97);border-top:1px solid #12123A;backdrop-filter:blur(20px);animation:stickUp .3s ease}
 input::placeholder,textarea::placeholder{color:#3A4A6A}
@@ -392,13 +397,13 @@ function Hero({isMobile}){
   return(
     <section style={{minHeight:"100vh",display:"flex",flexDirection:"column",justifyContent:"center",position:"relative",overflow:"hidden",padding:isMobile?"128px 24px 80px":"144px 48px 100px"}}>
       {/* Background glow */}
-      <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse 80% 60% at 50% 0%,rgba(99,102,241,0.06) 0%,transparent 60%)",pointerEvents:"none"}}/>
-      <div style={{position:"absolute",top:"50%",right:"5%",width:500,height:500,background:"radial-gradient(circle,rgba(99,102,241,0.04) 0%,transparent 60%)",pointerEvents:"none"}}/>
+      <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse 80% 60% at 50% 0%,rgba(139,92,246,0.06) 0%,transparent 60%)",pointerEvents:"none"}}/>
+      <div style={{position:"absolute",top:"50%",right:"5%",width:500,height:500,background:"radial-gradient(circle,rgba(139,92,246,0.04) 0%,transparent 60%)",pointerEvents:"none"}}/>
       <div style={{maxWidth:1160,margin:"0 auto",width:"100%",position:"relative",zIndex:1}}>
         <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:isMobile?0:72,alignItems:"center"}}>
           {/* Left */}
           <div>
-            <div style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accentB,border:"1px solid rgba(99,102,241,0.2)",borderRadius:100,padding:"5px 14px",marginBottom:32}}>
+            <div style={{display:"inline-flex",alignItems:"center",gap:8,background:W.accentB,border:"1px solid rgba(139,92,246,0.2)",borderRadius:100,padding:"5px 14px",marginBottom:32}}>
               <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
               <span style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.08em"}}>VERIDIAN REVENUE RECOVERY PROGRAM™</span>
             </div>
@@ -590,7 +595,7 @@ function Calculator({isMobile}){
               <div style={{fontSize:isMobile?"52px":"72px",fontWeight:900,color:W.text,letterSpacing:"-0.045em",lineHeight:1}}>{fmtM(lostMo*12)}</div>
               <div style={{fontSize:13,color:W.textSub,marginTop:10}}>slipping away from {fmtN(missed)} missed calls/month</div>
             </div>
-            <div style={{background:"linear-gradient(135deg,rgba(99,102,241,0.1),rgba(99,102,241,0.04))",border:"1px solid rgba(99,102,241,0.22)",borderRadius:20,padding:isMobile?24:32,textAlign:"center"}}>
+            <div style={{background:"linear-gradient(135deg,rgba(139,92,246,0.1),rgba(139,92,246,0.04))",border:"1px solid rgba(139,92,246,0.22)",borderRadius:20,padding:isMobile?24:32,textAlign:"center"}}>
               <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:8}}>VERIDIAN RECOVERY POTENTIAL</div>
               <div style={{fontSize:isMobile?"44px":"60px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1}}>{fmtM(annual)}</div>
               <div style={{fontSize:12,color:W.textSub,marginTop:8}}>per year · based on 68% recovery rate</div>
@@ -744,7 +749,7 @@ function Results({isMobile}){
           ))}
         </div>
         <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:16,padding:isMobile?24:36,textAlign:"center"}}>
-          <div style={{display:"inline-block",background:W.accentB,border:"1px solid rgba(99,102,241,0.22)",borderRadius:6,padding:"4px 12px",fontSize:10,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:14}}>FOUNDING CLIENT PROGRAM</div>
+          <div style={{display:"inline-block",background:W.accentB,border:"1px solid rgba(139,92,246,0.22)",borderRadius:6,padding:"4px 12px",fontSize:10,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:14}}>FOUNDING CLIENT PROGRAM</div>
           <div style={{fontSize:isMobile?"18px":"22px",fontWeight:800,color:W.text,marginBottom:12}}>Now accepting founding clients.</div>
           <p style={{fontSize:13,color:W.textSub,lineHeight:1.72,maxWidth:520,margin:"0 auto 20px"}}>We are currently onboarding a limited number of founding clients. Participants receive priority onboarding, direct access to leadership, and monthly recovery reporting.</p>
           <a href="#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"12px 28px",borderRadius:9,fontSize:14,fontWeight:700,boxShadow:`0 4px 16px ${W.accentGlow}`,textDecoration:"none",display:"inline-flex"}}>
@@ -782,7 +787,7 @@ function MissedCallTextRecovery({isMobile}){
       <div style={{maxWidth:1160,margin:"0 auto"}} ref={ref}>
         {/* Hero block */}
         <div style={{textAlign:"center",marginBottom:isMobile?56:80}}>
-          <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(99,102,241,0.08)",border:"1px solid rgba(99,102,241,0.2)",borderRadius:100,padding:"5px 16px",marginBottom:24}}>
+          <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(139,92,246,0.08)",border:"1px solid rgba(139,92,246,0.2)",borderRadius:100,padding:"5px 16px",marginBottom:24}}>
             <div style={{width:6,height:6,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
             <span style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em"}}>MISSED CALL TEXT RECOVERY™</span>
           </div>
@@ -966,7 +971,7 @@ function ProgramOffer({isMobile}){
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             {features.map((f,i)=>(
               <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:14,padding:isMobile?18:22,display:"flex",gap:14,alignItems:"flex-start",animation:inView?`fadeUp .4s ease ${i*0.07}s both`:"none"}}>
-                <div style={{width:26,height:26,borderRadius:7,background:W.accentB,border:`1px solid rgba(99,102,241,0.16)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
+                <div style={{width:26,height:26,borderRadius:7,background:W.accentB,border:`1px solid rgba(139,92,246,0.16)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>
                   <Check size={12} style={{color:W.accent}}/>
                 </div>
                 <div>
@@ -1176,7 +1181,7 @@ function FounderAuthority({isMobile}){
                 </div>
               );})}
             </div>
-            <div style={{marginTop:24,padding:isMobile?20:24,background:"linear-gradient(135deg,rgba(99,102,241,0.06),rgba(99,102,241,0.02))",border:"1px solid rgba(99,102,241,0.15)",borderRadius:14,display:"flex",alignItems:"center",gap:16,flexWrap:"wrap"}}>
+            <div style={{marginTop:24,padding:isMobile?20:24,background:"linear-gradient(135deg,rgba(139,92,246,0.06),rgba(139,92,246,0.02))",border:"1px solid rgba(139,92,246,0.15)",borderRadius:14,display:"flex",alignItems:"center",gap:16,flexWrap:"wrap"}}>
               <div style={{display:"flex",gap:8,alignItems:"center"}}>
                 <Phone size={16} style={{color:W.accent}}/>
                 <a href="tel:+14074705992" style={{fontSize:14,fontWeight:700,color:W.text,textDecoration:"none"}}>(407) 470-5992</a>
@@ -1296,7 +1301,7 @@ function FAQ({isMobile}){
             </div>
           ))}
         </div>
-        <div style={{marginTop:40,background:W.accentB,border:`1px solid rgba(99,102,241,0.2)`,borderRadius:14,padding:isMobile?20:28,display:"flex",flexDirection:isMobile?"column":"row",alignItems:isMobile?"flex-start":"center",justifyContent:"space-between",gap:16}}>
+        <div style={{marginTop:40,background:W.accentB,border:`1px solid rgba(139,92,246,0.2)`,borderRadius:14,padding:isMobile?20:28,display:"flex",flexDirection:isMobile?"column":"row",alignItems:isMobile?"flex-start":"center",justifyContent:"space-between",gap:16}}>
           <div>
             <div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:4}}>Still have questions?</div>
             <div style={{fontSize:13,color:W.textSub}}>No scripts, no pressure — just honest answers.</div>
@@ -1411,7 +1416,7 @@ function Contact({isMobile}){
           {step==="form"&&(
             <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:40}}>
               {calcHint?.annual>0&&(
-                <div style={{background:W.accentB,border:"1px solid rgba(99,102,241,0.2)",borderRadius:10,padding:"14px 18px",marginBottom:24,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div style={{background:W.accentB,border:"1px solid rgba(139,92,246,0.2)",borderRadius:10,padding:"14px 18px",marginBottom:24,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <div><div style={{fontSize:10,fontWeight:700,color:W.accent,letterSpacing:"0.08em",marginBottom:2}}>YOUR RECOVERY ESTIMATE</div><div style={{fontSize:12,color:W.textSub}}>From the calculator</div></div>
                   <div style={{fontSize:22,fontWeight:900,color:W.text}}>{fmtM(calcHint.annual)}<span style={{fontSize:11,color:W.textDim,fontWeight:400}}>/yr</span></div>
                 </div>
@@ -1463,7 +1468,7 @@ function Contact({isMobile}){
                   Open Booking Calendar <ArrowRight size={15} style={{marginLeft:6}}/>
                 </a>
               ):(
-                <div style={{background:W.accentB,border:"1px solid rgba(99,102,241,0.2)",borderRadius:10,padding:"20px 24px",marginBottom:16,textAlign:"center"}}>
+                <div style={{background:W.accentB,border:"1px solid rgba(139,92,246,0.2)",borderRadius:10,padding:"20px 24px",marginBottom:16,textAlign:"center"}}>
                   <div style={{fontSize:12,fontWeight:700,color:W.textSub,letterSpacing:"0.06em",marginBottom:10}}>CALL TO SCHEDULE</div>
                   <a href="tel:+14074705992" style={{fontSize:20,fontWeight:800,color:W.accent,textDecoration:"none",display:"block",marginBottom:4}}>(407) 470-5992</a>
                   <div style={{fontSize:12,color:W.textSub}}>Steve Smith · Managing Member</div>
@@ -1496,7 +1501,7 @@ function Contact({isMobile}){
                 <>
                   <div className="no-print" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
                     <div style={{fontSize:17,fontWeight:800,color:W.text}}>Your Revenue Recovery Plan</div>
-                    <button onClick={()=>window.print()} style={{background:W.accentB,border:"1px solid rgba(99,102,241,0.22)",borderRadius:8,padding:"7px 14px",fontSize:12,fontWeight:700,color:W.accent,cursor:"pointer"}}>Print / PDF</button>
+                    <button onClick={()=>window.print()} style={{background:W.accentB,border:"1px solid rgba(139,92,246,0.22)",borderRadius:8,padding:"7px 14px",fontSize:12,fontWeight:700,color:W.accent,cursor:"pointer"}}>Print / PDF</button>
                   </div>
                   {plan?(
                     <div className="print-plan" style={{fontSize:13,color:W.textSub,lineHeight:1.85,whiteSpace:"pre-wrap"}}>{plan}</div>
@@ -1592,7 +1597,7 @@ function IndustryCalculator({sector,isMobile}){
           <Sl label="Lead-to-customer conversion" value={conv} set={setConv} min={5} max={80} fmt={v=>`${v}%`}/>
         </div>
         <div>
-          <div style={{background:"linear-gradient(135deg,rgba(99,102,241,0.12),rgba(99,102,241,0.04))",border:"1px solid rgba(99,102,241,0.26)",borderRadius:14,padding:isMobile?20:28,textAlign:"center",marginBottom:14}}>
+          <div style={{background:"linear-gradient(135deg,rgba(139,92,246,0.12),rgba(139,92,246,0.04))",border:"1px solid rgba(139,92,246,0.26)",borderRadius:14,padding:isMobile?20:28,textAlign:"center",marginBottom:14}}>
             <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:8}}>ANNUAL RECOVERY POTENTIAL</div>
             <div style={{fontSize:isMobile?"40px":"52px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1}}>{fmt$(annual)}</div>
             <div style={{fontSize:12,color:W.textSub,marginTop:8}}>recoverable with Veridian</div>
@@ -1816,7 +1821,7 @@ function PricingPage({isMobile}){
           <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(5,1fr)",gap:16,marginBottom:0}}>
             {["Configuration","CRM Setup","SMS Setup","Automation Deployment","Testing & Launch"].map((item,i)=>(
               <div key={i} style={{display:"flex",gap:10,alignItems:"center"}}>
-                <div style={{width:20,height:20,borderRadius:"50%",background:W.accentB,border:"1px solid rgba(99,102,241,0.22)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                <div style={{width:20,height:20,borderRadius:"50%",background:W.accentB,border:"1px solid rgba(139,92,246,0.22)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                   <Check size={10} style={{color:W.accent}}/>
                 </div>
                 <span style={{fontSize:13,color:W.textSub}}>{item}</span>
@@ -2019,7 +2024,7 @@ function DashboardPage(){
             <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:4}}>VERIDIAN</div>
             <div style={{fontSize:24,fontWeight:900,color:W.text,letterSpacing:"-0.03em"}}>Revenue Command Center</div>
           </div>
-          <button onClick={refresh} style={{background:W.accentB,border:"1px solid rgba(99,102,241,0.22)",borderRadius:9,padding:"9px 18px",fontSize:13,fontWeight:600,color:W.accent,cursor:"pointer"}}>Refresh</button>
+          <button onClick={refresh} style={{background:W.accentB,border:"1px solid rgba(139,92,246,0.22)",borderRadius:9,padding:"9px 18px",fontSize:13,fontWeight:600,color:W.accent,cursor:"pointer"}}>Refresh</button>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:24}}>
           {metrics.map((m,i)=>(
@@ -2083,7 +2088,7 @@ function DashboardPage(){
           )}
         </div>
         {!configured&&(
-          <div style={{background:W.accentB,border:"1px solid rgba(99,102,241,0.18)",borderRadius:14,padding:22,marginTop:18}}>
+          <div style={{background:W.accentB,border:"1px solid rgba(139,92,246,0.18)",borderRadius:14,padding:22,marginTop:18}}>
             <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.06em",marginBottom:10}}>SETUP REQUIRED</div>
             <div style={{fontSize:13,color:W.textSub,lineHeight:1.8}}>
               1. Vercel Dashboard → Storage → Create KV Database → Connect project (auto-sets KV_REST_API_URL + KV_REST_API_TOKEN)<br/>
@@ -2104,7 +2109,7 @@ function DashboardPage(){
 // ─────────────────────────────────────────────────────────────
 function ROIProofBanner({isMobile}){
   return(
-    <div style={{background:"linear-gradient(90deg,rgba(16,185,129,0.1),rgba(99,102,241,0.1))",borderTop:"1px solid rgba(16,185,129,0.18)",borderBottom:"1px solid rgba(16,185,129,0.18)",padding:"16px 24px",textAlign:"center"}}>
+    <div style={{background:"linear-gradient(90deg,rgba(16,185,129,0.1),rgba(139,92,246,0.1))",borderTop:"1px solid rgba(16,185,129,0.18)",borderBottom:"1px solid rgba(16,185,129,0.18)",padding:"16px 24px",textAlign:"center"}}>
       <div style={{maxWidth:900,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"center",gap:isMobile?10:28,flexWrap:"wrap"}}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <div style={{width:8,height:8,borderRadius:"50%",background:W.green,animation:"pulse 2s infinite"}}/>
@@ -2162,7 +2167,7 @@ function IndustryROIExamples({isMobile}){
     {ind:"Electrical",calls:65,value:2400,miss:30,color:"#EF4444"},
     {ind:"Security",calls:100,value:8000,miss:25,color:"#8B5CF6"},
     {ind:"Legal",calls:40,value:12000,miss:45,color:"#10B981"},
-    {ind:"Medical",calls:180,value:400,miss:30,color:"#6366F1"},
+    {ind:"Medical",calls:180,value:400,miss:30,color:"#8B5CF6"},
   ];
   return(
     <section style={{padding:isMobile?"80px 24px":"120px 48px",background:W.surface,borderTop:`1px solid ${W.border}`}}>
@@ -2288,7 +2293,7 @@ function MCTRFaq({isMobile}){
             </div>
           ))}
         </div>
-        <div style={{marginTop:36,background:W.accentB,border:"1px solid rgba(99,102,241,0.2)",borderRadius:14,padding:isMobile?20:28,display:"flex",flexDirection:isMobile?"column":"row",alignItems:isMobile?"flex-start":"center",justifyContent:"space-between",gap:16}}>
+        <div style={{marginTop:36,background:W.accentB,border:"1px solid rgba(139,92,246,0.2)",borderRadius:14,padding:isMobile?20:28,display:"flex",flexDirection:isMobile?"column":"row",alignItems:isMobile?"flex-start":"center",justifyContent:"space-between",gap:16}}>
           <div>
             <div style={{fontSize:14,fontWeight:700,color:W.text,marginBottom:4}}>Still have questions?</div>
             <div style={{fontSize:13,color:W.textSub}}>We answer within 1 business day — honestly.</div>
