@@ -409,13 +409,13 @@ function Hero({isMobile}){
             </div>
             <h1 className="vd-hero-h1" style={{fontSize:isMobile?"44px":"72px",fontWeight:900,color:W.text,lineHeight:1.02,letterSpacing:"-0.04em",marginBottom:24}}>
               Every Missed Call<br/>
-              <span style={{background:`linear-gradient(135deg,${W.accent},#8B5CF6)`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Costs Revenue.</span>
+              <span style={{background:`linear-gradient(135deg,${W.accent},${W.accent2})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>Costs Revenue.</span>
             </h1>
             <p className="vd-hero-sub" style={{fontSize:isMobile?"17px":"20px",color:W.textSub,lineHeight:1.65,maxWidth:480,marginBottom:40}}>
               Businesses lose thousands every month from missed calls, delayed responses, and abandoned opportunities. Veridian recovers that revenue — booking appointments and capturing every opportunity your team couldn't reach.
             </p>
             <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:20}}>
-              <a href="#calculator" className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?"14px 28px":"16px 36px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:700,boxShadow:`0 4px 20px ${W.accentGlow}`}}>
+              <a href="#calculator" className="vd-btn" style={{background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",padding:isMobile?"14px 28px":"16px 36px",borderRadius:W.radiusSm,fontSize:isMobile?"15px":"17px",fontWeight:700,boxShadow:W.shadowGlow}}>
                 Calculate Lost Revenue <ArrowRight size={16}/>
               </a>
               <a href="#contact" className="vd-ghost" style={{background:"none",border:`1.5px solid ${W.border}`,color:W.text,padding:isMobile?"13px 24px":"15px 32px",borderRadius:10,fontSize:isMobile?"15px":"17px",fontWeight:600}}>
