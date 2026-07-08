@@ -1435,7 +1435,7 @@ function Contact({isMobile}){
                   <textarea value={f.challenge} onChange={e=>setF(x=>({...x,challenge:e.target.value}))} onFocus={()=>setTaFocused(true)} onBlur={()=>setTaFocused(false)} placeholder="Missed calls, slow follow-up, lost appointments — tell us where the biggest gaps are..." rows={4} style={{width:"100%",background:W.surface,border:`1px solid ${taFocused?W.accent:W.border}`,borderRadius:9,padding:"12px 14px",color:W.text,fontSize:14,outline:"none",resize:"vertical",lineHeight:1.6,boxShadow:taFocused?`0 0 0 3px ${W.accentB}`:"none",transition:"border-color .15s"}}/>
                 </div>
                 {err&&<div style={{marginBottom:14,padding:"11px 14px",background:W.redB,border:"1px solid rgba(239,68,68,0.2)",borderRadius:8,fontSize:13,color:W.red}}>{err}</div>}
-                <button type="submit" disabled={loading} className="vd-btn" style={{width:"100%",background:W.accent,color:"#fff",border:"none",borderRadius:10,padding:16,fontSize:15,fontWeight:700,cursor:loading?"not-allowed":"pointer",opacity:loading?0.7:1,justifyContent:"center",boxShadow:`0 4px 20px ${W.accentGlow}`}}>
+                <button type="submit" disabled={loading} className="vd-btn" style={{width:"100%",background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",border:"none",borderRadius:W.radiusSm,padding:16,fontSize:15,fontWeight:700,cursor:loading?"not-allowed":"pointer",opacity:loading?0.7:1,justifyContent:"center",boxShadow:W.shadowGlow}}>
                   {loading?"Sending...":"Start Recovering Revenue"}
                 </button>
                 <div style={{marginTop:12,fontSize:11,color:W.textDim,lineHeight:1.65,textAlign:"center"}}>
@@ -1464,7 +1464,7 @@ function Contact({isMobile}){
               {BOOKING_URL?(
                 <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer"
                   onClick={()=>track("booking_calendar_opened")}
-                  className="vd-btn" style={{display:"flex",background:W.accent,color:"#fff",borderRadius:10,padding:16,fontSize:15,fontWeight:700,textDecoration:"none",justifyContent:"center",marginBottom:16,boxShadow:`0 4px 20px ${W.accentGlow}`}}>
+                  className="vd-btn" style={{display:"flex",background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",borderRadius:W.radiusSm,padding:16,fontSize:15,fontWeight:700,textDecoration:"none",justifyContent:"center",marginBottom:16,boxShadow:W.shadowGlow}}>
                   Open Booking Calendar <ArrowRight size={15} style={{marginLeft:6}}/>
                 </a>
               ):(
