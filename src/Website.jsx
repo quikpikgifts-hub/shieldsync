@@ -693,12 +693,12 @@ function HowItWorks({isMobile}){
           <SLabel>HOW REVENUE IS RECOVERED</SLabel>
           <h2 style={{fontSize:isMobile?"34px":"56px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1.04,marginBottom:16}}>
             Four steps.<br/>
-            <span style={{background:`linear-gradient(135deg,${W.accent},#8B5CF6,${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>One outcome.</span>
+            <span style={{background:`linear-gradient(135deg,${W.accent},${W.accent2},${W.green})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",backgroundClip:"text"}}>One outcome.</span>
           </h2>
         </div>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(4,1fr)",gap:isMobile?16:24}}>
           {steps.map((s,i)=>(
-            <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:18,padding:isMobile?24:32,animation:inView?`fadeUp .5s ease ${i*0.1}s both`:"none"}}>
+            <div key={i} className="vd-card" style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:W.radius,padding:isMobile?24:32,boxShadow:W.shadow,animation:inView?`fadeUp .5s ease ${i*0.1}s both`:"none"}}>
               <div style={{fontSize:40,fontWeight:900,color:W.border,letterSpacing:"-0.04em",marginBottom:20,lineHeight:1}}>{s.n}</div>
               <div style={{width:40,height:3,background:s.color,borderRadius:2,marginBottom:20}}/>
               <div style={{fontSize:16,fontWeight:700,color:W.text,marginBottom:12,lineHeight:1.3}}>{s.title}</div>
@@ -707,7 +707,7 @@ function HowItWorks({isMobile}){
           ))}
         </div>
         <div style={{textAlign:"center",marginTop:48}}>
-          <a href="#contact" className="vd-btn" style={{background:W.accent,color:"#fff",padding:"15px 36px",borderRadius:10,fontSize:15,fontWeight:700,boxShadow:`0 4px 20px ${W.accentGlow}`}}>
+          <a href="#contact" className="vd-btn" style={{background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",padding:"15px 36px",borderRadius:W.radiusSm,fontSize:15,fontWeight:700,boxShadow:W.shadowGlow}}>
             Start Recovering Revenue <ArrowRight size={16}/>
           </a>
         </div>
