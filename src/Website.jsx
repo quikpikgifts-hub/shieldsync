@@ -563,7 +563,7 @@ function Calculator({isMobile}){
       </div>
       <div style={{position:"relative",height:24,display:"flex",alignItems:"center"}}>
         <div style={{position:"absolute",left:0,right:0,height:4,background:W.border,borderRadius:2,overflow:"hidden"}}>
-          <div style={{height:"100%",width:`${((value-min)/(max-min))*100}%`,background:W.accent,borderRadius:2}}/>
+          <div style={{height:"100%",width:`${((value-min)/(max-min))*100}%`,background:`linear-gradient(90deg,${W.accent},${W.accent2})`,borderRadius:2}}/>
         </div>
         <input type="range" min={min} max={max} step={step} value={value} onChange={e=>set(Number(e.target.value))} style={{position:"absolute",inset:0,opacity:0,width:"100%",cursor:"pointer",height:"100%"}}/>
       </div>
@@ -581,7 +581,7 @@ function Calculator({isMobile}){
         </div>
         <div style={{display:isMobile?"flex":"grid",flexDirection:isMobile?"column":undefined,gridTemplateColumns:isMobile?undefined:"1fr 1fr",gap:28,alignItems:"start"}}>
           {/* Sliders */}
-          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?28:44}}>
+          <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:W.radiusLg,padding:isMobile?28:44,boxShadow:W.shadow}}>
             <div style={{fontSize:11,fontWeight:700,color:W.textDim,letterSpacing:"0.1em",marginBottom:32}}>YOUR NUMBERS</div>
             <Sl label="Monthly incoming calls" value={calls} set={setCalls} min={50} max={2000} step={50} fmt={v=>fmtN(v)}/>
             <Sl label="Missed call rate" value={miss} set={setMiss} min={5} max={60} fmt={v=>`${v}%`}/>
@@ -601,7 +601,7 @@ function Calculator({isMobile}){
               <div style={{fontSize:12,color:W.textSub,marginTop:8}}>per year · based on 68% recovery rate</div>
             </div>
             <a href="#contact" onClick={()=>{Object.assign(_lead,{calls,miss,val,conv,missed,lostMo,recMo,annual});window.dispatchEvent(new CustomEvent("veridian:calcdata",{detail:{..._lead}}));track("calculator_cta_click",{value:annual,currency:"USD"});}}
-              className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?16:18,borderRadius:12,fontSize:15,fontWeight:700,justifyContent:"center",boxShadow:`0 6px 24px ${W.accentGlow}`}}>
+              className="vd-btn" style={{background:`linear-gradient(135deg,${W.accent},${W.accentH})`,color:"#fff",padding:isMobile?16:18,borderRadius:W.radius,fontSize:15,fontWeight:700,justifyContent:"center",boxShadow:W.shadowGlow}}>
               Get My Recovery Plan <ArrowRight size={16}/>
             </a>
             <div style={{fontSize:11,color:W.textDim,textAlign:"center"}}>Representative outcomes. Results vary by industry and call volume.</div>
@@ -1580,7 +1580,7 @@ function IndustryCalculator({sector,isMobile}){
       </div>
       <div style={{position:"relative",height:24,display:"flex",alignItems:"center"}}>
         <div style={{position:"absolute",left:0,right:0,height:4,background:W.border,borderRadius:2,overflow:"hidden"}}>
-          <div style={{height:"100%",width:`${((value-min)/(max-min))*100}%`,background:W.accent,borderRadius:2}}/>
+          <div style={{height:"100%",width:`${((value-min)/(max-min))*100}%`,background:`linear-gradient(90deg,${W.accent},${W.accent2})`,borderRadius:2}}/>
         </div>
         <input type="range" min={min} max={max} step={step} value={value} onChange={e=>set(Number(e.target.value))} style={{position:"absolute",inset:0,opacity:0,width:"100%",cursor:"pointer",height:"100%"}}/>
       </div>
