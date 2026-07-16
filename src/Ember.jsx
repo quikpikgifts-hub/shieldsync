@@ -2,47 +2,57 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Flame, Heart, X, ShieldCheck, MessageCircle, Mic, Video, MapPin,
   Sparkles, Lock, Check, ArrowRight, ArrowLeft, Camera, AlertTriangle,
-  Users, Eye, Zap, Star,
+  Eye, Star, Crown,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
-// DESIGN TOKENS
+// DESIGN TOKENS — restrained, editorial, warm-dark
 // ─────────────────────────────────────────────────────────────
 const E = {
-  bg: "#0F0A0C",
-  surface: "#160F12",
-  card: "#1C1418",
-  cardH: "#241A1F",
-  border: "#2E2126",
-  borderH: "#4A2F35",
+  bg: "#0B0809",
+  surface: "#14100F",
+  card: "#1B1516",
+  cardH: "#221B1C",
+  border: "#2C2224",
+  borderH: "#4A3335",
   accent: "#FF6B4A",
   accentH: "#FF8A5B",
-  accentB: "rgba(255,107,74,0.10)",
-  accentGlow: "rgba(255,107,74,0.28)",
+  accentB: "rgba(255,107,74,0.09)",
+  accentGlow: "rgba(255,107,74,0.22)",
   rose: "#F5455C",
-  gold: "#F4B740",
+  gold: "#E8B466",
+  goldB: "rgba(232,180,102,0.10)",
   green: "#3DD68C",
   text: "#FBEFEA",
   textSub: "#B99089",
   textDim: "#5C4046",
+  serif: "'Fraunces', Georgia, serif",
+  sans: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
 };
 
+const GRAIN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
+
 const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-.em-root{background:${E.bg};color:${E.text};font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+.em-root{background:${E.bg};color:${E.text};font-family:${E.sans};min-height:100vh;-webkit-font-smoothing:antialiased;position:relative}
 .em-root ::-webkit-scrollbar{width:4px}
 .em-root ::-webkit-scrollbar-thumb{background:${E.border};border-radius:2px}
-.em-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;border:none;font-weight:600;transition:transform .15s ease,opacity .15s ease}
+.em-grain{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.035;mix-blend-mode:overlay;background-image:${GRAIN}}
+.em-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;border:none;font-weight:600;font-family:${E.sans};transition:transform .15s ease,opacity .15s ease,border-color .15s ease}
 .em-btn:hover{transform:translateY(-1px);opacity:.92}
 .em-btn:active{transform:translateY(0)}
 .em-card{transition:transform .2s ease,border-color .2s ease}
-.em-card:hover{transform:translateY(-3px);border-color:${E.borderH}}
-.em-fade{animation:emFade .35s ease}
-@keyframes emFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.em-card:hover{transform:translateY(-2px);border-color:${E.borderH}}
+.em-fade{animation:emFade .4s cubic-bezier(.2,.7,.3,1)}
+@keyframes emFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes emPulse{0%,100%{opacity:1}50%{opacity:.4}}
-input,textarea{font-family:inherit;color:${E.text};background:${E.card};border:1px solid ${E.border};border-radius:10px;padding:12px 14px;outline:none}
-input:focus,textarea:focus{border-color:${E.accent}}
+@keyframes emSpin{to{transform:rotate(360deg)}}
+.em-spin{width:15px;height:15px;border-radius:50%;border:2px solid ${E.border};border-top-color:${E.accent};animation:emSpin .7s linear infinite;display:inline-block;flex-shrink:0}
+input,textarea,select{font-family:${E.sans};color:${E.text};background:${E.card};border:1px solid ${E.border};border-radius:10px;padding:12px 14px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:${E.accent}}
 input::placeholder,textarea::placeholder{color:${E.textDim}}
+.em-num{font-variant-numeric:tabular-nums}
 `;
 
 // ─────────────────────────────────────────────────────────────
@@ -62,44 +72,22 @@ const PROMPTS = [
 ];
 
 const MATCHES = [
-  { id: 1, name: "Maya", age: 29, distance: "3 mi", compat: 92, tag: "Serious", answer: "Two truths and a lie: I've run a marathon, I hate cilantro, I once met a president." },
-  { id: 2, name: "Jordan", age: 32, distance: "6 mi", compat: 87, tag: "Casual", answer: "My ideal Sunday is farmer's market, a long run, then cooking something new." },
-  { id: 3, name: "Alex", age: 27, distance: "2 mi", compat: 81, tag: "Friendship-first", answer: "The way to my heart is a good playlist and zero small talk." },
+  { id: 1, name: "Maya", age: 29, distance: "3 mi", compat: 92, tag: "Serious", answer: "Two truths and a lie: I've run a marathon, I hate cilantro, I once met a president.", grad: ["#3A2028", "#8A4030"] },
+  { id: 2, name: "Jordan", age: 32, distance: "6 mi", compat: 87, tag: "Casual", answer: "My ideal Sunday is farmer's market, a long run, then cooking something new.", grad: ["#2E1C22", "#C9962B"] },
+  { id: 3, name: "Alex", age: 27, distance: "2 mi", compat: 81, tag: "Friendship-first", answer: "The way to my heart is a good playlist and zero small talk.", grad: ["#331E2E", "#B5562E"] },
 ];
 
 const FEATURES = [
-  {
-    icon: ShieldCheck, title: "Identity & Trust", items: [
-      "Photo verification with liveness check",
-      "Optional ID verification badge",
-      "One account per phone number",
-      "Reports reviewed by a human within 24h",
-    ],
-  },
-  {
-    icon: Heart, title: "Matching", items: [
-      "Intent tags required at signup",
-      "Daily curated match batch, not endless scroll",
-      "Compatibility score from shared prompts",
-      "Distance & age-range preferences",
-    ],
-  },
-  {
-    icon: MessageCircle, title: "Conversation", items: [
-      "Icebreaker prompts instead of “hey”",
-      "Voice notes",
-      "Video-call-to-meet before sharing contact info",
-      "Read receipts as a paid feature",
-    ],
-  },
-  {
-    icon: MapPin, title: "Safety", items: [
-      "Time-boxed live-location share on dates",
-      "Post-date check-in prompts",
-      "Panic / emergency contact button",
-      "Optional self-initiated background check",
-    ],
-  },
+  { icon: ShieldCheck, title: "Identity & Trust", items: ["Liveness-checked photo verification", "One account per phone number", "Reports reviewed by a person, within 24h"] },
+  { icon: Heart, title: "Matching", items: ["A curated batch each day, not endless scroll", "Intent declared up front", "Compatibility drawn from your own answers"] },
+  { icon: MessageCircle, title: "Conversation", items: ["Icebreakers instead of “hey”", "Voice notes and a video call before contact info", "Read receipts, kept as a paid courtesy"] },
+  { icon: MapPin, title: "Safety", items: ["Time-boxed live location on dates", "A check-in prompt afterward", "One tap to alert a trusted contact"] },
+];
+
+const TESTIMONIALS = [
+  { quote: "The first app where a conversation didn't feel like homework.", who: "R. — member since 2025" },
+  { quote: "Three matches a day sounds like nothing until you meet all three.", who: "S. — member since 2026" },
+  { quote: "My matchmaker caught something in my profile I couldn't see myself.", who: "J. — Ember Black member" },
 ];
 
 const PRICING = [
@@ -118,10 +106,11 @@ const ALACARTE = [
 // PRIMITIVES
 // ─────────────────────────────────────────────────────────────
 function Btn({ children, onClick, variant = "primary", style, disabled }) {
-  const base = { padding: "13px 22px", borderRadius: 12, fontSize: 15 };
+  const base = { padding: "13px 22px", borderRadius: 11, fontSize: 15 };
   const variants = {
-    primary: { background: `linear-gradient(135deg, ${E.accent}, ${E.rose})`, color: "#1A0A08", boxShadow: `0 8px 24px ${E.accentGlow}` },
+    primary: { background: `linear-gradient(135deg, ${E.accent}, ${E.rose})`, color: "#1A0A08", boxShadow: `0 6px 20px ${E.accentGlow}` },
     ghost: { background: "transparent", color: E.text, border: `1px solid ${E.border}` },
+    obsidian: { background: E.surface, color: E.gold, border: `1px solid rgba(232,180,102,0.4)` },
     danger: { background: E.rose, color: "#fff" },
   };
   return (
@@ -145,41 +134,34 @@ function Card({ children, style }) {
 }
 
 function Avatar({ name, size = 56, gradient }) {
-  const initials = name.slice(0, 1).toUpperCase();
   return (
     <div style={{
       width: size, height: size, borderRadius: "50%",
       background: gradient || `linear-gradient(135deg, ${E.accent}, ${E.rose})`,
       display: "flex", alignItems: "center", justifyContent: "center",
-      fontWeight: 700, fontSize: size * 0.4, color: "#1A0A08", flexShrink: 0,
+      fontFamily: E.serif, fontWeight: 600, fontSize: size * 0.4, color: "#1A0A08", flexShrink: 0,
     }}>
-      {initials}
+      {name.slice(0, 1).toUpperCase()}
     </div>
   );
 }
 
 function PrototypeNav({ screen, setScreen }) {
-  const steps = [
-    ["signup", "Sign up"],
-    ["profile", "Profile"],
-    ["matches", "Matches"],
-    ["chat", "Chat"],
-    ["safety", "Safety"],
-  ];
+  const steps = [["signup", "Apply"], ["review", "Review"], ["profile", "Profile"], ["matches", "Matches"], ["chat", "Chat"], ["safety", "Safety"]];
   if (screen === "landing") return null;
   return (
     <div style={{
       position: "fixed", bottom: 16, left: "50%", transform: "translateX(-50%)",
-      display: "flex", gap: 6, background: "rgba(22,15,18,0.92)", backdropFilter: "blur(12px)",
+      display: "flex", gap: 4, background: "rgba(20,16,15,0.92)", backdropFilter: "blur(12px)",
       border: `1px solid ${E.border}`, borderRadius: 999, padding: 6, zIndex: 200, flexWrap: "wrap",
       justifyContent: "center", maxWidth: "94vw",
     }}>
       <button onClick={() => setScreen("landing")} className="em-btn" style={{
-        padding: "8px 14px", borderRadius: 999, background: "transparent", color: E.textSub, fontSize: 12,
+        padding: "8px 13px", borderRadius: 999, background: "transparent", color: E.textSub, fontSize: 11.5, letterSpacing: ".02em",
       }}>Landing</button>
       {steps.map(([id, label]) => (
         <button key={id} onClick={() => setScreen(id)} className="em-btn" style={{
-          padding: "8px 14px", borderRadius: 999, fontSize: 12,
+          padding: "8px 13px", borderRadius: 999, fontSize: 11.5, letterSpacing: ".02em",
           background: screen === id ? E.accent : "transparent",
           color: screen === id ? "#1A0A08" : E.textSub,
         }}>{label}</button>
@@ -195,42 +177,42 @@ function Landing({ setScreen }) {
   return (
     <div className="em-fade">
       <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "22px 6vw" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: "Georgia, serif", fontSize: 22, fontWeight: 700 }}>
-          <Flame size={22} color={E.accent} /> Ember
+        <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: E.serif, fontSize: 23, fontWeight: 600 }}>
+          <Flame size={20} color={E.accent} /> Ember
         </div>
-        <Btn onClick={() => setScreen("signup")}>Get Started</Btn>
+        <Btn onClick={() => setScreen("signup")}>Request an Invite</Btn>
       </nav>
 
-      <section style={{ textAlign: "center", padding: "70px 6vw 60px", maxWidth: 780, margin: "0 auto" }}>
+      <section style={{ textAlign: "center", padding: "72px 6vw 56px", maxWidth: 760, margin: "0 auto" }}>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 999,
-          background: E.accentB, color: E.accent, fontSize: 13, fontWeight: 600, marginBottom: 22,
+          background: E.accentB, color: E.accent, fontSize: 12.5, fontWeight: 600, marginBottom: 26, letterSpacing: ".01em",
         }}>
-          <Sparkles size={14} /> Matched with intention
+          <Sparkles size={13} /> Membership by application
         </div>
-        <h1 style={{ fontSize: "clamp(34px,6vw,56px)", lineHeight: 1.1, margin: "0 0 18px", letterSpacing: "-0.02em" }}>
-          Built for connection<br />that lasts longer than the chat.
+        <h1 style={{ fontFamily: E.serif, fontWeight: 500, fontSize: "clamp(36px,6vw,58px)", lineHeight: 1.08, margin: "0 0 20px", letterSpacing: "-0.01em" }}>
+          Matched with intention.
         </h1>
-        <p style={{ color: E.textSub, fontSize: 17, lineHeight: 1.6, marginBottom: 34 }}>
-          A curated batch of real matches every day — not an endless swipe deck.
-          Real intent, real safety, real conversation.
+        <p style={{ color: E.textSub, fontSize: 17, lineHeight: 1.65, marginBottom: 36, maxWidth: 520, marginLeft: "auto", marginRight: "auto" }}>
+          A small, curated batch of real matches each day — reviewed by people, not just an algorithm.
+          Built to last longer than the chat.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <Btn onClick={() => setScreen("signup")}>Get Started <ArrowRight size={16} /></Btn>
-          <Btn variant="ghost" onClick={() => setScreen("matches")}>See today's matches</Btn>
+          <Btn onClick={() => setScreen("signup")}>Request an Invite <ArrowRight size={16} /></Btn>
+          <Btn variant="ghost" onClick={() => setScreen("matches")}>Preview today's matches</Btn>
         </div>
       </section>
 
-      <section style={{ padding: "20px 6vw 60px", maxWidth: 1100, margin: "0 auto" }}>
+      <section style={{ padding: "10px 6vw 64px", maxWidth: 1080, margin: "0 auto" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px,1fr))", gap: 16 }}>
           {FEATURES.map(f => (
             <Card key={f.title}>
-              <f.icon size={20} color={E.accent} style={{ marginBottom: 10 }} />
-              <div style={{ fontWeight: 700, marginBottom: 10 }}>{f.title}</div>
-              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
+              <f.icon size={19} color={E.accent} style={{ marginBottom: 12 }} />
+              <div style={{ fontFamily: E.serif, fontWeight: 500, fontSize: 17, marginBottom: 12 }}>{f.title}</div>
+              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 9 }}>
                 {f.items.map(i => (
-                  <li key={i} style={{ color: E.textSub, fontSize: 13.5, display: "flex", gap: 8, alignItems: "flex-start" }}>
-                    <Check size={14} color={E.green} style={{ marginTop: 2, flexShrink: 0 }} />{i}
+                  <li key={i} style={{ color: E.textSub, fontSize: 13.5, lineHeight: 1.5, display: "flex", gap: 8, alignItems: "flex-start" }}>
+                    <Check size={13} color={E.green} style={{ marginTop: 3, flexShrink: 0 }} />{i}
                   </li>
                 ))}
               </ul>
@@ -239,31 +221,77 @@ function Landing({ setScreen }) {
         </div>
       </section>
 
-      <section style={{ padding: "20px 6vw 80px", maxWidth: 1100, margin: "0 auto" }}>
-        <h2 style={{ textAlign: "center", fontSize: 26, marginBottom: 6 }}>Pick your tier</h2>
-        <p style={{ textAlign: "center", color: E.textSub, marginBottom: 30 }}>Annual plans save 20%.</p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))", gap: 16 }}>
+      <section style={{ padding: "10px 6vw 70px", maxWidth: 980, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 40, alignItems: "center" }}>
+          <div>
+            <div style={{ color: E.gold, fontSize: 12.5, fontWeight: 700, letterSpacing: ".08em", marginBottom: 10 }}>WHITE-GLOVE MATCHING</div>
+            <h2 style={{ fontFamily: E.serif, fontWeight: 500, fontSize: "clamp(26px,3vw,34px)", lineHeight: 1.2, margin: "0 0 14px" }}>
+              A team behind every match.
+            </h2>
+            <p style={{ color: E.textSub, fontSize: 15, lineHeight: 1.7 }}>
+              Gold members get a monthly profile consultation. Ember Black members get a dedicated
+              matchmaker who reviews compatibility by hand before it ever reaches your batch.
+            </p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {["Human-reviewed profiles before they go live", "Dedicated matchmaker for Black members", "Monthly consultation for Gold members"].map(t => (
+              <div key={t} style={{ display: "flex", gap: 10, alignItems: "center", padding: "12px 16px", background: E.surface, border: `1px solid ${E.border}`, borderRadius: 12 }}>
+                <Crown size={15} color={E.gold} style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: 13.5 }}>{t}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section style={{ padding: "10px 6vw 70px", maxWidth: 980, margin: "0 auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px,1fr))", gap: 22 }}>
+          {TESTIMONIALS.map(t => (
+            <div key={t.quote}>
+              <div style={{ fontFamily: E.serif, fontStyle: "italic", fontSize: 17, lineHeight: 1.5, marginBottom: 10 }}>"{t.quote}"</div>
+              <div style={{ color: E.textDim, fontSize: 12.5 }}>{t.who}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ padding: "10px 6vw 40px", maxWidth: 1080, margin: "0 auto" }}>
+        <h2 style={{ textAlign: "center", fontFamily: E.serif, fontWeight: 500, fontSize: 28, marginBottom: 6 }}>Pick your tier</h2>
+        <p style={{ textAlign: "center", color: E.textSub, marginBottom: 32 }}>Annual plans save 20%.</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))", gap: 16, marginBottom: 20 }}>
           {PRICING.map(t => (
-            <Card key={t.name} style={t.highlight ? { border: `1px solid ${E.accent}`, boxShadow: `0 0 0 1px ${E.accent} inset` } : {}}>
+            <Card key={t.name} style={t.highlight ? { border: `1px solid ${E.accent}` } : {}}>
               {t.highlight && (
-                <div style={{ color: E.accent, fontSize: 11, fontWeight: 700, letterSpacing: ".05em", marginBottom: 8 }}>MOST POPULAR</div>
+                <div style={{ color: E.accent, fontSize: 10.5, fontWeight: 700, letterSpacing: ".08em", marginBottom: 10 }}>MOST POPULAR</div>
               )}
-              <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 4 }}>{t.name}</div>
-              <div style={{ marginBottom: 14 }}>
-                <span style={{ fontSize: 28, fontWeight: 700 }}>{t.price}</span>
+              <div style={{ fontFamily: E.serif, fontWeight: 500, fontSize: 19, marginBottom: 6 }}>{t.name}</div>
+              <div style={{ marginBottom: 16 }}>
+                <span className="em-num" style={{ fontFamily: E.serif, fontSize: 30, fontWeight: 500 }}>{t.price}</span>
                 <span style={{ color: E.textSub, fontSize: 13 }}>{t.note}</span>
               </div>
-              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
+              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 9 }}>
                 {t.features.map(f => (
                   <li key={f} style={{ color: E.textSub, fontSize: 13.5, display: "flex", gap: 8 }}>
-                    <Check size={14} color={E.green} style={{ marginTop: 2, flexShrink: 0 }} />{f}
+                    <Check size={13} color={E.green} style={{ marginTop: 3, flexShrink: 0 }} />{f}
                   </li>
                 ))}
               </ul>
             </Card>
           ))}
         </div>
-        <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap", marginTop: 24, color: E.textSub, fontSize: 13.5 }}>
+
+        <Card style={{ borderColor: "rgba(232,180,102,0.35)", background: `linear-gradient(135deg, ${E.card}, ${E.surface})` }}>
+          <div style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 20, alignItems: "center" }}>
+            <Crown size={26} color={E.gold} />
+            <div>
+              <div style={{ fontFamily: E.serif, fontWeight: 500, fontSize: 19, color: E.gold }}>Ember Black</div>
+              <div style={{ color: E.textSub, fontSize: 13.5, marginTop: 3 }}>Invite-only. A dedicated matchmaker, unlimited boosts, and a guaranteed weekly hand-picked introduction.</div>
+            </div>
+            <Btn variant="obsidian" onClick={() => setScreen("signup")}>Apply for Black</Btn>
+          </div>
+        </Card>
+
+        <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap", marginTop: 26, color: E.textSub, fontSize: 13.5 }}>
           {ALACARTE.map(a => <div key={a.label}><b style={{ color: E.text }}>{a.price}</b> {a.label}</div>)}
         </div>
       </section>
@@ -276,7 +304,7 @@ function Landing({ setScreen }) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// SIGNUP
+// SIGNUP (application)
 // ─────────────────────────────────────────────────────────────
 function Signup({ setScreen, profile, setProfile }) {
   const [intent, setIntent] = useState(profile.intent);
@@ -287,7 +315,7 @@ function Signup({ setScreen, profile, setProfile }) {
   const canContinue = name.trim().length > 0 && intent;
 
   return (
-    <Screen title="Tell us what you're looking for" onBack={() => setScreen("landing")}>
+    <Screen title="Apply for membership" subtitle="Every application is reviewed to keep the community intentional." onBack={() => setScreen("landing")}>
       <Card style={{ maxWidth: 520, margin: "0 auto" }}>
         <label style={fieldLabel}>Name</label>
         <input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={{ width: "100%", marginBottom: 18 }} />
@@ -315,8 +343,56 @@ function Signup({ setScreen, profile, setProfile }) {
 
         <Btn disabled={!canContinue} style={{ width: "100%" }} onClick={() => {
           setProfile(p => ({ ...p, name, age, intent, maxDistance }));
-          setScreen("profile");
-        }}>Continue <ArrowRight size={16} /></Btn>
+          setScreen("review");
+        }}>Submit application <ArrowRight size={16} /></Btn>
+      </Card>
+    </Screen>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// REVIEW (application vetting, then reveal)
+// ─────────────────────────────────────────────────────────────
+function Review({ setScreen, profile }) {
+  const [step, setStep] = useState(0);
+  const checks = [
+    "Verifying phone number",
+    "Confirming one account per person",
+    "Matching intent & preferences",
+    "Queuing your profile for human review",
+  ];
+
+  useEffect(() => {
+    if (step >= checks.length) return;
+    const t = setTimeout(() => setStep(s => s + 1), 550);
+    return () => clearTimeout(t);
+  }, [step]);
+
+  const done = step >= checks.length;
+
+  return (
+    <Screen title="Reviewing your application" onBack={() => setScreen("signup")}>
+      <Card style={{ maxWidth: 460, margin: "0 auto" }}>
+        {!done ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {checks.map((c, i) => (
+              <div key={c} style={{ display: "flex", alignItems: "center", gap: 12, opacity: i <= step ? 1 : 0.35, transition: "opacity .3s" }}>
+                {i < step ? <Check size={16} color={E.green} style={{ flexShrink: 0 }} /> : i === step ? <span className="em-spin" /> : <span style={{ width: 15, flexShrink: 0 }} />}
+                <span style={{ fontSize: 14 }}>{c}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ textAlign: "center", padding: "6px 0" }}>
+            <div style={{ fontFamily: E.serif, fontWeight: 500, fontSize: 26, marginBottom: 10 }}>
+              You're in{profile.name ? `, ${profile.name}` : ""}.
+            </div>
+            <p style={{ color: E.textSub, fontSize: 14, lineHeight: 1.6, marginBottom: 22 }}>
+              Ember is intentionally small. Welcome to a more deliberate way to meet people.
+            </p>
+            <Btn style={{ width: "100%" }} onClick={() => setScreen("profile")}>Continue to your profile <ArrowRight size={16} /></Btn>
+          </div>
+        )}
       </Card>
     </Screen>
   );
@@ -326,12 +402,12 @@ function Signup({ setScreen, profile, setProfile }) {
 // PROFILE
 // ─────────────────────────────────────────────────────────────
 function Profile({ setScreen, profile, setProfile }) {
-  const [photos, setPhotos] = useState(profile.photos || [false, false, false, false]);
+  const [photos, setPhotos] = useState(profile.photos.length ? profile.photos : [false, false, false, false]);
   const [answers, setAnswers] = useState(profile.answers || {});
   const [verify, setVerify] = useState(profile.verify || false);
 
   return (
-    <Screen title="Build your profile" onBack={() => setScreen("signup")}>
+    <Screen title="Build your profile" subtitle="Our team reviews every profile by hand before it goes live." onBack={() => setScreen("review")}>
       <Card style={{ maxWidth: 560, margin: "0 auto" }}>
         <label style={fieldLabel}>Photos</label>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 20 }}>
@@ -389,42 +465,48 @@ function Matches({ setScreen, likedIds, setLikedIds, setActiveMatch }) {
   const limitHit = likedIds.length >= 3;
 
   return (
-    <Screen title="Today's curated matches" onBack={() => setScreen("profile")}>
+    <Screen title="Today's curated matches" subtitle="Hand-picked by Ember's matching team." onBack={() => setScreen("profile")}>
       <div style={{ maxWidth: 520, margin: "0 auto", textAlign: "center", color: E.textSub, fontSize: 13.5, marginBottom: 18 }}>
         {limitHit
           ? "You've seen today's free batch — Ember+ unlocks unlimited matches."
           : `${remaining} of 3 daily matches remaining`}
       </div>
-      <div style={{ maxWidth: 520, margin: "0 auto", display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ maxWidth: 520, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16 }}>
         {MATCHES.map(m => {
           const liked = likedIds.includes(m.id);
           return (
-            <Card key={m.id}>
-              <div style={{ display: "flex", gap: 14 }}>
-                <Avatar name={m.name} size={56} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                    <div style={{ fontWeight: 700 }}>{m.name}, {m.age}</div>
-                    <div style={{ color: E.textSub, fontSize: 12.5 }}>{m.distance}</div>
+            <Card key={m.id} style={{ padding: 0, overflow: "hidden" }}>
+              <div style={{ position: "relative", height: 150, background: `linear-gradient(150deg, ${m.grad[0]}, ${m.grad[1]})` }}>
+                <div className="em-grain" style={{ position: "absolute" }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,.72), transparent 60%)" }} />
+                <div style={{ position: "absolute", left: 16, right: 16, bottom: 12, display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: E.serif, fontSize: 21, color: "#fff" }}>
+                    {m.name}, {m.age} <ShieldCheck size={14} color={E.gold} />
                   </div>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center", margin: "4px 0 8px" }}>
-                    <span style={{ fontSize: 11, background: E.accentB, color: E.accent, padding: "2px 8px", borderRadius: 999, fontWeight: 600 }}>{m.tag}</span>
-                    <span style={{ fontSize: 11, color: E.gold, display: "flex", alignItems: "center", gap: 3 }}><Star size={11} fill={E.gold} /> {m.compat}% match</span>
-                  </div>
-                  <div style={{ color: E.textSub, fontSize: 13, fontStyle: "italic" }}>"{m.answer}"</div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,.85)" }}>{m.distance}</div>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-                <Btn variant="ghost" style={{ flex: 1 }} disabled={liked} onClick={() => setLikedIds(ids => [...ids, m.id])}>
-                  <X size={16} /> Pass
-                </Btn>
-                <Btn style={{ flex: 1 }} disabled={liked || limitHit} onClick={() => {
-                  setLikedIds(ids => [...ids, m.id]);
-                  setActiveMatch(m);
-                  setScreen("chat");
-                }}>
-                  <Heart size={16} /> {liked ? "It's a match!" : "Like"}
-                </Btn>
+              <div style={{ padding: 18 }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
+                  <span style={{ fontSize: 11, background: E.accentB, color: E.accent, padding: "2px 8px", borderRadius: 999, fontWeight: 600 }}>{m.tag}</span>
+                  <span style={{ fontSize: 11, color: E.gold, display: "flex", alignItems: "center", gap: 3 }}><Star size={11} fill={E.gold} /> {m.compat}% match</span>
+                </div>
+                <div style={{ height: 3, borderRadius: 999, background: E.surface, marginBottom: 12, overflow: "hidden" }}>
+                  <div style={{ width: `${m.compat}%`, height: "100%", background: `linear-gradient(90deg, ${E.gold}, ${E.accent})` }} />
+                </div>
+                <div style={{ color: E.textSub, fontSize: 13.5, fontFamily: E.serif, fontStyle: "italic", lineHeight: 1.5, marginBottom: 16 }}>"{m.answer}"</div>
+                <div style={{ display: "flex", gap: 10 }}>
+                  <Btn variant="ghost" style={{ flex: 1 }} disabled={liked} onClick={() => setLikedIds(ids => [...ids, m.id])}>
+                    <X size={16} /> Pass
+                  </Btn>
+                  <Btn style={{ flex: 1 }} disabled={liked || limitHit} onClick={() => {
+                    setLikedIds(ids => [...ids, m.id]);
+                    setActiveMatch(m);
+                    setScreen("chat");
+                  }}>
+                    <Heart size={16} /> {liked ? "It's a match!" : "Like"}
+                  </Btn>
+                </div>
               </div>
             </Card>
           );
@@ -469,9 +551,11 @@ function Chat({ setScreen, activeMatch, isPaid }) {
     <Screen title={`Chat with ${match.name}`} onBack={() => setScreen("matches")}>
       <Card style={{ maxWidth: 560, margin: "0 auto", display: "flex", flexDirection: "column", height: 480, padding: 0, overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: 14, borderBottom: `1px solid ${E.border}` }}>
-          <Avatar name={match.name} size={40} />
+          <Avatar name={match.name} size={40} gradient={`linear-gradient(135deg, ${match.grad[0]}, ${match.grad[1]})`} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 700, fontSize: 14 }}>{match.name}</div>
+            <div style={{ fontFamily: E.serif, fontWeight: 500, fontSize: 15, display: "flex", alignItems: "center", gap: 5 }}>
+              {match.name} <ShieldCheck size={13} color={E.gold} />
+            </div>
             <div style={{ fontSize: 11.5, color: E.textSub }}>{match.compat}% match</div>
           </div>
           <button className="em-btn" title="Share contact info unlocks after a video call" style={{
@@ -485,7 +569,7 @@ function Chat({ setScreen, activeMatch, isPaid }) {
           {messages.map((m, i) => (
             <div key={i} style={{ alignSelf: m.from === "me" ? "flex-end" : "flex-start", maxWidth: "80%" }}>
               {m.icebreaker && (
-                <div style={{ fontSize: 10.5, color: E.accent, marginBottom: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                <div style={{ fontSize: 10.5, color: E.accent, marginBottom: 4, display: "flex", alignItems: "center", gap: 4, letterSpacing: ".04em" }}>
                   <Sparkles size={11} /> ICEBREAKER PROMPT
                 </div>
               )}
@@ -544,13 +628,13 @@ function Safety({ setScreen }) {
     <Screen title="Date safety" onBack={() => setScreen("chat")}>
       <div style={{ maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column", gap: 14 }}>
         <Card>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, fontWeight: 700 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, fontFamily: E.serif, fontWeight: 500, fontSize: 16 }}>
             <MapPin size={16} color={E.accent} /> Live location share
           </div>
           {!sharing ? (
             <>
               <label style={fieldLabel}>Trusted contact</label>
-              <select value={contact} onChange={e => setContact(e.target.value)} style={{ width: "100%", marginBottom: 14, background: E.card, color: E.text, border: `1px solid ${E.border}`, borderRadius: 10, padding: "12px 14px" }}>
+              <select value={contact} onChange={e => setContact(e.target.value)} style={{ width: "100%", marginBottom: 14 }}>
                 <option>Priya (Mom)</option>
                 <option>Sam (Best friend)</option>
                 <option>Jordan (Roommate)</option>
@@ -568,7 +652,7 @@ function Safety({ setScreen }) {
         </Card>
 
         <Card>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontWeight: 700 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontFamily: E.serif, fontWeight: 500, fontSize: 16 }}>
             <Eye size={16} color={E.accent} /> Post-date check-in
           </div>
           {checkedIn ? (
@@ -584,7 +668,7 @@ function Safety({ setScreen }) {
         </Card>
 
         <Card style={{ borderColor: E.rose }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontWeight: 700, color: E.rose }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontFamily: E.serif, fontWeight: 500, fontSize: 16, color: E.rose }}>
             <AlertTriangle size={16} /> Emergency
           </div>
           <p style={{ color: E.textSub, fontSize: 13.5, marginBottom: 12 }}>Alerts your trusted contact and surfaces local emergency resources immediately.</p>
@@ -595,7 +679,7 @@ function Safety({ setScreen }) {
       {panicOpen && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: 20 }}>
           <Card style={{ maxWidth: 380 }}>
-            <div style={{ fontWeight: 700, marginBottom: 10, color: E.rose }}>This would alert {contact} and surface local resources.</div>
+            <div style={{ fontFamily: E.serif, fontWeight: 500, fontSize: 18, marginBottom: 10, color: E.rose }}>This would alert {contact} and surface local resources.</div>
             <p style={{ color: E.textSub, fontSize: 13, marginBottom: 16 }}>Prototype only — no real alert has been sent.</p>
             <Btn style={{ width: "100%" }} onClick={() => setPanicOpen(false)}>Close</Btn>
           </Card>
@@ -610,14 +694,17 @@ function Safety({ setScreen }) {
 // ─────────────────────────────────────────────────────────────
 const fieldLabel = { display: "block", fontSize: 12.5, color: E.textSub, marginBottom: 6, fontWeight: 600 };
 
-function Screen({ title, onBack, children }) {
+function Screen({ title, subtitle, onBack, children }) {
   return (
     <div className="em-fade" style={{ padding: "28px 6vw 100px", minHeight: "100vh" }}>
-      <div style={{ maxWidth: 560, margin: "0 auto 22px", display: "flex", alignItems: "center", gap: 12 }}>
-        <button onClick={onBack} className="em-btn" style={{ background: E.surface, border: `1px solid ${E.border}`, borderRadius: "50%", width: 36, height: 36, color: E.textSub }}>
-          <ArrowLeft size={16} />
-        </button>
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>{title}</h1>
+      <div style={{ maxWidth: 560, margin: "0 auto 22px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button onClick={onBack} className="em-btn" style={{ background: E.surface, border: `1px solid ${E.border}`, borderRadius: "50%", width: 36, height: 36, color: E.textSub }}>
+            <ArrowLeft size={16} />
+          </button>
+          <h1 style={{ fontFamily: E.serif, fontWeight: 500, fontSize: 22, margin: 0 }}>{title}</h1>
+        </div>
+        {subtitle && <p style={{ color: E.textSub, fontSize: 13, margin: "8px 0 0 48px" }}>{subtitle}</p>}
       </div>
       {children}
     </div>
@@ -638,13 +725,17 @@ export default function Ember() {
   return (
     <div className="em-root">
       <style>{CSS}</style>
-      {screen === "landing" && <Landing setScreen={setScreen} />}
-      {screen === "signup" && <Signup setScreen={setScreen} profile={profile} setProfile={setProfile} />}
-      {screen === "profile" && <Profile setScreen={setScreen} profile={profile} setProfile={setProfile} />}
-      {screen === "matches" && <Matches setScreen={setScreen} likedIds={likedIds} setLikedIds={setLikedIds} setActiveMatch={setActiveMatch} />}
-      {screen === "chat" && <Chat setScreen={setScreen} activeMatch={activeMatch} isPaid={profile.verify} />}
-      {screen === "safety" && <Safety setScreen={setScreen} />}
-      <PrototypeNav screen={screen} setScreen={setScreen} />
+      <div className="em-grain" />
+      <div style={{ position: "relative", zIndex: 1 }}>
+        {screen === "landing" && <Landing setScreen={setScreen} />}
+        {screen === "signup" && <Signup setScreen={setScreen} profile={profile} setProfile={setProfile} />}
+        {screen === "review" && <Review setScreen={setScreen} profile={profile} />}
+        {screen === "profile" && <Profile setScreen={setScreen} profile={profile} setProfile={setProfile} />}
+        {screen === "matches" && <Matches setScreen={setScreen} likedIds={likedIds} setLikedIds={setLikedIds} setActiveMatch={setActiveMatch} />}
+        {screen === "chat" && <Chat setScreen={setScreen} activeMatch={activeMatch} isPaid={profile.verify} />}
+        {screen === "safety" && <Safety setScreen={setScreen} />}
+        <PrototypeNav screen={screen} setScreen={setScreen} />
+      </div>
     </div>
   );
 }
