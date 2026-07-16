@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Flame, Heart, X, ShieldCheck, MessageCircle, Mic, Video, MapPin,
   Sparkles, Lock, Check, ArrowRight, ArrowLeft, Camera, AlertTriangle,
-  Eye, Star, Crown,
+  Eye, Star, Crown, Filter, Zap,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
@@ -91,9 +91,9 @@ const TESTIMONIALS = [
 ];
 
 const PRICING = [
-  { name: "Free", price: "$0", note: "/mo", features: ["Limited daily matches", "Basic messaging", "Ads between screens"] },
-  { name: "Ember+", price: "$19.99", note: "/mo", highlight: true, features: ["Unlimited matches", "See who liked you", "Read receipts", "No ads"] },
-  { name: "Ember Gold", price: "$39.99", note: "/mo", features: ["Everything in +", "Priority placement", "Advanced filters", "Monthly human profile review"] },
+  { id: "free", name: "Free", price: "$0", note: "/mo", features: ["Limited daily matches", "Basic messaging", "Ads between screens"] },
+  { id: "plus", name: "Ember+", price: "$19.99", note: "/mo", highlight: true, features: ["Unlimited matches", "See who liked you", "Read receipts", "No ads"] },
+  { id: "gold", name: "Ember Gold", price: "$39.99", note: "/mo", features: ["Everything in +", "Priority placement", "Advanced filters", "Monthly human profile review"] },
 ];
 
 const ALACARTE = [
@@ -102,10 +102,16 @@ const ALACARTE = [
   { label: "ID verification badge", price: "$9.99 one-time" },
 ];
 
+const LIKES = [
+  { id: 101, name: "Sasha", age: 30, tag: "Serious", grad: ["#33202A", "#8A4A38"] },
+  { id: 102, name: "Devon", age: 26, tag: "Casual", grad: ["#241C30", "#B5562E"] },
+  { id: 103, name: "Priya", age: 31, tag: "Friendship-first", grad: ["#2E1C22", "#C9962B"] },
+];
+
 // ─────────────────────────────────────────────────────────────
 // PRIMITIVES
 // ─────────────────────────────────────────────────────────────
-function Btn({ children, onClick, variant = "primary", style, disabled }) {
+function Btn({ children, onClick, variant = "primary", style, disabled, ...rest }) {
   const base = { padding: "13px 22px", borderRadius: 11, fontSize: 15 };
   const variants = {
     primary: { background: `linear-gradient(135deg, ${E.accent}, ${E.rose})`, color: "#1A0A08", boxShadow: `0 6px 20px ${E.accentGlow}` },
@@ -119,6 +125,7 @@ function Btn({ children, onClick, variant = "primary", style, disabled }) {
       disabled={disabled}
       onClick={onClick}
       style={{ ...base, ...variants[variant], opacity: disabled ? 0.4 : 1, cursor: disabled ? "not-allowed" : "pointer", ...style }}
+      {...rest}
     >
       {children}
     </button>
@@ -147,7 +154,7 @@ function Avatar({ name, size = 56, gradient }) {
 }
 
 function PrototypeNav({ screen, setScreen }) {
-  const steps = [["signup", "Apply"], ["review", "Review"], ["profile", "Profile"], ["matches", "Matches"], ["chat", "Chat"], ["safety", "Safety"]];
+  const steps = [["signup", "Apply"], ["review", "Review"], ["profile", "Profile"], ["matches", "Matches"], ["likes", "Likes"], ["filters", "Filters"], ["chat", "Chat"], ["safety", "Safety"]];
   if (screen === "landing") return null;
   return (
     <div style={{
@@ -170,10 +177,32 @@ function PrototypeNav({ screen, setScreen }) {
   );
 }
 
+function TierSwitcher({ screen, tier, setTier }) {
+  if (screen === "landing") return null;
+  const tiers = [["free", "Free"], ["plus", "Ember+"], ["gold", "Gold"], ["black", "Black"]];
+  return (
+    <div style={{
+      position: "fixed", bottom: 64, left: "50%", transform: "translateX(-50%)",
+      display: "flex", alignItems: "center", gap: 4, background: "rgba(20,16,15,0.92)", backdropFilter: "blur(12px)",
+      border: `1px solid ${E.border}`, borderRadius: 999, padding: 6, zIndex: 200, flexWrap: "wrap",
+      justifyContent: "center", maxWidth: "94vw",
+    }}>
+      <span style={{ padding: "0 8px", fontSize: 10, color: E.textDim, letterSpacing: ".06em" }}>DEMO PLAN</span>
+      {tiers.map(([id, label]) => (
+        <button key={id} onClick={() => setTier(id)} className="em-btn" style={{
+          padding: "7px 12px", borderRadius: 999, fontSize: 11.5,
+          background: tier === id ? E.gold : "transparent",
+          color: tier === id ? "#1A0A08" : E.textSub,
+        }}>{label}</button>
+      ))}
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────
 // LANDING
 // ─────────────────────────────────────────────────────────────
-function Landing({ setScreen }) {
+function Landing({ setScreen, setTier }) {
   return (
     <div className="em-fade">
       <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "22px 6vw" }}>
@@ -269,13 +298,16 @@ function Landing({ setScreen }) {
                 <span className="em-num" style={{ fontFamily: E.serif, fontSize: 30, fontWeight: 500 }}>{t.price}</span>
                 <span style={{ color: E.textSub, fontSize: 13 }}>{t.note}</span>
               </div>
-              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 9 }}>
+              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 9, marginBottom: 16 }}>
                 {t.features.map(f => (
                   <li key={f} style={{ color: E.textSub, fontSize: 13.5, display: "flex", gap: 8 }}>
                     <Check size={13} color={E.green} style={{ marginTop: 3, flexShrink: 0 }} />{f}
                   </li>
                 ))}
               </ul>
+              <button onClick={() => { setTier(t.id); setScreen(t.id === "free" ? "matches" : "likes"); }} className="em-btn" style={{
+                padding: 0, background: "transparent", color: E.accent, fontSize: 12.5, fontWeight: 600,
+              }}>See this tier in action <ArrowRight size={12} /></button>
             </Card>
           ))}
         </div>
@@ -287,7 +319,7 @@ function Landing({ setScreen }) {
               <div style={{ fontFamily: E.serif, fontWeight: 500, fontSize: 19, color: E.gold }}>Ember Black</div>
               <div style={{ color: E.textSub, fontSize: 13.5, marginTop: 3 }}>Invite-only. A dedicated matchmaker, unlimited boosts, and a guaranteed weekly hand-picked introduction.</div>
             </div>
-            <Btn variant="obsidian" onClick={() => setScreen("signup")}>Apply for Black</Btn>
+            <Btn variant="obsidian" onClick={() => { setTier("black"); setScreen("signup"); }}>Apply for Black</Btn>
           </div>
         </Card>
 
@@ -460,16 +492,35 @@ function Profile({ setScreen, profile, setProfile }) {
 // ─────────────────────────────────────────────────────────────
 // MATCHES
 // ─────────────────────────────────────────────────────────────
-function Matches({ setScreen, likedIds, setLikedIds, setActiveMatch }) {
-  const remaining = Math.max(0, 3 - likedIds.length);
-  const limitHit = likedIds.length >= 3;
+function Matches({ setScreen, likedIds, setLikedIds, superLikedIds, setSuperLikedIds, setActiveMatch, tier, boostActive, boostSeconds, startBoost }) {
+  const dailyCap = tier === "free" ? 3 : Infinity;
+  const remaining = Math.max(0, dailyCap - likedIds.length);
+  const limitHit = likedIds.length >= dailyCap;
+
+  function decide(m, superLike) {
+    setLikedIds(ids => [...ids, m.id]);
+    if (superLike) setSuperLikedIds(ids => [...ids, m.id]);
+    setActiveMatch(m);
+    setScreen("chat");
+  }
 
   return (
     <Screen title="Today's curated matches" subtitle="Hand-picked by Ember's matching team." onBack={() => setScreen("profile")}>
+      <div style={{ maxWidth: 520, margin: "0 auto 16px", display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+        <Btn variant="ghost" style={{ padding: "8px 14px", fontSize: 12.5 }} onClick={() => setScreen("filters")}>
+          <Filter size={13} /> Filters
+        </Btn>
+        <Btn variant="ghost" style={{ padding: "8px 14px", fontSize: 12.5 }} onClick={() => setScreen("likes")}>
+          <Heart size={13} /> Who liked you · {LIKES.length}
+        </Btn>
+        <Btn variant={boostActive ? "primary" : "ghost"} disabled={boostActive} style={{ padding: "8px 14px", fontSize: 12.5 }} onClick={startBoost}>
+          <Zap size={13} /> {boostActive ? `Boosted · ${boostSeconds}s` : "Boost · $4.99"}
+        </Btn>
+      </div>
       <div style={{ maxWidth: 520, margin: "0 auto", textAlign: "center", color: E.textSub, fontSize: 13.5, marginBottom: 18 }}>
-        {limitHit
-          ? "You've seen today's free batch — Ember+ unlocks unlimited matches."
-          : `${remaining} of 3 daily matches remaining`}
+        {tier === "free"
+          ? (limitHit ? "You've seen today's free batch — Ember+ unlocks unlimited matches." : `${remaining} of ${dailyCap} daily matches remaining`)
+          : "Unlimited matches today."}
       </div>
       <div style={{ maxWidth: 520, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16 }}>
         {MATCHES.map(m => {
@@ -495,15 +546,14 @@ function Matches({ setScreen, likedIds, setLikedIds, setActiveMatch }) {
                   <div style={{ width: `${m.compat}%`, height: "100%", background: `linear-gradient(90deg, ${E.gold}, ${E.accent})` }} />
                 </div>
                 <div style={{ color: E.textSub, fontSize: 13.5, fontFamily: E.serif, fontStyle: "italic", lineHeight: 1.5, marginBottom: 16 }}>"{m.answer}"</div>
-                <div style={{ display: "flex", gap: 10 }}>
+                <div style={{ display: "flex", gap: 8 }}>
                   <Btn variant="ghost" style={{ flex: 1 }} disabled={liked} onClick={() => setLikedIds(ids => [...ids, m.id])}>
                     <X size={16} /> Pass
                   </Btn>
-                  <Btn style={{ flex: 1 }} disabled={liked || limitHit} onClick={() => {
-                    setLikedIds(ids => [...ids, m.id]);
-                    setActiveMatch(m);
-                    setScreen("chat");
-                  }}>
+                  <Btn variant="obsidian" style={{ flex: "0 0 auto", padding: "13px 15px" }} disabled={liked} onClick={() => decide(m, true)} title="Super Like — $1.99">
+                    <Star size={16} />
+                  </Btn>
+                  <Btn style={{ flex: 1 }} disabled={liked || limitHit} onClick={() => decide(m, false)}>
                     <Heart size={16} /> {liked ? "It's a match!" : "Like"}
                   </Btn>
                 </div>
@@ -519,11 +569,12 @@ function Matches({ setScreen, likedIds, setLikedIds, setActiveMatch }) {
 // ─────────────────────────────────────────────────────────────
 // CHAT
 // ─────────────────────────────────────────────────────────────
-function Chat({ setScreen, activeMatch, isPaid }) {
+function Chat({ setScreen, activeMatch, isPaid, isSuperLiked }) {
   const match = activeMatch || MATCHES[0];
-  const [messages, setMessages] = useState([
-    { from: "them", text: match.answer, icebreaker: true },
-  ]);
+  const [messages, setMessages] = useState(() => {
+    const base = [{ from: "them", text: match.answer, icebreaker: true }];
+    return isSuperLiked ? [{ from: "system", text: `You Super Liked ${match.name}` }, ...base] : base;
+  });
   const [draft, setDraft] = useState("");
   const [recording, setRecording] = useState(false);
   const endRef = useRef(null);
@@ -566,7 +617,14 @@ function Chat({ setScreen, activeMatch, isPaid }) {
         </div>
 
         <div style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 10 }}>
-          {messages.map((m, i) => (
+          {messages.map((m, i) => m.from === "system" ? (
+            <div key={i} style={{
+              alignSelf: "center", display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: E.gold,
+              background: E.goldB, border: "1px solid rgba(232,180,102,.35)", borderRadius: 999, padding: "5px 12px",
+            }}>
+              <Star size={11} fill={E.gold} /> {m.text}
+            </div>
+          ) : (
             <div key={i} style={{ alignSelf: m.from === "me" ? "flex-end" : "flex-start", maxWidth: "80%" }}>
               {m.icebreaker && (
                 <div style={{ fontSize: 10.5, color: E.accent, marginBottom: 4, display: "flex", alignItems: "center", gap: 4, letterSpacing: ".04em" }}>
@@ -610,6 +668,96 @@ function Chat({ setScreen, activeMatch, isPaid }) {
       <div style={{ maxWidth: 560, margin: "16px auto 0", textAlign: "center" }}>
         <Btn variant="ghost" onClick={() => setScreen("safety")}><MapPin size={15} /> Planning to meet up? Set up date safety</Btn>
       </div>
+    </Screen>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// LIKES (who liked you — Ember+ feature)
+// ─────────────────────────────────────────────────────────────
+function Likes({ setScreen, tier, setTier }) {
+  const unlocked = tier !== "free";
+
+  return (
+    <Screen title="Who liked you" subtitle={unlocked ? "They already said yes — it's your move." : "Unlock to see who's interested."} onBack={() => setScreen("matches")}>
+      <div style={{ maxWidth: 520, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px,1fr))", gap: 14 }}>
+        {LIKES.map(l => (
+          <Card key={l.id} style={{ padding: 0, overflow: "hidden" }}>
+            <div style={{ position: "relative", height: 120, background: `linear-gradient(150deg, ${l.grad[0]}, ${l.grad[1]})` }}>
+              <div className="em-grain" style={{ position: "absolute" }} />
+              {!unlocked && <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(9px)", background: "rgba(0,0,0,.2)" }} />}
+            </div>
+            <div style={{ padding: 12 }}>
+              <div style={{ fontFamily: E.serif, fontSize: 15, filter: unlocked ? "none" : "blur(4px)" }}>{l.name}, {l.age}</div>
+              <div style={{ fontSize: 11.5, color: E.textSub }}>{l.tag}</div>
+            </div>
+          </Card>
+        ))}
+      </div>
+      {!unlocked && (
+        <Card style={{ maxWidth: 420, margin: "22px auto 0", textAlign: "center" }}>
+          <div style={{ fontFamily: E.serif, fontSize: 17, marginBottom: 8 }}>{LIKES.length} people already liked you</div>
+          <p style={{ color: E.textSub, fontSize: 13, marginBottom: 16 }}>Ember+ reveals who they are, instantly.</p>
+          <Btn style={{ width: "100%" }} onClick={() => setTier("plus")}>Unlock with Ember+ — $19.99/mo</Btn>
+        </Card>
+      )}
+    </Screen>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// FILTERS (Gold unlocks the advanced tier)
+// ─────────────────────────────────────────────────────────────
+function Filters({ setScreen, tier, setTier }) {
+  const [distance, setDistance] = useState(15);
+  const [ageMin, setAgeMin] = useState(24);
+  const [ageMax, setAgeMax] = useState(38);
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [prioritizePrompts, setPrioritizePrompts] = useState(true);
+  const [hideExceptMutual, setHideExceptMutual] = useState(false);
+  const advancedUnlocked = tier === "gold" || tier === "black";
+
+  return (
+    <Screen title="Match filters" subtitle="Tune who shows up in your daily batch." onBack={() => setScreen("matches")}>
+      <Card style={{ maxWidth: 480, margin: "0 auto" }}>
+        <label style={fieldLabel}>Distance: {distance} mi</label>
+        <input type="range" min="1" max="50" value={distance} onChange={e => setDistance(e.target.value)} style={{ width: "100%", marginBottom: 18, background: "transparent", padding: 0 }} />
+
+        <label style={fieldLabel}>Age range: {ageMin}–{ageMax}</label>
+        <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
+          <input type="range" min="18" max="60" value={ageMin} onChange={e => setAgeMin(Math.min(Number(e.target.value), ageMax))} style={{ flex: 1, background: "transparent", padding: 0 }} />
+          <input type="range" min="18" max="60" value={ageMax} onChange={e => setAgeMax(Math.max(Number(e.target.value), ageMin))} style={{ flex: 1, background: "transparent", padding: 0 }} />
+        </div>
+
+        <button onClick={() => setVerifiedOnly(v => !v)} className="em-btn" style={{
+          width: "100%", justifyContent: "space-between", padding: "12px 14px", borderRadius: 10,
+          background: verifiedOnly ? E.accentB : E.surface, border: `1px solid ${verifiedOnly ? E.accent : E.border}`,
+          color: E.text, marginBottom: 22,
+        }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <ShieldCheck size={15} color={verifiedOnly ? E.accent : E.textSub} /> Verified members only
+          </span>
+          {verifiedOnly && <Check size={15} color={E.accent} />}
+        </button>
+
+        <div style={{ borderTop: `1px solid ${E.border}`, paddingTop: 18 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <Crown size={14} color={E.gold} />
+            <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: ".05em", color: E.gold }}>ADVANCED — GOLD</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, opacity: advancedUnlocked ? 1 : 0.4, pointerEvents: advancedUnlocked ? "auto" : "none" }}>
+            <button onClick={() => setPrioritizePrompts(v => !v)} className="em-btn" style={{ width: "100%", justifyContent: "space-between", padding: "12px 14px", borderRadius: 10, background: E.surface, border: `1px solid ${E.border}`, color: E.text }}>
+              <span>Prioritize shared-prompt compatibility</span>{prioritizePrompts && <Check size={15} color={E.accent} />}
+            </button>
+            <button onClick={() => setHideExceptMutual(v => !v)} className="em-btn" style={{ width: "100%", justifyContent: "space-between", padding: "12px 14px", borderRadius: 10, background: E.surface, border: `1px solid ${E.border}`, color: E.text }}>
+              <span>Hide my profile except from mutual likes</span>{hideExceptMutual && <Check size={15} color={E.accent} />}
+            </button>
+          </div>
+          {!advancedUnlocked && (
+            <Btn variant="obsidian" style={{ width: "100%", marginTop: 14 }} onClick={() => setTier("gold")}>Unlock with Ember Gold — $39.99/mo</Btn>
+          )}
+        </div>
+      </Card>
     </Screen>
   );
 }
@@ -696,7 +844,7 @@ const fieldLabel = { display: "block", fontSize: 12.5, color: E.textSub, marginB
 
 function Screen({ title, subtitle, onBack, children }) {
   return (
-    <div className="em-fade" style={{ padding: "28px 6vw 100px", minHeight: "100vh" }}>
+    <div className="em-fade" style={{ padding: "28px 6vw 160px", minHeight: "100vh" }}>
       <div style={{ maxWidth: 560, margin: "0 auto 22px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <button onClick={onBack} className="em-btn" style={{ background: E.surface, border: `1px solid ${E.border}`, borderRadius: "50%", width: 36, height: 36, color: E.textSub }}>
@@ -718,22 +866,54 @@ export default function Ember() {
   const [screen, setScreen] = useState("landing");
   const [profile, setProfile] = useState({ name: "", age: 28, intent: null, maxDistance: 15, photos: [false, false, false, false], answers: {}, verify: false });
   const [likedIds, setLikedIds] = useState([]);
+  const [superLikedIds, setSuperLikedIds] = useState([]);
   const [activeMatch, setActiveMatch] = useState(null);
+  const [tier, setTier] = useState("free");
+  const [boostActive, setBoostActive] = useState(false);
+  const [boostSeconds, setBoostSeconds] = useState(0);
 
   useEffect(() => { document.title = "Ember — Matched with intention"; }, []);
+
+  useEffect(() => {
+    if (!boostActive) return;
+    if (boostSeconds <= 0) { setBoostActive(false); return; }
+    const t = setTimeout(() => setBoostSeconds(s => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [boostActive, boostSeconds]);
+
+  function startBoost() { setBoostActive(true); setBoostSeconds(30); }
 
   return (
     <div className="em-root">
       <style>{CSS}</style>
       <div className="em-grain" />
       <div style={{ position: "relative", zIndex: 1 }}>
-        {screen === "landing" && <Landing setScreen={setScreen} />}
+        {screen === "landing" && <Landing setScreen={setScreen} setTier={setTier} />}
         {screen === "signup" && <Signup setScreen={setScreen} profile={profile} setProfile={setProfile} />}
         {screen === "review" && <Review setScreen={setScreen} profile={profile} />}
         {screen === "profile" && <Profile setScreen={setScreen} profile={profile} setProfile={setProfile} />}
-        {screen === "matches" && <Matches setScreen={setScreen} likedIds={likedIds} setLikedIds={setLikedIds} setActiveMatch={setActiveMatch} />}
-        {screen === "chat" && <Chat setScreen={setScreen} activeMatch={activeMatch} isPaid={profile.verify} />}
+        {screen === "matches" && (
+          <Matches
+            setScreen={setScreen}
+            likedIds={likedIds} setLikedIds={setLikedIds}
+            superLikedIds={superLikedIds} setSuperLikedIds={setSuperLikedIds}
+            setActiveMatch={setActiveMatch}
+            tier={tier}
+            boostActive={boostActive} boostSeconds={boostSeconds} startBoost={startBoost}
+          />
+        )}
+        {screen === "likes" && <Likes setScreen={setScreen} tier={tier} setTier={setTier} />}
+        {screen === "filters" && <Filters setScreen={setScreen} tier={tier} setTier={setTier} />}
+        {screen === "chat" && (
+          <Chat
+            setScreen={setScreen}
+            activeMatch={activeMatch}
+            isPaid={tier !== "free"}
+            isSuperLiked={!!activeMatch && superLikedIds.includes(activeMatch.id)}
+          />
+        )}
         {screen === "safety" && <Safety setScreen={setScreen} />}
+        <TierSwitcher screen={screen} tier={tier} setTier={setTier} />
         <PrototypeNav screen={screen} setScreen={setScreen} />
       </div>
     </div>
