@@ -18,6 +18,7 @@ import { ProfilesService } from "./profiles.service";
 import { UpsertProfileDto } from "./dto/upsert-profile.dto";
 import { UpsertPreferencesDto } from "./dto/upsert-preferences.dto";
 import { AddPhotoDto } from "./dto/add-photo.dto";
+import { CreatePhotoUploadUrlDto } from "./dto/create-photo-upload-url.dto";
 import { SetPhotoModerationDto } from "./dto/set-photo-moderation.dto";
 import { UpsertPromptAnswersDto } from "./dto/upsert-prompt-answers.dto";
 
@@ -57,8 +58,14 @@ export class ProfilesController {
     return this.profilesService.upsertPromptAnswers(user.id, dto);
   }
 
+  @Post("me/photos/upload-url")
+  @ApiOperation({ summary: "Get a short-lived, presigned URL to upload a photo directly to storage." })
+  async createPhotoUploadUrl(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreatePhotoUploadUrlDto) {
+    return this.profilesService.createPhotoUploadUrl(user.id, dto);
+  }
+
   @Post("me/photos")
-  @ApiOperation({ summary: "Register a photo (already uploaded to storage) on the profile." })
+  @ApiOperation({ summary: "Register a photo (already uploaded to the presigned URL above) on the profile." })
   async addPhoto(@CurrentUser() user: AuthenticatedUser, @Body() dto: AddPhotoDto) {
     return this.profilesService.addPhoto(user.id, dto);
   }

@@ -1,0 +1,104 @@
+# Production-shape Compose file — NOT a drop-in "docker compose up" for a real deployment
+# (there is still no real deployment target for this project — see DEPLOYMENT.md), but the
+# reference shape for a single-host or small-scale deployment: no dev bind mounts, no
+# baked-in secrets (every secret comes from the environment/a secrets manager via `env_file`
+# or `secrets:`, never a literal value in this file), explicit resource limits, and restart
+# policies suited to a long-running service rather than a dev inner loop.
+#
+# Usage: `docker compose -f docker-compose.prod.yml --env-file .env.production up -d`
+# with a real .env.production file (never committed — see .gitignore) supplying every
+# variable referenced below.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ember_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+    # Not exposed to the host at all in production — only the `api` service should ever
+    # reach Postgres, over the compose-internal network.
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes:
+      - ember_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public"
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-15m}
+      JWT_REFRESH_TTL_DAYS: ${JWT_REFRESH_TTL_DAYS:-30}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-true}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS}
+      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME}
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_REGION: ${S3_REGION}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      SENTRY_DSN: ${SENTRY_DSN}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "3001:3001"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+      # A single-instance limit here on purpose — the moment this is scaled past
+      # `replicas: 1`, revisit SECURITY_AUDIT.md H-3's Redis-backed throttler storage
+      # (already correct) and PRODUCTION_READINESS.md's connection-pool sizing note,
+      # since both assumptions change under horizontal scale.
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+
+volumes:
+  ember_postgres_data:
+  ember_redis_data:

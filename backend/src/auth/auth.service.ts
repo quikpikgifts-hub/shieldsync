@@ -1,17 +1,23 @@
 import {
   BadRequestException,
   ConflictException,
+  HttpException,
+  HttpStatus,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as argon2 from "argon2";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
 import { computeAge } from "../common/utils/age.util";
 import type { AppConfig } from "../config/configuration";
+import { AccountLockoutService } from "./account-lockout.service";
+import { TokenBlacklistService } from "./token-blacklist.service";
+import { NotificationEmailService } from "../email/notification-email.service";
 import type { RegisterDto } from "./dto/register.dto";
 import type { LoginDto } from "./dto/login.dto";
 
@@ -44,6 +50,7 @@ export interface SafeUser {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   private readonly jwtConfig: AppConfig["jwt"];
 
   constructor(
@@ -51,6 +58,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly auditService: AuditService,
+    private readonly accountLockout: AccountLockoutService,
+    private readonly tokenBlacklist: TokenBlacklistService,
+    private readonly notificationEmail: NotificationEmailService,
   ) {
     this.jwtConfig = this.configService.getOrThrow<AppConfig["jwt"]>("app.jwt");
   }
@@ -107,6 +117,13 @@ export class AuthService {
   async login(dto: LoginDto, meta: SessionMetadata): Promise<{ user: SafeUser; tokens: TokenPair }> {
     const email = normalizeEmail(dto.email);
 
+    // Keyed on the submitted email string itself, before we know whether the account
+    // exists — see AccountLockoutService's doc comment on why that's deliberate.
+    const lockStatus = await this.accountLockout.checkLocked(email);
+    if (lockStatus.locked) {
+      throw tooManyAttempts(lockStatus.retryAfterSeconds);
+    }
+
     const user = await this.prisma.users.findUnique({
       where: { email },
       include: { roles: { include: { role: true } } },
@@ -114,23 +131,13 @@ export class AuthService {
 
     if (!user || user.deletedAt) {
       await argon2.verify(await DUMMY_HASH_PROMISE, dto.password);
-      await this.auditService.record({
-        action: "auth.login.failure",
-        metadata: { reason: "no_such_account" },
-        ipAddress: meta.ipAddress,
-      });
+      await this.recordLoginFailure(email, undefined, "no_such_account", meta);
       throw new UnauthorizedException("Invalid email or password.");
     }
 
     const passwordValid = await argon2.verify(user.passwordHash, dto.password);
     if (!passwordValid) {
-      await this.auditService.record({
-        actorId: user.id,
-        action: "auth.login.failure",
-        subjectId: user.id,
-        metadata: { reason: "bad_password" },
-        ipAddress: meta.ipAddress,
-      });
+      await this.recordLoginFailure(email, user.id, "bad_password", meta);
       throw new UnauthorizedException("Invalid email or password.");
     }
 
@@ -145,6 +152,8 @@ export class AuthService {
       throw new UnauthorizedException(`This account is ${user.status.toLowerCase()}.`);
     }
 
+    await this.accountLockout.recordSuccess(email);
+
     await this.auditService.record({
       actorId: user.id,
       action: "auth.login.success",
@@ -152,9 +161,81 @@ export class AuthService {
       ipAddress: meta.ipAddress,
     });
 
+    await this.detectAndNotifyNewDevice(user.id, user.email, meta);
+
     const safeUser: SafeUser = { id: user.id, email: user.email, roles: user.roles.map((r) => r.role.key) };
     const tokens = await this.issueTokenPair(safeUser, meta);
     return { user: safeUser, tokens };
+  }
+
+  private async recordLoginFailure(
+    email: string,
+    userId: string | undefined,
+    reason: "no_such_account" | "bad_password",
+    meta: SessionMetadata,
+  ): Promise<void> {
+    await this.auditService.record({
+      actorId: userId,
+      action: "auth.login.failure",
+      subjectId: userId,
+      metadata: { reason },
+      ipAddress: meta.ipAddress,
+    });
+
+    const lockResult = await this.accountLockout.recordFailure(email);
+    if (lockResult.locked) {
+      await this.auditService.record({
+        actorId: userId,
+        action: "auth.login.locked_out",
+        subjectId: userId,
+        metadata: { email, retryAfterSeconds: lockResult.retryAfterSeconds },
+        ipAddress: meta.ipAddress,
+      });
+    }
+  }
+
+  /**
+   * Rules-based, not ML — a login from a device fingerprint/IP combination never seen
+   * before for this account is flagged as an audit event and (if email is configured) a
+   * "new sign-in" notification. Deliberately does not block the login or require a second
+   * factor — that would be a new user-facing feature (step-up auth), out of scope for this
+   * hardening pass — it only makes the event visible, both to the security audit trail and
+   * to the account owner.
+   */
+  private async detectAndNotifyNewDevice(userId: string, email: string, meta: SessionMetadata): Promise<void> {
+    const priorSessionCount = await this.prisma.session.count({ where: { userId } });
+    if (priorSessionCount === 0) return; // first login ever — nothing to compare against
+
+    const seenBefore = await this.prisma.session.findFirst({
+      where: {
+        userId,
+        OR: [
+          ...(meta.deviceFingerprint ? [{ deviceFingerprint: meta.deviceFingerprint }] : []),
+          ...(meta.ipAddress ? [{ ipAddress: meta.ipAddress }] : []),
+        ],
+      },
+    });
+
+    if (seenBefore) return;
+
+    await this.auditService.record({
+      actorId: userId,
+      action: "auth.login.anomaly_new_device",
+      subjectId: userId,
+      metadata: { ipAddress: meta.ipAddress ?? null, deviceFingerprint: meta.deviceFingerprint ?? null },
+      ipAddress: meta.ipAddress,
+    });
+
+    try {
+      await this.notificationEmail.sendNewDeviceLoginAlert(email, {
+        ipAddress: meta.ipAddress ?? "an unknown location",
+        userAgent: meta.userAgent ?? "an unknown device",
+      });
+    } catch (error) {
+      // Never fail the login itself over a notification email — see the same reasoning
+      // AuditService.record() already applies to its own failures.
+      this.logger.error("Failed to send new-device login alert email", error as Error);
+    }
   }
 
   async refresh(rawRefreshToken: string, meta: SessionMetadata): Promise<TokenPair> {
@@ -231,9 +312,16 @@ export class AuthService {
     return { accessToken, refreshToken: newRawToken, expiresInSeconds: accessTtlToSeconds(this.jwtConfig.accessTtl) };
   }
 
-  async logout(rawRefreshToken: string, callerUserId: string): Promise<void> {
+  async logout(rawRefreshToken: string, caller: { id: string; jti: string; exp: number }): Promise<void> {
     const tokenHash = hashToken(rawRefreshToken);
     const existing = await this.prisma.refreshToken.findUnique({ where: { tokenHash } });
+
+    // Blacklist the caller's *own* presented access token regardless of whether the
+    // refresh token below turns out to be valid/owned — logout should always kill the
+    // token that was just used to authenticate the call, even if the client sent a stale
+    // or already-revoked refreshToken alongside it.
+    await this.tokenBlacklist.blacklist(caller.jti, caller.exp - Math.floor(Date.now() / 1000));
+
     if (!existing) {
       return; // Already logged out / invalid token — logout is idempotent, not an error.
     }
@@ -242,7 +330,7 @@ export class AuthService {
     // who they are via their own access token. That caller should only ever be able to
     // revoke a session that belongs to them — never someone else's, even though the raw
     // refresh token itself (48 random bytes) is already effectively unguessable.
-    if (existing.userId !== callerUserId) {
+    if (existing.userId !== caller.id) {
       return; // Same idempotent no-op as an unknown token — no information leaked either way.
     }
 
@@ -293,11 +381,25 @@ export class AuthService {
     // installed jsonwebtoken type definitions require a branded `StringValue` type for
     // the string form that a plain `string` variable can't satisfy, and a numeric
     // seconds value is unambiguous and accepted regardless.
+    // `jti` (a random per-token ID, distinct from the session/refresh-token IDs) is what
+    // makes TokenBlacklistService able to invalidate one specific access token on logout
+    // without needing to track every issued token — see its doc comment.
     return this.jwtService.signAsync(
-      { sub: user.id, email: user.email, roles: user.roles },
+      { sub: user.id, email: user.email, roles: user.roles, jti: randomUUID() },
       { secret: this.jwtConfig.accessSecret, expiresIn: accessTtlToSeconds(this.jwtConfig.accessTtl) },
     );
   }
+}
+
+function tooManyAttempts(retryAfterSeconds: number | undefined): HttpException {
+  return new HttpException(
+    {
+      statusCode: HttpStatus.TOO_MANY_REQUESTS,
+      message: "Too many failed login attempts. Please try again later.",
+      retryAfterSeconds: retryAfterSeconds ?? null,
+    },
+    HttpStatus.TOO_MANY_REQUESTS,
+  );
 }
 
 // Emails are case-insensitive per RFC 5321's common real-world convention (and every

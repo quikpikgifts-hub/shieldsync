@@ -1,16 +1,22 @@
-import { ConflictException, UnauthorizedException, BadRequestException } from "@nestjs/common";
+import { ConflictException, UnauthorizedException, BadRequestException, HttpException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as argon2 from "argon2";
 import { AuthService } from "./auth.service";
 import { AuditService } from "../audit/audit.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { AccountLockoutService } from "./account-lockout.service";
+import { TokenBlacklistService } from "./token-blacklist.service";
+import { NotificationEmailService } from "../email/notification-email.service";
 
 describe("AuthService", () => {
   let service: AuthService;
   let prisma: { users: any; $transaction: jest.Mock; refreshToken: any; session: any };
   let auditService: { record: jest.Mock };
   let jwtService: { signAsync: jest.Mock };
+  let accountLockout: { checkLocked: jest.Mock; recordFailure: jest.Mock; recordSuccess: jest.Mock };
+  let tokenBlacklist: { blacklist: jest.Mock; isBlacklisted: jest.Mock };
+  let notificationEmail: { sendNewDeviceLoginAlert: jest.Mock; sendVerificationEmail: jest.Mock; sendPasswordResetEmail: jest.Mock };
 
   const jwtConfig = {
     accessSecret: "unit-test-secret-not-real-0000000000",
@@ -23,10 +29,21 @@ describe("AuthService", () => {
       users: { findUnique: jest.fn(), create: jest.fn() },
       $transaction: jest.fn(),
       refreshToken: { create: jest.fn(), findUnique: jest.fn(), update: jest.fn(), updateMany: jest.fn() },
-      session: { create: jest.fn(), update: jest.fn(), updateMany: jest.fn() },
+      session: { create: jest.fn(), update: jest.fn(), updateMany: jest.fn(), count: jest.fn().mockResolvedValue(0), findFirst: jest.fn() },
     };
     auditService = { record: jest.fn().mockResolvedValue(undefined) };
     jwtService = { signAsync: jest.fn().mockResolvedValue("signed.jwt.token") };
+    accountLockout = {
+      checkLocked: jest.fn().mockResolvedValue({ locked: false }),
+      recordFailure: jest.fn().mockResolvedValue({ locked: false }),
+      recordSuccess: jest.fn().mockResolvedValue(undefined),
+    };
+    tokenBlacklist = { blacklist: jest.fn().mockResolvedValue(undefined), isBlacklisted: jest.fn().mockResolvedValue(false) };
+    notificationEmail = {
+      sendNewDeviceLoginAlert: jest.fn().mockResolvedValue(undefined),
+      sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
+      sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
+    };
 
     const configService = {
       getOrThrow: jest.fn().mockReturnValue(jwtConfig),
@@ -37,6 +54,9 @@ describe("AuthService", () => {
       jwtService as unknown as JwtService,
       configService,
       auditService as unknown as AuditService,
+      accountLockout as unknown as AccountLockoutService,
+      tokenBlacklist as unknown as TokenBlacklistService,
+      notificationEmail as unknown as NotificationEmailService,
     );
   });
 
@@ -136,6 +156,33 @@ describe("AuthService", () => {
       const result = await service.login({ email: "riley@example.com", password: "correcthorse123" }, {});
       expect(result.user.roles).toEqual(["user"]);
       expect(result.tokens.accessToken).toBe("signed.jwt.token");
+      expect(accountLockout.recordSuccess).toHaveBeenCalledWith("riley@example.com");
+    });
+
+    it("rejects with 429 when the account-lockout service reports the email is locked", async () => {
+      accountLockout.checkLocked.mockResolvedValue({ locked: true, retryAfterSeconds: 300 });
+
+      await expect(
+        service.login({ email: "riley@example.com", password: "whatever" }, {}),
+      ).rejects.toBeInstanceOf(HttpException);
+      expect(prisma.users.findUnique).not.toHaveBeenCalled();
+    });
+
+    it("records a failure against the lockout service on a wrong password", async () => {
+      const passwordHash = await argon2.hash("correcthorse123");
+      prisma.users.findUnique.mockResolvedValue({
+        id: "user-1",
+        email: "riley@example.com",
+        passwordHash,
+        status: "ACTIVE",
+        deletedAt: null,
+        roles: [],
+      });
+
+      await expect(
+        service.login({ email: "riley@example.com", password: "wrongpassword" }, {}),
+      ).rejects.toThrow("Invalid email or password.");
+      expect(accountLockout.recordFailure).toHaveBeenCalledWith("riley@example.com");
     });
   });
 

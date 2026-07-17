@@ -217,3 +217,120 @@ matches" strip that opens the real conversation.
 **Needs confirmation:** None — built and verified with two independent real accounts
 (one matched the other via a direct API call while the first account's browser session
 was closed, then reopened and correctly discovered the match on the next visit).
+
+---
+
+## D-11: SMTP-generic email adapter — no vendor-specific async bounce webhooks
+
+**Assumption:** `SmtpEmailProvider` (Phase 3) handles the bounce/error cases it can detect
+*synchronously* at send time (a 5xx SMTP rejection is treated as permanent and surfaced
+immediately; anything else is retried with backoff) but does not handle *asynchronous*
+bounces — a message accepted at send time that bounces later, reported via a vendor-specific
+webhook (SES/SNS, SendGrid Event Webhook, Postmark webhooks, etc.).
+
+**Why:** Async bounce handling is inherently vendor-specific — there's no generic SMTP
+equivalent, since it depends on the sending service's own delivery pipeline and webhook
+format. Building one specific vendor's webhook handler would tie this adapter to that
+vendor despite the interface being deliberately vendor-agnostic.
+
+**Impact:** A message that's accepted by the SMTP server but bounces downstream (full
+mailbox, spam-filtered, etc.) is invisible to this application — it looks identical to a
+successfully delivered message. This mostly affects deliverability monitoring/reputation,
+not the immediate user-facing flows (a user whose verification email never arrives can
+still request another).
+
+**Needs confirmation:** Once a specific transactional-email vendor is chosen for production
+(this is itself an open choice — any SMTP-speaking provider works today), add that vendor's
+webhook endpoint if bounce-rate monitoring becomes operationally important.
+
+---
+
+## D-12: Account lockout and password-reset rate limiting are keyed on the submitted string, not the resolved account
+
+**Assumption:** `AccountLockoutService` locks based on the *email string as submitted* to
+`/auth/login`, and the password-reset request rate limit is keyed the same way — both
+before confirming whether an account with that email actually exists.
+
+**Why:** Keying on the resolved user ID would mean a nonexistent-account probe never gets
+rate-limited/locked at all, while a real account does — an attacker could distinguish "this
+email exists" from "this email doesn't" purely by watching for a 429 after N attempts,
+undermining the same anti-enumeration property `AuthService.login()` already protects via
+its generic error message and constant-time dummy-hash comparison.
+
+**Impact:** A malicious actor can also "lock out" an email address that isn't a real
+account (harmless — there's no real account to deny service to) or, more relevantly, cause
+a real account's legitimate owner to be temporarily locked out by deliberately failing
+login attempts against their known email (a real, accepted tradeoff of any lockout
+mechanism — see `SECURITY_AUDIT.md` H-2's original writeup).
+
+**Needs confirmation:** None blocking — this is the standard, deliberate tradeoff any
+account-lockout design makes; flagged here so a future reviewer sees it was a considered
+choice, not an oversight.
+
+---
+
+## D-13: Kubernetes manifests provided without recommending Kubernetes
+
+**Assumption:** `backend/k8s/` contains basic Deployment/Service/ConfigMap/Secret-shape/HPA
+manifests, added because Phase 3's brief explicitly asked for them ("optional if
+appropriate").
+
+**Why this needs flagging:** `ARCHITECTURE.md` §2 and `ROADMAP.md` Phase 5 are explicit
+that standing up Kubernetes before real load justifies it is exactly the premature
+infrastructure complexity this project has otherwise avoided, and `DEPLOYMENT.md`
+recommends a single managed container platform instead. Adding the manifests without
+comment would read as quietly reversing that stance.
+
+**Impact:** None — the manifests aren't referenced by any deploy workflow
+(`backend-deploy.yml`'s placeholder deploy step doesn't apply them), so nothing currently
+depends on Kubernetes existing.
+
+**Needs confirmation:** None — this is a deliberate "reference, not recommendation" stance,
+documented in `k8s/README.md` itself for anyone who finds the directory without this file's
+context.
+
+---
+
+## D-14: Sentry tracing/profiling left at zero — error capture only
+
+**Assumption:** `initSentry()` sets `tracesSampleRate: 0` — Sentry is wired up to capture
+unhandled exceptions and true 5xx errors, but not to collect performance traces or
+profiles.
+
+**Why:** A sensible trace sample rate is a function of real traffic volume and cost
+tolerance, neither of which exist yet to base a number on (`PRODUCTION_READINESS.md`'s
+observability gap generally). Guessing a rate now risks either drowning in trace volume
+cost or being too sparse to be useful, and is easy to revisit once there's real traffic to
+observe.
+
+**Needs confirmation:** Revisit alongside standing up the rest of the observability stack
+(dashboards, alerting) once real usage exists to inform a sampling rate.
+
+---
+
+## D-15: jimp pinned to v1.x despite a Jest-only testing limitation
+
+**Assumption:** `ThumbnailService` uses `jimp@1.6.1` (actively maintained, 0 known
+vulnerabilities) rather than the older `jimp@0.22.x` line, even though `jimp@1.x`'s
+file-type-detection dependency uses a dynamic `import()` that fails specifically inside
+Jest's CommonJS test environment (`TypeError: A dynamic import callback was invoked without
+--experimental-vm-modules`) — a Jest-only limitation confirmed **not** to affect the real
+running application (verified via a standalone plain-Node script — see
+`TEST_COVERAGE_REPORT.md`).
+
+**Why:** `jimp@0.22.x` was tried first specifically to sidestep the Jest issue, but pulls in
+an old, vulnerable transitive `file-type` version (a moderate-severity infinite-loop DoS in
+ASF/video parsing — irrelevant to this app's image-only, content-type-allowlisted upload
+path, but still a real vulnerable dependency that would ship in the production image).
+Shipping a known-vulnerable dependency to work around a test-tooling friction was judged the
+wrong tradeoff.
+
+**Impact:** `ThumbnailService`'s unit test mocks `jimp`'s `Jimp.read()` call rather than
+exercising the real decode/resize/encode path (which is instead verified once, directly, via
+plain Node — not automated as part of `npm test`). A regression in jimp's own resize
+behavior specifically wouldn't be caught by CI.
+
+**Needs confirmation:** Revisit if/when Jest ships native ESM dynamic-import support without
+`--experimental-vm-modules`, or if this becomes annoying enough to warrant reconfiguring the
+whole test suite for ESM (a larger change than this one dependency, given every other test
+file assumes CJS).

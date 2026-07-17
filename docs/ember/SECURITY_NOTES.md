@@ -1,8 +1,9 @@
 # Ember Backend — Security Notes
 
-Status of the security controls actually implemented in `backend/`, as of Phase 1. Cross-
-reference with `THREAT_MODEL.md` (which threat this addresses) and `OPEN_DECISIONS.md`
-(follow-ups that need product/legal sign-off, not just engineering).
+Status of the security controls actually implemented in `backend/`, updated through Phase 3
+(Production Infrastructure). Cross-reference with `THREAT_MODEL.md` (which threat this
+addresses) and `OPEN_DECISIONS.md` (follow-ups that need product/legal sign-off, not just
+engineering).
 
 ## Authentication
 
@@ -22,7 +23,34 @@ reference with `THREAT_MODEL.md` (which threat this addresses) and `OPEN_DECISIO
   `auth.token.refresh_reuse_detected`. Verified in `test/auth.e2e-spec.ts`.
 - `POST /auth/login` has a tighter rate limit (5/min) than the global default (100/min) —
   see `@Throttle` in `src/auth/auth.controller.ts` — since credential stuffing targets
-  this endpoint specifically.
+  this endpoint specifically. **This limit is now enforced correctly across multiple app
+  instances**: `ThrottlerStorage` is Redis-backed (a hand-written, atomic Lua-scripted
+  implementation — `src/common/throttler/redis-throttler-storage.ts`) when `REDIS_URL` is
+  configured, closing the previous `SECURITY_AUDIT.md` H-3 gap where the default in-memory
+  storage gave each instance its own independent counter.
+- **Per-account login lockout**, independent of the IP-based throttle above
+  (`AccountLockoutService`, Redis-backed) — closes `SECURITY_AUDIT.md` H-2. An attacker
+  rotating source IPs against one specific victim account is now stopped by this, not just
+  the (bypassable-by-IP-rotation) throttle. Keyed on the *submitted* email string, not the
+  resolved account, so the lockout mechanism itself can't be used to enumerate which emails
+  have real accounts (see `OPEN_DECISIONS.md` D-12).
+- **Explicit logout now instantly invalidates the specific access token used**, not just
+  the refresh token. Every access token carries a random `jti` claim; `POST /auth/logout`
+  blacklists that one `jti` (Redis-backed `TokenBlacklistService`) for its remaining
+  lifetime. Before this, a user who explicitly logged out could have their already-issued
+  access token keep working (since the account itself was still `ACTIVE`) until it expired
+  naturally.
+- **Password reset** (`POST /auth/password-reset/request` / `/confirm`) follows the same
+  anti-enumeration shape as login (identical response regardless of whether the account
+  exists), is rate-limited per email address in addition to per IP (stops inbox-bombing via
+  IP rotation), and revokes every existing session on successful reset — a compromised
+  account isn't still logged in elsewhere after its owner resets the password.
+- **Rules-based new-device/new-location detection**: a login whose device fingerprint and
+  IP have never been seen before for that account is audit-logged
+  (`auth.login.anomaly_new_device`) and triggers a "new sign-in" notification email when
+  SMTP is configured. Deliberately does not block the login or require step-up
+  authentication — that would be a new user-facing feature, out of scope for a hardening
+  pass; this makes the event visible, not preventable.
 
 ## Authorization
 
@@ -45,6 +73,24 @@ reference with `THREAT_MODEL.md` (which threat this addresses) and `OPEN_DECISIO
   a real gap, closed in `SECURITY_AUDIT.md` C-1, verified by
   `test/auth.e2e-spec.ts`'s "rejects an already-issued access token once the account's status
   is no longer ACTIVE").
+
+## Real integrations (Phase 3)
+
+- **Email** (`SmtpEmailProvider`): every template escapes interpolated variables before
+  they reach an HTML context (verified against a real local SMTP server in
+  `smtp-email.provider.spec.ts` with a deliberately script-tag-laden test value). Password
+  reset and email verification tokens follow the same hashed-at-rest pattern as refresh
+  tokens (`VerificationToken.tokenHash` — the raw token only ever exists in the email
+  itself, never persisted).
+- **Object storage** (`S3StorageProvider`): uploads only ever happen via a short-lived
+  (5 min) presigned URL scoped to a specific, allowlisted content type
+  (`image/jpeg`/`png`/`webp` — an attacker cannot smuggle an executable or HTML file
+  through this path regardless of claimed extension, since S3 itself rejects a PUT whose
+  Content-Type doesn't match what was signed). Reads are always through a short-lived
+  (15 min) signed URL, never a permanent public link, even for approved photos — see
+  `S3StorageProvider.getReadUrl`'s doc comment. Storage keys are namespaced by owner
+  (`photos/<userId>/<uuid>.<ext>`) so a leaked key from one user can't be used to guess
+  another user's key pattern.
 
 ## Data protection
 
@@ -73,6 +119,14 @@ reference with `THREAT_MODEL.md` (which threat this addresses) and `OPEN_DECISIO
   generic `"An unexpected error occurred."` message, while the full detail is logged
   server-side. Known `HttpException`s (validation errors, 404s, etc.) pass their
   intentional client-facing message through unchanged.
+- Every error response now includes a `requestId` (Phase 3) — a per-request correlation ID
+  assigned before any other middleware runs, echoed via the `X-Request-Id` response header,
+  and present in every structured log line for that request. A user-reported error can be
+  matched to an exact server log line without guessing at timestamps.
+- True 5xx/unhandled exceptions (never 4xx — expected client-facing behavior isn't an
+  operational alert) are reported to Sentry when `SENTRY_DSN` is configured
+  (`src/observability/sentry.ts`) — a no-op otherwise, same graceful-degradation pattern as
+  every other optional integration in this phase.
 
 ## Transport & headers
 
@@ -81,6 +135,16 @@ reference with `THREAT_MODEL.md` (which threat this addresses) and `OPEN_DECISIO
 - TLS termination is a deployment-environment concern (e.g. the load balancer/reverse
   proxy in front of this service) — not something this application layer does itself,
   and not yet configured anywhere since there is no real deployment target.
+
+## Logging
+
+- Structured JSON logging via `nestjs-pino` (Phase 3), replacing Nest's default console
+  logger everywhere. `Authorization`/`Cookie` headers and `password`/`newPassword`/
+  `refreshToken` request-body fields are redacted (`[redacted]`) before a log line is ever
+  written — a raw credential or token cannot end up in a log aggregator by accident.
+- Health-check/metrics probe traffic (`/live`, `/ready`, `/health`, `/metrics`) is excluded
+  from per-request access logging — it fires every few seconds and would otherwise drown
+  out genuinely useful log volume.
 
 ## Audit logging
 
@@ -96,18 +160,29 @@ reference with `THREAT_MODEL.md` (which threat this addresses) and `OPEN_DECISIO
 
 ## Known dependency advisory
 
-As of the Phase 2 hardening audit, `npm audit` reports **0 vulnerabilities** across both
-runtime and dev dependencies (previously, a moderate-severity advisory in `@hono/node-server`
-via `@prisma/dev`'s local Studio server had been tracked here — it has since resolved via
-routine dependency updates, not because it was ignored). Re-run `npm audit` on every
-dependency bump; see `PRODUCTION_READINESS.md` for the recommendation to gate this in CI
-automatically rather than relying on someone running it by hand.
+`npm audit --omit=dev` reports **0 vulnerabilities** in every dependency that actually ships
+in the production Docker image (`Dockerfile`'s `npm ci --omit=dev`) — this is now enforced
+as a hard CI gate (`backend-ci.yml`'s "Audit production dependencies" step,
+`--audit-level=high`), not just something re-run by hand occasionally.
+
+Running the unrestricted `npm audit` (including devDependencies) shows 4 known
+vulnerabilities, all transitive dependencies of `s3rver` — the local, in-process
+S3-compatible test double used only by `s3-storage.provider.spec.ts`,
+`thumbnail.service.spec.ts`, and the e2e photo-storage tests. `s3rver` never ships (it's a
+devDependency, excluded by `--omit=dev`) and never runs against real data (it serves an
+ephemeral temp directory created and destroyed within each test). Tracked here rather than
+ignored; would be worth revisiting if a non-vulnerable version becomes available, but isn't
+a production risk today.
 
 ## What's explicitly NOT done yet (see ROADMAP.md for phasing)
 
 - No WAF/DDoS protection at the application layer — expected to live at the infrastructure
   edge (CDN/load balancer) once a real deployment target exists, not in this codebase.
 - No SIEM integration — audit logs exist in Postgres; shipping them to a SIEM is an
-  infrastructure step for a real deployment, not an application feature.
+  infrastructure step for a real deployment, not an application feature. (Sentry now
+  captures unhandled exceptions/5xx errors when configured — see "Error handling" above —
+  but that's error tracking, not a SIEM.)
 - No third-party penetration test has been performed (nor could one be, against a system
   with no deployed instance and no real users).
+- No async/webhook-based bounce handling for the email provider — see `OPEN_DECISIONS.md`
+  D-11; it's inherently vendor-specific and no vendor has been chosen yet.

@@ -16,6 +16,19 @@ services:
       timeout: 5s
       retries: 10
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - ember_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   api:
     build:
       context: .
@@ -24,10 +37,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       NODE_ENV: development
       PORT: "3001"
       DATABASE_URL: "postgresql://ember:ember_dev_password@postgres:5432/ember_dev?schema=public"
+      REDIS_URL: "redis://redis:6379/0"
       # Never bake a real secret into an image or compose file for anything beyond local
       # dev — see .env.example and DEPLOYMENT.md for how this is supplied in real
       # environments (a secrets manager, not a committed value).
@@ -40,3 +56,4 @@ services:
 
 volumes:
   ember_postgres_data:
+  ember_redis_data:

@@ -32,4 +32,12 @@ COPY prisma.config.ts ./
 
 USER ember
 EXPOSE 3001
+
+# Uses Node's built-in fetch rather than adding curl/wget to the image — one less package
+# to patch. /live deliberately has no dependency checks (see src/health/health.controller.ts),
+# so this only answers "is the process itself up," matching Docker's own HEALTHCHECK
+# semantics (container-level liveness, not a full readiness check).
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||3001)+'/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
 CMD ["node", "dist/src/main.js"]

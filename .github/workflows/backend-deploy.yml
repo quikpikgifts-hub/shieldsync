@@ -1,0 +1,118 @@
+name: Backend Deploy
+
+# No production hosting target exists for this backend yet (see docs/ember/DEPLOYMENT.md —
+# still true as of this workflow being added). This workflow is deliberately built up to
+# exactly the point that's honestly buildable without a real target: it builds the image,
+# pushes it to GitHub Container Registry (needs only the repo's own built-in
+# GITHUB_TOKEN — no external secrets to fake), and runs migrations against whatever
+# DATABASE_URL the deploy environment provides. The final "deploy" step is a clearly
+# labeled placeholder — see its comment — rather than a guess at a specific cloud
+# provider's deploy API invented without real credentials to test it against.
+#
+# Manual rollback: re-run this workflow via workflow_dispatch with `image_tag` set to any
+# previously built tag (every push to main produces one, tagged by commit SHA — see
+# `docker/metadata-action` below) — that re-runs the migrate+deploy steps against the
+# already-built older image instead of building a new one. See docs/ember/RELEASE.md for
+# the full rollback runbook, including what to do if a migration itself needs reverting
+# (not always safe to just redeploy an old image — schema changes can be forward-only).
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-deploy.yml"
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Existing image tag to redeploy (rollback), e.g. a commit SHA. Leave blank to build+deploy the current branch head."
+        required: false
+        type: string
+
+defaults:
+  run:
+    working-directory: backend
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/ember-backend
+
+jobs:
+  build-and-push:
+    if: ${{ github.event_name == 'push' || inputs.image_tag == '' }}
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=long
+            type=ref,event=branch
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  migrate-and-deploy:
+    needs: [build-and-push]
+    if: always() && (needs.build-and-push.result == 'success' || inputs.image_tag != '')
+    runs-on: ubuntu-latest
+    environment: production # requires a "production" environment configured with real deployment secrets (DATABASE_URL, etc.) before this job can do anything real
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies (for the Prisma CLI only — not the runtime image)
+        run: npm ci
+
+      - name: Run database migrations
+        # migrate deploy (not migrate dev) — never generates new migrations, only applies
+        # already-committed ones. Requires DATABASE_URL to be set as a real "production"
+        # environment secret in this repo's GitHub environment settings — see
+        # docs/ember/DEPLOYMENT.md and SECURITY_NOTES.md/OPEN_DECISIONS.md D-04 for why
+        # this should use a migration-scoped DB role, not the runtime app's own role.
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+
+      - name: Deploy
+        run: |
+          echo "No production hosting target is configured for this repository yet."
+          echo "Image published: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.image_tag || inputs.image_tag }}"
+          echo "This step is where a real deploy call goes once a target exists —"
+          echo "e.g. 'aws ecs update-service --force-new-deployment' for ECS/Fargate,"
+          echo "'kubectl set image deployment/ember-backend ...' for the k8s manifests"
+          echo "in backend/k8s/, or a platform-specific deploy action. See"
+          echo "docs/ember/DEPLOYMENT.md for the recommended target (a single managed"
+          echo "container platform, not Kubernetes, per ARCHITECTURE.md §2-3)."
+          exit 0

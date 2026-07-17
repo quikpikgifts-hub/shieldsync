@@ -1,0 +1,23 @@
+# NOT applied by default in any deployment workflow in this repo — included only as a
+# reference shape. Autoscaling policy (which metric, what thresholds) is exactly the kind
+# of decision that should be based on real observed traffic (see PRODUCTION_READINESS.md's
+# observability gaps — there's no metrics pipeline yet to base these numbers on), not
+# guessed at upfront. Tune minReplicas/maxReplicas/targets before ever applying this.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ember-backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ember-backend
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

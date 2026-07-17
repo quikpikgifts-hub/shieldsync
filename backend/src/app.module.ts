@@ -2,11 +2,18 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_FILTER, APP_GUARD } from "@nestjs/core";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
+import type Redis from "ioredis";
 import configuration from "./config/configuration";
 import { validationSchema } from "./config/validation.schema";
 import { PrismaModule } from "./prisma/prisma.module";
+import { HealthModule } from "./health/health.module";
+import { LoggerModule } from "./observability/logger.module";
+import { ObservabilityModule } from "./observability/observability.module";
 import { AuditModule } from "./audit/audit.module";
 import { IntegrationsModule } from "./integrations/integrations.module";
+import { RedisModule, REDIS_CLIENT } from "./redis/redis.module";
+import { QueueModule } from "./queue/queue.module";
+import { RedisThrottlerStorage } from "./common/throttler/redis-throttler-storage";
 import { AuthModule } from "./auth/auth.module";
 import { UsersModule } from "./users/users.module";
 import { ProfilesModule } from "./profiles/profiles.module";
@@ -20,8 +27,16 @@ import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration], validationSchema }),
+    LoggerModule,
+    ObservabilityModule,
+    RedisModule,
+    QueueModule,
     ThrottlerModule.forRootAsync({
-      useFactory: () => ({
+      // Redis-backed storage when REDIS_URL is configured (correct under multiple app
+      // instances — see SECURITY_AUDIT.md H-3); falls back to @nestjs/throttler's own
+      // in-memory storage (by omitting `storage` entirely) otherwise, exactly as before.
+      useFactory: (client: Redis | null) => ({
+        storage: client ? new RedisThrottlerStorage(client) : undefined,
         throttlers: [
           {
             ttl: parseInt(process.env.THROTTLE_TTL_MS ?? "60000", 10),
@@ -29,8 +44,10 @@ import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
           },
         ],
       }),
+      inject: [REDIS_CLIENT],
     }),
     PrismaModule,
+    HealthModule,
     AuditModule,
     IntegrationsModule,
     AuthModule,

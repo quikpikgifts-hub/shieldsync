@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ember-backend-config
+data:
+  NODE_ENV: "production"
+  PORT: "3001"
+  JWT_ACCESS_TTL: "15m"
+  JWT_REFRESH_TTL_DAYS: "30"
+  CORS_ORIGIN: "https://app.example.com"
+  FRONTEND_BASE_URL: "https://app.example.com"
+  THROTTLE_TTL_MS: "60000"
+  THROTTLE_LIMIT: "100"
+  LOGIN_THROTTLE_TTL_MS: "60000"
+  LOGIN_THROTTLE_LIMIT: "5"
+  LOGIN_LOCKOUT_THRESHOLD: "10"
+  LOGIN_LOCKOUT_WINDOW_MINUTES: "15"
+  LOGIN_LOCKOUT_DURATION_MINUTES: "15"
+  SMTP_PORT: "587"
+  SMTP_SECURE: "true"
+  EMAIL_FROM_ADDRESS: "no-reply@example.com"
+  EMAIL_FROM_NAME: "Ember"
+  S3_REGION: "us-east-1"
+  S3_FORCE_PATH_STYLE: "false"
+  LOG_LEVEL: "info"

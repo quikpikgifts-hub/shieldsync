@@ -97,41 +97,42 @@ model Users {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  roles         UserRole[]
-  profile       Profile?
-  preferences   Preferences?
-  sessions      Session[]
-  refreshTokens RefreshToken[]
-  notifications Notification[]
-  subscriptions Subscription[]
+  roles              UserRole[]
+  profile            Profile?
+  preferences        Preferences?
+  sessions           Session[]
+  refreshTokens      RefreshToken[]
+  notifications      Notification[]
+  subscriptions      Subscription[]
+  verificationTokens VerificationToken[]
 
-  likesSent        Like[]         @relation("LikeActor")
-  likesReceived    Like[]         @relation("LikeTarget")
-  matchesAsUserA   Match[]        @relation("MatchUserA")
-  matchesAsUserB   Match[]        @relation("MatchUserB")
-  messagesSent     Message[]      @relation("MessageSender")
-  reportsFiled     Report[]       @relation("ReportReporter")
-  reportsReceived  Report[]       @relation("ReportSubject")
-  blocksCreated    Block[]        @relation("BlockBlocker")
-  blocksReceived   Block[]        @relation("BlockBlocked")
-  moderationCases  ModerationCase[] @relation("ModerationSubject")
-  moderatedCases   ModerationCase[] @relation("ModerationAssignee")
-  auditLogEntries  AuditLog[]     @relation("AuditActor")
+  likesSent       Like[]           @relation("LikeActor")
+  likesReceived   Like[]           @relation("LikeTarget")
+  matchesAsUserA  Match[]          @relation("MatchUserA")
+  matchesAsUserB  Match[]          @relation("MatchUserB")
+  messagesSent    Message[]        @relation("MessageSender")
+  reportsFiled    Report[]         @relation("ReportReporter")
+  reportsReceived Report[]         @relation("ReportSubject")
+  blocksCreated   Block[]          @relation("BlockBlocker")
+  blocksReceived  Block[]          @relation("BlockBlocked")
+  moderationCases ModerationCase[] @relation("ModerationSubject")
+  moderatedCases  ModerationCase[] @relation("ModerationAssignee")
+  auditLogEntries AuditLog[]       @relation("AuditActor")
 
   @@index([status])
   @@map("users")
 }
 
 model Session {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId          String    @db.Uuid
-  user            Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String    @db.Uuid
+  user              Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
   deviceFingerprint String?
-  ipAddress       String?
-  userAgent       String?
-  createdAt       DateTime  @default(now())
-  lastSeenAt      DateTime  @default(now())
-  revokedAt       DateTime?
+  ipAddress         String?
+  userAgent         String?
+  createdAt         DateTime  @default(now())
+  lastSeenAt        DateTime  @default(now())
+  revokedAt         DateTime?
 
   refreshTokens RefreshToken[]
 
@@ -140,21 +141,43 @@ model Session {
 }
 
 model RefreshToken {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  sessionId String    @db.Uuid
-  session   Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  userId    String    @db.Uuid
-  user      Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId String  @db.Uuid
+  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId    String  @db.Uuid
+  user      Users   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  tokenHash String    @unique // SHA-256 of the raw refresh token — the raw value is never stored
-  createdAt DateTime  @default(now())
-  expiresAt DateTime
-  revokedAt DateTime?
+  tokenHash           String    @unique // SHA-256 of the raw refresh token — the raw value is never stored
+  createdAt           DateTime  @default(now())
+  expiresAt           DateTime
+  revokedAt           DateTime?
   replacedByTokenHash String?
 
   @@index([userId])
   @@index([expiresAt])
   @@map("refresh_tokens")
+}
+
+enum VerificationTokenPurpose {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
+// Same hashed-token-at-rest pattern as RefreshToken — the raw token is only ever in the
+// email sent to the user, never persisted, so a database read alone (a leaked backup, a
+// compromised read replica) can't produce a usable verification/reset link.
+model VerificationToken {
+  id        String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String                   @db.Uuid
+  user      Users                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose   VerificationTokenPurpose
+  tokenHash String                   @unique
+  createdAt DateTime                 @default(now())
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  @@index([userId, purpose])
+  @@map("verification_tokens")
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -168,8 +191,8 @@ enum Intent {
 }
 
 model Profile {
-  userId      String    @id @db.Uuid
-  user        Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @id @db.Uuid
+  user   Users  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   displayName String
   bio         String?
@@ -192,14 +215,23 @@ model Profile {
 }
 
 model Photo {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  profileId String   @db.Uuid
-  profile   Profile  @relation(fields: [profileId], references: [userId], onDelete: Cascade)
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [userId], onDelete: Cascade)
 
   storageKey        String // provider-agnostic object storage reference (see StorageProvider interface)
   moderationStatus  PhotoModerationStatus @default(PENDING)
-  isPrimary         Boolean @default(false)
-  blurredUntilMatch Boolean @default(false)
+  isPrimary         Boolean               @default(false)
+  blurredUntilMatch Boolean               @default(false)
+
+  // Metadata captured at registration time (Phase 3 — see PRODUCTION_READINESS.md item 2)
+  // and by the async thumbnail-generation pipeline once it runs.
+  contentType          String?
+  byteSizeBytes        Int?
+  width                Int?
+  height               Int?
+  thumbnailStorageKey  String?
+  thumbnailGeneratedAt DateTime?
 
   createdAt DateTime @default(now())
 
@@ -214,25 +246,25 @@ enum PhotoModerationStatus {
 }
 
 model PromptAnswer {
-  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  profileId  String  @db.Uuid
-  profile    Profile @relation(fields: [profileId], references: [userId], onDelete: Cascade)
-  promptKey  String
-  answer     String
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId String  @db.Uuid
+  profile   Profile @relation(fields: [profileId], references: [userId], onDelete: Cascade)
+  promptKey String
+  answer    String
 
   @@unique([profileId, promptKey])
   @@map("prompt_answers")
 }
 
 model Preferences {
-  userId       String @id @db.Uuid
-  user         Users  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @id @db.Uuid
+  user   Users  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  ageMin       Int    @default(18)
-  ageMax       Int    @default(99)
-  maxDistanceKm Int   @default(50)
+  ageMin         Int      @default(18)
+  ageMax         Int      @default(99)
+  maxDistanceKm  Int      @default(50)
   seekingGenders String[] // free-form list, validated at the application layer
-  verifiedOnly Boolean @default(false)
+  verifiedOnly   Boolean  @default(false)
 
   updatedAt DateTime @updatedAt
 
@@ -250,13 +282,13 @@ enum LikeAction {
 }
 
 model Like {
-  id       String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  actorId  String     @db.Uuid
-  actor    Users      @relation("LikeActor", fields: [actorId], references: [id], onDelete: Cascade)
-  targetId String     @db.Uuid
-  target   Users      @relation("LikeTarget", fields: [targetId], references: [id], onDelete: Cascade)
-  action   LikeAction
-  createdAt DateTime  @default(now())
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorId   String     @db.Uuid
+  actor     Users      @relation("LikeActor", fields: [actorId], references: [id], onDelete: Cascade)
+  targetId  String     @db.Uuid
+  target    Users      @relation("LikeTarget", fields: [targetId], references: [id], onDelete: Cascade)
+  action    LikeAction
+  createdAt DateTime   @default(now())
 
   @@unique([actorId, targetId]) // one decision per pair; changing your mind updates the row, not a new one
   @@index([targetId, action])
@@ -264,11 +296,11 @@ model Like {
 }
 
 model Match {
-  id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userAId  String   @db.Uuid
-  userA    Users    @relation("MatchUserA", fields: [userAId], references: [id], onDelete: Cascade)
-  userBId  String   @db.Uuid
-  userB    Users    @relation("MatchUserB", fields: [userBId], references: [id], onDelete: Cascade)
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userAId String @db.Uuid
+  userA   Users  @relation("MatchUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userBId String @db.Uuid
+  userB   Users  @relation("MatchUserB", fields: [userBId], references: [id], onDelete: Cascade)
 
   matchedAt   DateTime  @default(now())
   unmatchedAt DateTime?
@@ -309,8 +341,8 @@ model Message {
   senderId       String?      @db.Uuid // null for SYSTEM messages
   sender         Users?       @relation("MessageSender", fields: [senderId], references: [id], onDelete: SetNull)
 
-  kind         MessageKind @default(TEXT)
-  body         String?
+  kind            MessageKind @default(TEXT)
+  body            String?
   mediaStorageKey String?
 
   sentAt    DateTime  @default(now())
@@ -342,11 +374,14 @@ enum ReportStatus {
 }
 
 model Report {
-  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  reporterId String       @db.Uuid
-  reporter   Users        @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
-  subjectId  String       @db.Uuid
-  subject    Users        @relation("ReportSubject", fields: [subjectId], references: [id], onDelete: Cascade)
+  id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  reporterId String @db.Uuid
+  // Restrict, not Cascade — see DATABASE_AUDIT.md DB-4. A future account-deletion feature
+  // must not be able to silently erase the report/moderation trail by deleting the user
+  // rows it references; it needs to explicitly anonymize or retain these first.
+  reporter   Users  @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Restrict)
+  subjectId  String @db.Uuid
+  subject    Users  @relation("ReportSubject", fields: [subjectId], references: [id], onDelete: Restrict)
 
   reason  ReportReason
   details String?
@@ -372,6 +407,7 @@ model Block {
   createdAt DateTime @default(now())
 
   @@unique([blockerId, blockedId])
+  @@index([blockedId]) // supports the reverse "who has blocked me" half of every block-aware query — see DATABASE_AUDIT.md DB-1
   @@map("blocks")
 }
 
@@ -391,18 +427,19 @@ enum ModerationAction {
 }
 
 model ModerationCase {
-  id          String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  subjectId   String                @db.Uuid
-  subject     Users                 @relation("ModerationSubject", fields: [subjectId], references: [id], onDelete: Cascade)
-  assigneeId  String?               @db.Uuid
-  assignee    Users?                @relation("ModerationAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  subjectId  String  @db.Uuid
+  // Restrict, not Cascade — same reasoning as Report above (DATABASE_AUDIT.md DB-4).
+  subject    Users   @relation("ModerationSubject", fields: [subjectId], references: [id], onDelete: Restrict)
+  assigneeId String? @db.Uuid
+  assignee   Users?  @relation("ModerationAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
 
-  status      ModerationCaseStatus  @default(OPEN)
-  action      ModerationAction      @default(NONE)
-  notes       String?
-  automated   Boolean               @default(false) // true if opened by an automated signal rather than a user report
+  status    ModerationCaseStatus @default(OPEN)
+  action    ModerationAction     @default(NONE)
+  notes     String?
+  automated Boolean              @default(false) // true if opened by an automated signal rather than a user report
 
-  reports     Report[]
+  reports Report[]
 
   createdAt  DateTime  @default(now())
   resolvedAt DateTime?
@@ -420,7 +457,7 @@ model AuditLog {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   actorId   String?  @db.Uuid // null for system-initiated actions
   actor     Users?   @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
-  action    String   // e.g. "auth.login", "moderation.ban_user", "report.create"
+  action    String // e.g. "auth.login", "moderation.ban_user", "report.create"
   subjectId String?  @db.Uuid // the record acted upon, when applicable — not a FK, since the subject can be any table
   metadata  Json?
   ipAddress String?
@@ -428,6 +465,7 @@ model AuditLog {
 
   @@index([actorId])
   @@index([action, createdAt])
+  @@index([subjectId]) // supports "full audit history for this account" — see DATABASE_AUDIT.md DB-2
   @@map("audit_logs")
 }
 

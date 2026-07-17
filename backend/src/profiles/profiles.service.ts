@@ -1,21 +1,41 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
+import { STORAGE_PROVIDER, type StorageProvider } from "../integrations/storage/storage-provider.interface";
+import { ThumbnailService } from "./thumbnail.service";
 import type { UpsertProfileDto } from "./dto/upsert-profile.dto";
 import type { UpsertPreferencesDto } from "./dto/upsert-preferences.dto";
 import type { AddPhotoDto } from "./dto/add-photo.dto";
+import type { CreatePhotoUploadUrlDto } from "./dto/create-photo-upload-url.dto";
 import type { UpsertPromptAnswersDto } from "./dto/upsert-prompt-answers.dto";
 import { PhotoModerationStatus } from "@prisma/client";
+import type { AppConfig } from "../config/configuration";
+import type { PresignedUpload } from "../integrations/storage/storage-provider.interface";
 
 @Injectable()
 export class ProfilesService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly storageEnabled: boolean;
+
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(STORAGE_PROVIDER) private readonly storageProvider: StorageProvider,
+    private readonly thumbnailService: ThumbnailService,
+    configService: ConfigService,
+  ) {
+    this.storageEnabled = configService.getOrThrow<AppConfig["storage"]>("app.storage").enabled;
+  }
+
+  async createPhotoUploadUrl(userId: string, dto: CreatePhotoUploadUrlDto): Promise<PresignedUpload> {
+    return this.storageProvider.createPresignedUpload(userId, dto.contentType);
+  }
 
   async getOwn(userId: string) {
     const profile = await this.prisma.profile.findUnique({
       where: { userId },
       include: { photos: true, promptAnswers: true },
     });
-    return profile; // null is a valid response — the client hasn't created a profile yet
+    if (!profile) return null; // null is a valid response — the client hasn't created a profile yet
+    return { ...profile, photos: await this.hydratePhotoUrls(profile.photos) };
   }
 
   async upsert(userId: string, dto: UpsertProfileDto) {
@@ -67,21 +87,53 @@ export class ProfilesService {
       throw new BadRequestException("Create a profile before adding photos.");
     }
 
-    if (dto.isPrimary) {
-      await this.prisma.photo.updateMany({ where: { profileId: userId }, data: { isPrimary: false } });
+    // Only validated against real storage when a real StorageProvider is configured — see
+    // OPEN_DECISIONS.md D-05's original note that storageKey was historically just a
+    // client-supplied string with nothing behind it. When storage IS configured, this
+    // closes that gap: the client must have actually uploaded something to the presigned
+    // URL before the photo can be registered, and real metadata (content type, byte size)
+    // is captured from the object itself rather than trusted from the client.
+    let metadata: { contentType: string | null; byteSizeBytes: number } | null = null;
+    if (this.storageEnabled) {
+      metadata = await this.storageProvider.headObject(dto.storageKey);
+      if (!metadata) {
+        throw new BadRequestException(
+          "No uploaded object found for this storageKey — upload to the presigned URL before registering the photo.",
+        );
+      }
     }
 
-    // New photos always start PENDING regardless of what the client sends — moderation
-    // status is not client-settable, only moderator/admin-settable via setModerationStatus.
-    return this.prisma.photo.create({
-      data: {
-        profileId: userId,
-        storageKey: dto.storageKey,
-        isPrimary: dto.isPrimary ?? false,
-        blurredUntilMatch: dto.blurredUntilMatch ?? false,
-        moderationStatus: PhotoModerationStatus.PENDING,
-      },
+    // Clearing the old primary flag and creating the new one in one transaction closes
+    // the race window that used to exist between those two separate statements
+    // (SECURITY_AUDIT.md L-3) — and the database's own partial unique index
+    // (`photos_one_primary_per_profile`, migration 20260717133717) is the final backstop
+    // even if this code is ever called from two places that aren't both transactional.
+    const photo = await this.prisma.$transaction(async (tx) => {
+      if (dto.isPrimary) {
+        await tx.photo.updateMany({ where: { profileId: userId }, data: { isPrimary: false } });
+      }
+
+      // New photos always start PENDING regardless of what the client sends —
+      // moderation status is not client-settable, only moderator/admin-settable via
+      // setModerationStatus.
+      return tx.photo.create({
+        data: {
+          profileId: userId,
+          storageKey: dto.storageKey,
+          isPrimary: dto.isPrimary ?? false,
+          blurredUntilMatch: dto.blurredUntilMatch ?? false,
+          moderationStatus: PhotoModerationStatus.PENDING,
+          contentType: metadata?.contentType ?? null,
+          byteSizeBytes: metadata?.byteSizeBytes ?? null,
+        },
+      });
     });
+
+    if (this.storageEnabled) {
+      await this.thumbnailService.enqueue(photo.id, photo.storageKey);
+    }
+
+    return photo;
   }
 
   async removePhoto(userId: string, photoId: string): Promise<void> {
@@ -90,6 +142,15 @@ export class ProfilesService {
       throw new NotFoundException("Photo not found");
     }
     await this.prisma.photo.delete({ where: { id: photoId } });
+
+    if (this.storageEnabled) {
+      // Best-effort — an orphaned object in storage is a cleanup/cost issue, not a
+      // correctness one, so it shouldn't turn a successful delete into a failed request.
+      await this.storageProvider.deleteObject(photo.storageKey).catch(() => undefined);
+      if (photo.thumbnailStorageKey) {
+        await this.storageProvider.deleteObject(photo.thumbnailStorageKey).catch(() => undefined);
+      }
+    }
   }
 
   async setModerationStatus(photoId: string, status: PhotoModerationStatus) {
@@ -135,6 +196,28 @@ export class ProfilesService {
       return null;
     }
 
-    return profile;
+    return { ...profile, photos: await this.hydratePhotoUrls(profile.photos) };
+  }
+
+  /**
+   * Never a permanent public URL, even for approved photos — every read is a short-lived
+   * signed URL freshly issued per request (see S3StorageProvider.getReadUrl's doc
+   * comment). Falls back to returning the raw storageKey (unusable directly by a client,
+   * but the historical pre-Phase-3 behavior) when storage isn't configured, so this
+   * doesn't error out in local dev/CI without S3 set up.
+   */
+  private async hydratePhotoUrls<T extends { storageKey: string; thumbnailStorageKey: string | null }>(
+    photos: T[],
+  ): Promise<(T & { url: string; thumbnailUrl: string | null })[]> {
+    return Promise.all(
+      photos.map(async (photo) => ({
+        ...photo,
+        url: this.storageEnabled ? await this.storageProvider.getReadUrl(photo.storageKey) : photo.storageKey,
+        thumbnailUrl:
+          this.storageEnabled && photo.thumbnailStorageKey
+            ? await this.storageProvider.getReadUrl(photo.thumbnailStorageKey)
+            : null,
+      })),
+    );
   }
 }

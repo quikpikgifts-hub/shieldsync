@@ -33,16 +33,29 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     env:
       NODE_ENV: test
       DATABASE_URL: "postgresql://ember:ember_ci_password@localhost:5432/ember_ci?schema=public"
+      REDIS_URL: "redis://localhost:6379/0"
       JWT_ACCESS_SECRET: "ci-only-access-secret-not-for-real-use-0000000000"
       JWT_ACCESS_TTL: "15m"
       JWT_REFRESH_TTL_DAYS: "30"
       CORS_ORIGIN: "http://localhost:5173"
       THROTTLE_TTL_MS: "60000"
       THROTTLE_LIMIT: "1000"
+      LOGIN_THROTTLE_LIMIT: "1000"
+      LOGIN_LOCKOUT_THRESHOLD: "1000"
+      LOG_LEVEL: "silent"
 
     steps:
       - uses: actions/checkout@v4
@@ -55,6 +68,13 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Audit production dependencies
+        # --omit=dev matches exactly what the Docker image installs (Dockerfile's
+        # `npm ci --omit=dev`) — dev-only tooling (e.g. the local S3-compatible test
+        # double used by the storage provider's own tests) never ships to production and
+        # shouldn't fail this gate. See SECURITY_NOTES.md.
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Lint
         run: npm run lint

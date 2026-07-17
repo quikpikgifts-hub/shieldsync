@@ -7,6 +7,7 @@ import {
   Logger,
 } from "@nestjs/common";
 import type { Request, Response } from "express";
+import { captureException } from "../../observability/sentry";
 
 interface ErrorResponseBody {
   statusCode: number;
@@ -14,6 +15,14 @@ interface ErrorResponseBody {
   error: string;
   path: string;
   timestamp: string;
+  requestId?: string;
+}
+
+function requestIdOf(request: Request): string | undefined {
+  // Assigned by pino-http (see observability/logger.module.ts's genReqId) — reading it
+  // defensively since this filter must never itself throw regardless of what's attached
+  // a request.
+  return (request as unknown as { id?: string }).id;
 }
 
 /**
@@ -47,10 +56,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
         error: HttpStatus[status] ?? "Error",
         path: request.url,
         timestamp: new Date().toISOString(),
+        requestId: requestIdOf(request),
       };
 
       if (status >= 500) {
         this.logger.error(`${request.method} ${request.url} -> ${status}`, exception.stack);
+        // Only true 5xx HttpExceptions are reported — a 400/401/403/404 is expected,
+        // client-facing behavior, not an operational error worth paging anyone over.
+        captureException(exception);
       }
 
       response.status(status).json(body);
@@ -62,6 +75,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       `Unhandled exception on ${request.method} ${request.url}`,
       exception instanceof Error ? exception.stack : String(exception),
     );
+    captureException(exception);
 
     const body: ErrorResponseBody = {
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -69,6 +83,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       error: "Internal Server Error",
       path: request.url,
       timestamp: new Date().toISOString(),
+      requestId: requestIdOf(request),
     };
 
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json(body);

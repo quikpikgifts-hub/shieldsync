@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ember-backend
+  labels:
+    app: ember-backend
+spec:
+  # See k8s/README.md — deliberately 1 until real load justifies more, and raising this
+  # requires revisiting connection-pool sizing (PRODUCTION_READINESS.md), not just this
+  # number. The Redis-backed rate limiter (SECURITY_AUDIT.md H-3) already handles it
+  # correctly.
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ember-backend
+  template:
+    metadata:
+      labels:
+        app: ember-backend
+    spec:
+      containers:
+        - name: api
+          image: ember-backend:latest # replace with a real registry/tag in CI — see .github/workflows/deploy.yml
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: ember-backend-config
+            - secretRef:
+                name: ember-backend-secrets
+          # /live: process is up, no dependency checks — restart the pod if this fails.
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # /ready: Postgres (and Redis, if configured) are reachable — stop routing
+          # traffic to this pod if this fails, without restarting it (a transient DB
+          # blip shouldn't cycle the whole pod).
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+      # Gives in-flight requests and BullMQ job handlers time to finish — matches
+      # app.enableShutdownHooks() in src/main.ts, which needs SIGTERM to actually reach
+      # the process for graceful shutdown to run at all.
+      terminationGracePeriodSeconds: 30
