@@ -3,3 +3,10 @@ dist
 .DS_Store
 *.local
 .claude/
+
+# Backend (Ember) — never commit real secrets or local env values
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/coverage
+

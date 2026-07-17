@@ -1,0 +1,81 @@
+name: Backend CI
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+defaults:
+  run:
+    working-directory: backend
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ember
+          POSTGRES_PASSWORD: ember_ci_password
+          POSTGRES_DB: ember_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ember -d ember_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: "postgresql://ember:ember_ci_password@localhost:5432/ember_ci?schema=public"
+      JWT_ACCESS_SECRET: "ci-only-access-secret-not-for-real-use-0000000000"
+      JWT_ACCESS_TTL: "15m"
+      JWT_REFRESH_TTL_DAYS: "30"
+      CORS_ORIGIN: "http://localhost:5173"
+      THROTTLE_TTL_MS: "60000"
+      THROTTLE_LIMIT: "1000"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run database migrations
+        run: npx prisma migrate deploy
+
+      - name: Seed RBAC catalog
+        run: npx prisma db seed
+
+      - name: Build
+        run: npm run build
+
+      - name: Unit tests
+        run: npm test -- --coverage
+
+      - name: E2E tests
+        run: npm run test:e2e
+
+      - name: Build Docker image (validates Dockerfile without publishing)
+        run: docker build -t ember-backend:ci .

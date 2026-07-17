@@ -30,26 +30,44 @@ made *before* they're expensive to change.
 **Gate to Phase 1:** the above decisions are made and documented, not deferred "to figure
 out during build."
 
+> **This gate was explicitly overridden by product decision**, not silently skipped: "we
+> are not going to let unresolved planning items delay development." Phase 0's decisions
+> (launch jurisdiction, age-assurance approach, exact safety-feature scope) remain
+> genuinely unresolved. Phase 1 proceeded anyway, using configurable defaults documented
+> in `OPEN_DECISIONS.md` in place of each one (e.g. D-02: self-attested age only, flagged
+> as insufficient on its own). This is the difference between *overridden* and *ignored*
+> — the gate wasn't met, and that's recorded, not hidden.
+
 ## Phase 1 — MVP
 
 **Goal:** a real, working product for a small closed cohort — replacing the current
 client-only prototype with the architecture in `ARCHITECTURE.md` §3.
 
-- [ ] Auth (delegated to Auth0/Clerk), profile creation, photo upload with moderation
-      gate before any photo is visible to another user
-- [ ] Matching + messaging on the real schema in `DATABASE_SCHEMA.md`
-- [ ] Reporting, blocking, and a human moderation queue (no ship without this — it is not
+**Status: substantially complete for the backend** — see `CHANGELOG.md` for the full
+list and `OPEN_DECISIONS.md` for every place a real vendor/product decision was deferred
+in favor of a documented, configurable default.
+
+- [x] Auth — **self-hosted** rather than delegated to Auth0/Clerk (see
+      `OPEN_DECISIONS.md` D-01 for why); profile creation; photo upload with a moderation
+      gate before any photo is visible to another user (photo *storage* is not real yet —
+      D-05)
+- [x] Matching + messaging on the real schema in `DATABASE_SCHEMA.md`
+- [x] Reporting, blocking, and a human moderation queue (no ship without this — it is not
       an optional Phase 2 add-on for a product in this category)
-- [ ] Stripe subscriptions via hosted Checkout (Free/Ember+/Gold tiers)
+- [ ] Stripe subscriptions via hosted Checkout (Free/Ember+/Gold tiers) — `Subscription`
+      table and `PaymentProvider` extension point exist; no real Stripe integration yet
 - [ ] Automated data-export and account-deletion workflows (not manual/support-ticket only)
-- [ ] Basic phone + email verification (full ID verification can follow in Phase 2 if the
-      Phase 0 decision allows a soft launch without it)
-- [ ] Responsive web / PWA — no native mobile yet
-- [ ] Basic observability (APM + error tracking) from day one
+- [ ] Basic phone + email verification — schema and verification fields exist
+      (`emailVerifiedAt`/`phoneVerifiedAt`); no real Twilio/email-provider integration yet
+- [ ] Responsive web / PWA — the frontend prototype (`src/Ember.jsx`) is not yet wired to
+      this backend at all
+- [ ] Basic observability (APM + error tracking) — structured logging exists via Nest's
+      logger; no APM vendor wired up
 
 **Gate to Phase 2:** the closed cohort has run long enough to produce real abuse/scam
 signal (not zero, not projected) to validate that reporting and moderation actually work
-under real conditions, and no unresolved Phase 0 legal item is outstanding.
+under real conditions, and no unresolved Phase 0 legal item is outstanding. **Still
+blocked** — Phase 0's items remain open regardless of Phase 1's engineering progress.
 
 ## Phase 2 — Trust & Safety hardening
 

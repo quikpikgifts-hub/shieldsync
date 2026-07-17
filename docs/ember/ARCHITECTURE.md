@@ -1,8 +1,10 @@
 # Ember — System Architecture
 
-**Status:** Planning document. Describes a target architecture for a real product; nothing
-described below as "target state" is built yet. See `src/Ember.jsx` for the current
-client-only prototype (mock data, no backend, no auth).
+**Status:** Partially built. Phase 1 (auth, RBAC, profiles, matching, messaging, safety
+foundation) is implemented in `backend/` and covered by real tests against a real
+PostgreSQL database — see `CHANGELOG.md`, `TESTING.md`, and `OPEN_DECISIONS.md` for what's
+real versus still planned. Sections below marked "target state" describe what's still
+ahead; §1a describes what actually exists today.
 
 **Not legal or security certification.** This document informs engineering decisions. It
 does not substitute for review by qualified privacy counsel, a licensed security auditor,
@@ -10,14 +12,34 @@ or a PCI-DSS QSA before real user data, payments, or safety-critical features go
 
 ---
 
-## 1. Current state
+## 1. Current state (frontend)
 
 - One React component (`src/Ember.jsx`), path-routed at `/ember` inside a Vite SPA that
   also serves two unrelated static sites (`src/App.jsx`, `src/Website.jsx`) from the same
   deployment.
 - All data is hardcoded in-file (`MATCHES`, `LIKES`, etc.) and all mutations are local
-  React state. Refreshing the page resets everything.
-- No backend, no database, no authentication, no real third-party integration of any kind.
+  React state. Refreshing the page resets everything. **The frontend is not yet wired up
+  to the backend described below** — that integration hasn't been built.
+
+## 1a. Current state (backend — as of Phase 1)
+
+`backend/` is a real NestJS + PostgreSQL + Prisma service, run and tested locally:
+
+- Authentication, RBAC, Profiles, Matching, Messaging, and the full Safety foundation
+  (Reports, Blocks, ModerationCases, append-only AuditLog) are implemented and tested
+  (39 passing tests — 10 unit, 29 e2e — against a real local Postgres instance).
+- **Divergence from the plan below:** §3's stack table recommends delegating auth to
+  Auth0/Clerk. Phase 1 instead built a real self-hosted JWT/Argon2id auth system, because
+  no vendor credentials exist in this environment and the instruction was explicit: no
+  mock auth, everything must execute locally. See `OPEN_DECISIONS.md` D-01 for the full
+  rationale and what would need to be true to migrate to a managed provider later.
+- Every third-party integration named below (Stripe, Twilio, AWS S3, identity
+  verification, OpenAI/Anthropic, push, email, analytics) exists only as an interface +
+  DI token + an adapter that throws a clear "not configured" error — see
+  `backend/src/integrations/README.md`. None are operational.
+- Kubernetes/Terraform/Elasticsearch/multi-region remain deferred per §2 below — nothing
+  in Phase 1 needed them, and standing them up now would be exactly the premature
+  complexity this document argues against.
 
 Every section below is a proposal to replace this with something real, phased so that each
 step is buildable and verifiable rather than a leap to full enterprise scale on day one.

@@ -1,12 +1,18 @@
 # Ember — Database Schema (Phase 1 target)
 
-**Status:** Planning document — no database exists yet. This is the proposed PostgreSQL
-schema for the MVP described in `ARCHITECTURE.md`. Column lists are representative, not
-exhaustive; treat as a starting point for migration files, not a final DDL to run as-is.
+**Status:** Implemented. This document was written as a plan before any database existed;
+`backend/prisma/schema.prisma` is now the actual, running schema, migrated and tested
+against a real PostgreSQL instance (see `TESTING.md`). The two have diverged in minor,
+deliberate ways as real migrations forced concrete decisions (e.g. `Users` is plural in
+the running schema for historical reasons within the build session; `Preferences.seekingGenders`
+is a plain string array rather than a constrained enum, left flexible on purpose). Treat
+this file as the narrative rationale and `schema.prisma` as the source of truth for exact
+column names and types.
 
 **PII handling note:** Columns marked 🔒 are sensitive and must never appear in application
 logs, error messages, or analytics events. Columns marked 🚫 must **never exist** — the
-data they'd hold belongs with a vendor, not in our database (see notes).
+data they'd hold belongs with a vendor, not in our database (see notes). Both constraints
+are honored in the real schema — verified in `SECURITY_NOTES.md`'s data-protection section.
 
 ---
 
