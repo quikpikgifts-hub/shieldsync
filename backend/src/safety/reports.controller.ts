@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { RequirePermissions } from "../common/decorators/require-permissions.decorator";
@@ -38,7 +38,7 @@ export class ReportsController {
   @RequirePermissions("reports.resolve")
   @ApiOperation({ summary: "Resolve or dismiss a report (moderator/admin only)." })
   async resolve(
-    @Param("reportId") reportId: string,
+    @Param("reportId", new ParseUUIDPipe()) reportId: string,
     @Body() dto: ResolveReportDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {

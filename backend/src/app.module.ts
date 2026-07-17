@@ -14,7 +14,6 @@ import { SafetyModule } from "./safety/safety.module";
 import { MatchingModule } from "./matching/matching.module";
 import { MessagingModule } from "./messaging/messaging.module";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
-import { RolesGuard } from "./common/guards/roles.guard";
 import { PermissionsGuard } from "./common/guards/permissions.guard";
 import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
 
@@ -42,11 +41,12 @@ import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
     MessagingModule,
   ],
   providers: [
-    // Order matters: JWT auth establishes `request.user` first, then role/permission
-    // checks can rely on it being present.
+    // Order matters: JWT auth establishes `request.user` first, then permission checks
+    // can rely on it being present. RolesGuard/@Roles() were removed (never used by any
+    // controller, and would have trusted the JWT's `roles` claim instead of a live DB
+    // read like PermissionsGuard does) — see SECURITY_AUDIT.md.
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_GUARD, useClass: PermissionsGuard },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
   ],

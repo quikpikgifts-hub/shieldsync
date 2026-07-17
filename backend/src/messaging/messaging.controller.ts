@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { PaginationQueryDto } from "../common/dto/pagination-query.dto";
@@ -16,7 +16,7 @@ export class MessagingController {
   @ApiOperation({ summary: "List messages in the conversation for a given match." })
   async list(
     @CurrentUser() user: AuthenticatedUser,
-    @Param("matchId") matchId: string,
+    @Param("matchId", new ParseUUIDPipe()) matchId: string,
     @Query() query: PaginationQueryDto,
   ) {
     return this.messagingService.listMessages(user.id, matchId, query);
@@ -26,7 +26,7 @@ export class MessagingController {
   @ApiOperation({ summary: "Send a message in the conversation for a given match." })
   async send(
     @CurrentUser() user: AuthenticatedUser,
-    @Param("matchId") matchId: string,
+    @Param("matchId", new ParseUUIDPipe()) matchId: string,
     @Body() dto: SendMessageDto,
   ) {
     return this.messagingService.sendMessage(user.id, matchId, dto);

@@ -5,6 +5,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Put,
@@ -64,7 +65,7 @@ export class ProfilesController {
 
   @Delete("me/photos/:photoId")
   @ApiOperation({ summary: "Remove one of the authenticated user's own photos." })
-  async removePhoto(@CurrentUser() user: AuthenticatedUser, @Param("photoId") photoId: string) {
+  async removePhoto(@CurrentUser() user: AuthenticatedUser, @Param("photoId", new ParseUUIDPipe()) photoId: string) {
     await this.profilesService.removePhoto(user.id, photoId);
     return { deleted: true };
   }
@@ -72,13 +73,13 @@ export class ProfilesController {
   @Patch("photos/:photoId/moderation")
   @RequirePermissions("moderation.resolve")
   @ApiOperation({ summary: "Approve or reject a photo (moderator/admin only)." })
-  async setModeration(@Param("photoId") photoId: string, @Body() dto: SetPhotoModerationDto) {
+  async setModeration(@Param("photoId", new ParseUUIDPipe()) photoId: string, @Body() dto: SetPhotoModerationDto) {
     return this.profilesService.setModerationStatus(photoId, dto.status);
   }
 
   @Get(":userId")
   @ApiOperation({ summary: "View another user's public profile (respects blocks and visibility)." })
-  async getPublic(@CurrentUser() user: AuthenticatedUser, @Param("userId") userId: string) {
+  async getPublic(@CurrentUser() user: AuthenticatedUser, @Param("userId", new ParseUUIDPipe()) userId: string) {
     const profile = await this.profilesService.getPublicProfile(user.id, userId);
     if (!profile) {
       throw new NotFoundException("Profile not found");

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { RequirePermissions } from "../common/decorators/require-permissions.decorator";
@@ -25,7 +25,7 @@ export class ModerationController {
   @RequirePermissions("moderation.assign")
   @ApiOperation({ summary: "Assign a moderation case to a moderator." })
   async assign(
-    @Param("caseId") caseId: string,
+    @Param("caseId", new ParseUUIDPipe()) caseId: string,
     @Body() dto: AssignModerationCaseDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
@@ -36,7 +36,7 @@ export class ModerationController {
   @RequirePermissions("moderation.resolve")
   @ApiOperation({ summary: "Resolve a moderation case with a final action." })
   async resolve(
-    @Param("caseId") caseId: string,
+    @Param("caseId", new ParseUUIDPipe()) caseId: string,
     @Body() dto: ResolveModerationCaseDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {

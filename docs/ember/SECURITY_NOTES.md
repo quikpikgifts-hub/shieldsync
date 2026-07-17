@@ -29,13 +29,22 @@ reference with `THREAT_MODEL.md` (which threat this addresses) and `OPEN_DECISIO
 - Every route requires a valid access token by default (`JwtAuthGuard` applied globally
   in `app.module.ts`); routes opt out explicitly with `@Public()`. This is secure-by-default:
   a new route is protected unless someone deliberately marks it otherwise, not the reverse.
-- Two layers of authorization: `@Roles(...)` for coarse role checks, `@RequirePermissions(...)`
-  for fine-grained permission checks (`src/common/guards/`). Permission grants are checked
-  live against the database on every gated request, not cached in the JWT — revoking a
-  moderator's access takes effect on their very next request, not after their token expires.
+- Authorization is `@RequirePermissions(...)` (`src/common/guards/permissions.guard.ts`) —
+  permission grants are checked live against the database on every gated request, not cached
+  in the JWT — revoking a moderator's access takes effect on their very next request, not
+  after their token expires. (A parallel `@Roles()`/`RolesGuard` mechanism existed through
+  Phase 1 but was never actually applied to any route; it was removed during the Phase 2
+  hardening audit rather than left as unused, misleading surface — see `SECURITY_AUDIT.md`
+  M-1.)
 - Banning/suspending a user (`ModerationService.resolve`) immediately revokes every active
   session and refresh token for that account in the same transaction as the status change —
-  verified in `test/safety.e2e-spec.ts`.
+  verified in `test/safety.e2e-spec.ts`. **As of the Phase 2 hardening audit, this now also
+  actually blocks API access mid-token-lifetime**: `JwtStrategy.validate()` performs a live
+  `Users.status` lookup on every request and rejects anything but `ACTIVE` (previously, this
+  file claimed immediate revocation while the JWT strategy only checked signature/expiry —
+  a real gap, closed in `SECURITY_AUDIT.md` C-1, verified by
+  `test/auth.e2e-spec.ts`'s "rejects an already-issued access token once the account's status
+  is no longer ACTIVE").
 
 ## Data protection
 
@@ -87,12 +96,12 @@ reference with `THREAT_MODEL.md` (which threat this addresses) and `OPEN_DECISIO
 
 ## Known dependency advisory
 
-`npm audit` reports a moderate-severity advisory in `@hono/node-server` (via `@prisma/dev`,
-a transitive **dev-only** dependency of the `prisma` CLI's local Studio server) —
-[GHSA-92pp-h63x-v22m](https://github.com/advisories/GHSA-92pp-h63x-v22m), a static-file
-middleware bypass. This is not part of the application's runtime dependency graph (it
-never ships in the Docker image, which installs with `--omit=dev`), but it should be
-tracked and cleared by an eventual Prisma CLI upgrade rather than ignored indefinitely.
+As of the Phase 2 hardening audit, `npm audit` reports **0 vulnerabilities** across both
+runtime and dev dependencies (previously, a moderate-severity advisory in `@hono/node-server`
+via `@prisma/dev`'s local Studio server had been tracked here — it has since resolved via
+routine dependency updates, not because it was ignored). Re-run `npm audit` on every
+dependency bump; see `PRODUCTION_READINESS.md` for the recommendation to gate this in CI
+automatically rather than relying on someone running it by hand.
 
 ## What's explicitly NOT done yet (see ROADMAP.md for phasing)
 

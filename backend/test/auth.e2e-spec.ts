@@ -104,6 +104,26 @@ describe("Auth (e2e)", () => {
       expect(res.status).toBe(401);
       expect(res.body.message).toBe("Invalid email or password.");
     });
+
+    it("logs in successfully regardless of email casing differing from registration", async () => {
+      const res = await request(app.getHttpServer())
+        .post("/auth/login")
+        .send({ email: validRegisterBody.email.toUpperCase(), password: validRegisterBody.password });
+      expect(res.status).toBe(200);
+    });
+  });
+
+  describe("Email normalization", () => {
+    it("rejects a duplicate registration that only differs by email casing", async () => {
+      await request(app.getHttpServer())
+        .post("/auth/register")
+        .send({ ...validRegisterBody, email: "CaseTest@Example.com" });
+
+      const res = await request(app.getHttpServer())
+        .post("/auth/register")
+        .send({ ...validRegisterBody, email: "casetest@example.com" });
+      expect(res.status).toBe(409);
+    });
   });
 
   describe("POST /auth/refresh", () => {
@@ -149,6 +169,64 @@ describe("Auth (e2e)", () => {
       const res = await request(app.getHttpServer()).get("/users/me").set("Authorization", `Bearer ${accessToken}`);
       expect(res.status).toBe(200);
       expect(res.body.email).toBe(validRegisterBody.email);
+    });
+
+    it("rejects an already-issued access token once the account's status is no longer ACTIVE", async () => {
+      const registerRes = await request(app.getHttpServer()).post("/auth/register").send(validRegisterBody);
+      const { accessToken } = registerRes.body.tokens;
+
+      const before = await request(app.getHttpServer()).get("/users/me").set("Authorization", `Bearer ${accessToken}`);
+      expect(before.status).toBe(200);
+
+      // Simulates what ModerationService.resolve() does to Users.status on a ban — the
+      // access token itself is untouched (no server-side token store to purge), so this
+      // is exactly the scenario the live status check in JwtStrategy.validate() exists for.
+      await prisma.users.update({ where: { email: validRegisterBody.email }, data: { status: "BANNED" } });
+
+      const after = await request(app.getHttpServer()).get("/users/me").set("Authorization", `Bearer ${accessToken}`);
+      expect(after.status).toBe(401);
+    });
+  });
+
+  describe("POST /auth/logout", () => {
+    it("requires authentication", async () => {
+      const res = await request(app.getHttpServer()).post("/auth/logout").send({ refreshToken: "whatever" });
+      expect(res.status).toBe(401);
+    });
+
+    it("revokes the caller's own session", async () => {
+      const registerRes = await request(app.getHttpServer()).post("/auth/register").send(validRegisterBody);
+      const { accessToken, refreshToken } = registerRes.body.tokens;
+
+      const logoutRes = await request(app.getHttpServer())
+        .post("/auth/logout")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send({ refreshToken });
+      expect(logoutRes.status).toBe(204);
+
+      const refreshRes = await request(app.getHttpServer()).post("/auth/refresh").send({ refreshToken });
+      expect(refreshRes.status).toBe(401);
+    });
+
+    it("does not revoke another user's session even when presented with their refresh token", async () => {
+      const userA = await request(app.getHttpServer()).post("/auth/register").send(validRegisterBody);
+      const userB = await request(app.getHttpServer())
+        .post("/auth/register")
+        .send({ ...validRegisterBody, email: "other-user@example.com" });
+
+      const aAccessToken = userA.body.tokens.accessToken;
+      const bRefreshToken = userB.body.tokens.refreshToken;
+
+      const logoutRes = await request(app.getHttpServer())
+        .post("/auth/logout")
+        .set("Authorization", `Bearer ${aAccessToken}`)
+        .send({ refreshToken: bRefreshToken });
+      // Idempotent no-op — same response as an unknown token, not an error — see
+      // AuthService.logout()'s ownership check.
+      expect(logoutRes.status).toBe(204);
+
+      const refreshRes = await request(app.getHttpServer()).post("/auth/refresh").send({ refreshToken: bRefreshToken });
+      expect(refreshRes.status).toBe(200);
     });
   });
 });

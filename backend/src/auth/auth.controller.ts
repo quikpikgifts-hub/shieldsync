@@ -1,8 +1,10 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Req } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 import type { Request } from "express";
+import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { Public } from "../common/decorators/public.decorator";
+import type { AuthenticatedUser } from "./strategies/jwt.strategy";
 import { AuthService, type SessionMetadata } from "./auth.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
@@ -37,11 +39,12 @@ export class AuthController {
     return this.authService.refresh(dto.refreshToken, sessionMetadataFrom(req));
   }
 
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post("logout")
   @ApiOperation({ summary: "Revoke the session behind the given refresh token." })
-  async logout(@Body() dto: RefreshDto): Promise<void> {
-    await this.authService.logout(dto.refreshToken);
+  async logout(@Body() dto: RefreshDto, @CurrentUser() user: AuthenticatedUser): Promise<void> {
+    await this.authService.logout(dto.refreshToken, user.id);
   }
 }
 

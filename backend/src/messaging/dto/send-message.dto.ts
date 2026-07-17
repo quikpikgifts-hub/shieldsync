@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { MessageKind } from "@prisma/client";
-import { IsEnum, IsOptional, IsString, MaxLength, ValidateIf } from "class-validator";
+import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateIf } from "class-validator";
 
 export class SendMessageDto {
   @ApiPropertyOptional({ enum: MessageKind, default: MessageKind.TEXT })
@@ -11,6 +11,7 @@ export class SendMessageDto {
   @ApiProperty({ required: false })
   @ValidateIf((dto: SendMessageDto) => dto.kind === MessageKind.TEXT)
   @IsString()
+  @IsNotEmpty()
   @MaxLength(4000)
   body?: string;
 

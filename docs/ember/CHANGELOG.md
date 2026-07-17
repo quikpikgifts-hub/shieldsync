@@ -1,5 +1,50 @@
 # Ember Backend — Changelog
 
+## Phase 2 — Enterprise Hardening and Alpha Readiness audit
+
+A skeptical, file-by-file security/database/API/production-readiness/test-coverage audit of
+the entire backend — full findings in `SECURITY_AUDIT.md`, `DATABASE_AUDIT.md`, `API_AUDIT.md`,
+`PRODUCTION_READINESS.md`, `TEST_COVERAGE_REPORT.md`, and `ALPHA_RELEASE_CHECKLIST.md`. No new
+product features were added; every change below is a fix to existing logic, a removal of
+dead/misleading code, or a test verifying one of those fixes.
+
+**Fixed**
+
+- **Critical:** `JwtStrategy` now performs a live `Users.status` check on every request instead
+  of trusting a signed JWT indefinitely — a banned/suspended user's already-issued access token
+  is now rejected immediately, not just at its next natural expiry (`SECURITY_AUDIT.md` C-1).
+- **High:** email addresses are normalized (trimmed, lowercased) before storage and lookup in
+  `AuthService`, closing a case-variant duplicate-account and false-login-failure bug
+  (`SECURITY_AUDIT.md` H-1).
+- **Medium:** `MatchingService`'s reciprocal-match creation now handles a concurrent unique-
+  constraint race idempotently instead of surfacing an opaque 500 (`SECURITY_AUDIT.md` M-2).
+- **Medium:** the previously-declared-but-never-called `profile.pii_view` audit action is now
+  recorded on every `GET /users/:id` (`SECURITY_AUDIT.md` M-3).
+- **Medium:** `ParseUUIDPipe` added to every route parameter that identifies a database row,
+  across all controllers (`SECURITY_AUDIT.md` M-4).
+- **Medium:** several DTO validation gaps closed — missing `@IsNotEmpty()` on required text
+  fields, a Swagger/validation mismatch on profile `displayName`, missing array constraints on
+  `seekingGenders` (`SECURITY_AUDIT.md` M-5).
+- **Medium:** `POST /auth/logout` now verifies the refresh token being revoked belongs to the
+  authenticated caller (`SECURITY_AUDIT.md` M-6).
+- **Medium:** removed `RolesGuard`/`@Roles()` — confirmed dead code (zero real usages) that
+  would have trusted a stale JWT claim instead of a live database check if it had ever been
+  used (`SECURITY_AUDIT.md` M-1).
+- **Low:** age-calculation logic consolidated onto the single `computeAge()` implementation,
+  removing a second, slightly-inaccurate approximation (`SECURITY_AUDIT.md` L-1).
+- **Production readiness:** `main.ts` now calls `app.enableShutdownHooks()` so Prisma
+  disconnects cleanly on SIGTERM.
+
+**Documented, not built** (new stateful features, out of scope for a hardening pass):
+per-account brute-force lockout, Redis-backed rate-limiter storage, a health-check endpoint,
+real email/object-storage integrations. Full rationale for each in `SECURITY_AUDIT.md` and
+`PRODUCTION_READINESS.md`.
+
+**Tests added:** 9 new e2e tests directly verifying the fixes above (banned-account token
+rejection, email-casing normalization, logout ownership), plus a new `profiles.e2e-spec.ts`
+(9 tests) covering a module that previously had zero e2e coverage. Full suite: 10 unit + 47
+e2e tests, all passing; `npx nest build` clean; `npm run lint` clean (0 errors).
+
 ## Frontend wired to the real backend
 
 **Added**

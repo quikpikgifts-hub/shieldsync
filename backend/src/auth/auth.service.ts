@@ -10,6 +10,7 @@ import * as argon2 from "argon2";
 import { createHash, randomBytes } from "node:crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
+import { computeAge } from "../common/utils/age.util";
 import type { AppConfig } from "../config/configuration";
 import type { RegisterDto } from "./dto/register.dto";
 import type { LoginDto } from "./dto/login.dto";
@@ -57,7 +58,9 @@ export class AuthService {
   async register(dto: RegisterDto, meta: SessionMetadata): Promise<{ user: SafeUser; tokens: TokenPair }> {
     assertMeetsMinimumAge(dto.dateOfBirth);
 
-    const existing = await this.prisma.users.findUnique({ where: { email: dto.email } });
+    const email = normalizeEmail(dto.email);
+
+    const existing = await this.prisma.users.findUnique({ where: { email } });
     if (existing) {
       // Deliberately generic: confirming "this email is already registered" to an
       // unauthenticated caller is itself a (minor, commonly-accepted) enumeration
@@ -70,7 +73,7 @@ export class AuthService {
     const user = await this.prisma.$transaction(async (tx) => {
       const created = await tx.users.create({
         data: {
-          email: dto.email,
+          email,
           phone: dto.phone,
           passwordHash,
           dateOfBirth: new Date(dto.dateOfBirth),
@@ -102,8 +105,10 @@ export class AuthService {
   }
 
   async login(dto: LoginDto, meta: SessionMetadata): Promise<{ user: SafeUser; tokens: TokenPair }> {
+    const email = normalizeEmail(dto.email);
+
     const user = await this.prisma.users.findUnique({
-      where: { email: dto.email },
+      where: { email },
       include: { roles: { include: { role: true } } },
     });
 
@@ -226,11 +231,19 @@ export class AuthService {
     return { accessToken, refreshToken: newRawToken, expiresInSeconds: accessTtlToSeconds(this.jwtConfig.accessTtl) };
   }
 
-  async logout(rawRefreshToken: string): Promise<void> {
+  async logout(rawRefreshToken: string, callerUserId: string): Promise<void> {
     const tokenHash = hashToken(rawRefreshToken);
     const existing = await this.prisma.refreshToken.findUnique({ where: { tokenHash } });
     if (!existing) {
       return; // Already logged out / invalid token — logout is idempotent, not an error.
+    }
+
+    // Defense in depth: /auth/logout is authenticated, so the caller has already proven
+    // who they are via their own access token. That caller should only ever be able to
+    // revoke a session that belongs to them — never someone else's, even though the raw
+    // refresh token itself (48 random bytes) is already effectively unguessable.
+    if (existing.userId !== callerUserId) {
+      return; // Same idempotent no-op as an unknown token — no information leaked either way.
     }
 
     await this.prisma.$transaction([
@@ -287,6 +300,14 @@ export class AuthService {
   }
 }
 
+// Emails are case-insensitive per RFC 5321's common real-world convention (and every
+// mainstream mail provider treats them that way), but without normalization at the
+// storage/lookup boundary, "User@x.com" and "user@x.com" would silently register two
+// different accounts and a legitimate login could fail purely on casing.
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
 function hashToken(raw: string): string {
   return createHash("sha256").update(raw).digest("hex");
 }
@@ -311,9 +332,10 @@ function assertMeetsMinimumAge(dateOfBirthIso: string): void {
   if (Number.isNaN(dob.getTime())) {
     throw new BadRequestException("dateOfBirth is not a valid date.");
   }
-  const ageMs = Date.now() - dob.getTime();
-  const ageYears = ageMs / (1000 * 60 * 60 * 24 * 365.25);
-  if (ageYears < MINIMUM_AGE_YEARS) {
+  // Uses the same whole-years calculation as computeAge() (common/utils/age.util.ts) —
+  // the two must never drift, since one gates registration and the other is what every
+  // other part of the product displays as "age".
+  if (computeAge(dob) < MINIMUM_AGE_YEARS) {
     // Self-attested DOB is a known-weak control — see docs/ember/OPEN_DECISIONS.md
     // and R-01 in THREAT_MODEL.md. This check exists so the system enforces *something*
     // at signup rather than nothing, not because it is considered sufficient on its own.

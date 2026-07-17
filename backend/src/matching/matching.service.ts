@@ -1,5 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { LikeAction, PhotoModerationStatus } from "@prisma/client";
+import { LikeAction, PhotoModerationStatus, Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
 import { BlocksService } from "../safety/blocks.service";
@@ -69,19 +69,7 @@ export class MatchingService {
     }
 
     const [userAId, userBId] = orderPair(actorId, dto.targetId);
-
-    const match = await this.prisma.$transaction(async (tx) => {
-      const existingMatch = await tx.match.findUnique({
-        where: { userAId_userBId: { userAId, userBId } },
-      });
-      if (existingMatch) {
-        return existingMatch;
-      }
-
-      const created = await tx.match.create({ data: { userAId, userBId } });
-      await tx.conversation.create({ data: { matchId: created.id } });
-      return created;
-    });
+    const match = await this.createMatchIdempotently(userAId, userBId);
 
     await this.auditService.record({
       actorId,
@@ -91,6 +79,37 @@ export class MatchingService {
     });
 
     return { like, match };
+  }
+
+  /**
+   * The find-then-create sequence below still has a race window between the
+   * `findUnique` and the `create`: two requests recording the reciprocal halves of the
+   * same mutual like at the same instant (e.g. two retries, or two devices for the same
+   * account) can both observe "no match yet" and both attempt to create one. The unique
+   * constraint on [userAId, userBId] is what actually prevents a duplicate row — this
+   * catch turns that constraint violation into the same idempotent result the slower
+   * request would have gotten anyway, instead of an opaque 500.
+   */
+  private async createMatchIdempotently(userAId: string, userBId: string) {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const existingMatch = await tx.match.findUnique({
+          where: { userAId_userBId: { userAId, userBId } },
+        });
+        if (existingMatch) {
+          return existingMatch;
+        }
+
+        const created = await tx.match.create({ data: { userAId, userBId } });
+        await tx.conversation.create({ data: { matchId: created.id } });
+        return created;
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        return this.prisma.match.findUniqueOrThrow({ where: { userAId_userBId: { userAId, userBId } } });
+      }
+      throw error;
+    }
   }
 
   async listMatches(userId: string) {

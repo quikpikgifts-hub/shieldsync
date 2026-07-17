@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import type { AuthenticatedUser } from "../auth/strategies/jwt.strategy";
@@ -26,7 +26,10 @@ export class BlocksController {
   @Delete(":blockedId")
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: "Unblock a user." })
-  async remove(@CurrentUser() user: AuthenticatedUser, @Param("blockedId") blockedId: string): Promise<void> {
+  async remove(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("blockedId", new ParseUUIDPipe()) blockedId: string,
+  ): Promise<void> {
     await this.blocksService.remove(user.id, blockedId);
   }
 }
