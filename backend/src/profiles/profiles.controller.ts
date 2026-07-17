@@ -18,6 +18,7 @@ import { UpsertProfileDto } from "./dto/upsert-profile.dto";
 import { UpsertPreferencesDto } from "./dto/upsert-preferences.dto";
 import { AddPhotoDto } from "./dto/add-photo.dto";
 import { SetPhotoModerationDto } from "./dto/set-photo-moderation.dto";
+import { UpsertPromptAnswersDto } from "./dto/upsert-prompt-answers.dto";
 
 @ApiTags("profiles")
 @ApiBearerAuth()
@@ -47,6 +48,12 @@ export class ProfilesController {
   @ApiOperation({ summary: "Create or replace the authenticated user's match preferences." })
   async upsertPreferences(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpsertPreferencesDto) {
     return this.profilesService.upsertPreferences(user.id, dto);
+  }
+
+  @Put("me/prompt-answers")
+  @ApiOperation({ summary: "Upsert the authenticated user's prompt answers." })
+  async upsertPromptAnswers(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpsertPromptAnswersDto) {
+    return this.profilesService.upsertPromptAnswers(user.id, dto);
   }
 
   @Post("me/photos")

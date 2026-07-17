@@ -59,8 +59,11 @@ in favor of a documented, configurable default.
 - [ ] Automated data-export and account-deletion workflows (not manual/support-ticket only)
 - [ ] Basic phone + email verification — schema and verification fields exist
       (`emailVerifiedAt`/`phoneVerifiedAt`); no real Twilio/email-provider integration yet
-- [ ] Responsive web / PWA — the frontend prototype (`src/Ember.jsx`) is not yet wired to
-      this backend at all
+- [x] Frontend wired to the real backend — auth (register/login/session-restore),
+      profile, preferences, prompt answers, real candidate discovery, real matching,
+      real messaging, all verified against a running system with two real accounts. Not
+      yet done: real photo upload (D-05), and this is still the desktop-web layout, not
+      a dedicated responsive/PWA pass.
 - [ ] Basic observability (APM + error tracking) — structured logging exists via Nest's
       logger; no APM vendor wired up
 

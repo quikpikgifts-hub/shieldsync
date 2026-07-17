@@ -3,6 +3,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import type { UpsertProfileDto } from "./dto/upsert-profile.dto";
 import type { UpsertPreferencesDto } from "./dto/upsert-preferences.dto";
 import type { AddPhotoDto } from "./dto/add-photo.dto";
+import type { UpsertPromptAnswersDto } from "./dto/upsert-prompt-answers.dto";
 import { PhotoModerationStatus } from "@prisma/client";
 
 @Injectable()
@@ -27,6 +28,23 @@ export class ProfilesService {
 
   async getPreferences(userId: string) {
     return this.prisma.preferences.findUnique({ where: { userId } });
+  }
+
+  async upsertPromptAnswers(userId: string, dto: UpsertPromptAnswersDto) {
+    const profile = await this.prisma.profile.findUnique({ where: { userId } });
+    if (!profile) {
+      throw new BadRequestException("Create a profile before answering prompts.");
+    }
+
+    return this.prisma.$transaction(
+      dto.answers.map((entry) =>
+        this.prisma.promptAnswer.upsert({
+          where: { profileId_promptKey: { profileId: userId, promptKey: entry.promptKey } },
+          update: { answer: entry.answer },
+          create: { profileId: userId, promptKey: entry.promptKey, answer: entry.answer },
+        }),
+      ),
+    );
   }
 
   async upsertPreferences(userId: string, dto: UpsertPreferencesDto) {

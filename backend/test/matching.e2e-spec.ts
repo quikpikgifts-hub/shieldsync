@@ -5,7 +5,7 @@ import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configure-app";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { resetDatabase } from "./db-test-utils";
-import { registerUser } from "./test-helpers";
+import { registerUser, createProfile } from "./test-helpers";
 
 describe("Matching & Messaging (e2e)", () => {
   let app: INestApplication;
@@ -25,6 +25,77 @@ describe("Matching & Messaging (e2e)", () => {
 
   afterAll(async () => {
     await app.close();
+  });
+
+  describe("GET /matching/candidates", () => {
+    it("excludes yourself, already-decided users, blocked users, and profile-less users", async () => {
+      const viewer = await registerUser(app);
+      const noProfile = await registerUser(app); // never creates a profile
+      const candidate = await registerUser(app);
+      await createProfile(app, candidate.accessToken, { displayName: "Candidate" });
+      const alreadyPassed = await registerUser(app);
+      await createProfile(app, alreadyPassed.accessToken, { displayName: "Already Passed" });
+      const blocked = await registerUser(app);
+      await createProfile(app, blocked.accessToken, { displayName: "Blocked" });
+
+      await request(app.getHttpServer())
+        .post("/matching/likes")
+        .set("Authorization", `Bearer ${viewer.accessToken}`)
+        .send({ targetId: alreadyPassed.id, action: "PASS" });
+
+      await request(app.getHttpServer())
+        .post("/blocks")
+        .set("Authorization", `Bearer ${viewer.accessToken}`)
+        .send({ blockedId: blocked.id });
+
+      const res = await request(app.getHttpServer())
+        .get("/matching/candidates")
+        .set("Authorization", `Bearer ${viewer.accessToken}`);
+
+      expect(res.status).toBe(200);
+      const ids = res.body.map((c: { userId: string }) => c.userId);
+      expect(ids).toContain(candidate.id);
+      expect(ids).not.toContain(viewer.id);
+      expect(ids).not.toContain(noProfile.id);
+      expect(ids).not.toContain(alreadyPassed.id);
+      expect(ids).not.toContain(blocked.id);
+    });
+
+    it("never includes a fabricated compatibility score", async () => {
+      const viewer = await registerUser(app);
+      const candidate = await registerUser(app);
+      await createProfile(app, candidate.accessToken);
+
+      const res = await request(app.getHttpServer())
+        .get("/matching/candidates")
+        .set("Authorization", `Bearer ${viewer.accessToken}`);
+
+      for (const entry of res.body) {
+        expect(entry).not.toHaveProperty("compat");
+        expect(entry).not.toHaveProperty("compatibilityScore");
+      }
+    });
+
+    it("respects the caller's age preferences", async () => {
+      const viewer = await registerUser(app);
+      await request(app.getHttpServer())
+        .put("/profiles/me/preferences")
+        .set("Authorization", `Bearer ${viewer.accessToken}`)
+        .send({ ageMin: 40, ageMax: 50 });
+
+      const youngCandidate = await registerUser(app, { dateOfBirth: "2000-01-01" }); // ~26
+      await createProfile(app, youngCandidate.accessToken);
+      const inRangeCandidate = await registerUser(app, { dateOfBirth: "1980-01-01" }); // ~46
+      await createProfile(app, inRangeCandidate.accessToken);
+
+      const res = await request(app.getHttpServer())
+        .get("/matching/candidates")
+        .set("Authorization", `Bearer ${viewer.accessToken}`);
+
+      const ids = res.body.map((c: { userId: string }) => c.userId);
+      expect(ids).toContain(inRangeCandidate.id);
+      expect(ids).not.toContain(youngCandidate.id);
+    });
   });
 
   it("does not create a match on a one-sided like", async () => {

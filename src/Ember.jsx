@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Flame, Heart, X, ShieldCheck, MessageCircle, Mic, Video, MapPin,
   Sparkles, Lock, Check, ArrowRight, ArrowLeft, Camera, AlertTriangle,
-  Eye, Star, Crown, Filter, Zap,
+  Eye, Star, Crown, Filter, Zap, LogOut, Loader2,
 } from "lucide-react";
+import * as api from "./emberApi";
 
 // ─────────────────────────────────────────────────────────────
 // DESIGN TOKENS — restrained, editorial, warm-dark
@@ -49,6 +50,7 @@ const CSS = `
 @keyframes emPulse{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes emSpin{to{transform:rotate(360deg)}}
 .em-spin{width:15px;height:15px;border-radius:50%;border:2px solid ${E.border};border-top-color:${E.accent};animation:emSpin .7s linear infinite;display:inline-block;flex-shrink:0}
+.em-spin-icon{animation:emSpin .8s linear infinite;display:inline-block}
 input,textarea,select{font-family:${E.sans};color:${E.text};background:${E.card};border:1px solid ${E.border};border-radius:10px;padding:12px 14px;outline:none}
 input:focus,textarea:focus,select:focus{border-color:${E.accent}}
 input::placeholder,textarea::placeholder{color:${E.textDim}}
@@ -71,11 +73,20 @@ const PROMPTS = [
   "The way to my heart is...",
 ];
 
-const MATCHES = [
-  { id: 1, name: "Maya", age: 29, distance: "3 mi", compat: 92, tag: "Serious", answer: "Two truths and a lie: I've run a marathon, I hate cilantro, I once met a president.", grad: ["#3A2028", "#8A4030"] },
-  { id: 2, name: "Jordan", age: 32, distance: "6 mi", compat: 87, tag: "Casual", answer: "My ideal Sunday is farmer's market, a long run, then cooking something new.", grad: ["#2E1C22", "#C9962B"] },
-  { id: 3, name: "Alex", age: 27, distance: "2 mi", compat: 81, tag: "Friendship-first", answer: "The way to my heart is a good playlist and zero small talk.", grad: ["#331E2E", "#B5562E"] },
+// Deterministic gradient per user id, since the real backend has no per-candidate art
+// direction to send — this replaces what used to be a hardcoded `grad` field on mock data.
+const CANDIDATE_GRADIENTS = [
+  ["#3A2028", "#8A4030"],
+  ["#2E1C22", "#C9962B"],
+  ["#331E2E", "#B5562E"],
+  ["#241C30", "#B5562E"],
+  ["#33202A", "#8A4A38"],
 ];
+function gradientForId(id) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  return CANDIDATE_GRADIENTS[hash % CANDIDATE_GRADIENTS.length];
+}
 
 const FEATURES = [
   { icon: ShieldCheck, title: "Identity & Trust", items: ["Liveness-checked photo verification", "One account per phone number", "Reports reviewed by a person, within 24h"] },
@@ -102,11 +113,6 @@ const ALACARTE = [
   { label: "ID verification badge", price: "$9.99 one-time" },
 ];
 
-const LIKES = [
-  { id: 101, name: "Sasha", age: 30, tag: "Serious", grad: ["#33202A", "#8A4A38"] },
-  { id: 102, name: "Devon", age: 26, tag: "Casual", grad: ["#241C30", "#B5562E"] },
-  { id: 103, name: "Priya", age: 31, tag: "Friendship-first", grad: ["#2E1C22", "#C9962B"] },
-];
 
 // ─────────────────────────────────────────────────────────────
 // PRIMITIVES
@@ -153,8 +159,8 @@ function Avatar({ name, size = 56, gradient }) {
   );
 }
 
-function PrototypeNav({ screen, setScreen }) {
-  const steps = [["signup", "Apply"], ["review", "Review"], ["profile", "Profile"], ["matches", "Matches"], ["likes", "Likes"], ["filters", "Filters"], ["chat", "Chat"], ["safety", "Safety"]];
+function PrototypeNav({ screen, setScreen, authUser, onLogout }) {
+  const steps = [["signup", "Apply"], ["login", "Log in"], ["review", "Review"], ["profile", "Profile"], ["matches", "Matches"], ["likes", "Likes"], ["filters", "Filters"], ["chat", "Chat"], ["safety", "Safety"]];
   if (screen === "landing") return null;
   return (
     <div style={{
@@ -173,6 +179,11 @@ function PrototypeNav({ screen, setScreen }) {
           color: screen === id ? "#1A0A08" : E.textSub,
         }}>{label}</button>
       ))}
+      {authUser && (
+        <button onClick={onLogout} className="em-btn" style={{
+          padding: "8px 13px", borderRadius: 999, background: "transparent", color: E.rose, fontSize: 11.5, letterSpacing: ".02em",
+        }}><LogOut size={12} /> Log out</button>
+      )}
     </div>
   );
 }
@@ -202,14 +213,25 @@ function TierSwitcher({ screen, tier, setTier }) {
 // ─────────────────────────────────────────────────────────────
 // LANDING
 // ─────────────────────────────────────────────────────────────
-function Landing({ setScreen, setTier }) {
+function Landing({ setScreen, setTier, authUser }) {
+  const goProtected = (target) => setScreen(authUser ? target : "signup");
+
   return (
     <div className="em-fade">
       <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "22px 6vw" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: E.serif, fontSize: 23, fontWeight: 600 }}>
           <Flame size={20} color={E.accent} /> Ember
         </div>
-        <Btn onClick={() => setScreen("signup")}>Request an Invite</Btn>
+        {authUser ? (
+          <Btn onClick={() => setScreen("matches")}>Continue as {authUser.email}</Btn>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <button onClick={() => setScreen("login")} className="em-btn" style={{ padding: 0, background: "transparent", color: E.textSub, fontSize: 13.5 }}>
+              Log in
+            </button>
+            <Btn onClick={() => setScreen("signup")}>Request an Invite</Btn>
+          </div>
+        )}
       </nav>
 
       <section style={{ textAlign: "center", padding: "72px 6vw 56px", maxWidth: 760, margin: "0 auto" }}>
@@ -228,7 +250,7 @@ function Landing({ setScreen, setTier }) {
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Btn onClick={() => setScreen("signup")}>Request an Invite <ArrowRight size={16} /></Btn>
-          <Btn variant="ghost" onClick={() => setScreen("matches")}>Preview today's matches</Btn>
+          <Btn variant="ghost" onClick={() => goProtected("matches")}>{authUser ? "See today's matches" : "Sign up to see matches"}</Btn>
         </div>
       </section>
 
@@ -305,7 +327,7 @@ function Landing({ setScreen, setTier }) {
                   </li>
                 ))}
               </ul>
-              <button onClick={() => { setTier(t.id); setScreen(t.id === "free" ? "matches" : "likes"); }} className="em-btn" style={{
+              <button onClick={() => { setTier(t.id); goProtected(t.id === "free" ? "matches" : "likes"); }} className="em-btn" style={{
                 padding: 0, background: "transparent", color: E.accent, fontSize: 12.5, fontWeight: 600,
               }}>See this tier in action <ArrowRight size={12} /></button>
             </Card>
@@ -329,7 +351,9 @@ function Landing({ setScreen, setTier }) {
       </section>
 
       <footer style={{ textAlign: "center", padding: "30px 6vw 50px", color: E.textDim, fontSize: 12.5, borderTop: `1px solid ${E.border}` }}>
-        Ember is a product prototype. No real accounts, matches, or messages are stored.
+        Ember is a product prototype. Accounts, matches, and messages are stored for real
+        against a development backend — no photo/video storage, payments, or identity
+        verification are connected to a real vendor yet.
       </footer>
     </div>
   );
@@ -338,22 +362,82 @@ function Landing({ setScreen, setTier }) {
 // ─────────────────────────────────────────────────────────────
 // SIGNUP (application)
 // ─────────────────────────────────────────────────────────────
-function Signup({ setScreen, profile, setProfile }) {
+function Signup({ setScreen, profile, setProfile, setAuthUser, initialMode }) {
+  const [mode, setMode] = useState(initialMode || "register"); // "register" | "login"
   const [intent, setIntent] = useState(profile.intent);
   const [name, setName] = useState(profile.name);
-  const [age, setAge] = useState(profile.age);
+  const [email, setEmail] = useState(profile.email || "");
+  const [password, setPassword] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState(profile.dateOfBirth || "");
   const [maxDistance, setMaxDistance] = useState(profile.maxDistance);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  const canContinue = name.trim().length > 0 && intent;
+  const canContinue = mode === "login"
+    ? email.trim().length > 0 && password.length > 0
+    : name.trim().length > 0 && intent && email.trim().length > 0 && password.length >= 10 && dateOfBirth;
+
+  async function submit() {
+    setSubmitting(true);
+    setError("");
+    try {
+      if (mode === "login") {
+        const user = await api.login({ email, password });
+        setAuthUser(user);
+        setScreen("matches");
+        return;
+      }
+      const user = await api.register({ email, password, dateOfBirth });
+      setAuthUser(user);
+      setProfile(p => ({ ...p, name, email, dateOfBirth, intent, maxDistance }));
+      setScreen("review");
+    } catch (err) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (mode === "login") {
+    return (
+      <Screen title="Log in" subtitle="Welcome back." onBack={() => setScreen("landing")}>
+        <Card style={{ maxWidth: 420, margin: "0 auto" }}>
+          <label style={fieldLabel}>Email</label>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" style={{ width: "100%", marginBottom: 18 }} />
+          <label style={fieldLabel}>Password</label>
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••••" style={{ width: "100%", marginBottom: 18 }}
+            onKeyDown={e => e.key === "Enter" && canContinue && submit()} />
+          {error && <div style={{ color: E.rose, fontSize: 13, marginBottom: 14 }}>{error}</div>}
+          <Btn disabled={!canContinue || submitting} style={{ width: "100%", marginBottom: 14 }} onClick={submit}>
+            {submitting ? <Loader2 size={16} className="em-spin-icon" /> : <>Log in <ArrowRight size={16} /></>}
+          </Btn>
+          <button onClick={() => { setMode("register"); setError(""); }} className="em-btn" style={{ width: "100%", padding: 0, background: "transparent", color: E.textSub, fontSize: 13 }}>
+            New here? Apply for membership
+          </button>
+        </Card>
+      </Screen>
+    );
+  }
 
   return (
     <Screen title="Apply for membership" subtitle="Every application is reviewed to keep the community intentional." onBack={() => setScreen("landing")}>
       <Card style={{ maxWidth: 520, margin: "0 auto" }}>
+        <div style={{ textAlign: "right", marginBottom: 10 }}>
+          <button onClick={() => { setMode("login"); setError(""); }} className="em-btn" style={{ padding: 0, background: "transparent", color: E.accent, fontSize: 13 }}>
+            Already a member? Log in
+          </button>
+        </div>
         <label style={fieldLabel}>Name</label>
         <input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={{ width: "100%", marginBottom: 18 }} />
 
-        <label style={fieldLabel}>Age</label>
-        <input type="number" value={age} onChange={e => setAge(e.target.value)} style={{ width: "100%", marginBottom: 18 }} />
+        <label style={fieldLabel}>Email</label>
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" style={{ width: "100%", marginBottom: 18 }} />
+
+        <label style={fieldLabel}>Password — at least 10 characters, with a letter and a number</label>
+        <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••••" style={{ width: "100%", marginBottom: 18 }} />
+
+        <label style={fieldLabel}>Date of birth — you must be 18 or older</label>
+        <input type="date" value={dateOfBirth} onChange={e => setDateOfBirth(e.target.value)} style={{ width: "100%", marginBottom: 18 }} />
 
         <label style={fieldLabel}>Intent — required</label>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
@@ -371,12 +455,13 @@ function Signup({ setScreen, profile, setProfile }) {
         </div>
 
         <label style={fieldLabel}>Max distance: {maxDistance} mi</label>
-        <input type="range" min="1" max="50" value={maxDistance} onChange={e => setMaxDistance(e.target.value)} style={{ width: "100%", marginBottom: 22, padding: 0, background: "transparent" }} />
+        <input type="range" min="1" max="50" value={maxDistance} onChange={e => setMaxDistance(e.target.value)} style={{ width: "100%", marginBottom: 16, padding: 0, background: "transparent" }} />
 
-        <Btn disabled={!canContinue} style={{ width: "100%" }} onClick={() => {
-          setProfile(p => ({ ...p, name, age, intent, maxDistance }));
-          setScreen("review");
-        }}>Submit application <ArrowRight size={16} /></Btn>
+        {error && <div style={{ color: E.rose, fontSize: 13, marginBottom: 14 }}>{error}</div>}
+
+        <Btn disabled={!canContinue || submitting} style={{ width: "100%" }} onClick={submit}>
+          {submitting ? <Loader2 size={16} className="em-spin-icon" /> : <>Submit application <ArrowRight size={16} /></>}
+        </Btn>
       </Card>
     </Screen>
   );
@@ -387,6 +472,7 @@ function Signup({ setScreen, profile, setProfile }) {
 // ─────────────────────────────────────────────────────────────
 function Review({ setScreen, profile }) {
   const [step, setStep] = useState(0);
+  const [error, setError] = useState("");
   const checks = [
     "Verifying phone number",
     "Confirming one account per person",
@@ -401,6 +487,22 @@ function Review({ setScreen, profile }) {
   }, [step]);
 
   const done = step >= checks.length;
+
+  async function continueToProfile(setScreenFn) {
+    setError("");
+    try {
+      // The animated checklist above is pure UI flourish — there is no backend concept
+      // of "application review." What's real is creating the actual profile + match
+      // preferences record now that the account itself exists.
+      await api.upsertProfile({ displayName: profile.name, intent: intentToEnum(profile.intent) });
+      if (profile.maxDistance) {
+        await api.upsertPreferences({ maxDistanceKm: Number(profile.maxDistance) });
+      }
+      setScreenFn("profile");
+    } catch (err) {
+      setError(err.message || "Couldn't save your profile — please try again.");
+    }
+  }
 
   return (
     <Screen title="Reviewing your application" onBack={() => setScreen("signup")}>
@@ -422,12 +524,17 @@ function Review({ setScreen, profile }) {
             <p style={{ color: E.textSub, fontSize: 14, lineHeight: 1.6, marginBottom: 22 }}>
               Ember is intentionally small. Welcome to a more deliberate way to meet people.
             </p>
-            <Btn style={{ width: "100%" }} onClick={() => setScreen("profile")}>Continue to your profile <ArrowRight size={16} /></Btn>
+            {error && <div style={{ color: E.rose, fontSize: 13, marginBottom: 14 }}>{error}</div>}
+            <Btn style={{ width: "100%" }} onClick={() => continueToProfile(setScreen)}>Continue to your profile <ArrowRight size={16} /></Btn>
           </div>
         )}
       </Card>
     </Screen>
   );
+}
+
+function intentToEnum(intentId) {
+  return { casual: "CASUAL", serious: "SERIOUS", friendship: "FRIENDSHIP" }[intentId] ?? undefined;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -437,12 +544,33 @@ function Profile({ setScreen, profile, setProfile }) {
   const [photos, setPhotos] = useState(profile.photos.length ? profile.photos : [false, false, false, false]);
   const [answers, setAnswers] = useState(profile.answers || {});
   const [verify, setVerify] = useState(profile.verify || false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  async function submit() {
+    setSaving(true);
+    setError("");
+    try {
+      const entries = PROMPTS.slice(0, 2)
+        .filter(p => (answers[p] || "").trim().length > 0)
+        .map(p => ({ promptKey: p, answer: answers[p].trim() }));
+      if (entries.length > 0) {
+        await api.upsertPromptAnswers(entries);
+      }
+      setProfile(p => ({ ...p, photos, answers, verify }));
+      setScreen("matches");
+    } catch (err) {
+      setError(err.message || "Couldn't save your answers — please try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <Screen title="Build your profile" subtitle="Our team reviews every profile by hand before it goes live." onBack={() => setScreen("review")}>
       <Card style={{ maxWidth: 560, margin: "0 auto" }}>
         <label style={fieldLabel}>Photos</label>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 8 }}>
           {photos.map((added, i) => (
             <button key={i} onClick={() => setPhotos(p => p.map((v, idx) => idx === i ? !v : v))} className="em-btn" style={{
               aspectRatio: "1", borderRadius: 12, background: added ? E.accentB : E.surface,
@@ -451,6 +579,9 @@ function Profile({ setScreen, profile, setProfile }) {
               {added ? <Check size={18} /> : <Camera size={18} />}
             </button>
           ))}
+        </div>
+        <div style={{ color: E.textDim, fontSize: 11.5, marginBottom: 20 }}>
+          Demo only — photo upload isn't connected to real storage yet.
         </div>
 
         <label style={fieldLabel}>Answer a few prompts</label>
@@ -471,7 +602,7 @@ function Profile({ setScreen, profile, setProfile }) {
         <button onClick={() => setVerify(v => !v)} className="em-btn" style={{
           width: "100%", justifyContent: "space-between", padding: "14px 16px", borderRadius: 12,
           background: verify ? E.accentB : E.surface, border: `1px solid ${verify ? E.accent : E.border}`,
-          color: E.text, marginBottom: 22,
+          color: E.text, marginBottom: 8,
         }}>
           <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <ShieldCheck size={16} color={verify ? E.accent : E.textSub} />
@@ -479,11 +610,15 @@ function Profile({ setScreen, profile, setProfile }) {
           </span>
           <span style={{ color: E.gold, fontSize: 12.5, fontWeight: 700 }}>{verify ? "Added · $9.99" : "+$9.99"}</span>
         </button>
+        <div style={{ color: E.textDim, fontSize: 11.5, marginBottom: 22 }}>
+          Demo only — no real identity-verification vendor or payment is connected yet.
+        </div>
 
-        <Btn style={{ width: "100%" }} onClick={() => {
-          setProfile(p => ({ ...p, photos, answers, verify }));
-          setScreen("matches");
-        }}>See today's matches <ArrowRight size={16} /></Btn>
+        {error && <div style={{ color: E.rose, fontSize: 13, marginBottom: 14 }}>{error}</div>}
+
+        <Btn disabled={saving} style={{ width: "100%" }} onClick={submit}>
+          {saving ? <Loader2 size={16} className="em-spin-icon" /> : <>See today's matches <ArrowRight size={16} /></>}
+        </Btn>
       </Card>
     </Screen>
   );
@@ -492,16 +627,67 @@ function Profile({ setScreen, profile, setProfile }) {
 // ─────────────────────────────────────────────────────────────
 // MATCHES
 // ─────────────────────────────────────────────────────────────
-function Matches({ setScreen, likedIds, setLikedIds, superLikedIds, setSuperLikedIds, setActiveMatch, tier, boostActive, boostSeconds, startBoost }) {
+function Matches({ setScreen, likedIds, setLikedIds, superLikedIds, setSuperLikedIds, setActiveMatch, tier, boostActive, boostSeconds, startBoost, viewerId }) {
+  const [candidates, setCandidates] = useState([]);
+  const [existingMatches, setExistingMatches] = useState([]);
+  const [likesCount, setLikesCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [toast, setToast] = useState("");
+  const [pendingId, setPendingId] = useState(null);
+
   const dailyCap = tier === "free" ? 3 : Infinity;
   const remaining = Math.max(0, dailyCap - likedIds.length);
   const limitHit = likedIds.length >= dailyCap;
 
-  function decide(m, superLike) {
-    setLikedIds(ids => [...ids, m.id]);
-    if (superLike) setSuperLikedIds(ids => [...ids, m.id]);
-    setActiveMatch(m);
-    setScreen("chat");
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([api.listCandidates(), api.listLikesReceived(), api.listMatches()])
+      .then(async ([candidateList, likes, matches]) => {
+        if (cancelled) return;
+        setCandidates(candidateList);
+        setLikesCount(likes.length);
+
+        // listMatches() returns the match rows only (no profile info) — hydrate each
+        // with the other person's display profile, dropping any that fail (e.g. a
+        // profile that's since become invisible or blocked).
+        const hydrated = await Promise.all(matches.map(async (m) => {
+          const otherUserId = m.userAId === viewerId ? m.userBId : m.userAId;
+          try {
+            const profile = await api.getProfile(otherUserId);
+            return { matchId: m.id, userId: otherUserId, displayName: profile.displayName, verifiedBadge: profile.verifiedBadge };
+          } catch {
+            return null;
+          }
+        }));
+        if (!cancelled) setExistingMatches(hydrated.filter(Boolean));
+      })
+      .catch(err => { if (!cancelled) setError(err.message || "Couldn't load matches."); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [viewerId]);
+
+  async function decide(candidate, action) {
+    setPendingId(candidate.userId);
+    setError("");
+    try {
+      const result = await api.decide(candidate.userId, action);
+      setLikedIds(ids => [...ids, candidate.userId]);
+      if (action === "SUPER_LIKE") setSuperLikedIds(ids => [...ids, candidate.userId]);
+      setCandidates(list => list.filter(c => c.userId !== candidate.userId));
+
+      if (result.match) {
+        setActiveMatch({ ...candidate, matchId: result.match.id, superLiked: action === "SUPER_LIKE" });
+        setScreen("chat");
+      } else if (action !== "PASS") {
+        setToast(`Liked ${candidate.displayName} — you'll be notified if it's a match.`);
+        setTimeout(() => setToast(""), 2500);
+      }
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
+    } finally {
+      setPendingId(null);
+    }
   }
 
   return (
@@ -511,7 +697,7 @@ function Matches({ setScreen, likedIds, setLikedIds, superLikedIds, setSuperLike
           <Filter size={13} /> Filters
         </Btn>
         <Btn variant="ghost" style={{ padding: "8px 14px", fontSize: 12.5 }} onClick={() => setScreen("likes")}>
-          <Heart size={13} /> Who liked you · {LIKES.length}
+          <Heart size={13} /> Who liked you · {likesCount}
         </Btn>
         <Btn variant={boostActive ? "primary" : "ghost"} disabled={boostActive} style={{ padding: "8px 14px", fontSize: 12.5 }} onClick={startBoost}>
           <Zap size={13} /> {boostActive ? `Boosted · ${boostSeconds}s` : "Boost · $4.99"}
@@ -522,46 +708,88 @@ function Matches({ setScreen, likedIds, setLikedIds, superLikedIds, setSuperLike
           ? (limitHit ? "You've seen today's free batch — Ember+ unlocks unlimited matches." : `${remaining} of ${dailyCap} daily matches remaining`)
           : "Unlimited matches today."}
       </div>
-      <div style={{ maxWidth: 520, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16 }}>
-        {MATCHES.map(m => {
-          const liked = likedIds.includes(m.id);
-          return (
-            <Card key={m.id} style={{ padding: 0, overflow: "hidden" }}>
-              <div style={{ position: "relative", height: 150, background: `linear-gradient(150deg, ${m.grad[0]}, ${m.grad[1]})` }}>
-                <div className="em-grain" style={{ position: "absolute" }} />
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,.72), transparent 60%)" }} />
-                <div style={{ position: "absolute", left: 16, right: 16, bottom: 12, display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: E.serif, fontSize: 21, color: "#fff" }}>
-                    {m.name}, {m.age} <ShieldCheck size={14} color={E.gold} />
+
+      {toast && (
+        <div style={{ maxWidth: 520, margin: "0 auto 14px", textAlign: "center", color: E.green, fontSize: 13 }}>{toast}</div>
+      )}
+      {error && (
+        <div style={{ maxWidth: 520, margin: "0 auto 14px", textAlign: "center", color: E.rose, fontSize: 13 }}>{error}</div>
+      )}
+
+      {!loading && existingMatches.length > 0 && (
+        <div style={{ maxWidth: 520, margin: "0 auto 24px" }}>
+          <div style={{ fontSize: 12, color: E.textSub, marginBottom: 10, letterSpacing: ".03em" }}>YOUR MATCHES</div>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+            {existingMatches.map(m => (
+              <button
+                key={m.matchId}
+                onClick={() => { setActiveMatch(m); setScreen("chat"); }}
+                className="em-btn"
+                style={{ flexDirection: "column", gap: 6, background: "transparent", flexShrink: 0, width: 68 }}
+              >
+                <Avatar name={m.displayName} size={52} gradient={`linear-gradient(135deg, ${gradientForId(m.userId)[0]}, ${gradientForId(m.userId)[1]})`} />
+                <span style={{ fontSize: 11, color: E.textSub, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 68 }}>{m.displayName}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <div style={{ textAlign: "center", padding: 40 }}><Loader2 size={22} className="em-spin-icon" color={E.textSub} /></div>
+      ) : candidates.length === 0 ? (
+        <Card style={{ maxWidth: 480, margin: "0 auto", textAlign: "center" }}>
+          <div style={{ fontFamily: E.serif, fontSize: 17, marginBottom: 6 }}>No one new right now</div>
+          <p style={{ color: E.textSub, fontSize: 13.5 }}>
+            Check back soon, or widen your filters — try Filters above.
+          </p>
+        </Card>
+      ) : (
+        <div style={{ maxWidth: 520, margin: "0 auto", display: "flex", flexDirection: "column", gap: 16 }}>
+          {candidates.map(c => {
+            const grad = gradientForId(c.userId);
+            const pending = pendingId === c.userId;
+            return (
+              <Card key={c.userId} style={{ padding: 0, overflow: "hidden" }}>
+                <div style={{ position: "relative", height: 150, background: `linear-gradient(150deg, ${grad[0]}, ${grad[1]})` }}>
+                  <div className="em-grain" style={{ position: "absolute" }} />
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,.72), transparent 60%)" }} />
+                  <div style={{ position: "absolute", left: 16, right: 16, bottom: 12, display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: E.serif, fontSize: 21, color: "#fff" }}>
+                      {c.displayName}{c.age ? `, ${c.age}` : ""} {c.verifiedBadge && <ShieldCheck size={14} color={E.gold} />}
+                    </div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,.85)" }}>{c.city || ""}</div>
                   </div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,.85)" }}>{m.distance}</div>
                 </div>
-              </div>
-              <div style={{ padding: 18 }}>
-                <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
-                  <span style={{ fontSize: 11, background: E.accentB, color: E.accent, padding: "2px 8px", borderRadius: 999, fontWeight: 600 }}>{m.tag}</span>
-                  <span style={{ fontSize: 11, color: E.gold, display: "flex", alignItems: "center", gap: 3 }}><Star size={11} fill={E.gold} /> {m.compat}% match</span>
+                <div style={{ padding: 18 }}>
+                  {c.intent && (
+                    <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
+                      <span style={{ fontSize: 11, background: E.accentB, color: E.accent, padding: "2px 8px", borderRadius: 999, fontWeight: 600 }}>{c.intent}</span>
+                    </div>
+                  )}
+                  {c.bio && (
+                    <div style={{ color: E.text, fontSize: 13.5, lineHeight: 1.5, marginBottom: 8 }}>{c.bio}</div>
+                  )}
+                  <div style={{ color: E.textSub, fontSize: 13.5, fontFamily: E.serif, fontStyle: "italic", lineHeight: 1.5, marginBottom: 16 }}>
+                    {c.promptAnswers[0] ? `"${c.promptAnswers[0].answer}"` : "No prompts answered yet."}
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <Btn variant="ghost" style={{ flex: 1 }} disabled={pending} onClick={() => decide(c, "PASS")}>
+                      <X size={16} /> Pass
+                    </Btn>
+                    <Btn variant="obsidian" style={{ flex: "0 0 auto", padding: "13px 15px" }} disabled={pending} onClick={() => decide(c, "SUPER_LIKE")} title="Super Like — $1.99">
+                      <Star size={16} />
+                    </Btn>
+                    <Btn style={{ flex: 1 }} disabled={pending || limitHit} onClick={() => decide(c, "LIKE")}>
+                      {pending ? <Loader2 size={16} className="em-spin-icon" /> : <><Heart size={16} /> Like</>}
+                    </Btn>
+                  </div>
                 </div>
-                <div style={{ height: 3, borderRadius: 999, background: E.surface, marginBottom: 12, overflow: "hidden" }}>
-                  <div style={{ width: `${m.compat}%`, height: "100%", background: `linear-gradient(90deg, ${E.gold}, ${E.accent})` }} />
-                </div>
-                <div style={{ color: E.textSub, fontSize: 13.5, fontFamily: E.serif, fontStyle: "italic", lineHeight: 1.5, marginBottom: 16 }}>"{m.answer}"</div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <Btn variant="ghost" style={{ flex: 1 }} disabled={liked} onClick={() => setLikedIds(ids => [...ids, m.id])}>
-                    <X size={16} /> Pass
-                  </Btn>
-                  <Btn variant="obsidian" style={{ flex: "0 0 auto", padding: "13px 15px" }} disabled={liked} onClick={() => decide(m, true)} title="Super Like — $1.99">
-                    <Star size={16} />
-                  </Btn>
-                  <Btn style={{ flex: 1 }} disabled={liked || limitHit} onClick={() => decide(m, false)}>
-                    <Heart size={16} /> {liked ? "It's a match!" : "Like"}
-                  </Btn>
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </Screen>
   );
 }
@@ -569,45 +797,72 @@ function Matches({ setScreen, likedIds, setLikedIds, superLikedIds, setSuperLike
 // ─────────────────────────────────────────────────────────────
 // CHAT
 // ─────────────────────────────────────────────────────────────
-function Chat({ setScreen, activeMatch, isPaid, isSuperLiked }) {
-  const match = activeMatch || MATCHES[0];
-  const [messages, setMessages] = useState(() => {
-    const base = [{ from: "them", text: match.answer, icebreaker: true }];
-    return isSuperLiked ? [{ from: "system", text: `You Super Liked ${match.name}` }, ...base] : base;
-  });
+function Chat({ setScreen, activeMatch, isPaid, viewerId }) {
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [draft, setDraft] = useState("");
   const [recording, setRecording] = useState(false);
   const endRef = useRef(null);
 
+  useEffect(() => {
+    if (!activeMatch) { setLoading(false); return; }
+    let cancelled = false;
+    api.listMessages(activeMatch.matchId)
+      .then(res => { if (!cancelled) setMessages(res.items); })
+      .catch(err => { if (!cancelled) setError(err.message || "Couldn't load messages."); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [activeMatch]);
+
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
-  function send() {
-    if (!draft.trim()) return;
-    setMessages(m => [...m, { from: "me", text: draft }]);
+  async function send() {
+    if (!draft.trim() || !activeMatch) return;
+    const body = draft;
     setDraft("");
-    setTimeout(() => {
-      setMessages(m => [...m, { from: "them", text: "Ha, I like that — tell me more?" }]);
-    }, 900);
+    try {
+      const message = await api.sendMessage(activeMatch.matchId, { kind: "TEXT", body });
+      setMessages(m => [...m, message]);
+    } catch (err) {
+      setError(err.message || "Message failed to send.");
+    }
   }
 
-  function sendVoiceNote() {
+  async function sendVoiceNote() {
+    if (!activeMatch) return;
     setRecording(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       setRecording(false);
-      setMessages(m => [...m, { from: "me", voice: true, text: "0:07" }]);
+      try {
+        const message = await api.sendMessage(activeMatch.matchId, { kind: "VOICE", mediaStorageKey: `demo-voice-${Date.now()}` });
+        setMessages(m => [...m, message]);
+      } catch (err) {
+        setError(err.message || "Voice note failed to send.");
+      }
     }, 1200);
   }
 
+  if (!activeMatch) {
+    return (
+      <Screen title="Chat" onBack={() => setScreen("matches")}>
+        <Card style={{ maxWidth: 480, margin: "0 auto", textAlign: "center" }}>
+          <p style={{ color: E.textSub, fontSize: 14 }}>No conversation selected — like someone back to start a real match, then open it from here.</p>
+        </Card>
+      </Screen>
+    );
+  }
+
   return (
-    <Screen title={`Chat with ${match.name}`} onBack={() => setScreen("matches")}>
+    <Screen title={`Chat with ${activeMatch.displayName}`} onBack={() => setScreen("matches")}>
       <Card style={{ maxWidth: 560, margin: "0 auto", display: "flex", flexDirection: "column", height: 480, padding: 0, overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: 14, borderBottom: `1px solid ${E.border}` }}>
-          <Avatar name={match.name} size={40} gradient={`linear-gradient(135deg, ${match.grad[0]}, ${match.grad[1]})`} />
+          <Avatar name={activeMatch.displayName} size={40} gradient={`linear-gradient(135deg, ${gradientForId(activeMatch.userId)[0]}, ${gradientForId(activeMatch.userId)[1]})`} />
           <div style={{ flex: 1 }}>
             <div style={{ fontFamily: E.serif, fontWeight: 500, fontSize: 15, display: "flex", alignItems: "center", gap: 5 }}>
-              {match.name} <ShieldCheck size={13} color={E.gold} />
+              {activeMatch.displayName} {activeMatch.verifiedBadge && <ShieldCheck size={13} color={E.gold} />}
             </div>
-            <div style={{ fontSize: 11.5, color: E.textSub }}>{match.compat}% match</div>
+            {activeMatch.superLiked && <div style={{ fontSize: 11.5, color: E.gold }}>You Super Liked them</div>}
           </div>
           <button className="em-btn" title="Share contact info unlocks after a video call" style={{
             background: E.surface, border: `1px solid ${E.border}`, color: E.textSub, padding: "8px 12px", borderRadius: 999, fontSize: 12,
@@ -616,38 +871,46 @@ function Chat({ setScreen, activeMatch, isPaid, isSuperLiked }) {
           </button>
         </div>
 
+        {activeMatch.promptAnswers?.[0] && (
+          <div style={{ padding: "10px 16px", borderBottom: `1px solid ${E.border}`, background: E.surface }}>
+            <div style={{ fontSize: 10.5, color: E.accent, marginBottom: 3, display: "flex", alignItems: "center", gap: 4, letterSpacing: ".04em" }}>
+              <Sparkles size={11} /> ICEBREAKER PROMPT
+            </div>
+            <div style={{ fontSize: 13, fontFamily: E.serif, fontStyle: "italic", color: E.textSub }}>
+              "{activeMatch.promptAnswers[0].answer}"
+            </div>
+          </div>
+        )}
+
         <div style={{ flex: 1, overflowY: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 10 }}>
-          {messages.map((m, i) => m.from === "system" ? (
-            <div key={i} style={{
-              alignSelf: "center", display: "flex", alignItems: "center", gap: 6, fontSize: 11.5, color: E.gold,
-              background: E.goldB, border: "1px solid rgba(232,180,102,.35)", borderRadius: 999, padding: "5px 12px",
-            }}>
-              <Star size={11} fill={E.gold} /> {m.text}
-            </div>
-          ) : (
-            <div key={i} style={{ alignSelf: m.from === "me" ? "flex-end" : "flex-start", maxWidth: "80%" }}>
-              {m.icebreaker && (
-                <div style={{ fontSize: 10.5, color: E.accent, marginBottom: 4, display: "flex", alignItems: "center", gap: 4, letterSpacing: ".04em" }}>
-                  <Sparkles size={11} /> ICEBREAKER PROMPT
+          {loading ? (
+            <div style={{ textAlign: "center", padding: 20 }}><Loader2 size={18} className="em-spin-icon" color={E.textSub} /></div>
+          ) : messages.length === 0 ? (
+            <div style={{ textAlign: "center", color: E.textDim, fontSize: 13, padding: 20 }}>Say hello — this is a real conversation.</div>
+          ) : messages.map((m) => {
+            const mine = m.senderId === viewerId;
+            return (
+              <div key={m.id} style={{ alignSelf: mine ? "flex-end" : "flex-start", maxWidth: "80%" }}>
+                <div style={{
+                  background: mine ? `linear-gradient(135deg, ${E.accent}, ${E.rose})` : E.surface,
+                  color: mine ? "#1A0A08" : E.text,
+                  padding: "10px 14px", borderRadius: 14, fontSize: 14,
+                  display: "flex", alignItems: "center", gap: 6,
+                }}>
+                  {m.kind === "VOICE" ? <><Mic size={14} /> Voice note</> : m.body}
                 </div>
-              )}
-              <div style={{
-                background: m.from === "me" ? `linear-gradient(135deg, ${E.accent}, ${E.rose})` : E.surface,
-                color: m.from === "me" ? "#1A0A08" : E.text,
-                padding: "10px 14px", borderRadius: 14, fontSize: 14,
-                display: "flex", alignItems: "center", gap: 6,
-              }}>
-                {m.voice ? <><Mic size={14} /> Voice note · {m.text}</> : m.text}
+                {mine && (
+                  <div style={{ fontSize: 10.5, color: E.textDim, marginTop: 3, display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}>
+                    {isPaid ? <>Seen</> : <><Lock size={9} /> Seen — Ember+ only</>}
+                  </div>
+                )}
               </div>
-              {m.from === "me" && (
-                <div style={{ fontSize: 10.5, color: E.textDim, marginTop: 3, display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}>
-                  {isPaid ? <>Seen</> : <><Lock size={9} /> Seen — Ember+ only</>}
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
           <div ref={endRef} />
         </div>
+
+        {error && <div style={{ padding: "0 16px 8px", color: E.rose, fontSize: 12.5 }}>{error}</div>}
 
         <div style={{ display: "flex", gap: 8, padding: 12, borderTop: `1px solid ${E.border}` }}>
           <button onClick={sendVoiceNote} className="em-btn" style={{
@@ -677,26 +940,51 @@ function Chat({ setScreen, activeMatch, isPaid, isSuperLiked }) {
 // ─────────────────────────────────────────────────────────────
 function Likes({ setScreen, tier, setTier }) {
   const unlocked = tier !== "free";
+  const [likes, setLikes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    api.listLikesReceived()
+      .then(res => { if (!cancelled) setLikes(res); })
+      .catch(err => { if (!cancelled) setError(err.message || "Couldn't load likes."); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <Screen title="Who liked you" subtitle={unlocked ? "They already said yes — it's your move." : "Unlock to see who's interested."} onBack={() => setScreen("matches")}>
-      <div style={{ maxWidth: 520, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px,1fr))", gap: 14 }}>
-        {LIKES.map(l => (
-          <Card key={l.id} style={{ padding: 0, overflow: "hidden" }}>
-            <div style={{ position: "relative", height: 120, background: `linear-gradient(150deg, ${l.grad[0]}, ${l.grad[1]})` }}>
-              <div className="em-grain" style={{ position: "absolute" }} />
-              {!unlocked && <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(9px)", background: "rgba(0,0,0,.2)" }} />}
-            </div>
-            <div style={{ padding: 12 }}>
-              <div style={{ fontFamily: E.serif, fontSize: 15, filter: unlocked ? "none" : "blur(4px)" }}>{l.name}, {l.age}</div>
-              <div style={{ fontSize: 11.5, color: E.textSub }}>{l.tag}</div>
-            </div>
-          </Card>
-        ))}
-      </div>
-      {!unlocked && (
+      {loading ? (
+        <div style={{ textAlign: "center", padding: 40 }}><Loader2 size={22} className="em-spin-icon" color={E.textSub} /></div>
+      ) : error ? (
+        <div style={{ textAlign: "center", color: E.rose, fontSize: 13 }}>{error}</div>
+      ) : likes.length === 0 ? (
+        <Card style={{ maxWidth: 420, margin: "0 auto", textAlign: "center" }}>
+          <p style={{ color: E.textSub, fontSize: 13.5 }}>No one has liked you yet — check back after your profile's been seen a bit more.</p>
+        </Card>
+      ) : (
+        <div style={{ maxWidth: 520, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px,1fr))", gap: 14 }}>
+          {likes.map(l => {
+            const grad = gradientForId(l.userId);
+            return (
+              <Card key={l.userId} style={{ padding: 0, overflow: "hidden" }}>
+                <div style={{ position: "relative", height: 120, background: `linear-gradient(150deg, ${grad[0]}, ${grad[1]})` }}>
+                  <div className="em-grain" style={{ position: "absolute" }} />
+                  {!unlocked && <div style={{ position: "absolute", inset: 0, backdropFilter: "blur(9px)", background: "rgba(0,0,0,.2)" }} />}
+                </div>
+                <div style={{ padding: 12 }}>
+                  <div style={{ fontFamily: E.serif, fontSize: 15, filter: unlocked ? "none" : "blur(4px)" }}>{l.displayName}{l.age ? `, ${l.age}` : ""}</div>
+                  <div style={{ fontSize: 11.5, color: E.textSub }}>{l.intent || ""}</div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+      {!unlocked && likes.length > 0 && (
         <Card style={{ maxWidth: 420, margin: "22px auto 0", textAlign: "center" }}>
-          <div style={{ fontFamily: E.serif, fontSize: 17, marginBottom: 8 }}>{LIKES.length} people already liked you</div>
+          <div style={{ fontFamily: E.serif, fontSize: 17, marginBottom: 8 }}>{likes.length} people already liked you</div>
           <p style={{ color: E.textSub, fontSize: 13, marginBottom: 16 }}>Ember+ reveals who they are, instantly.</p>
           <Btn style={{ width: "100%" }} onClick={() => setTier("plus")}>Unlock with Ember+ — $19.99/mo</Btn>
         </Card>
@@ -715,13 +1003,60 @@ function Filters({ setScreen, tier, setTier }) {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [prioritizePrompts, setPrioritizePrompts] = useState(true);
   const [hideExceptMutual, setHideExceptMutual] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
   const advancedUnlocked = tier === "gold" || tier === "black";
+
+  useEffect(() => {
+    let cancelled = false;
+    api.getMyPreferences()
+      .then(prefs => {
+        if (cancelled || !prefs) return;
+        setDistance(prefs.maxDistanceKm ?? 15);
+        setAgeMin(prefs.ageMin ?? 24);
+        setAgeMax(prefs.ageMax ?? 38);
+        setVerifiedOnly(prefs.verifiedOnly ?? false);
+      })
+      .catch(err => { if (!cancelled) setError(err.message || "Couldn't load filters."); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  async function save() {
+    setSaving(true);
+    setError("");
+    setSaved(false);
+    try {
+      await api.upsertPreferences({
+        maxDistanceKm: Number(distance),
+        ageMin: Number(ageMin),
+        ageMax: Number(ageMax),
+        verifiedOnly,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      setError(err.message || "Couldn't save filters.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <Screen title="Match filters" onBack={() => setScreen("matches")}>
+        <div style={{ textAlign: "center", padding: 40 }}><Loader2 size={22} className="em-spin-icon" color={E.textSub} /></div>
+      </Screen>
+    );
+  }
 
   return (
     <Screen title="Match filters" subtitle="Tune who shows up in your daily batch." onBack={() => setScreen("matches")}>
       <Card style={{ maxWidth: 480, margin: "0 auto" }}>
-        <label style={fieldLabel}>Distance: {distance} mi</label>
-        <input type="range" min="1" max="50" value={distance} onChange={e => setDistance(e.target.value)} style={{ width: "100%", marginBottom: 18, background: "transparent", padding: 0 }} />
+        <label style={fieldLabel}>Distance: {distance} km</label>
+        <input type="range" min="1" max="500" value={distance} onChange={e => setDistance(e.target.value)} style={{ width: "100%", marginBottom: 18, background: "transparent", padding: 0 }} />
 
         <label style={fieldLabel}>Age range: {ageMin}–{ageMax}</label>
         <div style={{ display: "flex", gap: 10, marginBottom: 18 }}>
@@ -732,7 +1067,7 @@ function Filters({ setScreen, tier, setTier }) {
         <button onClick={() => setVerifiedOnly(v => !v)} className="em-btn" style={{
           width: "100%", justifyContent: "space-between", padding: "12px 14px", borderRadius: 10,
           background: verifiedOnly ? E.accentB : E.surface, border: `1px solid ${verifiedOnly ? E.accent : E.border}`,
-          color: E.text, marginBottom: 22,
+          color: E.text, marginBottom: 16,
         }}>
           <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <ShieldCheck size={15} color={verifiedOnly ? E.accent : E.textSub} /> Verified members only
@@ -740,10 +1075,18 @@ function Filters({ setScreen, tier, setTier }) {
           {verifiedOnly && <Check size={15} color={E.accent} />}
         </button>
 
+        {error && <div style={{ color: E.rose, fontSize: 13, marginBottom: 14 }}>{error}</div>}
+        <Btn style={{ width: "100%", marginBottom: 22 }} disabled={saving} onClick={save}>
+          {saving ? <Loader2 size={16} className="em-spin-icon" /> : saved ? <><Check size={16} /> Saved</> : "Save filters"}
+        </Btn>
+
         <div style={{ borderTop: `1px solid ${E.border}`, paddingTop: 18 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
             <Crown size={14} color={E.gold} />
             <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: ".05em", color: E.gold }}>ADVANCED — GOLD</span>
+          </div>
+          <div style={{ color: E.textDim, fontSize: 11, marginBottom: 10 }}>
+            Demo only — not yet backed by real matching logic.
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, opacity: advancedUnlocked ? 1 : 0.4, pointerEvents: advancedUnlocked ? "auto" : "none" }}>
             <button onClick={() => setPrioritizePrompts(v => !v)} className="em-btn" style={{ width: "100%", justifyContent: "space-between", padding: "12px 14px", borderRadius: 10, background: E.surface, border: `1px solid ${E.border}`, color: E.text }}>
@@ -864,7 +1207,9 @@ function Screen({ title, subtitle, onBack, children }) {
 // ─────────────────────────────────────────────────────────────
 export default function Ember() {
   const [screen, setScreen] = useState("landing");
-  const [profile, setProfile] = useState({ name: "", age: 28, intent: null, maxDistance: 15, photos: [false, false, false, false], answers: {}, verify: false });
+  const [authUser, setAuthUser] = useState(null);
+  const [bootLoading, setBootLoading] = useState(true);
+  const [profile, setProfile] = useState({ name: "", email: "", dateOfBirth: "", intent: null, maxDistance: 15, photos: [false, false, false, false], answers: {}, verify: false });
   const [likedIds, setLikedIds] = useState([]);
   const [superLikedIds, setSuperLikedIds] = useState([]);
   const [activeMatch, setActiveMatch] = useState(null);
@@ -873,6 +1218,18 @@ export default function Ember() {
   const [boostSeconds, setBoostSeconds] = useState(0);
 
   useEffect(() => { document.title = "Ember — Matched with intention"; }, []);
+
+  // Restores a session from the persisted refresh token on load, so reloading the page
+  // doesn't force a fresh login — a real (if minimal) session-continuity feature, not a
+  // cosmetic loading spinner.
+  useEffect(() => {
+    let cancelled = false;
+    api.restoreSession()
+      .then(user => { if (!cancelled && user) { setAuthUser(user); setScreen("matches"); } })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setBootLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     if (!boostActive) return;
@@ -883,13 +1240,32 @@ export default function Ember() {
 
   function startBoost() { setBoostActive(true); setBoostSeconds(30); }
 
+  async function handleLogout() {
+    await api.logout();
+    setAuthUser(null);
+    setActiveMatch(null);
+    setLikedIds([]);
+    setSuperLikedIds([]);
+    setScreen("landing");
+  }
+
+  if (bootLoading) {
+    return (
+      <div className="em-root" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
+        <style>{CSS}</style>
+        <Loader2 size={26} className="em-spin-icon" color={E.textSub} />
+      </div>
+    );
+  }
+
   return (
     <div className="em-root">
       <style>{CSS}</style>
       <div className="em-grain" />
       <div style={{ position: "relative", zIndex: 1 }}>
-        {screen === "landing" && <Landing setScreen={setScreen} setTier={setTier} />}
-        {screen === "signup" && <Signup setScreen={setScreen} profile={profile} setProfile={setProfile} />}
+        {screen === "landing" && <Landing setScreen={setScreen} setTier={setTier} authUser={authUser} />}
+        {screen === "signup" && <Signup setScreen={setScreen} profile={profile} setProfile={setProfile} setAuthUser={setAuthUser} />}
+        {screen === "login" && <Signup setScreen={setScreen} profile={profile} setProfile={setProfile} setAuthUser={setAuthUser} initialMode="login" />}
         {screen === "review" && <Review setScreen={setScreen} profile={profile} />}
         {screen === "profile" && <Profile setScreen={setScreen} profile={profile} setProfile={setProfile} />}
         {screen === "matches" && (
@@ -900,6 +1276,7 @@ export default function Ember() {
             setActiveMatch={setActiveMatch}
             tier={tier}
             boostActive={boostActive} boostSeconds={boostSeconds} startBoost={startBoost}
+            viewerId={authUser?.id}
           />
         )}
         {screen === "likes" && <Likes setScreen={setScreen} tier={tier} setTier={setTier} />}
@@ -909,12 +1286,12 @@ export default function Ember() {
             setScreen={setScreen}
             activeMatch={activeMatch}
             isPaid={tier !== "free"}
-            isSuperLiked={!!activeMatch && superLikedIds.includes(activeMatch.id)}
+            viewerId={authUser?.id}
           />
         )}
         {screen === "safety" && <Safety setScreen={setScreen} />}
         <TierSwitcher screen={screen} tier={tier} setTier={setTier} />
-        <PrototypeNav screen={screen} setScreen={setScreen} />
+        <PrototypeNav screen={screen} setScreen={setScreen} authUser={authUser} onLogout={handleLogout} />
       </div>
     </div>
   );

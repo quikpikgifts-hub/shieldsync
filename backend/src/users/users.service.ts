@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { paginate, type PaginatedResult } from "../common/dto/pagination-query.dto";
+import { computeAge } from "../common/utils/age.util";
 import type { ListUsersQueryDto } from "./dto/list-users-query.dto";
 
 export interface UserRecord {
@@ -12,6 +13,9 @@ export interface UserRecord {
   createdAt: Date;
   emailVerifiedAt: Date | null;
   phoneVerifiedAt: Date | null;
+  // Computed from dateOfBirth, which is never itself returned by this service —
+  // see computeAge()'s doc comment for why.
+  age: number | null;
 }
 
 @Injectable()
@@ -65,6 +69,7 @@ const userSelect = {
   emailVerifiedAt: true,
   phoneVerifiedAt: true,
   deletedAt: true,
+  dateOfBirth: true,
   roles: { select: { role: { select: { key: true } } } },
 } as const;
 
@@ -76,6 +81,7 @@ function toUserRecord(user: {
   createdAt: Date;
   emailVerifiedAt: Date | null;
   phoneVerifiedAt: Date | null;
+  dateOfBirth: Date | null;
   roles: { role: { key: string } }[];
 }): UserRecord {
   return {
@@ -87,5 +93,6 @@ function toUserRecord(user: {
     createdAt: user.createdAt,
     emailVerifiedAt: user.emailVerifiedAt,
     phoneVerifiedAt: user.phoneVerifiedAt,
+    age: user.dateOfBirth ? computeAge(user.dateOfBirth) : null,
   };
 }

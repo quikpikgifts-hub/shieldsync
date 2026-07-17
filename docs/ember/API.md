@@ -32,6 +32,7 @@ All endpoints are prefixed with nothing (routes are mounted at the app root, e.g
 |---|---|---|---|
 | GET / PUT | `/profiles/me` | Authenticated | Own profile (`PUT` upserts). |
 | GET / PUT | `/profiles/me/preferences` | Authenticated | Match preferences (age range, distance, etc). |
+| PUT | `/profiles/me/prompt-answers` | Authenticated | Upserts up to 10 `{ promptKey, answer }` entries. |
 | POST | `/profiles/me/photos` | Authenticated | Registers a `storageKey` (see D-05 in `OPEN_DECISIONS.md` — no real upload yet). Always starts `PENDING` moderation. |
 | DELETE | `/profiles/me/photos/:photoId` | Authenticated (owner only) | |
 | PATCH | `/profiles/photos/:photoId/moderation` | `moderation.resolve` permission | Approve/reject a photo. |
@@ -41,9 +42,10 @@ All endpoints are prefixed with nothing (routes are mounted at the app root, e.g
 
 | Method | Path | Auth | Notes |
 |---|---|---|---|
+| GET | `/matching/candidates` | Authenticated | A batch of other users to decide on, filtered by the caller's age/verified preferences and excluding self, already-decided, and blocked users. No compatibility score (see D-08 in `OPEN_DECISIONS.md`) — over-fetches a pool and filters/paginates in application code since age is derived from `dateOfBirth`, not stored. |
 | POST | `/matching/likes` | Authenticated | Body: `{ targetId, action: LIKE\|PASS\|SUPER_LIKE }`. Creates a `Match` + `Conversation` automatically when both parties have liked/super-liked each other. Blocked pairs get 403. |
-| GET | `/matching/matches` | Authenticated | Own active matches. |
-| GET | `/matching/likes/received` | Authenticated | Who has liked the caller (excludes anyone blocked in either direction). |
+| GET | `/matching/matches` | Authenticated | Own active matches (match rows only — no profile info; hydrate via `GET /profiles/:userId` per match, as the frontend does). |
+| GET | `/matching/likes/received` | Authenticated | Who has liked the caller (excludes anyone blocked in either direction), hydrated with each liker's profile summary. |
 
 ## Messaging (`src/messaging/`)
 

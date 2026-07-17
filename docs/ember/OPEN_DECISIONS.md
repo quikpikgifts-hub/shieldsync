@@ -130,3 +130,90 @@ is the actual safety-relevant control here, not unmatching.
 
 **Needs confirmation:** None blocking — this is straightforward follow-up work, not a
 decision that needs product/legal sign-off.
+
+---
+
+## D-07: Access token in memory, refresh token in `localStorage`
+
+**Assumption:** The frontend (`src/emberApi.js`) keeps the access token only in a
+module-level JS variable and persists the refresh token in `localStorage`, with a
+session-restore attempt on app load.
+
+**Why:** A dating app's frontend is a plain SPA with no server-rendered session layer, so
+some persisted client-side token is unavoidable if reloading the page shouldn't force a
+fresh login. Keeping the short-lived access token out of persistent storage limits what
+a `localStorage`-reading XSS bug could steal to the long-lived refresh token, which is at
+least revocable server-side (and rotation + reuse detection, `SECURITY_NOTES.md`, means a
+stolen-and-reused refresh token is detected, not just eventually expired).
+
+**Impact:** `localStorage` is still readable by any script that gets XSS access — this is
+a real, known-weaker-than-ideal pattern compared to an httpOnly-cookie-based refresh flow.
+
+**Needs confirmation:** Whether to move to httpOnly cookies before real users are
+onboarded — this changes the CORS/CSRF story (cookies need `SameSite`/CSRF-token handling
+that a pure Bearer-token API doesn't) and is a deliberate architecture tradeoff, not a
+default to make silently.
+
+---
+
+## D-08: No compatibility score anywhere in the real product
+
+**Assumption:** `GET /matching/candidates` returns no numeric compatibility score, and
+the frontend match cards were changed to not display one (the client-only prototype
+before this session showed a fabricated percentage).
+
+**Why:** There is no real scoring algorithm (see `ROADMAP.md` Phase 3 — AI-driven
+compatibility scoring is intentionally a later phase, built on top of a working safety
+foundation). Showing a percentage without a real model behind it would be exactly the
+"no placeholder functionality" violation the build policy rules out, even though it was
+present in the pre-backend prototype.
+
+**Impact:** The candidate cards are visually plainer than the original mock design —
+tag (intent) and the person's own prompt answer are shown instead of a "92% match" badge.
+
+**Needs confirmation:** None blocking. This is a deliberate, permanent removal, not a
+placeholder gap — re-introduce a compatibility display only once Phase 3 has a real
+scoring model behind it.
+
+---
+
+## D-09: No login screen existed until it was caught by testing the real multi-user flow
+
+**Assumption (now fixed):** The frontend originally only had a registration flow. A
+returning user with no persisted session (different browser, cleared storage) had no way
+to authenticate against an existing account.
+
+**Why this happened:** The original client-only prototype never needed a login screen —
+every "session" was just in-memory React state with no real account behind it. Wiring to
+a real backend surfaced this gap immediately: testing the actual asynchronous nature of
+matching (create account A, create account B via the API, have B like A back later,
+*then* check whether A's browser can discover the resulting match) required logging back
+in as A in a fresh browser context, which had no UI path.
+
+**Resolution:** Added a dedicated login screen (`Signup` component's `mode="login"`
+branch) reachable from the landing page nav and from the signup screen itself.
+
+**Needs confirmation:** None — this is now built, not still open. Recorded here as the
+concrete example of why testing the real multi-user flow (not just a single happy path)
+matters for a product in this category.
+
+---
+
+## D-10: "Your matches" list was missing until the same async-testing pass caught it
+
+**Assumption (now fixed):** `GET /matching/matches` existed on the backend from Phase 1,
+but nothing in the frontend ever called it — the UI only ever navigated to a chat at the
+exact moment a mutual like happened live, in the same session.
+
+**Why this happened:** In the real product, matches usually complete asynchronously (you
+like someone; they like you back hours later, in a different session). The original
+wiring pass missed this because the happy-path test (both sides act within one script)
+never exercises the "discover an already-existing match on a later visit" path.
+
+**Resolution:** The Matches screen now also fetches `listMatches()`, hydrates each with
+the other person's profile via `GET /profiles/:userId`, and renders a clickable "Your
+matches" strip that opens the real conversation.
+
+**Needs confirmation:** None — built and verified with two independent real accounts
+(one matched the other via a direct API call while the first account's browser session
+was closed, then reopened and correctly discovered the match on the next visit).

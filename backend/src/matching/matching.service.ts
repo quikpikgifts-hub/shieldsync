@@ -1,11 +1,25 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { LikeAction } from "@prisma/client";
+import { LikeAction, PhotoModerationStatus } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
 import { BlocksService } from "../safety/blocks.service";
+import { computeAge } from "../common/utils/age.util";
 import type { CreateLikeDto } from "./dto/create-like.dto";
+import type { PaginationQueryDto } from "../common/dto/pagination-query.dto";
 
 const RECIPROCAL_ACTIONS: LikeAction[] = [LikeAction.LIKE, LikeAction.SUPER_LIKE];
+
+export interface CandidateSummary {
+  userId: string;
+  displayName: string;
+  age: number | null;
+  bio: string | null;
+  intent: string | null;
+  city: string | null;
+  verifiedBadge: boolean;
+  photos: { id: string; storageKey: string; isPrimary: boolean }[];
+  promptAnswers: { promptKey: string; answer: string }[];
+}
 
 @Injectable()
 export class MatchingService {
@@ -105,7 +119,126 @@ export class MatchingService {
         visible.push(like);
       }
     }
-    return visible;
+
+    const summaries = await this.hydrateCandidateSummaries(visible.map((l) => l.actorId));
+    const summaryById = new Map(summaries.map((s) => [s.userId, s]));
+
+    return visible
+      .map((like) => {
+        const profile = summaryById.get(like.actorId);
+        return profile ? { ...profile, likedAt: like.createdAt, action: like.action } : null;
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+  }
+
+  /**
+   * A batch of other users to decide on ("today's matches" in the product UI). No
+   * compatibility score is computed or returned — there is no real scoring algorithm yet
+   * (see docs/ember/ROADMAP.md Phase 3), and fabricating one to look plausible would be
+   * exactly the kind of placeholder functionality the build policy rules out.
+   */
+  async listCandidates(userId: string, query: PaginationQueryDto): Promise<CandidateSummary[]> {
+    const preferences = await this.prisma.preferences.findUnique({ where: { userId } });
+    const ageMin = preferences?.ageMin ?? 18;
+    const ageMax = preferences?.ageMax ?? 99;
+    const verifiedOnly = preferences?.verifiedOnly ?? false;
+
+    const decided = await this.prisma.like.findMany({ where: { actorId: userId }, select: { targetId: true } });
+    const blocks = await this.prisma.block.findMany({
+      where: { OR: [{ blockerId: userId }, { blockedId: userId }] },
+      select: { blockerId: true, blockedId: true },
+    });
+
+    const excludedIds = new Set<string>([
+      userId,
+      ...decided.map((d) => d.targetId),
+      ...blocks.map((b) => (b.blockerId === userId ? b.blockedId : b.blockerId)),
+    ]);
+
+    // Age range isn't a direct SQL predicate here because age is derived from
+    // dateOfBirth, not stored — we over-fetch a pool and filter/paginate in application
+    // code. Fine at development scale; revisit (a generated/materialized age column, or
+    // a stored-procedure predicate) if this ever needs to scale — see ARCHITECTURE.md §2
+    // on not over-engineering for scale that doesn't exist yet, applied in the other
+    // direction: this is the honest, simple version, not a premature optimization.
+    const pool = await this.prisma.users.findMany({
+      where: {
+        id: { notIn: Array.from(excludedIds) },
+        deletedAt: null,
+        status: "ACTIVE",
+        profile: { is: { visible: true, deletedAt: null, ...(verifiedOnly ? { verifiedBadge: true } : {}) } },
+      },
+      select: {
+        id: true,
+        dateOfBirth: true,
+        profile: {
+          select: {
+            displayName: true,
+            bio: true,
+            intent: true,
+            city: true,
+            verifiedBadge: true,
+            photos: { where: { moderationStatus: PhotoModerationStatus.APPROVED } },
+            promptAnswers: true,
+          },
+        },
+      },
+      take: 200, // candidate pool ceiling before in-app age filtering
+    });
+
+    const filtered = pool
+      .filter((u) => u.profile !== null && u.dateOfBirth !== null)
+      .map((u) => ({ ...u, age: computeAge(u.dateOfBirth as Date) }))
+      .filter((u) => u.age >= ageMin && u.age <= ageMax);
+
+    return filtered.slice(query.skip, query.skip + query.take).map((u) => ({
+      userId: u.id,
+      displayName: u.profile!.displayName,
+      age: u.age,
+      bio: u.profile!.bio,
+      intent: u.profile!.intent,
+      city: u.profile!.city,
+      verifiedBadge: u.profile!.verifiedBadge,
+      photos: u.profile!.photos.map((p) => ({ id: p.id, storageKey: p.storageKey, isPrimary: p.isPrimary })),
+      promptAnswers: u.profile!.promptAnswers.map((p) => ({ promptKey: p.promptKey, answer: p.answer })),
+    }));
+  }
+
+  private async hydrateCandidateSummaries(userIds: string[]): Promise<CandidateSummary[]> {
+    if (userIds.length === 0) return [];
+
+    const users = await this.prisma.users.findMany({
+      where: { id: { in: userIds } },
+      select: {
+        id: true,
+        dateOfBirth: true,
+        profile: {
+          select: {
+            displayName: true,
+            bio: true,
+            intent: true,
+            city: true,
+            verifiedBadge: true,
+            photos: { where: { moderationStatus: PhotoModerationStatus.APPROVED } },
+            promptAnswers: true,
+          },
+        },
+      },
+    });
+
+    return users
+      .filter((u) => u.profile !== null)
+      .map((u) => ({
+        userId: u.id,
+        displayName: u.profile!.displayName,
+        age: u.dateOfBirth ? computeAge(u.dateOfBirth) : null,
+        bio: u.profile!.bio,
+        intent: u.profile!.intent,
+        city: u.profile!.city,
+        verifiedBadge: u.profile!.verifiedBadge,
+        photos: u.profile!.photos.map((p) => ({ id: p.id, storageKey: p.storageKey, isPrimary: p.isPrimary })),
+        promptAnswers: u.profile!.promptAnswers.map((p) => ({ promptKey: p.promptKey, answer: p.answer })),
+      }));
   }
 }
 

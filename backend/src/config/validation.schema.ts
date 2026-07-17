@@ -9,7 +9,7 @@ export const validationSchema = Joi.object({
   JWT_ACCESS_SECRET: Joi.string().min(16).required(),
   JWT_ACCESS_TTL: Joi.string().default("15m"),
   JWT_REFRESH_TTL_DAYS: Joi.number().default(30),
-  CORS_ORIGIN: Joi.string().default("http://localhost:5173"),
+  CORS_ORIGIN: Joi.string().default("http://localhost:5173,http://127.0.0.1:5173"),
   THROTTLE_TTL_MS: Joi.number().default(60000),
   THROTTLE_LIMIT: Joi.number().default(100),
 });

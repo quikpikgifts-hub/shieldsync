@@ -15,7 +15,7 @@ export function configureApp(app: INestApplication): AppConfig {
   const appConfig = configService.getOrThrow<AppConfig>("app");
 
   app.use(helmet());
-  app.enableCors({ origin: appConfig.corsOrigin, credentials: true });
+  app.enableCors({ origin: appConfig.corsOrigins, credentials: true });
 
   app.useGlobalPipes(
     new ValidationPipe({

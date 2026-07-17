@@ -1,5 +1,48 @@
 # Ember Backend — Changelog
 
+## Frontend wired to the real backend
+
+**Added**
+
+- `src/emberApi.js` — a fetch wrapper for the real backend: in-memory access token,
+  `localStorage`-persisted refresh token with session restore on load, automatic
+  single-retry-after-refresh on a 401, concurrent-refresh coalescing.
+- Two new backend endpoints, added because wiring the frontend surfaced they didn't
+  exist yet: `GET /matching/candidates` (a discovery feed — Phase 1 had only "decide on
+  a specific person," not "give me people to decide on") and
+  `PUT /profiles/me/prompt-answers` (the `PromptAnswer` model existed in Phase 1's schema
+  but nothing could ever write to it).
+- A real login screen (`Signup` component's `mode="login"` branch) — the original
+  frontend only had registration; see `OPEN_DECISIONS.md` D-09 for how testing the real
+  multi-user flow caught this.
+- A "Your matches" list on the Matches screen, backed by `GET /matching/matches` +
+  per-match profile hydration — see `OPEN_DECISIONS.md` D-10 for how testing the
+  asynchronous nature of real matching (not just the same-session happy path) caught
+  this gap.
+- `age` (computed from `dateOfBirth`, never the raw date itself) added to `GET /users/me`
+  and the candidates response.
+
+**Removed**
+
+- The fabricated "92% match" compatibility score from the match cards — there is no real
+  scoring algorithm yet (see D-08). Showing one would be exactly the placeholder
+  functionality the build policy rules out, even though the pre-backend prototype had it.
+- The canned "Ha, I like that — tell me more?" auto-reply in chat — there's no second
+  real person auto-responding in a real conversation.
+
+**Fixed**
+
+- A CORS origin mismatch (`localhost:5173` configured, page served from `127.0.0.1:5173`
+  — two different origins as far as CORS is concerned) that manifested as an opaque
+  "Failed to fetch" with no useful error. `CORS_ORIGIN` now accepts a comma-separated
+  list; both local addresses are allowed by default.
+
+**Verified against a real, running system** (not simulated): two independent real
+accounts created via the API, a real reciprocal like creating a real match, a real
+message persisted and readable from both accounts' perspectives, session restore across
+a full page reload, and logout revoking the refresh token server-side (confirmed via
+direct database query, not just trusting the client-side state).
+
 ## Phase 1 — Real Backend Foundation (initial)
 
 **Added**
