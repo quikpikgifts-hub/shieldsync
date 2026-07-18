@@ -1,0 +1,39 @@
+# Copy to production.tfvars (gitignored — see infra/terraform/.gitignore) and fill in real
+# values. Every value below is a placeholder; none of this has been applied against a real
+# AWS account — see infra/terraform/README.md.
+
+aws_region  = "us-east-1"
+environment = "production"
+name_prefix = "ember-production"
+
+# No default — must point at an image backend-deploy.yml has actually published.
+# Find real tags with: gh api /orgs/<org>/packages/container/<repo>%2Fember-backend/versions
+container_image = "ghcr.io/REPLACE_ME/shieldsync/ember-backend:REPLACE_ME_a_real_sha_tag"
+
+cors_origin               = "https://REPLACE_ME.example.com"
+frontend_base_url         = "https://REPLACE_ME.example.com"
+s3_allowed_upload_origins = ["https://REPLACE_ME.example.com"]
+
+# --- Optional integrations — leave blank until a real vendor is chosen (see
+# DEPLOYMENT_READINESS_CHECKLIST.md). The app runs correctly without them; it just won't
+# send email or report errors to Sentry. ---
+smtp_host     = ""
+smtp_user     = ""
+smtp_password = ""
+sentry_dsn    = ""
+
+# --- Domain/DNS — leave enable_dns=false until a real domain is owned and the decision
+# of "who owns this domain" (DEPLOYMENT_READINESS_CHECKLIST.md) is made. ---
+enable_dns         = false
+domain_name        = null
+create_hosted_zone = false
+
+# --- Sizing — pre-alpha-appropriate defaults; see the variable descriptions in
+# variables.tf before changing these. ---
+db_instance_class  = "db.t4g.micro"
+db_multi_az        = false
+redis_node_type    = "cache.t4g.micro"
+ecs_task_cpu       = 512
+ecs_task_memory    = 1024
+ecs_desired_count  = 1
+enable_autoscaling = false

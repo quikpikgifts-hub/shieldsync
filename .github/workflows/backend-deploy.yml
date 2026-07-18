@@ -1,13 +1,17 @@
 name: Backend Deploy
 
-# No production hosting target exists for this backend yet (see docs/ember/DEPLOYMENT.md —
-# still true as of this workflow being added). This workflow is deliberately built up to
-# exactly the point that's honestly buildable without a real target: it builds the image,
-# pushes it to GitHub Container Registry (needs only the repo's own built-in
-# GITHUB_TOKEN — no external secrets to fake), and runs migrations against whatever
-# DATABASE_URL the deploy environment provides. The final "deploy" step is a clearly
-# labeled placeholder — see its comment — rather than a guess at a specific cloud
-# provider's deploy API invented without real credentials to test it against.
+# No production AWS account exists for this backend yet, so the deploy step below has
+# never actually run against a real ECS service — see docs/ember/DEPLOYMENT_READINESS_CHECKLIST.md.
+# What IS real: this workflow builds the image, pushes it to GitHub Container Registry
+# (needs only the repo's own built-in GITHUB_TOKEN — no external secrets to fake), runs
+# migrations against whatever DATABASE_URL the deploy environment provides, and — once the
+# `AWS_DEPLOY_ROLE_ARN` secret plus the `ECS_CLUSTER_NAME`/`ECS_SERVICE_NAME`/`API_URL`
+# repository variables are set (which infra/terraform's `modules/ecs` outputs feed
+# directly) — deploys for real via `aws ecs update-service` and validates `/ready` before
+# declaring success. No further edits to this file are needed once those five values exist
+# (per docs/ember/DEPLOYMENT_READINESS_CHECKLIST.md's CI/CD row and the user's requirement
+# that supplying configuration is the only remaining step). Until then, the last step says
+# so explicitly instead of silently no-op'ing.
 #
 # Manual rollback: re-run this workflow via workflow_dispatch with `image_tag` set to any
 # previously built tag (every push to main produces one, tagged by commit SHA — see
@@ -36,6 +40,7 @@ defaults:
 permissions:
   contents: read
   packages: write
+  id-token: write # required for OIDC federation to AWS — no long-lived AWS access keys stored as GitHub secrets
 
 env:
   REGISTRY: ghcr.io
@@ -105,14 +110,72 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
-      - name: Deploy
+      # Everything below is gated on AWS_DEPLOY_ROLE_ARN existing as a real repository/
+      # environment secret — an IAM role ARN, trusted for GitHub OIDC federation, scoped to
+      # (at minimum) ecs:UpdateService and ecs:DescribeServices on the cluster/service
+      # infra/terraform's modules/ecs creates. Until that secret (and the ECS_CLUSTER_NAME /
+      # ECS_SERVICE_NAME / API_URL repository variables it depends on) are set, only the
+      # final "not configured yet" step below runs.
+
+      - name: Configure AWS credentials
+        if: ${{ secrets.AWS_DEPLOY_ROLE_ARN != '' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Deploy to ECS
+        if: ${{ secrets.AWS_DEPLOY_ROLE_ARN != '' }}
         run: |
-          echo "No production hosting target is configured for this repository yet."
+          aws ecs update-service \
+            --cluster "${{ vars.ECS_CLUSTER_NAME }}" \
+            --service "${{ vars.ECS_SERVICE_NAME }}" \
+            --force-new-deployment \
+            --query 'service.{cluster:clusterArn,service:serviceName,deployments:deployments[].{status:status,taskDefinition:taskDefinition}}'
+
+      - name: Wait for service to stabilize
+        if: ${{ secrets.AWS_DEPLOY_ROLE_ARN != '' }}
+        run: |
+          aws ecs wait services-stable \
+            --cluster "${{ vars.ECS_CLUSTER_NAME }}" \
+            --services "${{ vars.ECS_SERVICE_NAME }}"
+
+      - name: Validate health check
+        if: ${{ secrets.AWS_DEPLOY_ROLE_ARN != '' }}
+        run: |
+          if [ -z "${{ vars.API_URL }}" ]; then
+            echo "The API_URL repository variable is not set — cannot validate the deployed service's /ready endpoint." >&2
+            exit 1
+          fi
+          for i in $(seq 1 10); do
+            status=$(curl -s -o /dev/null -w '%{http_code}' "${{ vars.API_URL }}/ready" || echo "000")
+            if [ "$status" = "200" ]; then
+              echo "GET /ready returned 200 — deploy verified healthy."
+              exit 0
+            fi
+            echo "Attempt $i: GET /ready returned $status, retrying in 10s..."
+            sleep 10
+          done
+          echo "GET /ready did not return 200 within the retry window — treating this deploy as failed." >&2
+          exit 1
+
+      - name: No hosting target configured yet
+        if: ${{ secrets.AWS_DEPLOY_ROLE_ARN == '' }}
+        run: |
+          echo "AWS_DEPLOY_ROLE_ARN is not configured for this repository's production environment yet."
           echo "Image published: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build-and-push.outputs.image_tag || inputs.image_tag }}"
-          echo "This step is where a real deploy call goes once a target exists —"
-          echo "e.g. 'aws ecs update-service --force-new-deployment' for ECS/Fargate,"
-          echo "'kubectl set image deployment/ember-backend ...' for the k8s manifests"
-          echo "in backend/k8s/, or a platform-specific deploy action. See"
-          echo "docs/ember/DEPLOYMENT.md for the recommended target (a single managed"
-          echo "container platform, not Kubernetes, per ARCHITECTURE.md §2-3)."
+          echo ""
+          echo "Once infra/terraform has been applied for real (see infra/terraform/README.md)"
+          echo "and the following are set, this job deploys for real with no further"
+          echo "workflow edits needed:"
+          echo "  - secret AWS_DEPLOY_ROLE_ARN   (IAM role ARN, trusted for GitHub OIDC,"
+          echo "                                   scoped to ecs:UpdateService/DescribeServices"
+          echo "                                   on the cluster/service Terraform creates)"
+          echo "  - variable ECS_CLUSTER_NAME    (Terraform output: ecs_cluster_name)"
+          echo "  - variable ECS_SERVICE_NAME    (Terraform output: ecs_service_name)"
+          echo "  - variable API_URL             (Terraform output: api_url, or the ALB DNS name)"
+          echo "  - variable AWS_REGION           (optional, defaults to us-east-1)"
+          echo ""
+          echo "See docs/ember/OPERATOR_RUNBOOK.md's 'Deploy' section and"
+          echo "docs/ember/DEPLOYMENT_READINESS_CHECKLIST.md's CI/CD row."
           exit 0

@@ -1,0 +1,8 @@
+*.tfvars
+!*.tfvars.example
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+# .terraform.lock.hcl is deliberately NOT ignored — like package-lock.json, it should be
+# committed so every `terraform init` resolves the exact same provider versions.

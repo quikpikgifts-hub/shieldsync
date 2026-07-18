@@ -1,5 +1,46 @@
 # Ember Backend — Changelog
 
+## Phase 4 — Deployment Readiness Documentation & Infrastructure-as-Code
+
+No application code changed in this phase. Scope: make the gap between "code complete" and
+"a real production deployment" fully explicit and fully engineering-actionable, without
+fabricating any credential, account, or claim of verification that hasn't actually happened
+— see `DEPLOYMENT_READINESS_CHECKLIST.md`, `GO_LIVE_CHECKLIST.md`, and `OPERATOR_RUNBOOK.md`
+for the four-state (Code complete / Infrastructure complete / Operationally verified /
+Production ready) framing used consistently across all three.
+
+- **`infra/terraform/`** — a complete AWS Terraform module tree (networking, RDS Postgres,
+  ElastiCache Redis, S3, Secrets Manager, ECS/Fargate + ALB, optional Route53/ACM) matching
+  `ARCHITECTURE.md` §3's recommended stack. `terraform fmt -check -recursive` passes and
+  every resource was manually reviewed against the AWS provider schema; `init`/`validate`/
+  `plan`/`apply` have not been run — `registry.terraform.io` is blocked by this build
+  sandbox's network policy (same class of limitation as Phase 1's `docker compose up` note).
+  See `infra/terraform/README.md` for exactly what was and wasn't validated.
+- **`DEPLOYMENT_READINESS_CHECKLIST.md`** — every remaining external dependency (AWS
+  account, database, cache, storage, email vendor, domain/DNS/TLS, monitoring, backups,
+  legal, CI/CD, incident response), each with an owner, a verification command, and
+  objective acceptance criteria. Every row starts unchecked.
+- **`GO_LIVE_CHECKLIST.md`** — the pre-launch verification pass across all sixteen
+  requested areas (infrastructure, security, monitoring, backups, disaster recovery,
+  email, storage, payments, domain/DNS, SSL/TLS, legal, privacy, ToS, incident response,
+  support, launch verification), each item stating exactly what evidence would move it
+  from code-complete to operationally verified.
+- **`OPERATOR_RUNBOOK.md`** — deploy, monitor, troubleshoot, roll back, rotate secrets,
+  recover from failure, and routine maintenance, written against the real commands the
+  Terraform module tree and existing CI/CD produce.
+- **`.github/workflows/backend-deploy.yml`** — the former `echo`-only placeholder "Deploy"
+  step is replaced with a real, credential-gated deployment: GitHub OIDC → AWS (via
+  `AWS_DEPLOY_ROLE_ARN`, no long-lived AWS keys stored as a secret) → `aws ecs
+  update-service --force-new-deployment` → `aws ecs wait services-stable` → a `/ready`
+  health-check validation loop. If `AWS_DEPLOY_ROLE_ARN` isn't set, the job says exactly
+  that instead of silently no-op'ing. This has not been run against a real AWS account —
+  the workflow is code complete, not operationally verified.
+
+**Explicitly not done in this phase, by design:** no AWS account was created, no vendor
+account (SMTP/Sentry/etc.) was created, no legal document was drafted, and no claim of
+"production ready" is made anywhere in the documents above — every checklist item is
+either unchecked or explicitly marked at the state the evidence actually supports.
+
 ## Phase 3 — Production Infrastructure
 
 The infrastructure `PRODUCTION_READINESS.md` (Phase 2) identified as blocking a real
