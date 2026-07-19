@@ -123,6 +123,11 @@ revisit the GO/NO-GO call on that evidence — not on this document's summary of
 | `GO_LIVE_CHECKLIST.md` | Pre-launch verification pass, all areas |
 | `infra/terraform/README.md` | Terraform usage instructions and validation status |
 | `backend/scripts/launch-verification.mjs` | The real, reusable end-to-end smoke test |
+| `PRE_LAUNCH_AUDIT.md` | Phase 7 fresh audit: credentials, dead code, deps, secrets, CORS, env validation — zero new findings |
+| `RELEASE_INVENTORY.md` | Full accounting of source, infra, scripts, docs, tests, config, CI/CD, deps, licenses |
+| `EXECUTIVE_READINESS_REPORT.md` | Business-level synthesis: completion, posture, risks, blockers, effort remaining |
+| `FINAL_GO_LIVE_MATRIX.md` | Every production requirement — status, evidence, owner, blocking, next action |
+| `RELEASE_PACKAGE/` | Curated 11-document release package (executive summary, diagrams, condensed guides) — start at `RELEASE_PACKAGE/EXECUTIVE_SUMMARY.md` |
 
 If a document above contradicts another, treat the more recently dated `CHANGELOG.md` entry
 as the tiebreaker, and fix the stale document — this project's own RC-1 pass found and
