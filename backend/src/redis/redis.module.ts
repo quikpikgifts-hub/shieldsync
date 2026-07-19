@@ -5,6 +5,7 @@ import type { AppConfig } from "../config/configuration";
 import { KEY_VALUE_STORE } from "./key-value-store.interface";
 import { RedisKeyValueStore } from "./redis-key-value-store";
 import { InMemoryKeyValueStore } from "./in-memory-key-value-store";
+import { safeErrorMessage } from "../common/logging/safe-error";
 
 export const REDIS_CLIENT = Symbol("REDIS_CLIENT");
 
@@ -46,7 +47,7 @@ class RedisLifecycle implements OnApplicationShutdown {
           maxRetriesPerRequest: 3,
           lazyConnect: false,
         });
-        client.on("error", (error) => logger.error("Redis client error", error));
+        client.on("error", (error) => logger.error("Redis client error", safeErrorMessage(error)));
         return client;
       },
       inject: [ConfigService],

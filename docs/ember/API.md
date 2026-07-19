@@ -13,13 +13,13 @@ All endpoints are prefixed with nothing (routes are mounted at the app root, e.g
 
 | Method | Path | Auth | Notes |
 |---|---|---|---|
-| POST | `/auth/register` | Public | Creates an account, returns `{ user, tokens }`. Rejects under-18 (self-attested DOB), weak passwords, duplicate emails. |
-| POST | `/auth/login` | Public | Rate-limited to 5/min *and* locked out after repeated failures against one email address (independent of IP — see `SECURITY_NOTES.md`). Returns `{ user, tokens }`. Generic error for both wrong password and nonexistent account. A login from a never-seen device/IP for that account triggers a "new sign-in" email (if SMTP is configured) and an audit entry, without blocking the login. |
+| POST | `/auth/register` | Public | Rate-limited to 5/min per IP (RC-1: previously unthrottled — see `CHANGELOG.md`). Creates an account, returns `{ user, tokens }`. Rejects under-18 (self-attested DOB), weak passwords, duplicate emails. |
+| POST | `/auth/login` | Public | Rate-limited to 5/min per IP *and* locked out after repeated failures against one email address (independent of IP — see `SECURITY_NOTES.md`). Returns `{ user, tokens }`. Generic error for both wrong password and nonexistent account. A login from a never-seen device/IP for that account triggers a "new sign-in" email (if SMTP is configured) and an audit entry, without blocking the login. |
 | POST | `/auth/refresh` | Public | Body: `{ refreshToken }`. Rotates to a new pair. Reuse of an already-rotated token revokes the whole session. |
 | POST | `/auth/logout` | Authenticated | Body: `{ refreshToken }`. Revokes that session and immediately blacklists the presented access token's `jti` (it stops working right away, not just at its natural expiry). Idempotent; a no-op if the refresh token belongs to a different account than the caller. |
-| POST | `/auth/email/verification/request` | Authenticated | No body. Sends (or resends) a verification email to the caller's own address. No-op if already verified. |
+| POST | `/auth/email/verification/request` | Authenticated | Rate-limited to 5/min per IP (RC-1: previously unthrottled). No body. Sends (or resends) a verification email to the caller's own address. No-op if already verified. |
 | POST | `/auth/email/verification/confirm` | Public | Body: `{ token }` (from the verification email link). Sets `emailVerifiedAt`. Token is single-use and time-boxed. |
-| POST | `/auth/password-reset/request` | Public | Rate-limited to 5/min per IP *and* per email address. Body: `{ email }`. Always returns 204 regardless of whether the account exists (anti-enumeration). |
+| POST | `/auth/password-reset/request` | Public | Rate-limited to 5/min per IP (`@Throttle`, same limit as login) **and** independently limited to 3/hour per email address (`PasswordResetService`'s own counter — a separate, longer-window limit, not the same number as the IP throttle). Body: `{ email }`. Always returns 204 regardless of whether the account exists (anti-enumeration). |
 | POST | `/auth/password-reset/confirm` | Public | Body: `{ token, newPassword }`. Sets a new password and revokes every existing session for the account. |
 
 ## Users (`src/users/`)
@@ -34,11 +34,11 @@ All endpoints are prefixed with nothing (routes are mounted at the app root, e.g
 
 | Method | Path | Auth | Notes |
 |---|---|---|---|
-| GET / PUT | `/profiles/me` | Authenticated | Own profile (`PUT` upserts). Each photo in the response includes a short-lived signed `url`/`thumbnailUrl` when object storage is configured (see `PRODUCTION_READINESS.md`), otherwise the raw `storageKey`. |
+| GET / PUT | `/profiles/me` | Authenticated | Own profile (`PUT` upserts). Each photo in the response has `url`/`thumbnailUrl` — a short-lived signed URL when object storage is configured (see `PRODUCTION_READINESS.md`), or the raw storage key as `url`'s value when it isn't. The raw `storageKey`/`thumbnailStorageKey` fields themselves are never present in the response (RC-1 fix — see `CHANGELOG.md`); this applies identically to `/profiles/:userId`, `/matching/candidates`, and `/matching/likes/received`. |
 | GET / PUT | `/profiles/me/preferences` | Authenticated | Match preferences (age range, distance, etc). |
 | PUT | `/profiles/me/prompt-answers` | Authenticated | Upserts up to 10 `{ promptKey, answer }` entries. |
 | POST | `/profiles/me/photos/upload-url` | Authenticated | Body: `{ contentType }` (`image/jpeg`\|`image/png`\|`image/webp` only). Returns `{ uploadUrl, storageKey, expiresAt }` — a presigned URL the client `PUT`s the file bytes to directly; this API never sees the file. Throws if object storage isn't configured. |
-| POST | `/profiles/me/photos` | Authenticated | Registers a `storageKey`. When object storage is configured, validates the object actually exists (400 if not) and captures real `contentType`/`byteSizeBytes`, then enqueues background thumbnail generation. Falls back to accepting any client-supplied key with no validation when storage isn't configured (see D-05 in `OPEN_DECISIONS.md`). Always starts `PENDING` moderation. |
+| POST | `/profiles/me/photos` | Authenticated | Registers a `storageKey`. When object storage is configured: rejects (403) a `storageKey` that doesn't belong to the caller (must be prefixed `photos/<callerId>/…`, RC-1 fix — see `CHANGELOG.md`), validates the object actually exists (400 if not), and captures real `contentType`/`byteSizeBytes`, then enqueues background thumbnail generation. Falls back to accepting any client-supplied key with no validation when storage isn't configured (see D-05 in `OPEN_DECISIONS.md`). Always starts `PENDING` moderation. |
 | DELETE | `/profiles/me/photos/:photoId` | Authenticated (owner only) | Also deletes the underlying storage object(s) (best-effort) when storage is configured. |
 | PATCH | `/profiles/photos/:photoId/moderation` | `moderation.resolve` permission | Approve/reject a photo. |
 | GET | `/profiles/:userId` | Authenticated | Public view of another profile. Returns 404 (not 403) if blocked, to avoid revealing block state. |

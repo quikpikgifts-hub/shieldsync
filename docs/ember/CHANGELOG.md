@@ -1,5 +1,79 @@
 # Ember Backend — Changelog
 
+## RC-1 — Release Candidate verification pass
+
+A full, independent re-verification of backend, docs, security, logging, and tests before
+external alpha — not a feature phase. Four parallel research passes (backend code quality,
+documentation-vs-implementation cross-check, security re-review, logging audit) were run
+against current source, and every confirmed Critical/High finding was fixed and covered by
+a regression test in this same pass. See `docs/ember/LOGGING_AUDIT.md` for the full logging
+audit and `RC1_RELEASE_NOTES.md`/`ENTERPRISE_READINESS_REPORT.md` for the overall RC-1
+verdict.
+
+**Security fixes**
+
+- **[Critical] Cross-tenant photo hijack.** `POST /profiles/me/photos` validated that a
+  submitted `storageKey` pointed at *some* uploaded object, but never that the caller
+  actually owned it — any authenticated user could read another user's real `storageKey`
+  out of `/matching/candidates`, `/matching/likes/received`, or a public profile response
+  (which leaked the raw key verbatim) and register that photo as their own, then delete it
+  via their own new photo row. Fixed in two parts: (1) `ProfilesService.addPhoto` now
+  rejects any `storageKey` not prefixed `photos/<callerId>/…`; (2) every photo-bearing
+  response (`ProfilesService.hydratePhotoUrls`, `MatchingService.hydrateCandidatePhotos`)
+  now strips the raw `storageKey`/`thumbnailStorageKey` fields entirely, returning only a
+  short-lived signed `url`/`thumbnailUrl` — closing the exposure the exploit depended on,
+  not just the registration check. Two new e2e regression tests in
+  `test/photo-storage.e2e-spec.ts` cover both halves.
+- **[High] Missing rate limits.** `POST /auth/register` and `POST /auth/email/verification/request`
+  had no endpoint-specific throttle (only the generic 100/min/IP default), unlike
+  `login`/`password-reset/request`. Both now carry the same 5/min-per-IP throttle.
+- **[Informational, fixed as cheap defense-in-depth] Raw `Error` objects in logs.** Five
+  call sites logged a raw `Error` object rather than its message
+  (`common/filters/all-exceptions.filter.ts`, `redis/redis.module.ts`,
+  `queue/inline-job-queue.service.ts`, `auth/auth.service.ts`, `audit/audit.service.ts`).
+  Some Postgres/Redis driver versions can embed a connection string — including its
+  password — in a connection-failure error's message/stack; no active leak was confirmed,
+  but a new shared helper (`common/logging/safe-error.ts`) now scrubs
+  `scheme://user:pass@host`-shaped substrings at every one of these call sites in one place.
+  Full findings in `LOGGING_AUDIT.md`.
+
+**Code quality**
+
+- Consolidated duplicated password-strength validation (`RegisterDto`/`ResetPasswordDto`)
+  into a single `@IsStrongPassword()` decorator (`common/decorators/`), closing the risk of
+  a future policy change being applied to one and silently missed on the other.
+- Removed three confirmed-unused devDependencies (`ts-loader`, `tsconfig-paths`,
+  `source-map-support`) — scaffold leftovers with zero references anywhere in the repo.
+- No dead code, unused DTOs/providers/imports, unused env vars, orphaned files, or
+  undocumented/missing endpoints were found otherwise — see the RC-1 backend code-quality
+  scan for the full methodology (`tsc --noUnusedLocals` clean, every provider/DTO/env var
+  traced to a real consumer).
+
+**Documentation corrections**
+
+- `DATABASE_SCHEMA.md` was substantially rewritten — the previous version still described a
+  vendor-delegated (Auth0/Clerk) identity model with "no password column," the opposite of
+  what Phase 1 actually built (self-hosted JWT + Argon2id). RBAC table structure, the
+  `UserStatus` enum values, several renamed tables/columns (`swipes`→`likes`,
+  `s3_key`→`storageKey`, `max_distance_mi`→`maxDistanceKm`), and a missing `conversations`
+  entity were all corrected to match `schema.prisma` exactly. The encryption section now
+  states plainly that no column-level encryption exists (only RDS-level disk encryption,
+  once real infrastructure is applied) rather than the earlier draft's aspirational claim.
+- `API.md`: corrected the password-reset rate limit (was documented as a single "5/min per
+  IP and per email" figure; actually two independent limits — 5/min per IP, 3/hour per
+  email) and documented the new register/email-verification throttles and the
+  storageKey-stripping response-shape change above.
+- `DEPLOYMENT.md`: updated the CI/CD section, which still described the deploy workflow's
+  final step as an unconditional placeholder — it's now a real, credential-gated deploy
+  path (see Phase 4 below) that only falls back to a placeholder message when
+  `AWS_DEPLOY_ROLE_ARN` is unset.
+
+**Verified this pass:** 23 unit + 67 e2e = 90 automated tests, all passing against real
+local PostgreSQL and Redis instances (not mocks) — up from 89 after adding the two new
+photo-ownership regression tests. Lint: 0 errors (3 pre-existing warnings, unchanged).
+Build: clean. `npm audit --omit=dev --audit-level=high`: 0 vulnerabilities (unchanged from
+before this pass). See `ENTERPRISE_READINESS_REPORT.md` for what remains unverified and why.
+
 ## Phase 4 — Deployment Readiness Documentation & Infrastructure-as-Code
 
 No application code changed in this phase. Scope: make the gap between "code complete" and

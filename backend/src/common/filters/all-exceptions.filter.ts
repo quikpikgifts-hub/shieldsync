@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import type { Request, Response } from "express";
 import { captureException } from "../../observability/sentry";
+import { safeErrorMessage } from "../logging/safe-error";
 
 interface ErrorResponseBody {
   statusCode: number;
@@ -60,7 +61,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       };
 
       if (status >= 500) {
-        this.logger.error(`${request.method} ${request.url} -> ${status}`, exception.stack);
+        this.logger.error(`${request.method} ${request.url} -> ${status}`, safeErrorMessage(exception));
         // Only true 5xx HttpExceptions are reported — a 400/401/403/404 is expected,
         // client-facing behavior, not an operational error worth paging anyone over.
         captureException(exception);
@@ -73,7 +74,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     // Unknown/unhandled error: log everything server-side, expose nothing client-side.
     this.logger.error(
       `Unhandled exception on ${request.method} ${request.url}`,
-      exception instanceof Error ? exception.stack : String(exception),
+      safeErrorMessage(exception),
     );
     captureException(exception);
 

@@ -34,6 +34,7 @@ export class AuthController {
   ) {}
 
   @Public()
+  @Throttle({ default: STRICT_AUTH_THROTTLE }) // bounds mass fake-account creation the same way login/password-reset are bounded
   @Post("register")
   @ApiOperation({ summary: "Create an account and receive an initial token pair." })
   async register(@Body() dto: RegisterDto, @Req() req: Request) {
@@ -66,6 +67,7 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
+  @Throttle({ default: STRICT_AUTH_THROTTLE }) // bounds queue/SMTP-provider load from a scripted account, same rationale as password-reset/request
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post("email/verification/request")
   @ApiOperation({ summary: "Send (or resend) a verification email for the authenticated account." })

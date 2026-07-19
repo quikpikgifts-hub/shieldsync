@@ -93,6 +93,16 @@ export class ProfilesService {
     // closes that gap: the client must have actually uploaded something to the presigned
     // URL before the photo can be registered, and real metadata (content type, byte size)
     // is captured from the object itself rather than trusted from the client.
+    // Every presigned upload S3StorageProvider issues is namespaced `photos/<ownerId>/...`
+    // (see S3StorageProvider.createPresignedUpload) specifically so a storageKey can be
+    // tied back to its uploader. Without this check, a client could submit any *other*
+    // user's real storageKey (readable from their own candidate deck/profile responses)
+    // and register it as their own photo — headObject alone only confirms an object
+    // exists, not that the caller uploaded it.
+    if (this.storageEnabled && !dto.storageKey.startsWith(`photos/${userId}/`)) {
+      throw new ForbiddenException("storageKey does not belong to the requesting user.");
+    }
+
     let metadata: { contentType: string | null; byteSizeBytes: number } | null = null;
     if (this.storageEnabled) {
       metadata = await this.storageProvider.headObject(dto.storageKey);
@@ -205,19 +215,28 @@ export class ProfilesService {
    * comment). Falls back to returning the raw storageKey (unusable directly by a client,
    * but the historical pre-Phase-3 behavior) when storage isn't configured, so this
    * doesn't error out in local dev/CI without S3 set up.
+   *
+   * Deliberately strips the raw `storageKey`/`thumbnailStorageKey` fields from the
+   * returned shape rather than spreading the Photo row as-is — the real S3 object key
+   * must never reach a client response (see addPhoto's ownership-prefix check, which
+   * exists specifically because a leaked storageKey from one user's response used to be
+   * usable by another user to register that photo as their own).
    */
   private async hydratePhotoUrls<T extends { storageKey: string; thumbnailStorageKey: string | null }>(
     photos: T[],
-  ): Promise<(T & { url: string; thumbnailUrl: string | null })[]> {
+  ): Promise<(Omit<T, "storageKey" | "thumbnailStorageKey"> & { url: string; thumbnailUrl: string | null })[]> {
     return Promise.all(
-      photos.map(async (photo) => ({
-        ...photo,
-        url: this.storageEnabled ? await this.storageProvider.getReadUrl(photo.storageKey) : photo.storageKey,
-        thumbnailUrl:
-          this.storageEnabled && photo.thumbnailStorageKey
-            ? await this.storageProvider.getReadUrl(photo.thumbnailStorageKey)
-            : null,
-      })),
+      photos.map(async (photo) => {
+        const { storageKey, thumbnailStorageKey, ...rest } = photo;
+        return {
+          ...rest,
+          url: this.storageEnabled ? await this.storageProvider.getReadUrl(storageKey) : storageKey,
+          thumbnailUrl:
+            this.storageEnabled && thumbnailStorageKey
+              ? await this.storageProvider.getReadUrl(thumbnailStorageKey)
+              : null,
+        };
+      }),
     );
   }
 }

@@ -9,4 +9,5 @@ backend/.env
 backend/.env.*
 !backend/.env.example
 backend/coverage
+backend/dump.rdb
 

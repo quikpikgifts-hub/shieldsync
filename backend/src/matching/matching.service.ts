@@ -1,4 +1,5 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { LikeAction, PhotoModerationStatus, Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
@@ -6,8 +7,17 @@ import { BlocksService } from "../safety/blocks.service";
 import { computeAge } from "../common/utils/age.util";
 import type { CreateLikeDto } from "./dto/create-like.dto";
 import type { PaginationQueryDto } from "../common/dto/pagination-query.dto";
+import { STORAGE_PROVIDER, type StorageProvider } from "../integrations/storage/storage-provider.interface";
+import type { AppConfig } from "../config/configuration";
 
 const RECIPROCAL_ACTIONS: LikeAction[] = [LikeAction.LIKE, LikeAction.SUPER_LIKE];
+
+interface CandidatePhoto {
+  id: string;
+  storageKey: string;
+  thumbnailStorageKey: string | null;
+  isPrimary: boolean;
+}
 
 export interface CandidateSummary {
   userId: string;
@@ -17,17 +27,23 @@ export interface CandidateSummary {
   intent: string | null;
   city: string | null;
   verifiedBadge: boolean;
-  photos: { id: string; storageKey: string; isPrimary: boolean }[];
+  photos: { id: string; url: string; thumbnailUrl: string | null; isPrimary: boolean }[];
   promptAnswers: { promptKey: string; answer: string }[];
 }
 
 @Injectable()
 export class MatchingService {
+  private readonly storageEnabled: boolean;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
     private readonly blocksService: BlocksService,
-  ) {}
+    @Inject(STORAGE_PROVIDER) private readonly storageProvider: StorageProvider,
+    configService: ConfigService,
+  ) {
+    this.storageEnabled = configService.getOrThrow<AppConfig["storage"]>("app.storage").enabled;
+  }
 
   async recordDecision(actorId: string, dto: CreateLikeDto) {
     if (actorId === dto.targetId) {
@@ -197,7 +213,10 @@ export class MatchingService {
             intent: true,
             city: true,
             verifiedBadge: true,
-            photos: { where: { moderationStatus: PhotoModerationStatus.APPROVED } },
+            photos: {
+              where: { moderationStatus: PhotoModerationStatus.APPROVED },
+              select: { id: true, storageKey: true, thumbnailStorageKey: true, isPrimary: true },
+            },
             promptAnswers: true,
           },
         },
@@ -210,17 +229,42 @@ export class MatchingService {
       .map((u) => ({ ...u, age: computeAge(u.dateOfBirth as Date) }))
       .filter((u) => u.age >= ageMin && u.age <= ageMax);
 
-    return filtered.slice(query.skip, query.skip + query.take).map((u) => ({
-      userId: u.id,
-      displayName: u.profile!.displayName,
-      age: u.age,
-      bio: u.profile!.bio,
-      intent: u.profile!.intent,
-      city: u.profile!.city,
-      verifiedBadge: u.profile!.verifiedBadge,
-      photos: u.profile!.photos.map((p) => ({ id: p.id, storageKey: p.storageKey, isPrimary: p.isPrimary })),
-      promptAnswers: u.profile!.promptAnswers.map((p) => ({ promptKey: p.promptKey, answer: p.answer })),
-    }));
+    return Promise.all(
+      filtered.slice(query.skip, query.skip + query.take).map(async (u) => ({
+        userId: u.id,
+        displayName: u.profile!.displayName,
+        age: u.age,
+        bio: u.profile!.bio,
+        intent: u.profile!.intent,
+        city: u.profile!.city,
+        verifiedBadge: u.profile!.verifiedBadge,
+        photos: await this.hydrateCandidatePhotos(u.profile!.photos),
+        promptAnswers: u.profile!.promptAnswers.map((p) => ({ promptKey: p.promptKey, answer: p.answer })),
+      })),
+    );
+  }
+
+  /**
+   * Never the raw storageKey — that's the real S3 object key (`photos/<ownerId>/<uuid>.jpg`)
+   * and exposing it to other users defeats the point of validating photo ownership on
+   * upload (see ProfilesService.addPhoto's ownership check). Every candidate/like-received
+   * response gets the same short-lived signed URL treatment ProfilesService.getPublicProfile
+   * already uses, not a raw key a client can't even render an image from anyway.
+   */
+  private async hydrateCandidatePhotos(
+    photos: CandidatePhoto[],
+  ): Promise<{ id: string; url: string; thumbnailUrl: string | null; isPrimary: boolean }[]> {
+    return Promise.all(
+      photos.map(async (photo) => ({
+        id: photo.id,
+        url: this.storageEnabled ? await this.storageProvider.getReadUrl(photo.storageKey) : photo.storageKey,
+        thumbnailUrl:
+          this.storageEnabled && photo.thumbnailStorageKey
+            ? await this.storageProvider.getReadUrl(photo.thumbnailStorageKey)
+            : null,
+        isPrimary: photo.isPrimary,
+      })),
+    );
   }
 
   private async hydrateCandidateSummaries(userIds: string[]): Promise<CandidateSummary[]> {
@@ -238,26 +282,31 @@ export class MatchingService {
             intent: true,
             city: true,
             verifiedBadge: true,
-            photos: { where: { moderationStatus: PhotoModerationStatus.APPROVED } },
+            photos: {
+              where: { moderationStatus: PhotoModerationStatus.APPROVED },
+              select: { id: true, storageKey: true, thumbnailStorageKey: true, isPrimary: true },
+            },
             promptAnswers: true,
           },
         },
       },
     });
 
-    return users
-      .filter((u) => u.profile !== null)
-      .map((u) => ({
-        userId: u.id,
-        displayName: u.profile!.displayName,
-        age: u.dateOfBirth ? computeAge(u.dateOfBirth) : null,
-        bio: u.profile!.bio,
-        intent: u.profile!.intent,
-        city: u.profile!.city,
-        verifiedBadge: u.profile!.verifiedBadge,
-        photos: u.profile!.photos.map((p) => ({ id: p.id, storageKey: p.storageKey, isPrimary: p.isPrimary })),
-        promptAnswers: u.profile!.promptAnswers.map((p) => ({ promptKey: p.promptKey, answer: p.answer })),
-      }));
+    return Promise.all(
+      users
+        .filter((u) => u.profile !== null)
+        .map(async (u) => ({
+          userId: u.id,
+          displayName: u.profile!.displayName,
+          age: u.dateOfBirth ? computeAge(u.dateOfBirth) : null,
+          bio: u.profile!.bio,
+          intent: u.profile!.intent,
+          city: u.profile!.city,
+          verifiedBadge: u.profile!.verifiedBadge,
+          photos: await this.hydrateCandidatePhotos(u.profile!.photos),
+          promptAnswers: u.profile!.promptAnswers.map((p) => ({ promptKey: p.promptKey, answer: p.answer })),
+        })),
+    );
   }
 }
 

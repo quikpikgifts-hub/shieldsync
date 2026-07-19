@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { safeErrorMessage } from "../common/logging/safe-error";
 
 // Keeping this a closed union (rather than `string`) means every call site is checked
 // at compile time, and grepping this file tells you every auditable action in the system.
@@ -62,7 +63,7 @@ export class AuditService {
     } catch (error) {
       // Audit logging must never take down the request it's observing, but a failure
       // here is itself a security-relevant event — surface it loudly to application logs.
-      this.logger.error(`Failed to write audit log for action "${entry.action}"`, error as Error);
+      this.logger.error(`Failed to write audit log for action "${entry.action}"`, safeErrorMessage(error));
     }
   }
 }

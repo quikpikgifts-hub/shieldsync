@@ -112,6 +112,49 @@ describe("Photo storage (e2e, real local S3-compatible storage configured)", () 
     const fetchedViaSignedUrl = await fetch(photo.url);
     expect(fetchedViaSignedUrl.ok).toBe(true);
     expect(Buffer.from(await fetchedViaSignedUrl.arrayBuffer())).toEqual(bytes);
+
+    // Regression coverage for the RC-1 finding this test guards: the raw S3 object key
+    // must never appear in any client-facing response — only the short-lived signed URL.
+    expect(photo).not.toHaveProperty("storageKey");
+    expect(photo).not.toHaveProperty("thumbnailStorageKey");
+  });
+
+  it("rejects a second user registering the first user's real storageKey as their own photo", async () => {
+    // Regression test for the RC-1 finding: registering a photo used to only check that
+    // *some* object existed at the given storageKey (via headObject), never that the
+    // caller was the one who uploaded it — so a storageKey read out of another user's
+    // response (e.g. a candidate-deck entry) could be claimed as the reader's own photo.
+    const owner = await registerUser(app);
+    await createProfile(app, owner.accessToken);
+
+    const uploadUrlRes = await request(app.getHttpServer())
+      .post("/profiles/me/photos/upload-url")
+      .set("Authorization", `Bearer ${owner.accessToken}`)
+      .send({ contentType: "image/jpeg" });
+    const { uploadUrl, storageKey } = uploadUrlRes.body;
+
+    await fetch(uploadUrl, {
+      method: "PUT",
+      headers: { "Content-Type": "image/jpeg" },
+      body: Buffer.from("owner-uploaded-bytes"),
+    });
+
+    const attacker = await registerUser(app);
+    await createProfile(app, attacker.accessToken);
+
+    const hijackRes = await request(app.getHttpServer())
+      .post("/profiles/me/photos")
+      .set("Authorization", `Bearer ${attacker.accessToken}`)
+      .send({ storageKey, isPrimary: true });
+    expect(hijackRes.status).toBe(403);
+
+    // The owner's own photo is still registerable with their own real key — confirms the
+    // check is ownership-scoped, not a blanket rejection of already-uploaded objects.
+    const ownRegisterRes = await request(app.getHttpServer())
+      .post("/profiles/me/photos")
+      .set("Authorization", `Bearer ${owner.accessToken}`)
+      .send({ storageKey, isPrimary: true });
+    expect(ownRegisterRes.status).toBe(201);
   });
 
   it("rejects registering a photo whose storageKey was never actually uploaded", async () => {

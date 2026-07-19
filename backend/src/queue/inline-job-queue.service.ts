@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import type { JobQueue } from "./job-queue.interface";
+import { safeErrorMessage } from "../common/logging/safe-error";
 
 const MAX_ATTEMPTS = 3;
 const BASE_DELAY_MS = 1000;
@@ -31,7 +32,7 @@ export class InlineJobQueue implements JobQueue {
         return;
       } catch (error) {
         if (attempt === MAX_ATTEMPTS) {
-          this.logger.error(`Job on queue "${queueName}" failed after ${MAX_ATTEMPTS} attempts`, error as Error);
+          this.logger.error(`Job on queue "${queueName}" failed after ${MAX_ATTEMPTS} attempts`, safeErrorMessage(error));
           throw error;
         }
         this.logger.warn(`Job on queue "${queueName}" failed (attempt ${attempt}/${MAX_ATTEMPTS}), retrying`);

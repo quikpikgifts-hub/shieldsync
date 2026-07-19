@@ -14,6 +14,7 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
 import { computeAge } from "../common/utils/age.util";
+import { safeErrorMessage } from "../common/logging/safe-error";
 import type { AppConfig } from "../config/configuration";
 import { AccountLockoutService } from "./account-lockout.service";
 import { TokenBlacklistService } from "./token-blacklist.service";
@@ -234,7 +235,7 @@ export class AuthService {
     } catch (error) {
       // Never fail the login itself over a notification email — see the same reasoning
       // AuditService.record() already applies to its own failures.
-      this.logger.error("Failed to send new-device login alert email", error as Error);
+      this.logger.error("Failed to send new-device login alert email", safeErrorMessage(error));
     }
   }
 

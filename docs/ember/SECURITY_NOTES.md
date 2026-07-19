@@ -1,7 +1,7 @@
 # Ember Backend — Security Notes
 
-Status of the security controls actually implemented in `backend/`, updated through Phase 3
-(Production Infrastructure). Cross-reference with `THREAT_MODEL.md` (which threat this
+Status of the security controls actually implemented in `backend/`, updated through the
+RC-1 verification pass. Cross-reference with `THREAT_MODEL.md` (which threat this
 addresses) and `OPEN_DECISIONS.md` (follow-ups that need product/legal sign-off, not just
 engineering).
 
@@ -28,6 +28,10 @@ engineering).
   implementation — `src/common/throttler/redis-throttler-storage.ts`) when `REDIS_URL` is
   configured, closing the previous `SECURITY_AUDIT.md` H-3 gap where the default in-memory
   storage gave each instance its own independent counter.
+- **RC-1**: `POST /auth/register` and `POST /auth/email/verification/request` carry the
+  same 5/min-per-IP throttle as login — previously only covered by the generic 100/min
+  default, which left mass fake-account creation and inbox-spam-via-verification-resend
+  bounded only by IP rotation economics. See `CHANGELOG.md`'s RC-1 entry.
 - **Per-account login lockout**, independent of the IP-based throttle above
   (`AccountLockoutService`, Redis-backed) — closes `SECURITY_AUDIT.md` H-2. An attacker
   rotating source IPs against one specific victim account is now stopped by this, not just
@@ -89,17 +93,26 @@ engineering).
   Content-Type doesn't match what was signed). Reads are always through a short-lived
   (15 min) signed URL, never a permanent public link, even for approved photos — see
   `S3StorageProvider.getReadUrl`'s doc comment. Storage keys are namespaced by owner
-  (`photos/<userId>/<uuid>.<ext>`) so a leaked key from one user can't be used to guess
-  another user's key pattern.
+  (`photos/<userId>/<uuid>.<ext>`), and as of the RC-1 fix that namespacing is actually
+  *enforced* at registration time (`ProfilesService.addPhoto` rejects a `storageKey` not
+  prefixed with the caller's own userId) — before this fix, namespacing alone didn't stop a
+  user from registering another user's real key, since nothing validated the prefix matched
+  the caller. The raw `storageKey`/`thumbnailStorageKey` are also never included in any
+  client-facing response (only the hydrated signed `url`/`thumbnailUrl` are) — previously a
+  candidate-deck or public-profile response leaked the raw key verbatim, which is exactly
+  what made the registration-time gap exploitable. See `CHANGELOG.md`'s RC-1 entry for the
+  full exploit chain and fix.
 
 ## Data protection
 
 - `UsersService` uses an explicit Prisma `select` (never the model's default "all scalar
   fields") specifically so `passwordHash` can never be returned by an API response, even
   by accident from a future code change that forgets to strip it.
-- Government ID documents/images are never intended to be stored in this database — see
-  the `verifications` table design in `DATABASE_SCHEMA.md` and the
-  `IdentityVerificationProvider` interface, which only ever handles a vendor reference ID.
+- Government ID documents/images are never intended to be stored in this database — no
+  identity-verification feature is built yet (`IdentityVerificationProvider` remains a
+  `NotConfigured*` stub; see `DATABASE_SCHEMA.md` §3 for the full list of planned-but-not-built
+  tables). When built, the design intent is the same principle applied elsewhere in this
+  section: only ever store a vendor reference ID, never the document itself.
 
 ## Input handling
 

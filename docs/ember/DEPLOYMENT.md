@@ -81,10 +81,15 @@ not just flakiness (this was hit and fixed during Phase 1 development).
 `.github/workflows/backend-ci.yml` gates every push/PR (lint, `npm audit --omit=dev`,
 build, unit + e2e tests against real Postgres + Redis service containers, a Docker build
 sanity check). `.github/workflows/backend-deploy.yml` runs on push to `main`: builds and
-pushes a tagged image to GitHub Container Registry, then runs `prisma migrate deploy`
-against a `production` GitHub Environment. See `RELEASE.md` for the full release/rollback
-process — **the final "deploy to a real target" step in that workflow is a documented
-placeholder**, since no production hosting target exists yet (below is still accurate).
+pushes a tagged image to GitHub Container Registry, runs `prisma migrate deploy` against a
+`production` GitHub Environment, then — provided the `AWS_DEPLOY_ROLE_ARN` secret and
+`ECS_CLUSTER_NAME`/`ECS_SERVICE_NAME`/`API_URL` repository variables are set — authenticates
+to AWS via GitHub OIDC and runs a real `aws ecs update-service` / `wait services-stable` /
+`GET /ready` validation sequence. See `RELEASE.md` for the full release/rollback process and
+`OPERATOR_RUNBOOK.md`'s "Deploy" section for the exact commands. **This has not been run
+against a real AWS account** — no production hosting target exists yet (below is still
+accurate) — so the workflow is code complete, not operationally verified; until the secret/
+variables above are set, its final step reports exactly that instead of silently no-op'ing.
 
 ## Production deployment
 
