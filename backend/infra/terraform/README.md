@@ -93,8 +93,10 @@ After `apply` succeeds:
 
 This is sized for a pre-alpha closed cohort, not production scale — `db.t4g.micro`,
 `cache.t4g.micro`, a single Fargate task, single-AZ RDS/Redis. Rough AWS list-price
-ballpark at these sizes: **$50-120/month** (RDS ~$15-25, ElastiCache ~$15-25, Fargate
-~$15-30, ALB ~$20, NAT gateways ~$65 for two — the NAT gateways are actually the single
-largest line item at this scale; one NAT gateway instead of two saves ~$32/month at the
-cost of the redundancy described in `modules/networking/main.tf`). Confirm current AWS
-pricing before treating this as a real budget number — it will drift.
+ballpark at these sizes: **~$135-165/month** (RDS ~$15-18, ElastiCache ~$12, Fargate ~$18,
+ALB ~$18-21, NAT gateways ~$66 for two — the NAT gateways are actually the single largest
+line item at this scale; one NAT gateway instead of two saves ~$33/month at the cost of the
+redundancy described in `modules/networking/main.tf`; the rest is S3/Secrets
+Manager/CloudWatch/Route53/data-transfer, each a few dollars a month at this scale). See
+`docs/ember/AWS_COST_ESTIMATE.md` for the full breakdown and higher-scale tiers. Confirm
+current AWS pricing before treating this as a real budget number — it will drift.
