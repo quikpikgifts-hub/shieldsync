@@ -4,6 +4,8 @@ export const config = { runtime: "edge" };
 // Strategy: play a brief "we'll text you" message, hang up, and
 // immediately dispatch the SMS text-back — all within one request.
 
+import { verifyTwilioSignature } from "./_lib/twilio.js";
+
 const CORS = { "Access-Control-Allow-Origin": "*" };
 
 async function sendSMS(to, body) {
@@ -66,6 +68,14 @@ export default async function handler(req) {
 
   const text = await req.text();
   const params = new URLSearchParams(text);
+
+  if (!(await verifyTwilioSignature(req, req.url, params))) {
+    console.log("[missed-call] rejected — invalid Twilio signature");
+    return new Response(
+      `<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>`,
+      { status: 403, headers: { "Content-Type": "application/xml" } }
+    );
+  }
 
   const callerNumber  = params.get("From")        || "";
   const calledNumber  = params.get("To")          || "";

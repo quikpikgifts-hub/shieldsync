@@ -1,7 +1,8 @@
 export const config = { runtime: "edge" };
 
 function checkPin(req) {
-  const expected = process.env.DASH_PIN || "0000";
+  const expected = process.env.DASH_PIN;
+  if (!expected || expected === "0000") return false; // fail closed — no PIN, no default, no access
   const auth = req.headers.get("authorization") || "";
   const pin = auth.startsWith("Bearer ") ? auth.slice(7) : new URL(req.url).searchParams.get("pin") || "";
   return pin === expected;

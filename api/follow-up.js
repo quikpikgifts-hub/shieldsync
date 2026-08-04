@@ -130,10 +130,12 @@ ${toEmail}`,
 function checkAuth(req) {
   const auth = req.headers.get("authorization") || "";
   const pin = auth.startsWith("Bearer ") ? auth.slice(7) : new URL(req.url).searchParams.get("pin") || "";
-  // Follow-up processor uses CRON_SECRET; dashboard uses DASH_PIN
+  // Follow-up processor uses CRON_SECRET; dashboard uses DASH_PIN. Fail closed —
+  // an unset or default "0000" DASH_PIN grants no access rather than falling back to it.
   const cronSecret = process.env.CRON_SECRET;
-  const dashPin = process.env.DASH_PIN || "0000";
-  return pin === dashPin || (cronSecret && pin === cronSecret);
+  const dashPin = process.env.DASH_PIN;
+  const dashPinValid = dashPin && dashPin !== "0000" && pin === dashPin;
+  return dashPinValid || (cronSecret && pin === cronSecret);
 }
 
 async function processSequence(sequence, resendKey, fromDomain) {

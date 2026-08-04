@@ -23,7 +23,7 @@ function isAllowedOrigin(req) {
 function hasDashPinAuth(req) {
   const auth = req.headers.get("authorization") || "";
   const pin = process.env.DASH_PIN;
-  if (!pin) return false;
+  if (!pin || pin === "0000") return false; // fail closed on unset or default PIN
   return auth === `Bearer ${pin}`;
 }
 

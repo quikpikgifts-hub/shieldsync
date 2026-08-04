@@ -44,7 +44,7 @@ export default async function handler(req) {
   }
 
   const vapiSecret = process.env.VAPI_SECRET;
-  if (vapiSecret && req.headers.get("x-vapi-secret") !== vapiSecret) {
+  if (!vapiSecret || req.headers.get("x-vapi-secret") !== vapiSecret) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: { "Content-Type": "application/json", ...CORS },

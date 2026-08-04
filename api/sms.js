@@ -1,5 +1,7 @@
 export const config = { runtime: "edge" };
 
+import { verifyTwilioSignature } from "./_lib/twilio.js";
+
 const CORS = { "Access-Control-Allow-Origin": "*" };
 
 async function sendSMS(to, body) {
@@ -71,7 +73,8 @@ export default async function handler(req) {
     const { searchParams } = new URL(req.url);
     const action = searchParams.get("action");
     const pin    = searchParams.get("pin");
-    if (action !== "send" || pin !== process.env.DASH_PIN) {
+    const dashPin = process.env.DASH_PIN;
+    if (action !== "send" || !dashPin || dashPin === "0000" || pin !== dashPin) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
         headers: { "Content-Type": "application/json", ...CORS },
@@ -100,6 +103,11 @@ export default async function handler(req) {
   if (contentType.includes("application/x-www-form-urlencoded")) {
     const text = await req.text();
     const params = new URLSearchParams(text);
+
+    if (!(await verifyTwilioSignature(req, req.url, params))) {
+      return new Response("Forbidden", { status: 403, headers: CORS });
+    }
+
     const from = params.get("From") || "";
     const body = (params.get("Body") || "").trim().toLowerCase();
 
@@ -131,7 +139,8 @@ export default async function handler(req) {
   // Internal missed-call text-back — JSON body, DASH_PIN in Authorization Bearer
   const authHeader = req.headers.get("authorization") || "";
   const bearerPin  = authHeader.replace(/^Bearer\s+/i, "").trim();
-  if (bearerPin !== process.env.DASH_PIN) {
+  const dashPinInternal = process.env.DASH_PIN;
+  if (!dashPinInternal || dashPinInternal === "0000" || bearerPin !== dashPinInternal) {
     return new Response(JSON.stringify({ error: "Forbidden" }), {
       status: 403,
       headers: { "Content-Type": "application/json", ...CORS },
