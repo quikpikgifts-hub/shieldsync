@@ -6,10 +6,12 @@ import { createRoot } from "react-dom/client";
 // part of the shared bundle that every real site visitor downloads.
 const App = lazy(() => import("./App.jsx"));
 const Website = lazy(() => import("./Website.jsx"));
+const Social = lazy(() => import("./Social.jsx"));
 
 const path = window.location.pathname;
 const isApp = path === "/app" || path.startsWith("/app/");
-const Entry = isApp ? App : Website;
+const isSocial = path === "/social" || path.startsWith("/social/");
+const Entry = isSocial ? Social : isApp ? App : Website;
 
 const root = createRoot(document.getElementById("root"));
 root.render(

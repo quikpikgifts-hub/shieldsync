@@ -1,6 +1,7 @@
 export const config = { runtime: "edge" };
 
 import { kvRateLimit } from "./_lib/kv.js";
+import { callAnthropic } from "./_lib/ai-gateway.js";
 
 // ─── Allowed origins (same-origin requests from the site itself) ─────────────
 const ALLOWED_ORIGINS = [
@@ -102,19 +103,12 @@ export default async function handler(req) {
 
   // ── Proxy to Anthropic ──
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: Math.min(max_tokens, 2048),   // cap to prevent abuse
-        system: system || "You are a helpful AI assistant.",
-        messages: messages.slice(-10),              // cap history depth
-      }),
+    const resp = await callAnthropic({
+      apiKey,
+      model: "claude-sonnet-4-6",
+      maxTokens: Math.min(max_tokens, 2048),   // cap to prevent abuse
+      system: system || "You are a helpful AI assistant.",
+      messages: messages.slice(-10),              // cap history depth
     });
 
     if (!resp.ok) {
