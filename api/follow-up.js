@@ -1,16 +1,7 @@
 export const config = { runtime: "edge" };
 
-async function kv(cmd, ...args) {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return null;
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify([cmd, ...args]),
-  });
-  return (await r.json()).result;
-}
+import { kv } from "./_lib/kv.js";
+import { cleanEnv, sendEmail } from "./_lib/email.js";
 
 function fmtAnnual(n) {
   if (!n || n === 0) return null;
@@ -27,7 +18,6 @@ function template(sequence, lead) {
   const lostMo = calcData?.lostMonthly ? `$${calcData.lostMonthly.toLocaleString()}` : null;
   const recMo = calcData?.recoveryMonthly ? `$${calcData.recoveryMonthly.toLocaleString()}` : null;
   const missRate = calcData?.miss ? `${calcData.miss}%` : null;
-  const cleanEnv = v => (v || "").replace(/^=+/, "").trim();
   const toEmail = cleanEnv(process.env.TEAM_EMAIL) || "info@veridianriskgroup.org";
   const fromDomainCta = cleanEnv(process.env.FROM_DOMAIN) || "veridianriskgroup.org";
 
@@ -160,21 +150,16 @@ async function processSequence(sequence, resendKey, fromDomain) {
       if (!tmpl) { await kv("ZREM", `veridian:fu:${sequence}`, leadId); continue; }
 
       if (resendKey) {
-        const toEmail = ((v => (v || "").replace(/^=+/, "").trim())(process.env.TEAM_EMAIL)) || "info@veridianriskgroup.org";
-        const r = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from: `Veridian <hello@${fromDomain}>`,
-            to: [lead.contact.email],
-            reply_to: toEmail,
-            subject: tmpl.subject,
-            text: tmpl.text,
-          }),
-        });
-        if (r.ok) {
+        const toEmail = cleanEnv(process.env.TEAM_EMAIL) || "info@veridianriskgroup.org";
+        const result = await sendEmail(resendKey, {
+          from: `Veridian <hello@${fromDomain}>`,
+          to: [lead.contact.email],
+          reply_to: toEmail,
+          subject: tmpl.subject,
+          text: tmpl.text,
+        }, `auto-${sequence}`, "follow-up");
+        if (result.ok) {
           sent++;
-          // Log to KV
           await kv("LPUSH", `veridian:fu-log:${leadId}`, JSON.stringify({ sequence, ts: new Date().toISOString(), email: lead.contact.email }));
         }
       } else {
@@ -207,9 +192,8 @@ export default async function handler(req) {
     });
   }
 
-  const cleanEnvFu = v => (v || "").replace(/^=+/, "").trim();
   const resendKey = process.env.RESEND_API_KEY;
-  const fromDomain = cleanEnvFu(process.env.FROM_DOMAIN) || "veridianriskgroup.org";
+  const fromDomain = cleanEnv(process.env.FROM_DOMAIN) || "veridianriskgroup.org";
 
   if (req.method === "GET") {
     // Vercel Cron sends Authorization: Bearer {CRON_SECRET}
@@ -262,18 +246,14 @@ export default async function handler(req) {
       if (!tmpl) return new Response(JSON.stringify({ error: "Unknown sequence" }), { status: 400, headers: { "Content-Type": "application/json" } });
 
       if (resendKey) {
-        const toEmail = cleanEnvFu(process.env.TEAM_EMAIL) || "info@veridianriskgroup.org";
-        await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            from: `Veridian <hello@${fromDomain}>`,
-            to: [lead.contact.email],
-            reply_to: toEmail,
-            subject: tmpl.subject,
-            text: tmpl.text,
-          }),
-        });
+        const toEmail = cleanEnv(process.env.TEAM_EMAIL) || "info@veridianriskgroup.org";
+        await sendEmail(resendKey, {
+          from: `Veridian <hello@${fromDomain}>`,
+          to: [lead.contact.email],
+          reply_to: toEmail,
+          subject: tmpl.subject,
+          text: tmpl.text,
+        }, `manual-${sequence}`, "follow-up");
       }
       await kv("LPUSH", `veridian:fu-log:${leadId}`, JSON.stringify({ sequence, ts: new Date().toISOString(), manual: true }));
       return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });

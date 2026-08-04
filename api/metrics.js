@@ -1,5 +1,8 @@
 export const config = { runtime: "edge" };
 
+import { cleanEnv } from "./_lib/email.js";
+import { supabaseSelect } from "./_lib/supabase.js";
+
 function checkPin(req) {
   const expected = process.env.DASH_PIN;
   if (!expected || expected === "0000") return false; // fail closed — no PIN, no default, no access
@@ -25,26 +28,15 @@ export default async function handler(req) {
     });
   }
 
-  const cleanEnv = v => (v || "").replace(/^=+/, "").trim();
-  const url = cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL);
-  const key = cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY);
-
-  if (!url || !key) {
+  if (!cleanEnv(process.env.NEXT_PUBLIC_SUPABASE_URL) || !cleanEnv(process.env.SUPABASE_SERVICE_ROLE_KEY)) {
     return new Response(JSON.stringify({ error: "Supabase not configured" }), {
       status: 500, headers: { "Content-Type": "application/json" },
     });
   }
 
-  const h = { "apikey": key, "Authorization": `Bearer ${key}`, "Accept": "application/json" };
-
-  const [leadsRes, bookingsRes] = await Promise.all([
-    fetch(`${url}/rest/v1/leads?select=lead_id,name,business,email,priority,status,created_at&order=created_at.desc`, { headers: h }),
-    fetch(`${url}/rest/v1/bookings?select=booking_id,lead_id,name,business,email,created_at&order=created_at.desc`, { headers: h }),
-  ]);
-
   const [leads, bookings] = await Promise.all([
-    leadsRes.json().catch(() => []),
-    bookingsRes.json().catch(() => []),
+    supabaseSelect("leads", "select=lead_id,name,business,email,priority,status,created_at&order=created_at.desc"),
+    supabaseSelect("bookings", "select=booking_id,lead_id,name,business,email,created_at&order=created_at.desc"),
   ]);
 
   const totalLeads = Array.isArray(leads) ? leads.length : 0;

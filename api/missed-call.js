@@ -4,39 +4,9 @@ export const config = { runtime: "edge" };
 // Strategy: play a brief "we'll text you" message, hang up, and
 // immediately dispatch the SMS text-back — all within one request.
 
-import { verifyTwilioSignature } from "./_lib/twilio.js";
+import { verifyTwilioSignature, sendSMS } from "./_lib/twilio.js";
 
 const CORS = { "Access-Control-Allow-Origin": "*" };
-
-async function sendSMS(to, body) {
-  const sid   = process.env.TWILIO_ACCOUNT_SID;
-  const token = process.env.TWILIO_AUTH_TOKEN;
-  const from  = process.env.TWILIO_PHONE_NUMBER;
-  if (!sid || !token || !from) {
-    console.error("[missed-call] Twilio env vars missing");
-    return { ok: false, error: "not configured" };
-  }
-  try {
-    const r = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Basic ${btoa(`${sid}:${token}`)}`,
-        },
-        body: new URLSearchParams({ To: to, From: from, Body: body }).toString(),
-      }
-    );
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) console.error("[missed-call] SMS send failed:", data);
-    else console.log("[missed-call] SMS sent → sid:", data.sid);
-    return { ok: r.ok, sid: data.sid };
-  } catch (err) {
-    console.error("[missed-call] sendSMS error:", err?.message);
-    return { ok: false, error: err?.message };
-  }
-}
 
 function twimlSay(message) {
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -99,7 +69,7 @@ export default async function handler(req) {
   const businessName = process.env.BUSINESS_NAME || "Veridian";
   const smsBody = `Hi, this is ${businessName}.\n\nSorry we missed your call — we don't want you to wait.\n\nWhat can we help you with today? Reply here and we'll get back to you right away.\n\nReply BOOK to schedule a free consultation.`;
 
-  const smsSent = sendSMS(callerNumber, smsBody);
+  const smsSent = sendSMS(callerNumber, smsBody, "missed-call");
 
   // Return TwiML — caller hears a brief message then the call ends
   const twiml = twimlSay("Thanks for calling. We just sent you a text message so you don't have to wait on hold. Reply to that text and we will get right back to you.");

@@ -37,3 +37,33 @@ export async function verifyTwilioSignature(req, url, params) {
   const expected = await hmacSha1Base64(authToken, data);
   return timingSafeEqual(expected, signature);
 }
+
+// Consolidates the sendSMS() copies previously duplicated in sms.js and missed-call.js.
+export async function sendSMS(to, body, logPrefix = "twilio") {
+  const sid   = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  const from  = process.env.TWILIO_PHONE_NUMBER;
+  if (!sid || !token || !from) {
+    console.error(`[${logPrefix}] Twilio env vars missing (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER)`);
+    return { ok: false, error: "SMS not configured" };
+  }
+  try {
+    const r = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Basic ${btoa(`${sid}:${token}`)}`,
+        },
+        body: new URLSearchParams({ To: to, From: from, Body: body }).toString(),
+      }
+    );
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) console.error(`[${logPrefix}] SMS send failed:`, data);
+    return { ok: r.ok, sid: data.sid };
+  } catch (err) {
+    console.error(`[${logPrefix}] sendSMS error:`, err?.message);
+    return { ok: false, error: err?.message };
+  }
+}

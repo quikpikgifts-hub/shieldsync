@@ -1,41 +1,10 @@
 export const config = { runtime: "edge" };
 
-async function sendEmail(apiKey, payload, label) {
-  console.log(`[assessment] send: ${label} → to=${JSON.stringify(payload.to)} from=${payload.from}`);
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) {
-      console.error(`[assessment] RESEND FAIL: ${label} — HTTP ${r.status} —`, JSON.stringify(data));
-    } else {
-      console.log(`[assessment] RESEND OK: ${label} — id=${data.id}`);
-    }
-    return { ok: r.ok, status: r.status, data };
-  } catch (err) {
-    console.error(`[assessment] RESEND ERROR: ${label} —`, err?.message || String(err));
-    return { ok: false, error: err?.message };
-  }
-}
-
-async function kv(cmd, ...args) {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return null;
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify([cmd, ...args]),
-  });
-  return (await r.json()).result;
-}
-
-function mkId() {
-  return `asmnt_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-}
+import { kv } from "./_lib/kv.js";
+import { cleanEnv, sendEmail } from "./_lib/email.js";
+import { mkId } from "./_lib/ids.js";
+import { priorityFromScore } from "./_lib/priority.js";
+import { recordLead, scheduleFollowUps } from "./_lib/store.js";
 
 const REC_LABELS = {
   revenue: "Missed Call Recovery",
@@ -74,10 +43,9 @@ export default async function handler(req) {
     });
   }
 
-  const assessmentId = mkId();
+  const assessmentId = mkId("asmnt");
   const ts = new Date().toISOString();
   const firstName = (name || "").trim().split(" ")[0] || "there";
-  const cleanEnv   = v => (v || "").replace(/^=+/, "").trim();
   const resendKey  = process.env.RESEND_API_KEY;
   const toEmail    = cleanEnv(process.env.TEAM_EMAIL)   || "info@veridianriskgroup.org";
   const fromDomain = cleanEnv(process.env.FROM_DOMAIN)  || "veridianriskgroup.org";
@@ -90,12 +58,16 @@ export default async function handler(req) {
     KV_REST_API_URL: process.env.KV_REST_API_URL ? "set" : "MISSING",
   });
 
-  const priority = (overallPct || 100) < 40 ? "HOT" : (overallPct || 100) < 60 ? "HIGH" : (overallPct || 100) < 80 ? "MEDIUM" : "LOW";
+  const priority = priorityFromScore(overallPct);
   console.log(`[assessment] id=${assessmentId} | score=${overallPct} | priority=${priority} | from=${email.trim()}`);
 
   const areaBlock = (areaScores || []).map(a => `${a.label}: ${a.pct}%`).join("\n");
   const recBlock = (recommendations || []).slice(0, 3).map((id, i) => `${i + 1}. ${REC_LABELS[id] || id}`).join("\n");
 
+  // Sprint 0b fix (ops/veridian-data-architecture-audit.md, Finding #1):
+  // assessment leads previously wrote to KV only and never reached Supabase,
+  // making them permanently invisible to /api/metrics. recordLead() writes
+  // both stores, same as contact.js.
   const leadRecord = {
     leadId: assessmentId,
     timestamp: ts,
@@ -106,6 +78,7 @@ export default async function handler(req) {
     challenge: `Assessment score: ${overallPct}/100 (${level || "—"})`,
     calcData: null,
     recoveryEstimate: null,
+    notes: `Assessment score: ${overallPct}/100 (${level || "—"})\n${areaBlock}`,
   };
 
   const assessmentRecord = {
@@ -122,19 +95,17 @@ export default async function handler(req) {
   }
 
   await Promise.allSettled([
+    recordLead(leadRecord),
     kv("SET", `veridian:assessment:${assessmentId}`, JSON.stringify(assessmentRecord)),
     kv("LPUSH", "veridian:assessments", JSON.stringify(assessmentRecord)),
-    kv("SET", `veridian:lead:${assessmentId}`, JSON.stringify(leadRecord)),
-    kv("LPUSH", "veridian:leads", JSON.stringify(leadRecord)),
-    kv("ZADD", "veridian:fu:24h", String(Date.now() + 86400000), assessmentId),
-    kv("ZADD", "veridian:fu:3d", String(Date.now() + 259200000), assessmentId),
+    scheduleFollowUps(assessmentId, ["24h", "3d"]),
     resendKey
       ? sendEmail(resendKey, {
           from: `Veridian <noreply@${fromDomain}>`,
           to: [toEmail],
           subject: `[${priority}] Assessment: ${name?.trim() || email.trim()} — ${overallPct}/100`,
           text: teamText,
-        }, "team-alert")
+        }, "team-alert", "assessment")
       : null,
     resendKey
       ? sendEmail(resendKey, {
@@ -143,7 +114,7 @@ export default async function handler(req) {
           reply_to: toEmail,
           subject: `Your Business Readiness Assessment — Score: ${overallPct}/100`,
           text: clientText,
-        }, "client-results")
+        }, "client-results", "assessment")
       : null,
   ]);
 

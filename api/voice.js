@@ -1,32 +1,11 @@
 export const config = { runtime: "edge" };
 
+import { supabaseInsert } from "./_lib/supabase.js";
+import { mkId } from "./_lib/ids.js";
+
 const AGENT_PROMPT = "You are Alex, the AI receptionist for Veridian Risk Group. You answer inbound calls professionally.\n\nServices: Revenue recovery for service businesses — AI answering, SMS follow-up, lead management.\n\nFor BOOKING calls: collect name, email, callback number, business name → call book_consultation function.\nFor INFO calls: briefly describe Veridian's service, guide toward booking.\nFor EXISTING clients: take a message and promise callback within 2 hours.\n\nBe warm, concise, and results-focused. Every call should end with either a booking or captured contact info.";
 
 const CORS = { "Access-Control-Allow-Origin": "*" };
-
-async function supabaseInsert(row) {
-  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const rawKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-  const url = rawUrl.replace(/^=+/, "").trim();
-  const key = rawKey.replace(/^=+/, "").trim();
-  if (!url || !key) return;
-  try {
-    await fetch(`${url}/rest/v1/leads`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": key,
-        "Authorization": `Bearer ${key}`,
-        "Prefer": "return=minimal",
-      },
-      body: JSON.stringify(row),
-    });
-  } catch {}
-}
-
-function mkId() {
-  return `vrd_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-}
 
 export default async function handler(req) {
   if (req.method === "OPTIONS") {
@@ -124,15 +103,15 @@ export default async function handler(req) {
     const duration = event.call?.duration || null;
     const summary = event.summary || event.call?.summary || null;
 
-    await supabaseInsert({
-      lead_id:  mkId(),
+    await supabaseInsert("leads", {
+      lead_id:  mkId("vrd"),
       name:     null,
       email,
       phone,
       priority: "HIGH",
       status:   "contacted",
       notes:    `Voice call${duration ? ` — ${duration}s` : ""}${summary ? `. Summary: ${summary}` : ""}`,
-    });
+    }).catch(() => {});
 
     return new Response(JSON.stringify({ status: "ok" }), {
       headers: { "Content-Type": "application/json", ...CORS },
@@ -144,8 +123,8 @@ export default async function handler(req) {
     const params = event.functionCall?.parameters || event.message?.functionCall?.parameters || {};
 
     if (fnName === "book_consultation") {
-      await supabaseInsert({
-        lead_id:  mkId(),
+      await supabaseInsert("leads", {
+        lead_id:  mkId("vrd"),
         name:     params.name || null,
         email:    params.email || null,
         phone:    params.phone || null,
@@ -153,7 +132,7 @@ export default async function handler(req) {
         priority: "HOT",
         status:   "consultation_booked",
         notes:    "Booked via AI voice receptionist",
-      });
+      }).catch(() => {});
       return new Response(JSON.stringify({
         result: "I've captured your details. A Veridian advisor will confirm your consultation within 2 hours. Is there anything else I can help with?",
       }), {
@@ -162,14 +141,14 @@ export default async function handler(req) {
     }
 
     if (fnName === "capture_lead") {
-      await supabaseInsert({
-        lead_id:  mkId(),
+      await supabaseInsert("leads", {
+        lead_id:  mkId("vrd"),
         name:     params.name || null,
         phone:    params.phone || null,
         priority: "HIGH",
         status:   "contacted",
         notes:    params.message ? `Message: ${params.message}` : "Captured via AI voice receptionist",
-      });
+      }).catch(() => {});
       return new Response(JSON.stringify({
         result: "Thank you! Our team will follow up with your personalized revenue recovery assessment within 1 business day.",
       }), {

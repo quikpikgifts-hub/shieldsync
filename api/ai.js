@@ -1,5 +1,7 @@
 export const config = { runtime: "edge" };
 
+import { kvRateLimit } from "./_lib/kv.js";
+
 // ─── Allowed origins (same-origin requests from the site itself) ─────────────
 const ALLOWED_ORIGINS = [
   "https://shieldsync-psi.vercel.app",
@@ -36,30 +38,6 @@ function corsHeaders(allowedOrigin) {
   };
 }
 
-// ─── KV-backed rate limiting (20 req/min per IP, same pattern as chat.js) ────
-async function kvRateLimit(ip) {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return false;          // KV not configured — allow (fail open)
-  const key = `rl:ai:${ip}:${Math.floor(Date.now() / 60000)}`;
-  try {
-    const incrRes = await fetch(url, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["INCR", key]),
-    });
-    const { result: count } = await incrRes.json();
-    await fetch(url, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["EXPIRE", key, 120]),
-    });
-    return count > 20;
-  } catch {
-    return false;                             // KV error — fail open
-  }
-}
-
 // ─── Handler ─────────────────────────────────────────────────────────────────
 export default async function handler(req) {
   // Pre-flight
@@ -86,8 +64,7 @@ export default async function handler(req) {
   const cors = corsHeaders(allowedOrigin || "*");
 
   // ── Rate limit by IP ──
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const limited = await kvRateLimit(ip);
+  const limited = await kvRateLimit(req, { prefix: "ai", max: 20, windowSec: 60 });
   if (limited) {
     return new Response(JSON.stringify({ error: "Too many requests" }), {
       status: 429,
