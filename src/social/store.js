@@ -59,6 +59,16 @@ export const devAuth = {
   signOut: () => LS.del(SESSION_KEY),
 };
 
+// Remembers which workspace was open, so reloading the page (a browser
+// refresh, reopening a tab, a phone screen lock) doesn't force the founder
+// back through workspace selection every time — a real daily-use papercut,
+// not a feature.
+const LAST_WORKSPACE_KEY = "vs_last_workspace_id";
+export const lastWorkspace = {
+  get: () => LS.get(LAST_WORKSPACE_KEY, null),
+  set: (id) => LS.set(LAST_WORKSPACE_KEY, id),
+};
+
 // ─── Workspaces ─────────────────────────────────────────────────
 export const workspaces = collection("workspaces");
 

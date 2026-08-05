@@ -7,6 +7,8 @@ import { configOnlyConnectionState } from "./states.js";
 
 export const platform = "youtube";
 export const requiredEnv = ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"];
+// Verify against Google's current docs before relying on this.
+export const requiredScopes = ["https://www.googleapis.com/auth/youtube.upload"];
 
 export function isConfigured() {
   return requiredEnv.every((k) => Boolean(process.env[k]));

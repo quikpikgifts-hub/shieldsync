@@ -455,58 +455,107 @@ const STATE_TONE = {
   connected: "green",
 };
 
-// ─── Social platform connection status (real, live) ──────────────
-// Four honest states instead of a connected/not-connected guess — see
-// api/_lib/publishers/states.js. Never shows "Connected" unless a real,
-// currently-valid account token is stored.
+function formatLastVerified(ts) {
+  if (!ts) return "Never verified";
+  return new Date(ts).toLocaleString();
+}
+
+// ─── Single activation/configuration screen (real, live) ──────────
+// One card per provider, every field the founder needs to go from
+// "building" to "activated": current status, exactly which credentials
+// and scopes are required, whether an OAuth flow even exists yet, whether
+// an account is actually connected, when it was last verified, and one
+// action button. Never fabricates a status — see
+// api/_lib/publishers/states.js. Not renamed "Connect social accounts"
+// header kept as the visible label; this *is* the activation screen.
 export function SocialConnectionsPanel() {
   const [publishers, setPublishers] = useState(null);
-  const [busy, setBusy] = useState(false);
+  const [busyPlatform, setBusyPlatform] = useState(null);
+  const [verifyResults, setVerifyResults] = useState({});
 
   const refresh = () => fetch("/api/social/publish").then(r => r.json()).then(d => setPublishers(d.publishers)).catch(() => setPublishers([]));
 
   useEffect(() => { refresh(); }, []);
 
   const disconnectTiktok = async () => {
-    setBusy(true);
+    setBusyPlatform("tiktok");
     try {
       await fetch("/api/social/oauth/tiktok/disconnect", { method: "POST" });
       await refresh();
     } finally {
-      setBusy(false);
+      setBusyPlatform(null);
+    }
+  };
+
+  const verify = async (platform) => {
+    setBusyPlatform(platform);
+    try {
+      const r = await fetch("/api/social/verify", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ platform }),
+      });
+      const data = await safeJson(r);
+      setVerifyResults(v => ({ ...v, [platform]: data || { ok: false, reason: "verification_failed" } }));
+      await refresh();
+    } finally {
+      setBusyPlatform(null);
     }
   };
 
   return (
     <Card style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>Connect social accounts</div>
+      <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>Platform activation</div>
       <div style={{ fontSize: 12.5, color: T.textSub, lineHeight: 1.6, marginBottom: 12 }}>
-        Each platform needs a registered app and (for most) a review process before publishing works —
-        that's an external, credential-gated step nobody can skip. This list reflects real, live status,
-        not a guess.
+        Every field below reflects real, live status — nothing here is a placeholder. Until a platform
+        shows Connected, its approved content is copied to your clipboard for manual posting instead.
       </div>
       {publishers === null && <div style={{ fontSize: 12, color: T.textDim }}>Checking…</div>}
       {publishers && (
-        <div style={{ display: "grid", gap: 6 }}>
-          {publishers.map(p => (
-            <div key={p.platform} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", background: T.surface, borderRadius: 8 }}>
-              <div style={{ fontSize: 13, textTransform: "capitalize" }}>{p.platform}{p.platform === "tiktok" && <span style={{ color: T.accent, fontWeight: 700, fontSize: 10, marginLeft: 6 }}>PILOT</span>}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Pill tone={STATE_TONE[p.state]}>{p.label}</Pill>
-                {p.platform === "tiktok" && p.state === "ready_to_activate" && (
-                  <a href="/api/social/oauth/tiktok/start"><Btn style={{ padding: "4px 10px", fontSize: 11.5 }}>Connect account</Btn></a>
+        <div style={{ display: "grid", gap: 10 }}>
+          {publishers.map(p => {
+            const verifyResult = verifyResults[p.platform];
+            return (
+              <div key={p.platform} style={{ background: T.surface, borderRadius: 10, padding: "12px 14px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, textTransform: "capitalize" }}>
+                    {p.platform}{p.platform === "tiktok" && <span style={{ color: T.accent, fontWeight: 700, fontSize: 10, marginLeft: 6 }}>PILOT</span>}
+                  </div>
+                  <Pill tone={STATE_TONE[p.state]}>{p.label}</Pill>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: "4px 16px", fontSize: 11.5, color: T.textSub, marginBottom: 10 }}>
+                  <div><span style={{ color: T.textDim }}>Required credentials: </span>{p.requiredEnv.join(", ")}</div>
+                  <div><span style={{ color: T.textDim }}>Required scopes: </span>{p.requiredScopes.join(", ")}</div>
+                  <div><span style={{ color: T.textDim }}>OAuth flow: </span>{p.oauthAvailable ? "Built" : "Not yet available"}</div>
+                  <div><span style={{ color: T.textDim }}>Connection: </span>{p.state === "connected" ? (p.accountDisplayName ? `Connected as ${p.accountDisplayName}` : "Account connected") : "No account connected"}</div>
+                  <div><span style={{ color: T.textDim }}>Last verification: </span>{formatLastVerified(p.lastVerifiedAt)}</div>
+                </div>
+                {verifyResult && (
+                  <div style={{ fontSize: 11.5, color: verifyResult.ok ? T.green : T.red, marginBottom: 8 }}>
+                    {verifyResult.ok ? `Verified — connected as ${verifyResult.displayName || "unknown"}.` : `Verification failed: ${verifyResult.detail || verifyResult.reason}`}
+                  </div>
                 )}
-                {p.platform === "tiktok" && p.state === "connected" && (
-                  <Btn variant="ghost" style={{ padding: "4px 10px", fontSize: 11.5 }} onClick={disconnectTiktok} disabled={busy}>Disconnect</Btn>
-                )}
+                <div style={{ display: "flex", gap: 8 }}>
+                  {p.platform === "tiktok" && p.state === "ready_to_activate" && (
+                    <a href="/api/social/oauth/tiktok/start"><Btn style={{ padding: "5px 12px", fontSize: 11.5 }}>Connect account</Btn></a>
+                  )}
+                  {p.platform === "tiktok" && p.state === "connected" && (
+                    <>
+                      <Btn variant="ghost" style={{ padding: "5px 12px", fontSize: 11.5 }} onClick={() => verify(p.platform)} disabled={busyPlatform === p.platform}>
+                        {busyPlatform === p.platform ? "Verifying…" : "Verify connection"}
+                      </Btn>
+                      <Btn variant="ghost" style={{ padding: "5px 12px", fontSize: 11.5 }} onClick={disconnectTiktok} disabled={busyPlatform === p.platform}>Disconnect</Btn>
+                    </>
+                  )}
+                  {(p.state === "waiting_for_credentials" || p.state === "configuration_required") && (
+                    <Btn variant="ghost" disabled style={{ padding: "5px 12px", fontSize: 11.5, cursor: "not-allowed" }}>
+                      {p.oauthAvailable ? "Set credentials above to activate" : "Not yet available"}
+                    </Btn>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
-      <div style={{ fontSize: 11.5, color: T.textDim, marginTop: 12 }}>
-        Until a platform shows Connected, its approved content is copied to your clipboard for manual posting.
-      </div>
     </Card>
   );
 }

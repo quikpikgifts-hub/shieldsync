@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { getPublisher, listPublishers } from "./index.js";
+import { getPublisher, listPublishers, verifyPublisherConnection } from "./index.js";
 
 const ALL_ENV_VARS = [
   "META_ACCESS_TOKEN", "META_INSTAGRAM_ACCOUNT_ID", "META_PAGE_ACCESS_TOKEN", "META_FACEBOOK_PAGE_ID",
@@ -58,6 +58,40 @@ describe("listPublishers", () => {
 
     const tiktok = (await listPublishers()).find((p) => p.platform === "tiktok");
     expect(tiktok.state).toBe("ready_to_activate");
+  });
+
+  it("includes requiredScopes for every platform", async () => {
+    const list = await listPublishers();
+    expect(list.every((p) => Array.isArray(p.requiredScopes) && p.requiredScopes.length > 0)).toBe(true);
+  });
+
+  it("only reports oauthAvailable for TikTok — the only platform with a real OAuth flow built", async () => {
+    const list = await listPublishers();
+    expect(list.find((p) => p.platform === "tiktok").oauthAvailable).toBe(true);
+    for (const platform of ["facebook", "instagram", "linkedin", "youtube", "x", "pinterest"]) {
+      expect(list.find((p) => p.platform === platform).oauthAvailable).toBe(false);
+    }
+  });
+});
+
+describe("verifyPublisherConnection", () => {
+  it("returns not_available for platforms without a real verify implementation", async () => {
+    const result = await verifyPublisherConnection("facebook");
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe("not_available");
+  });
+
+  it("returns not_available for an unknown platform", async () => {
+    const result = await verifyPublisherConnection("myspace");
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe("not_available");
+  });
+
+  it("delegates to TikTok's real verifyConnection", async () => {
+    for (const k of ALL_ENV_VARS) delete process.env[k];
+    const result = await verifyPublisherConnection("tiktok");
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe("not_configured"); // no env vars set in this test
   });
 });
 

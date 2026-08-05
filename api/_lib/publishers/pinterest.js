@@ -6,6 +6,8 @@ import { configOnlyConnectionState } from "./states.js";
 
 export const platform = "pinterest";
 export const requiredEnv = ["PINTEREST_CLIENT_ID", "PINTEREST_CLIENT_SECRET"];
+// Verify against Pinterest's current docs before relying on this.
+export const requiredScopes = ["boards:read", "pins:read", "pins:write"];
 
 export function isConfigured() {
   return requiredEnv.every((k) => Boolean(process.env[k]));

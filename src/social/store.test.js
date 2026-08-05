@@ -13,7 +13,7 @@ function installFakeLocalStorage() {
 }
 
 installFakeLocalStorage();
-const { devAuth, workspaces, brands, contentItems, mediaAssets, pendingReviewCount } = await import("./store.js");
+const { devAuth, workspaces, brands, contentItems, mediaAssets, pendingReviewCount, lastWorkspace } = await import("./store.js");
 
 beforeEach(() => {
   global.localStorage.clear();
@@ -129,5 +129,16 @@ describe("mediaAssets", () => {
 
     expect(mediaAssets.list(brandA.id)).toHaveLength(1);
     expect(mediaAssets.list(brandA.id)[0].label).toBe("Storefront");
+  });
+});
+
+describe("lastWorkspace", () => {
+  it("has no remembered workspace by default", () => {
+    expect(lastWorkspace.get()).toBeNull();
+  });
+
+  it("remembers and returns the last set workspace id", () => {
+    lastWorkspace.set("W-42");
+    expect(lastWorkspace.get()).toBe("W-42");
   });
 });

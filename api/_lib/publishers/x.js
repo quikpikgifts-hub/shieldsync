@@ -6,6 +6,8 @@ import { configOnlyConnectionState } from "./states.js";
 
 export const platform = "x";
 export const requiredEnv = ["X_CLIENT_ID", "X_CLIENT_SECRET"];
+// Verify against X's current docs before relying on this.
+export const requiredScopes = ["tweet.read", "tweet.write", "users.read", "offline.access"];
 
 export function isConfigured() {
   return requiredEnv.every((k) => Boolean(process.env[k]));

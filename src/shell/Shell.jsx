@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { LayoutDashboard, Sparkles, ExternalLink, Settings, LifeBuoy, LogOut, Plus, Bell, ChevronDown, User as UserIcon } from "lucide-react";
 import { T, BASE_CSS, useInjectedStyle, useOnlineStatus } from "./theme.js";
 import { Btn, Card, Field, inputStyle, Pill } from "./primitives.jsx";
-import { devAuth, workspaces, brands, pendingReviewCount } from "../social/store.js";
+import { devAuth, workspaces, brands, pendingReviewCount, lastWorkspace } from "../social/store.js";
 import { CreateBrand, BrandDetail, SocialConnectionsPanel } from "../social/shared.jsx";
 import DashboardHome from "./DashboardHome.jsx";
 import ConnectModule from "./ConnectModule.jsx";
@@ -98,8 +98,22 @@ export default function Shell() {
     if (workspace) {
       setBrandList(brands.list(workspace.id));
       if (user) setAllWorkspaces(workspaces.list().filter(w => w.ownerEmail === user.email));
+      lastWorkspace.set(workspace.id);
     }
   }, [workspace, user]);
+
+  // Restores the last-used workspace on load (page refresh, reopened tab)
+  // instead of forcing the founder back through workspace selection.
+  useEffect(() => {
+    if (user && !workspace) {
+      const savedId = lastWorkspace.get();
+      if (savedId) {
+        const found = workspaces.list().find(w => w.id === savedId && w.ownerEmail === user.email);
+        if (found) setWorkspace(found);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // Handles the redirect back from /api/social/oauth/tiktok/callback so the
   // founder gets a clear "connected" or "failed" result, not a silent return.

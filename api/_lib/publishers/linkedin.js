@@ -6,6 +6,8 @@ import { configOnlyConnectionState } from "./states.js";
 
 export const platform = "linkedin";
 export const requiredEnv = ["LINKEDIN_CLIENT_ID", "LINKEDIN_CLIENT_SECRET"];
+// Verify against LinkedIn's current docs before relying on this.
+export const requiredScopes = ["w_member_social", "openid", "profile"];
 
 export function isConfigured() {
   return requiredEnv.every((k) => Boolean(process.env[k]));

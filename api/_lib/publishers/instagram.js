@@ -7,6 +7,8 @@ import { configOnlyConnectionState } from "./states.js";
 
 export const platform = "instagram";
 export const requiredEnv = ["META_ACCESS_TOKEN", "META_INSTAGRAM_ACCOUNT_ID"];
+// Verify against Meta's current docs before relying on this.
+export const requiredScopes = ["instagram_content_publish", "instagram_basic"];
 
 export function isConfigured() {
   return requiredEnv.every((k) => Boolean(process.env[k]));

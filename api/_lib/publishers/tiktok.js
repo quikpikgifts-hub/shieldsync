@@ -26,12 +26,14 @@ import { CONNECTION_STATES } from "./states.js";
 
 export const platform = "tiktok";
 export const requiredEnv = ["TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET", "TIKTOK_REDIRECT_URI"];
+export const requiredScopes = ["user.info.basic", "video.publish"];
 
 const TOKEN_KEY = "veridian:social:tiktok:token";
 const AUTH_BASE = "https://www.tiktok.com/v2/auth/authorize/";
 const TOKEN_URL = "https://open.tiktokapis.com/v2/oauth/token/";
 const PUBLISH_INIT_URL = "https://open.tiktokapis.com/v2/post/publish/video/init/";
 const PUBLISH_STATUS_URL = "https://open.tiktokapis.com/v2/post/publish/status/fetch/";
+const USER_INFO_URL = "https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name";
 
 export function isConfigured() {
   return requiredEnv.every((k) => Boolean(process.env[k]));
@@ -82,12 +84,15 @@ async function refreshToken(stored) {
 }
 
 export async function saveToken(tokenResponse) {
+  const previous = await getStoredToken();
   const record = {
     access_token: tokenResponse.access_token,
     refresh_token: tokenResponse.refresh_token,
     open_id: tokenResponse.open_id,
     scope: tokenResponse.scope,
     expires_at: Date.now() + (tokenResponse.expires_in || 0) * 1000,
+    last_verified_at: previous?.last_verified_at ?? null,
+    display_name: previous?.display_name ?? null,
   };
   await kv("SET", TOKEN_KEY, JSON.stringify(record));
   return record;
@@ -123,7 +128,40 @@ export async function getConnectionState() {
   if (!isConfigured()) return { state: CONNECTION_STATES.WAITING_FOR_CREDENTIALS };
   const token = await getValidAccessToken();
   if (!token) return { state: CONNECTION_STATES.READY_TO_ACTIVATE };
-  return { state: CONNECTION_STATES.CONNECTED };
+  const stored = await getStoredToken();
+  return {
+    state: CONNECTION_STATES.CONNECTED,
+    lastVerifiedAt: stored?.last_verified_at || null,
+    displayName: stored?.display_name || null,
+  };
+}
+
+// Confirms the stored token actually still works by calling TikTok's own
+// user-info endpoint, rather than just trusting that a token is present and
+// unexpired — "Connected" should mean verified, not merely "we have bytes
+// saved." Updates last_verified_at on success.
+export async function verifyConnection() {
+  if (!isConfigured()) return { ok: false, reason: "not_configured" };
+  const accessToken = await getValidAccessToken();
+  if (!accessToken) return { ok: false, reason: "account_not_connected" };
+
+  try {
+    const r = await fetch(USER_INFO_URL, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok || data.error?.code !== "ok") {
+      return { ok: false, reason: "verification_failed", detail: data.error?.message || `HTTP ${r.status}` };
+    }
+    const displayName = data.data?.user?.display_name || null;
+    const stored = await getStoredToken();
+    if (stored) {
+      await kv("SET", TOKEN_KEY, JSON.stringify({ ...stored, last_verified_at: Date.now(), display_name: displayName }));
+    }
+    return { ok: true, displayName };
+  } catch (e) {
+    return { ok: false, reason: "verification_failed", detail: e.message };
+  }
 }
 
 export async function publish({ caption, mediaUrl }) {

@@ -135,3 +135,63 @@ describe("publish", () => {
     expect(initCall.opts.headers.Authorization).toBe("Bearer new");
   });
 });
+
+describe("verifyConnection", () => {
+  it("returns not_configured when env vars are missing", async () => {
+    delete process.env.TIKTOK_CLIENT_KEY;
+    const { verifyConnection } = await import("./tiktok.js");
+    const result = await verifyConnection();
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe("not_configured");
+  });
+
+  it("returns account_not_connected when no token is stored", async () => {
+    setEnv();
+    global.fetch = vi.fn().mockResolvedValue({ json: async () => ({ result: null }) });
+    const { verifyConnection } = await import("./tiktok.js");
+    const result = await verifyConnection();
+    expect(result.reason).toBe("account_not_connected");
+  });
+
+  it("calls the user-info endpoint and records last_verified_at + display name on success", async () => {
+    setEnv();
+    const stored = { access_token: "tok", refresh_token: "rtok", expires_at: Date.now() + 3600_000 };
+    const calls = [];
+    global.fetch = vi.fn(async (url, opts) => {
+      calls.push({ url: String(url), opts });
+      if (String(url) === KV_URL) return { json: async () => ({ result: JSON.stringify(stored) }) };
+      if (String(url).includes("/user/info/")) {
+        return { ok: true, json: async () => ({ data: { user: { display_name: "My Bakery" } }, error: { code: "ok" } }) };
+      }
+      throw new Error(`unexpected fetch ${url}`);
+    });
+
+    const { verifyConnection } = await import("./tiktok.js");
+    const result = await verifyConnection();
+
+    expect(result.ok).toBe(true);
+    expect(result.displayName).toBe("My Bakery");
+
+    const setCall = calls.find((c) => c.url === KV_URL && JSON.parse(c.opts.body)[0] === "SET");
+    const savedRecord = JSON.parse(JSON.parse(setCall.opts.body)[2]);
+    expect(savedRecord.display_name).toBe("My Bakery");
+    expect(typeof savedRecord.last_verified_at).toBe("number");
+  });
+
+  it("reports verification_failed when TikTok's API rejects the token", async () => {
+    setEnv();
+    const stored = { access_token: "tok", refresh_token: "rtok", expires_at: Date.now() + 3600_000 };
+    global.fetch = vi.fn(async (url) => {
+      if (String(url) === KV_URL) return { json: async () => ({ result: JSON.stringify(stored) }) };
+      if (String(url).includes("/user/info/")) {
+        return { ok: false, status: 401, json: async () => ({ error: { code: "access_token_invalid", message: "invalid token" } }) };
+      }
+      throw new Error(`unexpected fetch ${url}`);
+    });
+
+    const { verifyConnection } = await import("./tiktok.js");
+    const result = await verifyConnection();
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe("verification_failed");
+  });
+});

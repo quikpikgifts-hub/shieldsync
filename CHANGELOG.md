@@ -4,6 +4,30 @@ Lightweight ongoing record per the Veridian AI Build to Launch directive. One en
 
 ---
 
+## 2026-08-05 — Founder Activation: verification pass, single activation screen, ACTIVATION.md
+
+Per the Founder Activation directive: no new product features, only what moves the founder closer to activating and posting. No redesign — the shell, Social product, and TikTok pipeline built in prior entries are unchanged in shape.
+
+**Completed work:**
+- **Full checklist verification pass** against the directive's 17-item list (auth, workspace, brand, generation, approval, publish, analytics, notifications, media library, draft history, calendar, TikTok status, offline behavior, error handling, website build, platform build, platform status indicators) — all confirmed working via build, 85 passing tests, and a headless-browser walkthrough with seeded data.
+- **One real bug found and fixed**: reloading the page (browser refresh, reopened tab, phone screen lock) reset the workspace selection, forcing the founder back through the workspace picker every time. Now the last-used workspace is remembered (`lastWorkspace` in `src/social/store.js`) and restored automatically. This is a repair of existing broken behavior, not a new feature.
+- **Single activation/configuration screen** (Settings, `SocialConnectionsPanel` in `src/social/shared.jsx`) — every provider now shows all 7 requested fields: Provider Name, Current Status, Required Credentials, Required Scopes, OAuth Status, Connection Status, Last Verification, and an Activation Button. Verified rendering with realistic mixed-state data (TikTok connected, Instagram configuration-required, 5 platforms waiting-for-credentials) via intercepted API responses — zero console errors, no fabricated status anywhere.
+- **Real TikTok connection verification**: `verifyConnection()` now calls TikTok's own user-info endpoint to confirm a stored token actually works (not just that bytes are saved in KV), records a real `last_verified_at` timestamp and the connected account's display name, and surfaces both in the activation screen. New `api/social/verify.js` route.
+- **`requiredScopes` added to every publisher** — previously only documented in code comments, now structured data the activation screen displays. Flagged in each file as needing verification against each provider's current docs before relying on them (provider scope names change).
+- **`ACTIVATION.md`** — the single deployment-readiness reference: master env var table (every variable this codebase actually reads, grouped by what it powers), migration status, API/OAuth configuration, a security checklist recap, build/deploy process, a rollback plan, and the exact TikTok activation sequence consolidated in one place.
+
+**Bugs fixed:** workspace-selection-lost-on-reload (see above).
+
+**Breaking changes:** none. `listPublishers()`'s response shape gained fields (`requiredScopes`, `oauthAvailable`, `lastVerifiedAt`, `accountDisplayName`) — additive, nothing removed.
+
+**Migrations:** none.
+
+**Deployment notes:** nothing new required to deploy what's in this entry. See `ACTIVATION.md` for the complete picture of what's needed to activate each integration.
+
+**Known issues:** unchanged from prior entries — no real auth, no billing, 6 of 7 platforms still lack a real OAuth/publish implementation (by design, TikTok-first per the Founder Alpha directive).
+
+**Next engineering task:** per the directive, none until the founder has TikTok credentials and has attempted the real activation sequence in `ACTIVATION.md` §8. That first live post is Founder Alpha's completion criterion and the start of Private Beta — everything after that should be scoped from what actually happens during that test, not speculated now.
+
 ## 2026-08-05 — Founder Alpha: real TikTok pipeline, honest connection states, daily-workflow friction removal
 
 **Completed work:**
