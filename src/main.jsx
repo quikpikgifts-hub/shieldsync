@@ -2,16 +2,17 @@ import React, { Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 
 // Lazy-loaded so each route's JS chunk (and only that chunk) reaches the browser.
-// App.jsx is an internal demo with hardcoded seed credentials — it must never be
-// part of the shared bundle that every real site visitor downloads.
-const App = lazy(() => import("./App.jsx"));
+// The public Connect site (Website.jsx) and its own /dashboard command center
+// are untouched by this shell and must keep working exactly as before — that's
+// the live, revenue-generating business. /app and /social both open the new
+// unified Veridian AI shell (Social is its default landing view); there is
+// no separate standalone Social page anymore — one shell, not two surfaces.
 const Website = lazy(() => import("./Website.jsx"));
-const Social = lazy(() => import("./Social.jsx"));
+const Shell = lazy(() => import("./shell/Shell.jsx"));
 
 const path = window.location.pathname;
-const isApp = path === "/app" || path.startsWith("/app/");
-const isSocial = path === "/social" || path.startsWith("/social/");
-const Entry = isSocial ? Social : isApp ? App : Website;
+const isShell = path === "/app" || path.startsWith("/app/") || path === "/social" || path.startsWith("/social/");
+const Entry = isShell ? Shell : Website;
 
 const root = createRoot(document.getElementById("root"));
 root.render(

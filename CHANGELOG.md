@@ -4,6 +4,32 @@ Lightweight ongoing record per the Veridian AI Build to Launch directive. One en
 
 ---
 
+## 2026-08-05 — Immediate Founder Launch: unified Veridian AI application shell
+
+**Completed work:**
+- **New application shell** (`src/shell/Shell.jsx`) replaces the legacy `/app` route entirely. Global nav (Dashboard, Social, Connect, Settings, Support), workspace switcher, brand switcher, notifications bell (live pending-review count), an AI assistant slide-out panel (reuses the existing `/api/ai` proxy with a platform-wide system prompt — no new backend), and a user menu. One design system (`src/shell/theme.js`, promoted from Social's palette) used everywhere in the shell, so Social and Connect-the-doorway read as one product.
+- **`/app` and `/social` both open the shell now** — Social is no longer a separate standalone page; it's the shell's default landing view and its "Social" nav section (brand list → brand detail → calendar/media/analytics). This was a deliberate anti-duplication call: keeping two divergent Social surfaces would have repeated the exact problem this whole restructure exists to fix for Connect.
+- **`src/social/shared.jsx`**: CreateBrand, DraftCard, MediaLibrary, BrandDetail, and the live platform-connections panel extracted out of the old standalone `Social.jsx` into reusable pieces the shell imports directly — no logic duplicated between a "page" version and a "module" version.
+- **Dashboard home** (`src/shell/DashboardHome.jsx`): the founder's landing screen — greeting, brand/pending-review/platforms-connected counts, a real pending-approvals feed pulled from actual content items (not placeholder widgets), and a brand grid. This is what satisfies the directive's "Today's Content / Pending Approvals / Brands / Connected Accounts / Quick Actions" list.
+- **Connect module** (`src/shell/ConnectModule.jsx`): an honest doorway into Connect's real, already-PIN-protected command center at `/dashboard` — not a rebuilt or duplicated CRM/analytics UI. **Deliberate deviation from the directive's literal nav list**: "CRM" and "Analytics" were folded into "Connect" rather than built as separate nav items, because Connect's real leads/metrics data already lives behind its own PIN gate in `/dashboard`, and building disconnected placeholder CRM/Analytics screens would have recreated exactly the kind of fake, unmaintained UI the legacy `App.jsx` demo was (see `ops/veridian-platform-audit.md`).
+- **Retired**: `src/App.jsx` (legacy OperaCore CRM demo — hardcoded plaintext credentials, zero real users, fully superseded), `src/db.js` (only ever imported by `App.jsx`), and the standalone `src/Social.jsx` (absorbed into the shell). Confirmed via grep that nothing else referenced any of the three before deleting; all fully recoverable from git history if ever needed.
+- Renamed `package.json`/`package-lock.json` from `operacore-platform` to `veridian-ai-platform` — the old name was a leftover from the app that no longer exists.
+
+**Bugs fixed:** none this entry (restructure, not a feature/bugfix pass).
+
+**Breaking changes:** `/app`'s content changed completely (legacy demo → new shell) — intentional per this directive, zero real users depended on the old `/app`. `/social` no longer renders a standalone page; it renders the shell (same content, different chrome). **Nothing on the public site changed**: `/`, `/dashboard`, `/pricing`, `/privacy`, `/terms`, `/portal`, `/industries/*`, and every other `Website.jsx`-served route are byte-for-byte unmodified — verified via headless-browser smoke test that `/` still shows Connect's marketing content and `/dashboard` still shows its own independent PIN gate.
+
+**Migrations:** none.
+
+**Deployment notes:** no new env vars. Bundle went from 3 route chunks (App/Website/Social) to 2 (Shell/Website) — smaller, not larger, despite the shell doing more.
+
+**Known issues:**
+- Workspace switcher today only knows about Social workspaces — Connect has no workspace/tenant concept yet (it's still PIN-based, single-tenant), so it isn't part of the switcher. Becomes relevant once Connect moves onto the shared platform data model (Sprint 1 of `ops/veridian-platform-strategy.md`), not before.
+- AI Assistant panel has no memory across page reloads (in-memory chat state only) and no awareness of Connect's data (it can't answer "how many leads did I get this week" — that's behind a separate PIN gate this shell doesn't have access to, by design).
+- Still dev-mode auth — this shell makes the product experience feel unified, it does not change anything about the real-auth/billing/OAuth blockers listed in prior entries.
+
+**Next engineering task:** same external blockers as before (Supabase Auth, Stripe, per-platform OAuth apps) for full activation. Unblocked and available: wire the Dashboard's "platforms connected" count and pending-review feed into a real push-notification or email digest once notification infra exists; consider whether Connect's leads data should eventually surface inside the shell (would need Connect to adopt real per-user auth first, not PIN-sharing, so this isn't a quick add).
+
 ## 2026-08-05 — Pilot Launch: video scripts, publishing pipeline, scheduling, media library
 
 **Completed work:**
