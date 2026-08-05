@@ -3,11 +3,17 @@
 // enabled, OAuth consent screen verification (uploading on a user's behalf
 // needs the youtube.upload scope, which Google reviews), and per-channel
 // OAuth tokens.
+import { configOnlyConnectionState } from "./states.js";
+
 export const platform = "youtube";
 export const requiredEnv = ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"];
 
 export function isConfigured() {
   return requiredEnv.every((k) => Boolean(process.env[k]));
+}
+
+export async function getConnectionState() {
+  return configOnlyConnectionState(isConfigured);
 }
 
 export async function publish({ caption, hashtags, mediaUrl, userAccessToken }) {

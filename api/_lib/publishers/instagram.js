@@ -3,11 +3,17 @@
 // Facebook Page, a Meta app with the instagram_content_publish permission
 // (App Review required), and a media URL that's publicly reachable (Meta
 // fetches it server-side — data URLs / localhost won't work).
+import { configOnlyConnectionState } from "./states.js";
+
 export const platform = "instagram";
 export const requiredEnv = ["META_ACCESS_TOKEN", "META_INSTAGRAM_ACCOUNT_ID"];
 
 export function isConfigured() {
   return requiredEnv.every((k) => Boolean(process.env[k]));
+}
+
+export async function getConnectionState() {
+  return configOnlyConnectionState(isConfigured);
 }
 
 export async function publish({ caption, hashtags, mediaUrl }) {

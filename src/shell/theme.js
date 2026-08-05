@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // Single shared design system for the whole Veridian AI shell — the shell
 // chrome, the Social module, and any future module all use this one object,
@@ -23,4 +23,21 @@ export function useInjectedStyle(css) {
     document.head.appendChild(el);
     return () => el.remove();
   }, [css]);
+}
+
+// Distinguishes "you're offline" from "something's broken" throughout the
+// shell — never shown as broken UI, just an honest status.
+export function useOnlineStatus() {
+  const [online, setOnline] = useState(typeof navigator === "undefined" ? true : navigator.onLine);
+  useEffect(() => {
+    const goOnline = () => setOnline(true);
+    const goOffline = () => setOnline(false);
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
+    return () => {
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
+    };
+  }, []);
+  return online;
 }

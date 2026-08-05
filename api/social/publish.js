@@ -14,7 +14,7 @@ export default async function handler(req) {
   // GET — which platforms are connected, so the UI can show real state
   // instead of guessing.
   if (req.method === "GET") {
-    return new Response(JSON.stringify({ publishers: listPublishers() }), {
+    return new Response(JSON.stringify({ publishers: await listPublishers() }), {
       headers: { "Content-Type": "application/json", ...CORS },
     });
   }

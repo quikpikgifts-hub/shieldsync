@@ -4,16 +4,35 @@ import { T } from "../shell/theme.js";
 import { Btn, Card, Field, inputStyle, Pill } from "../shell/primitives.jsx";
 import { brands, contentItems, mediaAssets, pendingReviewCount } from "./store.js";
 
+// TikTok listed first — it's the Founder Alpha pilot platform (the only one
+// with a real, working publish path today; see api/_lib/publishers/tiktok.js).
 export const PLATFORMS = [
-  { key: "general", label: "General / unspecified" },
+  { key: "tiktok", label: "TikTok (pilot)" },
   { key: "instagram", label: "Instagram" },
   { key: "facebook", label: "Facebook" },
-  { key: "tiktok", label: "TikTok" },
   { key: "linkedin", label: "LinkedIn" },
   { key: "youtube", label: "YouTube" },
   { key: "x", label: "X" },
   { key: "pinterest", label: "Pinterest" },
+  { key: "general", label: "General / unspecified" },
 ];
+
+// Rotating topic starters so the founder never stares at a blank box —
+// a real, if modest, friction-removal per the executive directive.
+export const TOPIC_SUGGESTIONS = [
+  "Behind the scenes of how we do this today",
+  "A common question customers ask us",
+  "A quick tip related to what we do",
+  "What makes us different from the alternative",
+  "A recent win or customer moment",
+  "Something we're working on this week",
+  "A myth people believe about our industry",
+  "Why we started this business",
+];
+
+export function randomTopicSuggestion() {
+  return TOPIC_SUGGESTIONS[Math.floor(Math.random() * TOPIC_SUGGESTIONS.length)];
+}
 
 const STATUS_TONE = { draft: "textSub", approved: "green", edited: "accent", rejected: "red", scheduled: "amber", published: "green" };
 
@@ -29,7 +48,14 @@ export async function safeJson(r) {
   }
 }
 
+// Distinguishes "you're offline" from "the API failed" — a founder who
+// loses wifi mid-generation should see that plainly, not a generic error.
+function isOffline() {
+  return typeof navigator !== "undefined" && navigator.onLine === false;
+}
+
 export async function generate(agent, input) {
+  if (isOffline()) throw new Error("You're offline — reconnect to generate content. Your existing drafts are still here.");
   const r = await fetch("/api/social/generate", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ agent, input }),
@@ -41,6 +67,7 @@ export async function generate(agent, input) {
 }
 
 export async function attemptPublish(platform, item) {
+  if (isOffline()) return { published: false, reason: "offline" };
   const r = await fetch("/api/social/publish", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ platform, item: { caption: item.caption, hashtags: item.hashtags, mediaUrl: item.mediaUrl } }),
@@ -56,6 +83,7 @@ export function publishFallbackNote(platform, reason) {
     media_required: `${platform} requires an image or video attached — copied for manual posting instead.`,
     over_character_limit: `That caption is over ${platform}'s character limit — copied anyway, trim before posting.`,
     not_implemented: `${platform} publishing is scaffolded but not finished yet — copied for manual posting instead.`,
+    offline: `You're offline — copied to clipboard so you can post manually once you're back online.`,
   };
   return map[reason] || `Couldn't publish directly to ${platform} yet — copied for manual posting instead.`;
 }
@@ -118,6 +146,14 @@ export function DraftCard({ item, brand, mediaOptions, onUpdate }) {
   const [mediaId, setMediaId] = useState(item.mediaAssetId || "");
 
   const act = (status, extra = {}) => onUpdate(contentItems.updateWithHistory(item.id, { status, ...extra }));
+
+  const reuse = () => {
+    contentItems.insert({
+      brandId: item.brandId, status: "draft", type: item.type, platform: item.platform,
+      caption: item.caption, hashtags: item.hashtags || "",
+    });
+    onUpdate();
+  };
 
   const regenerateHashtags = async () => {
     setBusyAction("hashtags"); setNote("");
@@ -243,6 +279,9 @@ export function DraftCard({ item, brand, mediaOptions, onUpdate }) {
             </Btn>
           </>
         )}
+        {(item.status === "published" || item.status === "rejected") && (
+          <Btn variant="ghost" onClick={reuse}><Sparkles size={13} /> Reuse as new draft</Btn>
+        )}
       </div>
     </Card>
   );
@@ -292,7 +331,7 @@ export function MediaLibrary({ brandId }) {
 export function BrandDetail({ brand }) {
   const [items, setItems] = useState(() => contentItems.list(brand.id));
   const [topic, setTopic] = useState("");
-  const [platform, setPlatform] = useState("general");
+  const [platform, setPlatform] = useState("tiktok");
   const [scriptTopic, setScriptTopic] = useState("");
   const [busy, setBusy] = useState(false);
   const [scriptBusy, setScriptBusy] = useState(false);
@@ -368,6 +407,7 @@ export function BrandDetail({ brand }) {
             <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}><Zap size={14} color={T.accent} /> Generate drafts</div>
             <form onSubmit={genDrafts} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <input style={{ ...inputStyle, flex: 1, minWidth: 220 }} value={topic} onChange={e => setTopic(e.target.value)} placeholder="Topic or occasion — e.g. weekend hours, new menu item, a customer win" />
+              <Btn variant="ghost" onClick={() => setTopic(randomTopicSuggestion())}>Surprise me</Btn>
               <select value={platform} onChange={e => setPlatform(e.target.value)} style={{ ...inputStyle, width: "auto" }}>
                 {PLATFORMS.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
               </select>
@@ -379,6 +419,7 @@ export function BrandDetail({ brand }) {
             <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}><Film size={14} color={T.accent} /> Generate a short-form video script</div>
             <form onSubmit={genScript} style={{ display: "flex", gap: 8 }}>
               <input style={{ ...inputStyle, flex: 1 }} value={scriptTopic} onChange={e => setScriptTopic(e.target.value)} placeholder="Topic — e.g. behind the scenes, a quick tip, a product demo" />
+              <Btn variant="ghost" onClick={() => setScriptTopic(randomTopicSuggestion())}>Surprise me</Btn>
               <Btn type="submit" disabled={scriptBusy}>{scriptBusy ? "Writing…" : "Generate script"}</Btn>
             </form>
           </Card>
@@ -407,13 +448,34 @@ export function BrandDetail({ brand }) {
   );
 }
 
+const STATE_TONE = {
+  waiting_for_credentials: "textSub",
+  configuration_required: "amber",
+  ready_to_activate: "accent",
+  connected: "green",
+};
+
 // ─── Social platform connection status (real, live) ──────────────
+// Four honest states instead of a connected/not-connected guess — see
+// api/_lib/publishers/states.js. Never shows "Connected" unless a real,
+// currently-valid account token is stored.
 export function SocialConnectionsPanel() {
   const [publishers, setPublishers] = useState(null);
+  const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/social/publish").then(r => r.json()).then(d => setPublishers(d.publishers)).catch(() => setPublishers([]));
-  }, []);
+  const refresh = () => fetch("/api/social/publish").then(r => r.json()).then(d => setPublishers(d.publishers)).catch(() => setPublishers([]));
+
+  useEffect(() => { refresh(); }, []);
+
+  const disconnectTiktok = async () => {
+    setBusy(true);
+    try {
+      await fetch("/api/social/oauth/tiktok/disconnect", { method: "POST" });
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <Card style={{ marginBottom: 16 }}>
@@ -428,8 +490,16 @@ export function SocialConnectionsPanel() {
         <div style={{ display: "grid", gap: 6 }}>
           {publishers.map(p => (
             <div key={p.platform} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", background: T.surface, borderRadius: 8 }}>
-              <div style={{ fontSize: 13, textTransform: "capitalize" }}>{p.platform}</div>
-              <Pill tone={p.configured ? "green" : "textSub"}>{p.configured ? "Connected" : "Not connected"}</Pill>
+              <div style={{ fontSize: 13, textTransform: "capitalize" }}>{p.platform}{p.platform === "tiktok" && <span style={{ color: T.accent, fontWeight: 700, fontSize: 10, marginLeft: 6 }}>PILOT</span>}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Pill tone={STATE_TONE[p.state]}>{p.label}</Pill>
+                {p.platform === "tiktok" && p.state === "ready_to_activate" && (
+                  <a href="/api/social/oauth/tiktok/start"><Btn style={{ padding: "4px 10px", fontSize: 11.5 }}>Connect account</Btn></a>
+                )}
+                {p.platform === "tiktok" && p.state === "connected" && (
+                  <Btn variant="ghost" style={{ padding: "4px 10px", fontSize: 11.5 }} onClick={disconnectTiktok} disabled={busy}>Disconnect</Btn>
+                )}
+              </div>
             </div>
           ))}
         </div>

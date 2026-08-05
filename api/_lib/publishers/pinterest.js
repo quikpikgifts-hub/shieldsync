@@ -2,11 +2,17 @@
 // Activation requires: a Pinterest developer app approved for standard API
 // access (trial access is heavily rate-limited), OAuth per connected
 // Pinterest account, and a board to pin to.
+import { configOnlyConnectionState } from "./states.js";
+
 export const platform = "pinterest";
 export const requiredEnv = ["PINTEREST_CLIENT_ID", "PINTEREST_CLIENT_SECRET"];
 
 export function isConfigured() {
   return requiredEnv.every((k) => Boolean(process.env[k]));
+}
+
+export async function getConnectionState() {
+  return configOnlyConnectionState(isConfigured);
 }
 
 export async function publish({ caption, hashtags, mediaUrl, userAccessToken, boardId }) {

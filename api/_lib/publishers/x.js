@@ -2,11 +2,17 @@
 // Activation requires: an X developer app on a paid API tier (the free tier
 // does not include write access as of this writing — verify current pricing
 // before relying on this), OAuth 2.0 user context per connected account.
+import { configOnlyConnectionState } from "./states.js";
+
 export const platform = "x";
 export const requiredEnv = ["X_CLIENT_ID", "X_CLIENT_SECRET"];
 
 export function isConfigured() {
   return requiredEnv.every((k) => Boolean(process.env[k]));
+}
+
+export async function getConnectionState() {
+  return configOnlyConnectionState(isConfigured);
 }
 
 export async function publish({ caption, hashtags, mediaUrl, userAccessToken }) {

@@ -2,11 +2,17 @@
 // Activation requires: a LinkedIn app, Sign In with LinkedIn + Share on
 // LinkedIn products approved on the app, and per-user OAuth (personal
 // profile) or an organization access token (company Page).
+import { configOnlyConnectionState } from "./states.js";
+
 export const platform = "linkedin";
 export const requiredEnv = ["LINKEDIN_CLIENT_ID", "LINKEDIN_CLIENT_SECRET"];
 
 export function isConfigured() {
   return requiredEnv.every((k) => Boolean(process.env[k]));
+}
+
+export async function getConnectionState() {
+  return configOnlyConnectionState(isConfigured);
 }
 
 export async function publish({ caption, hashtags, mediaUrl, userAccessToken, authorUrn }) {

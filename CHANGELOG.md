@@ -4,6 +4,36 @@ Lightweight ongoing record per the Veridian AI Build to Launch directive. One en
 
 ---
 
+## 2026-08-05 — Founder Alpha: real TikTok pipeline, honest connection states, daily-workflow friction removal
+
+**Completed work:**
+- **Real TikTok integration** (`api/_lib/publishers/tiktok.js`) — no longer a stub. Real OAuth (`api/social/oauth/tiktok/{start,callback,disconnect}.js`), token storage + automatic refresh in KV (single-tenant by design — Founder Alpha assumes exactly one user, per the executive directive; revisit when a second real user exists), and a real Content Posting API `publish()` (PULL_FROM_URL init + status check). Defaults to `privacy_level: SELF_ONLY` since unaudited TikTok apps can't post publicly — this is correct, not a bug, until the app passes TikTok's review.
+- **4-state connection status** replacing the old boolean everywhere: `Waiting for Credentials` → `Configuration Required` → `Ready to Activate` → `Connected` (`api/_lib/publishers/states.js`). TikTok is the only platform that can reach `Ready to Activate`/`Connected` today, honestly, because it's the only one with a real OAuth flow and `publish()` implementation — the other 6 top out at `Configuration Required` until the same work is done for them.
+- Settings now shows a **"Connect account"** button for TikTok specifically once credentials are configured, and a live "Disconnect" action once connected.
+- **Daily workflow friction removal**: TikTok is now the default and first-listed platform everywhere content is generated. Added rotating topic suggestions ("Surprise me") so the founder never faces a blank topic box. Added "Reuse as new draft" on published/rejected content. Dashboard's pending-review section is now a real **"Today's Tasks"** view with a second section — due-to-publish-today scheduled items with an inline one-click Publish action.
+- **Offline honesty**: `generate()`/`attemptPublish()` detect `navigator.onLine === false` and fail with a clear "you're offline" message instead of a confusing network error; the shell shows a persistent offline banner distinct from any other error state.
+- **TikTok OAuth redirect handling**: returning from `/api/social/oauth/tiktok/callback` shows a clear "connected" or "failed" banner in the shell instead of a silent return.
+
+**Bugs fixed:** none (feature pass).
+
+**Breaking changes:** `listPublishers()` is now async (was sync) and its API responses carry `state`/`label` fields; `configured` boolean is kept for compatibility but callers should move to `state`.
+
+**Migrations:** none — TikTok tokens live in existing KV infrastructure under new keys (`veridian:social:tiktok:token`, `veridian:social:tiktok:oauth_state:*`).
+
+**TikTok activation checklist (exactly what's needed once you have a TikTok Developer account):**
+1. Register an app in the TikTok Developer Portal, enable the Content Posting API product, request the `video.publish` scope.
+2. **Verify your deployment domain** in the portal (DNS TXT record or hosted file) — required for `PULL_FROM_URL` video sources; posts will fail without this even with valid credentials.
+3. Set env vars: `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET`, `TIKTOK_REDIRECT_URI` (must exactly match what's registered in the portal — e.g. `https://<your-domain>/api/social/oauth/tiktok/callback`).
+4. In Settings, click "Connect account" next to TikTok once it shows "Ready to Activate."
+5. Until the app passes TikTok's audit, posts are private (`SELF_ONLY`) — override via `TIKTOK_PRIVACY_LEVEL` only after approval for public posting.
+
+**Known issues:**
+- **None of the TikTok code has been exercised against a live TikTok account or app** — implemented against TikTok's documented v2 API shape and verified with mocked HTTP calls (9 tests), not live-tested. Treat the first real attempt as a test.
+- The other 6 platforms (Instagram, Facebook, LinkedIn, YouTube, X, Pinterest) still have stub `publish()` bodies — same pattern as TikTok, not yet built out.
+- Team permissions, agency tools, white-label, and multi-user administration remain deliberately unbuilt — Founder Alpha assumes exactly one user, per this directive.
+
+**Next engineering task:** the founder testing the actual TikTok connect-and-publish flow live is the highest-value next step once a TikTok Developer account exists — that will surface whatever the documented API shape got wrong in practice. After that: replicate the same OAuth+publish pattern for a second platform (Instagram or X are the next likely candidates), or continue founder-usability polish if TikTok alone is still the day-to-day loop.
+
 ## 2026-08-05 — Immediate Founder Launch: unified Veridian AI application shell
 
 **Completed work:**

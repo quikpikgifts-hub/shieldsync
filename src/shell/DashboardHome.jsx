@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Sparkles, Bell, Plus, ExternalLink, Zap, Users } from "lucide-react";
+import { Sparkles, Bell, Plus, ExternalLink, Zap, Users, Send, ListChecks } from "lucide-react";
 import { T } from "./theme.js";
 import { Btn, Card, Pill } from "./primitives.jsx";
 import { contentItems, pendingReviewCount } from "../social/store.js";
+import { attemptPublish, publishFallbackNote } from "../social/shared.jsx";
 
 function greeting() {
   const h = new Date().getHours();
@@ -17,13 +18,51 @@ function greeting() {
 // placeholder widgets.
 export default function DashboardHome({ user, workspace, brandList, onOpenBrand, onAddBrand, onGoToSocial, onGoToConnect }) {
   const [publishers, setPublishers] = useState(null);
+  const [dueItems, setDueItems] = useState([]);
+  const [publishingId, setPublishingId] = useState(null);
+  const [publishNotes, setPublishNotes] = useState({});
+
+  const refreshDue = () => {
+    const now = Date.now();
+    setDueItems(
+      brandList
+        .flatMap(b => contentItems.list(b.id).filter(i => i.status === "scheduled" && new Date(i.scheduledFor).getTime() <= now).map(i => ({ ...i, brand: b })))
+        .sort((a, b) => a.scheduledFor.localeCompare(b.scheduledFor))
+    );
+  };
 
   useEffect(() => {
     fetch("/api/social/publish").then(r => r.json()).then(d => setPublishers(d.publishers)).catch(() => setPublishers([]));
-  }, []);
+    refreshDue();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brandList]);
+
+  const publishDueItem = async (item) => {
+    setPublishingId(item.id);
+    let note = "";
+    if (item.platform && item.platform !== "general") {
+      try {
+        const result = await attemptPublish(item.platform, item);
+        if (result.published) {
+          contentItems.updateWithHistory(item.id, { status: "published", publishedAt: new Date().toISOString() });
+          refreshDue();
+          setPublishingId(null);
+          return;
+        }
+        note = publishFallbackNote(item.platform, result.reason);
+      } catch {
+        note = "Publish check failed — copied for manual posting instead.";
+      }
+    }
+    navigator.clipboard?.writeText(item.caption + (item.hashtags ? `\n\n${item.hashtags}` : ""));
+    contentItems.updateWithHistory(item.id, { status: "published", publishedAt: new Date().toISOString() });
+    setPublishNotes(n => ({ ...n, [item.id]: note || "Copied to clipboard for manual posting." }));
+    refreshDue();
+    setPublishingId(null);
+  };
 
   const totalPending = brandList.reduce((sum, b) => sum + pendingReviewCount(b.id), 0);
-  const connectedCount = (publishers || []).filter(p => p.configured).length;
+  const connectedCount = (publishers || []).filter(p => p.state === "connected").length;
 
   const pendingItems = brandList
     .flatMap(b => contentItems.list(b.id).filter(i => i.status === "draft").map(i => ({ ...i, brand: b })))
@@ -47,8 +86,35 @@ export default function DashboardHome({ user, workspace, brandList, onOpenBrand,
         <Btn variant="ghost" onClick={onGoToConnect}><ExternalLink size={14} /> Open Veridian Connect</Btn>
       </div>
 
-      <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
-        <Bell size={15} color={T.amber} /> Pending your review
+      <div style={{ fontSize: 17, fontWeight: 800, marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
+        <ListChecks size={16} color={T.accent} /> Today's Tasks
+      </div>
+      <div style={{ fontSize: 12, color: T.textDim, marginBottom: 16 }}>Everything that needs you, in one place.</div>
+
+      {dueItems.length > 0 && (
+        <>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+            <Send size={13} color={T.amber} /> Ready to publish ({dueItems.length})
+          </div>
+          {dueItems.map(item => (
+            <Card key={item.id} style={{ marginBottom: 10 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: publishNotes[item.id] ? 8 : 0 }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 11.5, color: T.textDim, marginBottom: 4 }}>{item.brand.businessName}{item.platform && item.platform !== "general" ? ` · ${item.platform}` : ""} · scheduled {new Date(item.scheduledFor).toLocaleString()}</div>
+                  <div style={{ fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.caption}</div>
+                </div>
+                <Btn onClick={() => publishDueItem(item)} disabled={publishingId === item.id} style={{ flexShrink: 0 }}>
+                  <Send size={13} /> {publishingId === item.id ? "Publishing…" : "Publish now"}
+                </Btn>
+              </div>
+              {publishNotes[item.id] && <div style={{ fontSize: 11.5, color: T.amber }}>{publishNotes[item.id]}</div>}
+            </Card>
+          ))}
+        </>
+      )}
+
+      <div style={{ fontSize: 13, fontWeight: 700, margin: dueItems.length > 0 ? "20px 0 10px" : "0 0 10px", display: "flex", alignItems: "center", gap: 6 }}>
+        <Bell size={13} color={T.amber} /> Pending your review
       </div>
       {pendingItems.length === 0 && (
         <Card style={{ marginBottom: 24 }}>

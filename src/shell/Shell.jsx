@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { LayoutDashboard, Sparkles, ExternalLink, Settings, LifeBuoy, LogOut, Plus, Bell, ChevronDown, User as UserIcon } from "lucide-react";
-import { T, BASE_CSS, useInjectedStyle } from "./theme.js";
+import { T, BASE_CSS, useInjectedStyle, useOnlineStatus } from "./theme.js";
 import { Btn, Card, Field, inputStyle, Pill } from "./primitives.jsx";
 import { devAuth, workspaces, brands, pendingReviewCount } from "../social/store.js";
 import { CreateBrand, BrandDetail, SocialConnectionsPanel } from "../social/shared.jsx";
@@ -81,6 +81,7 @@ const NAV = [
 
 export default function Shell() {
   useInjectedStyle(BASE_CSS);
+  const online = useOnlineStatus();
   const [user, setUser] = useState(() => devAuth.current());
   const [workspace, setWorkspace] = useState(null);
   const [brandList, setBrandList] = useState([]);
@@ -91,6 +92,7 @@ export default function Shell() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const [allWorkspaces, setAllWorkspaces] = useState([]);
+  const [oauthNotice, setOauthNotice] = useState(null);
 
   useEffect(() => {
     if (workspace) {
@@ -98,6 +100,21 @@ export default function Shell() {
       if (user) setAllWorkspaces(workspaces.list().filter(w => w.ownerEmail === user.email));
     }
   }, [workspace, user]);
+
+  // Handles the redirect back from /api/social/oauth/tiktok/callback so the
+  // founder gets a clear "connected" or "failed" result, not a silent return.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tiktokResult = params.get("tiktok");
+    if (tiktokResult) {
+      setOauthNotice(
+        tiktokResult === "connected"
+          ? { tone: "green", text: "TikTok account connected — you can publish directly now." }
+          : { tone: "red", text: "TikTok connection failed. Check your TIKTOK_CLIENT_KEY/SECRET/REDIRECT_URI and try again from Settings." }
+      );
+      window.history.replaceState({}, "", "/app");
+    }
+  }, []);
 
   if (!user) return <SignIn onSignedIn={setUser} />;
   if (!workspace) return <WorkspacePicker user={user} onEnter={setWorkspace} />;
@@ -209,6 +226,23 @@ export default function Shell() {
 
         {/* Content */}
         <div style={{ flex: 1, padding: 32, overflowY: "auto" }}>
+          {!online && (
+            <div style={{ background: T.amberB, border: `1px solid ${T.amber}44`, color: T.amber, borderRadius: 10, padding: "10px 14px", fontSize: 12.5, marginBottom: 20 }}>
+              You're offline. Your brands and drafts are still here — AI generation and publishing will resume once you're back online.
+            </div>
+          )}
+          {oauthNotice && (
+            <div style={{
+              background: oauthNotice.tone === "green" ? T.greenB : T.redB,
+              border: `1px solid ${(oauthNotice.tone === "green" ? T.green : T.red)}44`,
+              color: oauthNotice.tone === "green" ? T.green : T.red,
+              borderRadius: 10, padding: "10px 14px", fontSize: 12.5, marginBottom: 20,
+              display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12,
+            }}>
+              {oauthNotice.text}
+              <button onClick={() => setOauthNotice(null)} style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontSize: 12, fontWeight: 700 }}>Dismiss</button>
+            </div>
+          )}
           {nav === "dashboard" && (
             <DashboardHome
               user={user} workspace={workspace} brandList={brandList}
