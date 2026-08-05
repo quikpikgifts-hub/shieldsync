@@ -81,6 +81,25 @@ export default async function handler(req) {
       });
     }
 
+    if (agentKey === "videoScript") {
+      const parsed = parseJsonResponse(text);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        console.error("[social/generate] videoScript agent returned non-JSON, falling back to raw text");
+        return new Response(JSON.stringify({ script: { hook: "", beats: [text], cta: "", onScreenText: [] } }), {
+          headers: { "Content-Type": "application/json", ...CORS },
+        });
+      }
+      return new Response(JSON.stringify({ script: parsed }), {
+        headers: { "Content-Type": "application/json", ...CORS },
+      });
+    }
+
+    if (agentKey === "hashtags") {
+      return new Response(JSON.stringify({ hashtags: text.trim() }), {
+        headers: { "Content-Type": "application/json", ...CORS },
+      });
+    }
+
     return new Response(JSON.stringify({ text }), {
       headers: { "Content-Type": "application/json", ...CORS },
     });

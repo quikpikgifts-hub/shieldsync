@@ -67,6 +67,37 @@ export const brands = collection("brands", { scopeKey: "workspaceId" });
 
 // ─── Content items — drafts, calendar entries, published posts ──
 // status: "draft" -> "approved" | "edited" | "rejected" -> "scheduled" -> "published"
-export const contentItems = collection("content_items", { scopeKey: "brandId" });
+// type: "post" | "video_script"
+// Extra fields used but not required by the collection factory: platform,
+// scheduledFor (ISO date string), mediaUrl, history (array of prior states).
+const _contentItems = collection("content_items", { scopeKey: "brandId" });
+
+export const contentItems = {
+  ..._contentItems,
+  // Wraps the generic update() so editing a caption doesn't silently lose
+  // the previous version — every caption change is appended to history
+  // before being overwritten, satisfying "draft history" without every
+  // call site having to remember to do it themselves.
+  updateWithHistory: (id, changes) => {
+    const current = _contentItems.get(id);
+    if (!current) return null;
+    if (changes.caption !== undefined && changes.caption !== current.caption) {
+      const priorEntry = { caption: current.caption, hashtags: current.hashtags, at: current.updatedAt };
+      changes = { ...changes, history: [...(current.history || []), priorEntry] };
+    }
+    return _contentItems.update(id, changes);
+  },
+};
+
+// Derived — not stored. Counts items awaiting the founder's review.
+export function pendingReviewCount(brandId) {
+  return contentItems.list(brandId).filter((i) => i.status === "draft").length;
+}
+
+// ─── Media library (brand-scoped) ────────────────────────────────
+// Link-based for now — real file upload needs Supabase Storage (or
+// equivalent), which isn't provisioned. A URL here is exactly what
+// publishers' mediaUrl field expects once real publishing is wired up.
+export const mediaAssets = collection("media_assets", { scopeKey: "brandId" });
 
 export { genId, now };

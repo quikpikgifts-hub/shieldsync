@@ -4,6 +4,27 @@ Lightweight ongoing record per the Veridian AI Build to Launch directive. One en
 
 ---
 
+## 2026-08-05 — Pilot Launch: video scripts, publishing pipeline, scheduling, media library
+
+**Completed work:**
+- Two more AI agents: `videoScript` (short-form Reels/TikTok/Shorts scripts — hook/beats/cta/on-screen-text) and `hashtags` (standalone regeneration per draft). 4 of the named AI-workforce roles now shipped.
+- Draft generation is now platform-aware (7 pilot platforms + general) — the prompt adapts to each platform's real norms (X's 280-char limit, LinkedIn's tone, etc.).
+- **Publishing pipeline abstraction**: `api/_lib/publishers/{facebook,instagram,tiktok,linkedin,youtube,x,pinterest}.js`, one file per platform behind a common `{platform, isConfigured(), publish()}` interface, plus `api/social/publish.js` (GET = live connection status, POST = attempt publish). Every adapter today returns `not_configured` — each carries the exact env vars and API endpoint it needs, so wiring in real credentials is additive, not a rewrite. This is the "integration-ready workflow" the directive asked for.
+- Content scheduling (`scheduledFor`), draft edit history (`contentItems.updateWithHistory` — old captions preserved, not overwritten), a link-based media library per brand (`mediaAssets`), and a derived pending-review notification badge (`pendingReviewCount`) — all in `src/social/store.js`, no new infrastructure.
+- Social.jsx: platform selector on generation, video-script generation UI, publish button that tries the real pipeline first and falls back to copy-to-clipboard with a clear reason ("Instagram isn't connected yet — copied for manual posting instead"), draft history viewer, media library tab, live connection-status list in Settings (real state from `/api/social/publish` GET, not a static claim).
+
+**Bugs fixed:** hardened the client-side `generate()`/`attemptPublish()` calls against non-JSON responses (was throwing a confusing "Unexpected end of JSON input" instead of a clear message when the API layer isn't reachable — caught during this pass's own smoke testing).
+
+**Breaking changes:** none.
+**Migrations:** none — still localStorage-backed dev mode, no Supabase schema touched.
+**Deployment notes:** zero new required env vars for what shipped. The publisher adapters document their real required env vars (e.g. `META_ACCESS_TOKEN` + `META_INSTAGRAM_ACCOUNT_ID` for Instagram) for when those are provisioned — setting them is the entire activation step, no code change needed on this side.
+**Known issues:**
+- Team permissions and billing were explicitly not built this pass — the pilot objective is the founder alone testing personal accounts, not a team or paying customers, so this didn't serve the stated goal yet.
+- `publish()` bodies are stubs (`not_implemented`) even once `isConfigured()` would return true — the actual Graph/Content-Posting/Share/Data/Tweets/Pins API calls are TODO-marked, not implemented, since none of the 7 platforms' OAuth apps exist yet to test against.
+- Media library has no real upload — URL-only, since file storage isn't provisioned.
+
+**Next engineering task:** still blocked on the same founder-provided items as the prior entry (Supabase Auth project, Stripe keys, per-platform OAuth app registrations) for activation. Unblocked and available next: implement the real per-platform `publish()` API calls once even one OAuth app exists (recommend starting with whichever platform's review process is fastest — likely LinkedIn or X over Meta/TikTok); Sentry error tracking; ESLint config decision (flagged since Sprint 0b, still outstanding).
+
 ## 2026-08-04 — Sprint 0a: Security patch
 
 **Features/fixes:**
