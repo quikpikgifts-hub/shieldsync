@@ -4,6 +4,25 @@ Lightweight ongoing record per the Veridian AI Build to Launch directive. One en
 
 ---
 
+## 2026-08-06 — Founder Alpha Completion Mode: reliability pass
+
+Per the Founder Alpha Completion Mode directive: no new features, only fixes that reduce distance to the first successful AI-assisted post and improve daily-workflow reliability. Confirmed clean `npm run build` and 85/85 `npm run test` before and after, plus a headless-browser walkthrough of sign-in → workspace → brand → draft review with seeded data.
+
+**Bugs fixed:**
+- **Stale content after brand switch**: the topbar's "Jump to brand…" dropdown let the founder switch directly from one brand's detail view to another without leaving the page. `BrandDetail` (`src/social/shared.jsx`) initializes its content-list and media-library state with `useState(() => ...)`/`useMemo` scoped to the brand at mount time, and was rendered without a `key` in `src/shell/Shell.jsx` — so switching brands via the dropdown updated the header (brand name, voice, pending count) but left the previous brand's drafts on screen. Fixed by keying `<BrandDetail key={activeBrand.id} .../>` so React remounts cleanly on brand switch. Verified with seeded two-brand data: switching Alpha → Beta via the dropdown now shows only Beta's content.
+- **No keyboard focus indicator on any form control**: `inputStyle` (`src/shell/primitives.jsx`) sets `outline: "none"` on every input/textarea/select with no replacement, across every form in the app (brand creation, draft editing, scheduling, media library). Added a `:focus-visible` outline rule to the shell's injected base stylesheet (`src/shell/theme.js`) — restores keyboard accessibility without changing the mouse-click appearance.
+- **No error boundary**: an unhandled render exception anywhere in the tree (`Shell` or any child) would unmount the whole app to a blank white screen with no feedback and no recovery path. Added a top-level `ErrorBoundary` in `src/main.jsx` that shows a "Something went wrong" screen with a reload button and logs the error, instead of failing silently.
+
+**Breaking changes:** none.
+
+**Migrations:** none.
+
+**Deployment notes:** nothing new required. Bundle sizes essentially unchanged (Shell chunk 45.79kB → 45.93kB gzip, `index` chunk +0.5kB for the error boundary).
+
+**Known issues:** unchanged from prior entries — production deployment and TikTok credential activation remain founder-driven steps per `ACTIVATION.md`; not attempted here since neither requires or benefits from further engineering work.
+
+**Next step:** founder-driven — deploy to production and complete the TikTok activation sequence in `ACTIVATION.md` §8.
+
 ## 2026-08-05 — Founder Activation: verification pass, single activation screen, ACTIVATION.md
 
 Per the Founder Activation directive: no new product features, only what moves the founder closer to activating and posting. No redesign — the shell, Social product, and TikTok pipeline built in prior entries are unchanged in shape.

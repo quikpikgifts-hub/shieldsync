@@ -307,7 +307,7 @@ export default function Shell() {
           {nav === "social" && activeBrand && (
             <>
               <Btn variant="ghost" onClick={() => setActiveBrand(null)} style={{ marginBottom: 16 }}>← All brands</Btn>
-              <BrandDetail brand={activeBrand} />
+              <BrandDetail key={activeBrand.id} brand={activeBrand} />
             </>
           )}
 

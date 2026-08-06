@@ -14,7 +14,7 @@ export const T = {
   text: "#F1F0FA", textSub: "#8B8AA8", textDim: "#4A4A64",
 };
 
-export const BASE_CSS = `*{box-sizing:border-box;margin:0;padding:0}body{background:${T.bg};color:${T.text};font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}input,textarea,button,select{font-family:inherit}::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:${T.border};border-radius:3px}`;
+export const BASE_CSS = `*{box-sizing:border-box;margin:0;padding:0}body{background:${T.bg};color:${T.text};font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}input,textarea,button,select{font-family:inherit}::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:${T.border};border-radius:3px}input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid ${T.accent};outline-offset:1px}`;
 
 export function useInjectedStyle(css) {
   useEffect(() => {
