@@ -1,31 +1,11 @@
 export const config = { runtime: "edge" };
 
+import { kvRateLimit } from "./_lib/kv.js";
+import { callAnthropic } from "./_lib/ai-gateway.js";
+
 const SYSTEM = "You are Alex, the Veridian AI Front Desk — a professional AI concierge for Veridian Risk Group. Veridian helps service businesses recover $30K–$200K/year in lost revenue from missed calls and poor lead follow-up.\n\nYour goals:\n1. Welcome the visitor and uncover their revenue challenge\n2. Ask qualifying questions: business type, monthly call volume, biggest revenue problem\n3. Help them estimate their missed revenue potential\n4. Guide them toward booking a free 30-minute Revenue Recovery Assessment\n5. Capture: name, email, phone, and business name when they're ready\n\nRules:\n- Max 2-3 sentences per reply. Be direct and results-focused.\n- Never discuss specific pricing — say 'We cover investment options during your assessment'\n- Always end with a question or clear next step\n- When you have name + email, say: 'Perfect — I can lock in a consultation slot for you right now. Just click Book My Free Assessment below.'";
 
 const CORS = { "Access-Control-Allow-Origin": "*" };
-
-async function kvRateLimit(ip) {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return false;
-  const key = `rl:chat:${ip}:${Math.floor(Date.now() / 60000)}`;
-  try {
-    const incrRes = await fetch(url, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["INCR", key]),
-    });
-    const { result: count } = await incrRes.json();
-    await fetch(url, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["EXPIRE", key, 120]),
-    });
-    return count > 20;
-  } catch {
-    return false;
-  }
-}
 
 export default async function handler(req) {
   if (req.method === "OPTIONS") {
@@ -42,8 +22,7 @@ export default async function handler(req) {
     return new Response("Method not allowed", { status: 405, headers: CORS });
   }
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const limited = await kvRateLimit(ip);
+  const limited = await kvRateLimit(req, { prefix: "chat", max: 20, windowSec: 60 });
   if (limited) {
     return new Response(JSON.stringify({ error: "Too many requests" }), {
       status: 429,
@@ -82,19 +61,12 @@ export default async function handler(req) {
   ];
 
   try {
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 300,
-        system: SYSTEM,
-        messages,
-      }),
+    const r = await callAnthropic({
+      apiKey,
+      model: "claude-haiku-4-5-20251001",
+      maxTokens: 300,
+      system: SYSTEM,
+      messages,
     });
 
     const data = await r.json();

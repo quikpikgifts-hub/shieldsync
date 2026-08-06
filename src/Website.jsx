@@ -1996,7 +1996,7 @@ function DashboardPage(){
           {authErr&&<div style={{fontSize:12,color:W.red,marginBottom:10}}>{authErr}</div>}
           <button type="submit" disabled={fetching} className="vd-btn" style={{width:"100%",background:W.accent,color:"#fff",border:"none",borderRadius:9,padding:13,fontSize:14,fontWeight:700,cursor:"pointer",justifyContent:"center"}}>{fetching?"Connecting...":"Access Command Center"}</button>
         </form>
-        <div style={{marginTop:20,fontSize:11,color:W.textDim}}>Set DASH_PIN in Vercel env vars (default: 0000)</div>
+        <div style={{marginTop:20,fontSize:11,color:W.textDim}}>Set DASH_PIN in Vercel env vars — a real PIN is required, there is no default</div>
       </div>
     </div>
   );

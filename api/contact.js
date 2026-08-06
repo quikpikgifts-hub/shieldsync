@@ -1,81 +1,14 @@
 export const config = { runtime: "edge" };
 
-async function kv(cmd, ...args) {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return null;
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify([cmd, ...args]),
-  });
-  return (await r.json()).result;
-}
-
-async function kvRateLimit(req, opts) {
-  const max = (opts && opts.max) || 3;
-  const window = (opts && opts.window) || 600;
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return false;
-  const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || "anon";
-  const bucket = Math.floor(Date.now() / 1000 / window);
-  const key = `rl:contact:${ip}:${bucket}`;
-  try {
-    const r = await fetch(url, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["INCR", key]),
-    });
-    const d = await r.json();
-    if (d.result === 1) {
-      await fetch(url, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify(["EXPIRE", key, window * 2]),
-      });
-    }
-    return d.result > max;
-  } catch { return false; }
-}
-
-function mkId() {
-  return `vrd_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-}
-
-function priority(annual, challenge) {
-  const urgentWords = ["urgent", "immediately", "asap", "losing", "crisis", "emergency", "now"];
-  const isUrgent = urgentWords.some(w => (challenge || "").toLowerCase().includes(w));
-  if (isUrgent || annual >= 200000) return "HOT";
-  if (annual >= 75000) return "HIGH";
-  if (annual >= 25000) return "MEDIUM";
-  return "LOW";
-}
+import { kvRateLimit } from "./_lib/kv.js";
+import { cleanEnv, sendEmail } from "./_lib/email.js";
+import { mkId } from "./_lib/ids.js";
+import { priorityFromRevenue } from "./_lib/priority.js";
+import { recordLead, scheduleFollowUps } from "./_lib/store.js";
 
 function fmtAnnual(n) {
   if (!n || n === 0) return null;
   return n >= 1000 ? `$${(n / 1000).toFixed(1)}K` : `$${n}`;
-}
-
-async function sendEmail(apiKey, payload, label) {
-  console.log(`[contact] send: ${label} → to=${JSON.stringify(payload.to)} from=${payload.from}`);
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) {
-      console.error(`[contact] RESEND FAIL: ${label} — HTTP ${r.status} —`, JSON.stringify(data));
-    } else {
-      console.log(`[contact] RESEND OK: ${label} — id=${data.id}`);
-    }
-    return { ok: r.ok, status: r.status, data };
-  } catch (err) {
-    console.error(`[contact] RESEND ERROR: ${label} —`, err?.message || String(err));
-    return { ok: false, error: err?.message };
-  }
 }
 
 async function ghlIntegration(crmEntry, annual, calcBlock, fmtAnnual) {
@@ -163,45 +96,6 @@ async function ghlIntegration(crmEntry, annual, calcBlock, fmtAnnual) {
   }
 }
 
-async function supabaseInsert(row) {
-  const PLACEHOLDERS = ["YOUR-PROJECT", "your Supabase", "(your ", "REPLACE_WITH"];
-  const isPlaceholder = v => PLACEHOLDERS.some(p => v.includes(p));
-
-  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const rawKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-  const url = rawUrl.replace(/^=+/, "").trim();
-  const key = rawKey.replace(/^=+/, "").trim();
-
-  if (!url || !key) {
-    console.error("[supabase] ABORT — env vars missing");
-    return { skipped: true };
-  }
-  if (isPlaceholder(url) || isPlaceholder(key)) {
-    console.error("[supabase] ABORT — env vars contain placeholder values");
-    return { skipped: true, reason: "placeholder" };
-  }
-
-  const endpoint = `${url}/rest/v1/leads`;
-  const r = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": key,
-      "Authorization": `Bearer ${key}`,
-      "Prefer": "return=representation",
-    },
-    body: JSON.stringify(row),
-  });
-
-  const responseText = await r.text().catch(() => "");
-  if (!r.ok) {
-    console.error("[supabase] INSERT FAILED — HTTP", r.status);
-    throw new Error(responseText);
-  }
-
-  return { ok: true, status: r.status, body: responseText };
-}
-
 export default async function handler(req) {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -217,15 +111,13 @@ export default async function handler(req) {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  if (await kvRateLimit(req)) {
+  if (await kvRateLimit(req, { prefix: "contact", max: 3, windowSec: 600 })) {
     return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
       status: 429,
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     });
   }
 
-  // ── Env var audit ────────────────────────────────────────────
-  const cleanEnv = v => (v || "").replace(/^=+/, "").trim();
   const resendKey  = process.env.RESEND_API_KEY;
   const fromDomain = cleanEnv(process.env.FROM_DOMAIN) || "veridianriskgroup.org";
   const toEmail    = cleanEnv(process.env.TEAM_EMAIL)   || "info@veridianriskgroup.org";
@@ -251,10 +143,10 @@ export default async function handler(req) {
     });
   }
 
-  const leadId = mkId();
+  const leadId = mkId("vrd");
   const ts = new Date().toISOString();
   const annual = calcData?.annualPotential || 0;
-  const p = priority(annual, challenge);
+  const p = priorityFromRevenue(annual, challenge);
   const firstName = name.trim().split(" ")[0];
 
   console.log(`[contact] new lead: ${leadId} | priority=${p} | annual=$${annual} | from=${email.trim()}`);
@@ -277,48 +169,22 @@ export default async function handler(req) {
     challenge: challenge || "",
     calcData: calcData || null,
     recoveryEstimate: fmtAnnual(annual),
+    notes: calcData
+      ? `Recovery: ${fmtAnnual(annual) || "N/A"} | Calls/mo: ${calcData.calls} | Miss rate: ${calcData.miss}% | Avg value: $${calcData.val} | Conv: ${calcData.conv}%`
+      : null,
   };
 
   const webhookUrl = process.env.CONTACT_WEBHOOK_URL;
   const subjectSuffix = annual > 0 ? ` | Est. ${fmtAnnual(annual)}/yr` : "";
 
-  // Supabase — awaited directly; result forwarded in API response
-  let sbResult = { skipped: true };
-  try {
-    sbResult = await supabaseInsert({
-      lead_id:   leadId,
-      name:      name.trim(),
-      business:  biz || null,
-      email:     email.trim(),
-      phone:     phone || null,
-      challenge: challenge || null,
-      priority:  p,
-      status:    "new",
-      notes:     calcData
-        ? `Recovery: ${fmtAnnual(annual) || "N/A"} | Calls/mo: ${calcData.calls} | Miss rate: ${calcData.miss}% | Avg value: $${calcData.val} | Conv: ${calcData.conv}%`
-        : null,
-    });
-  } catch (err) {
-    sbResult = { ok: false, error: err.message };
-    console.error("[contact] supabase insert threw:", err.message);
-  }
+  // Single write path — dual-writes to KV (dashboard/follow-up cron) and
+  // Supabase (metrics) together instead of two independently-maintained blocks.
+  const { sbResult } = await recordLead(crmEntry);
+
   const promises = [];
-
-  // KV storage
-  promises.push(kv("SET", `veridian:lead:${leadId}`, JSON.stringify(crmEntry)));
-  promises.push(kv("LPUSH", "veridian:leads", JSON.stringify(crmEntry)));
-
-  // KV follow-up queue
-  const now = Date.now();
-  promises.push(kv("ZADD", "veridian:fu:24h",  String(now + 86400000),   leadId));
-  promises.push(kv("ZADD", "veridian:fu:3d",   String(now + 259200000),  leadId));
-  promises.push(kv("ZADD", "veridian:fu:7d",   String(now + 604800000),  leadId));
-  promises.push(kv("ZADD", "veridian:fu:14d",  String(now + 1209600000), leadId));
-
-  // GHL
+  promises.push(scheduleFollowUps(leadId, ["24h", "3d", "7d", "14d"]));
   promises.push(ghlIntegration(crmEntry, annual, calcBlock, fmtAnnual));
 
-  // Email
   if (!resendKey) {
     console.error("[contact] RESEND_API_KEY is missing — no emails will be sent");
   } else {
@@ -336,7 +202,7 @@ export default async function handler(req) {
         to: [toEmail],
         subject: `[${p}] New lead: ${name.trim()} — ${biz || "Unknown"}${subjectSuffix}`,
         text: teamText,
-      }, "team-alert"),
+      }, "team-alert", "contact"),
 
       sendEmail(resendKey, {
         from: `Veridian <hello@${fromDomain}>`,
@@ -344,7 +210,7 @@ export default async function handler(req) {
         reply_to: toEmail,
         subject: "Your Veridian Revenue Assessment — We're on it",
         text: prospectText,
-      }, "prospect-confirm"),
+      }, "prospect-confirm", "contact"),
     );
   }
 

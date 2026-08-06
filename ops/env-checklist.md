@@ -11,7 +11,7 @@
 |---|---|---|---|
 | `KV_REST_API_URL` | Vercel Dashboard → Storage → KV → Connect | none | YES |
 | `KV_REST_API_TOKEN` | Vercel Dashboard → Storage → KV → Connect | none | YES |
-| `DASH_PIN` | Set your own 4–8 digit PIN | `0000` ⚠️ | YES |
+| `DASH_PIN` | Set your own 4–8 digit PIN | none — all PIN-gated endpoints fail closed until set (`"0000"` is explicitly rejected too) | YES |
 | `CRON_SECRET` | Generate random string (openssl rand -hex 32) | none | YES (Pro) |
 
 **To provision KV:**

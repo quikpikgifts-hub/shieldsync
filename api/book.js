@@ -1,133 +1,9 @@
 export const config = { runtime: "edge" };
 
-async function kv(cmd, ...args) {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return null;
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify([cmd, ...args]),
-  });
-  const data = await r.json();
-  return data.result;
-}
-
-async function kvRateLimit(req, opts) {
-  const max = (opts && opts.max) || 5;
-  const window = (opts && opts.window) || 3600;
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return false;
-  const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || "anon";
-  const bucket = Math.floor(Date.now() / 1000 / window);
-  const key = `rl:book:${ip}:${bucket}`;
-  try {
-    const r = await fetch(url, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["INCR", key]),
-    });
-    const d = await r.json();
-    if (d.result === 1) {
-      await fetch(url, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify(["EXPIRE", key, window * 2]),
-      });
-    }
-    return d.result > max;
-  } catch { return false; }
-}
-
-function mkId() {
-  return `bkg_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-}
-
-async function supabaseGet(url, key, path) {
-  try {
-    const r = await fetch(`${url}${path}`, {
-      headers: { "apikey": key, "Authorization": `Bearer ${key}`, "Accept": "application/json" },
-    });
-    if (!r.ok) return null;
-    return await r.json().catch(() => null);
-  } catch { return null; }
-}
-
-async function supabaseUpdate(url, key, table, filter, data) {
-  try {
-    await fetch(`${url}/rest/v1/${table}?${filter}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": key,
-        "Authorization": `Bearer ${key}`,
-        "Prefer": "return=minimal",
-      },
-      body: JSON.stringify(data),
-    });
-  } catch {}
-}
-
-async function supabaseInsert(row) {
-  const PLACEHOLDERS = ["YOUR-PROJECT", "your Supabase", "(your ", "REPLACE_WITH"];
-  const isPlaceholder = v => PLACEHOLDERS.some(p => v.includes(p));
-
-  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const rawKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-  const url = rawUrl.replace(/^=+/, "").trim();
-  const key = rawKey.replace(/^=+/, "").trim();
-
-  if (!url || !key) {
-    console.error("[book/supabase] ABORT — env vars missing");
-    return { skipped: true };
-  }
-  if (isPlaceholder(url) || isPlaceholder(key)) {
-    console.error("[book/supabase] ABORT — env vars contain placeholder values");
-    return { skipped: true, reason: "placeholder" };
-  }
-
-  const endpoint = `${url}/rest/v1/bookings`;
-  const r = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": key,
-      "Authorization": `Bearer ${key}`,
-      "Prefer": "return=representation",
-    },
-    body: JSON.stringify(row),
-  });
-
-  const responseText = await r.text().catch(() => "");
-  if (!r.ok) {
-    console.error("[book/supabase] INSERT FAILED — HTTP", r.status);
-    throw new Error(responseText);
-  }
-
-  return { ok: true, status: r.status, body: responseText };
-}
-
-async function sendEmail(apiKey, payload, label) {
-  console.log(`[book] send: ${label} → to=${JSON.stringify(payload.to)} from=${payload.from}`);
-  try {
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) {
-      console.error(`[book] RESEND FAIL: ${label} — HTTP ${r.status} —`, JSON.stringify(data));
-    } else {
-      console.log(`[book] RESEND OK: ${label} — id=${data.id}`);
-    }
-    return { ok: r.ok, status: r.status, data };
-  } catch (err) {
-    console.error(`[book] RESEND ERROR: ${label} —`, err?.message || String(err));
-    return { ok: false, error: err?.message };
-  }
-}
+import { kv, kvRateLimit } from "./_lib/kv.js";
+import { cleanEnv, sendEmail } from "./_lib/email.js";
+import { mkId } from "./_lib/ids.js";
+import { supabaseInsert, supabaseUpdate, supabaseSelect } from "./_lib/supabase.js";
 
 export default async function handler(req) {
   if (req.method === "OPTIONS") {
@@ -144,14 +20,13 @@ export default async function handler(req) {
     return new Response("Method not allowed", { status: 405 });
   }
 
-  if (await kvRateLimit(req)) {
+  if (await kvRateLimit(req, { prefix: "book", max: 5, windowSec: 3600 })) {
     return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
       status: 429,
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     });
   }
 
-  const cleanEnv = v => (v || "").replace(/^=+/, "").trim();
   const resendKey  = process.env.RESEND_API_KEY;
   const toEmail    = cleanEnv(process.env.TEAM_EMAIL)   || "info@veridianriskgroup.org";
   const fromDomain = cleanEnv(process.env.FROM_DOMAIN)  || "veridianriskgroup.org";
@@ -176,12 +51,8 @@ export default async function handler(req) {
   }
 
   // Duplicate booking guard — one booking per leadId
-  const cleanEnvSb = v => (v || "").replace(/^=+/, "").trim();
-  const sbUrl = cleanEnvSb(process.env.NEXT_PUBLIC_SUPABASE_URL);
-  const sbKey = cleanEnvSb(process.env.SUPABASE_SERVICE_ROLE_KEY);
-  if (leadId && sbUrl && sbKey) {
-    const existing = await supabaseGet(sbUrl, sbKey,
-      `/rest/v1/bookings?lead_id=eq.${encodeURIComponent(leadId)}&select=booking_id&limit=1`);
+  if (leadId) {
+    const existing = await supabaseSelect("bookings", `lead_id=eq.${encodeURIComponent(leadId)}&select=booking_id&limit=1`);
     if (Array.isArray(existing) && existing.length > 0) {
       const existingId = existing[0].booking_id;
       console.log(`[book] duplicate blocked — leadId=${leadId} already has bookingId=${existingId}`);
@@ -191,7 +62,7 @@ export default async function handler(req) {
     }
   }
 
-  const bookingId = mkId();
+  const bookingId = mkId("bkg");
   const ts = new Date().toISOString();
   const firstName = (name || "").split(" ")[0] || "there";
   const booking = { bookingId, leadId, name, email, biz, timestamp: ts };
@@ -211,7 +82,7 @@ export default async function handler(req) {
   };
   let sbResult = { skipped: true };
   try {
-    sbResult = await supabaseInsert(sbPayload);
+    sbResult = await supabaseInsert("bookings", sbPayload);
   } catch (err) {
     sbResult = { ok: false, error: err.message };
     console.error("[book] supabase insert threw:", err.message);
@@ -226,12 +97,7 @@ export default async function handler(req) {
       kv("ZREM", `veridian:fu:${s}`, leadId)
     ));
     // Update lead status in Supabase
-    if (sbUrl && sbKey) {
-      await supabaseUpdate(sbUrl, sbKey, "leads",
-        `lead_id=eq.${encodeURIComponent(leadId)}`,
-        { status: "consultation_booked" }
-      );
-    }
+    await supabaseUpdate("leads", `lead_id=eq.${encodeURIComponent(leadId)}`, { status: "consultation_booked" });
   }
 
   if (!resendKey) {
@@ -282,7 +148,7 @@ export default async function handler(req) {
         to: [toEmail],
         subject: `Consultation Booked: ${name || "Unknown"} — ${biz || "Unknown Business"}`,
         text: teamText,
-      }, "team-booking"),
+      }, "team-booking", "book"),
 
       sendEmail(resendKey, {
         from: `Veridian <hello@${fromDomain}>`,
@@ -290,7 +156,7 @@ export default async function handler(req) {
         reply_to: toEmail,
         subject: `Your Veridian Consultation is Confirmed`,
         text: clientText,
-      }, "client-confirm"),
+      }, "client-confirm", "book"),
     ]);
 
     console.log("[book] team-booking:", teamResult.status, teamResult.value?.ok ?? teamResult.reason?.message);

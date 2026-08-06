@@ -1,5 +1,8 @@
 export const config = { runtime: "edge" };
 
+import { kvRateLimit } from "./_lib/kv.js";
+import { callAnthropic } from "./_lib/ai-gateway.js";
+
 // ─── Allowed origins (same-origin requests from the site itself) ─────────────
 const ALLOWED_ORIGINS = [
   "https://shieldsync-psi.vercel.app",
@@ -23,7 +26,7 @@ function isAllowedOrigin(req) {
 function hasDashPinAuth(req) {
   const auth = req.headers.get("authorization") || "";
   const pin = process.env.DASH_PIN;
-  if (!pin) return false;
+  if (!pin || pin === "0000") return false; // fail closed on unset or default PIN
   return auth === `Bearer ${pin}`;
 }
 
@@ -34,30 +37,6 @@ function corsHeaders(allowedOrigin) {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Vary": "Origin",
   };
-}
-
-// ─── KV-backed rate limiting (20 req/min per IP, same pattern as chat.js) ────
-async function kvRateLimit(ip) {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return false;          // KV not configured — allow (fail open)
-  const key = `rl:ai:${ip}:${Math.floor(Date.now() / 60000)}`;
-  try {
-    const incrRes = await fetch(url, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["INCR", key]),
-    });
-    const { result: count } = await incrRes.json();
-    await fetch(url, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["EXPIRE", key, 120]),
-    });
-    return count > 20;
-  } catch {
-    return false;                             // KV error — fail open
-  }
 }
 
 // ─── Handler ─────────────────────────────────────────────────────────────────
@@ -86,8 +65,7 @@ export default async function handler(req) {
   const cors = corsHeaders(allowedOrigin || "*");
 
   // ── Rate limit by IP ──
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const limited = await kvRateLimit(ip);
+  const limited = await kvRateLimit(req, { prefix: "ai", max: 20, windowSec: 60 });
   if (limited) {
     return new Response(JSON.stringify({ error: "Too many requests" }), {
       status: 429,
@@ -125,19 +103,12 @@ export default async function handler(req) {
 
   // ── Proxy to Anthropic ──
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: Math.min(max_tokens, 2048),   // cap to prevent abuse
-        system: system || "You are a helpful AI assistant.",
-        messages: messages.slice(-10),              // cap history depth
-      }),
+    const resp = await callAnthropic({
+      apiKey,
+      model: "claude-sonnet-4-6",
+      maxTokens: Math.min(max_tokens, 2048),   // cap to prevent abuse
+      system: system || "You are a helpful AI assistant.",
+      messages: messages.slice(-10),              // cap history depth
     });
 
     if (!resp.ok) {

@@ -1,59 +1,16 @@
 export const config = { runtime: "edge" };
 
-const CORS = { "Access-Control-Allow-Origin": "*" };
+import { verifyTwilioSignature, sendSMS } from "./_lib/twilio.js";
+import { supabaseInsert } from "./_lib/supabase.js";
+import { mkId } from "./_lib/ids.js";
 
-async function sendSMS(to, body) {
-  const sid   = process.env.TWILIO_ACCOUNT_SID;
-  const token = process.env.TWILIO_AUTH_TOKEN;
-  const from  = process.env.TWILIO_PHONE_NUMBER;
-  if (!sid || !token || !from) {
-    console.error("[sms] Twilio env vars missing (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER)");
-    return { ok: false, error: "SMS not configured" };
-  }
-  const r = await fetch(
-    `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${btoa(`${sid}:${token}`)}`,
-      },
-      body: new URLSearchParams({ To: to, From: from, Body: body }).toString(),
-    }
-  );
-  const data = await r.json().catch(() => ({}));
-  return { ok: r.ok, sid: data.sid };
-}
+const CORS = { "Access-Control-Allow-Origin": "*" };
 
 function twiml(msg) {
   return new Response(
     `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${msg}</Message></Response>`,
     { headers: { "Content-Type": "application/xml", ...CORS } }
   );
-}
-
-async function supabaseInsert(row) {
-  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const rawKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-  const url = rawUrl.replace(/^=+/, "").trim();
-  const key = rawKey.replace(/^=+/, "").trim();
-  if (!url || !key) return;
-  try {
-    await fetch(`${url}/rest/v1/leads`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": key,
-        "Authorization": `Bearer ${key}`,
-        "Prefer": "return=minimal",
-      },
-      body: JSON.stringify(row),
-    });
-  } catch {}
-}
-
-function mkId() {
-  return `vrd_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
 export default async function handler(req) {
@@ -71,7 +28,8 @@ export default async function handler(req) {
     const { searchParams } = new URL(req.url);
     const action = searchParams.get("action");
     const pin    = searchParams.get("pin");
-    if (action !== "send" || pin !== process.env.DASH_PIN) {
+    const dashPin = process.env.DASH_PIN;
+    if (action !== "send" || !dashPin || dashPin === "0000" || pin !== dashPin) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
         headers: { "Content-Type": "application/json", ...CORS },
@@ -85,7 +43,7 @@ export default async function handler(req) {
         headers: { "Content-Type": "application/json", ...CORS },
       });
     }
-    const result = await sendSMS(to, body);
+    const result = await sendSMS(to, body, "sms");
     return new Response(JSON.stringify(result), {
       headers: { "Content-Type": "application/json", ...CORS },
     });
@@ -100,6 +58,11 @@ export default async function handler(req) {
   if (contentType.includes("application/x-www-form-urlencoded")) {
     const text = await req.text();
     const params = new URLSearchParams(text);
+
+    if (!(await verifyTwilioSignature(req, req.url, params))) {
+      return new Response("Forbidden", { status: 403, headers: CORS });
+    }
+
     const from = params.get("From") || "";
     const body = (params.get("Body") || "").trim().toLowerCase();
 
@@ -110,13 +73,13 @@ export default async function handler(req) {
       return twiml("Book your free Revenue Recovery Assessment: https://www.veridianresiliencegroupllc.org/#contact — We'll confirm within 1 business day.");
     }
     if (body === "yes" || body === "interested" || body === "tell me more") {
-      await supabaseInsert({
-        lead_id:  mkId(),
+      await supabaseInsert("leads", {
+        lead_id:  mkId("vrd"),
         phone:    from || null,
         priority: "HOT",
         status:   "contacted",
         notes:    "Replied YES to SMS outreach",
-      });
+      }).catch(() => {});
       return twiml("Excellent! A Veridian advisor will call you within 1 business day. Preview your recovery potential: https://www.veridianresiliencegroupllc.org/#calculator");
     }
     if (body === "price" || body === "cost" || body === "how much") {
@@ -131,7 +94,8 @@ export default async function handler(req) {
   // Internal missed-call text-back — JSON body, DASH_PIN in Authorization Bearer
   const authHeader = req.headers.get("authorization") || "";
   const bearerPin  = authHeader.replace(/^Bearer\s+/i, "").trim();
-  if (bearerPin !== process.env.DASH_PIN) {
+  const dashPinInternal = process.env.DASH_PIN;
+  if (!dashPinInternal || dashPinInternal === "0000" || bearerPin !== dashPinInternal) {
     return new Response(JSON.stringify({ error: "Forbidden" }), {
       status: 403,
       headers: { "Content-Type": "application/json", ...CORS },
@@ -166,7 +130,7 @@ export default async function handler(req) {
     });
   }
 
-  const result = await sendSMS(to, smsBody);
+  const result = await sendSMS(to, smsBody, "sms");
   return new Response(JSON.stringify(result), {
     headers: { "Content-Type": "application/json", ...CORS },
   });

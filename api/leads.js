@@ -1,19 +1,10 @@
 export const config = { runtime: "edge" };
 
-async function kv(cmd, ...args) {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return null;
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify([cmd, ...args]),
-  });
-  return (await r.json()).result;
-}
+import { kv } from "./_lib/kv.js";
 
 function checkPin(req) {
-  const expected = process.env.DASH_PIN || "0000";
+  const expected = process.env.DASH_PIN;
+  if (!expected || expected === "0000") return false; // fail closed — no PIN, no default, no access
   const auth = req.headers.get("authorization") || "";
   const pin = auth.startsWith("Bearer ") ? auth.slice(7) : new URL(req.url).searchParams.get("pin") || "";
   return pin === expected;
