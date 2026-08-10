@@ -4,6 +4,34 @@ Lightweight ongoing record per the Veridian AI Build to Launch directive. One en
 
 ---
 
+## 2026-08-10 — Sprint 1: real authentication + organizations
+
+Per `ops/veridian-platform-strategy.md`'s roadmap (Sprint 1, next after Founder Alpha): replaces Veridian AI's dev-mode `devAuth` with real Supabase Auth, and adds the `organizations`/`memberships` platform-core schema. Connect (`/`, `/dashboard`, its PIN gate, and all `api/{contact,assessment,book,follow-up,sms,voice,metrics,leads}.js`) is completely untouched.
+
+**Completed work:**
+- **Real sign-up/sign-in/sign-out/session-refresh**, implemented as GoTrue REST calls (`api/_lib/auth.js`) behind five new same-origin-gated endpoints (`api/auth/{signup,signin,session,refresh,signout}.js`) — no Supabase SDK added, matching this codebase's existing no-dependency REST pattern (`api/_lib/supabase.js`). **No new environment variable required**: the existing `SUPABASE_SERVICE_ROLE_KEY` (already set for Connect's leads/bookings) doubles as the GoTrue `apikey` gateway header, while each authenticated call still uses the real user's own access token for identity — see the header comment in `api/_lib/auth.js` for why that's safe.
+- **`organizations` + `memberships` tables** (`supabase/migrations/20260810000000_create_platform_core.sql`), RLS-scoped to `auth.uid()`, insert/update/delete denied for all client roles by design — only the server (via the service-role key) ever writes them, in `api/auth/session.js`'s bootstrap step.
+- **Org auto-provisioning**: `GET /api/auth/session` verifies the caller's token, and on a brand-new account with no membership rows, creates a personal organization + owner membership automatically — no separate "create your org" step for the common single-user case.
+- **`src/lib/auth.js`**: browser-side session client (signUp/signInWithPassword/signOut/getValidSession/fetchOrganizations), calling this app's own `/api/auth/*` endpoints — never Supabase directly from the browser, same pattern as AI/TikTok/Twilio. Sessions persist in `localStorage` and silently refresh within 60s of expiry.
+- **`src/shell/Shell.jsx`**: real email+password sign-in/sign-up form (was a name-only dev-mode form), with an honest "check your email" state when the Supabase project has email confirmation enabled. Real organizations sync into the existing localStorage `workspaces` records (`ownerOrgId`) so brand/content data isn't disturbed; a pre-Sprint-1 workspace with only the old `ownerEmail` field is backfilled in place rather than orphaned. The workspace picker only appears when a user genuinely has more than one org (not reachable via any UI yet, but the schema supports it) — the common single-org case auto-enters.
+- Retired `devAuth` from `src/social/store.js` (moved to `src/lib/auth.js`'s real implementation).
+
+**Bugs fixed:** none (feature pass).
+
+**Breaking changes:** `Shell`'s sign-in is no longer instant/passwordless — existing dev-mode "sessions" (an email in `localStorage`) are not carried forward; anyone who'd signed in under `devAuth` needs to create a real account once. Local brand/workspace *data* is preserved and reattached to the new account via the `ownerOrgId` backfill described above. `user.name` no longer exists (Supabase Auth users have no name field by default) — `DashboardHome` and the shell's avatar now derive a display label from the email's local-part instead.
+
+**Migrations:** `supabase/migrations/20260810000000_create_platform_core.sql` — **must be applied to the live Supabase project before this deploys**, or sign-in will fail at the org-bootstrap step (see `ACTIVATION.md` §2).
+
+**Deployment notes:** no new env vars. 100/100 tests pass (15 new — 10 for `api/_lib/auth.js`, plus `src/lib/auth.js`'s client coverage), `npm run build` clean (Shell chunk 45.93kB → 49.24kB gzip 13.44kB — expected growth for the new auth/session logic).
+
+**Known issues:**
+- Brands/content/media are still localStorage-only (dev-mode) — only identity moved to Postgres this sprint. Multi-device access to the same org's brands doesn't work yet (by design — that's the next slice of platform-core work, not bundled into this one to avoid a big-bang change).
+- No password-reset flow yet (Supabase Auth supports it via its own REST endpoints; not wired up — no UI asked for it yet).
+- Billing and the other 6 social-platform integrations remain exactly as documented in prior entries — unaffected by this sprint.
+- Not live-tested against a real Supabase Auth project (mocked-HTTP tests only, same caveat every other external integration in this codebase ships with — see `ACTIVATION.md` for the one remaining setup step, applying the migration).
+
+**Next engineering task:** per the roadmap, Sprint 2 (`ops/veridian-platform-strategy.md`) — the AI Gateway is already consolidated (Build to Launch entry, `api/_lib/ai-gateway.js`), so what's left of that sprint is a Stripe billing skeleton (no live pricing yet, just `product_entitlements`/`subscriptions` plumbing) — noting per this repo's own stop-conditions that pricing/billing activation itself is a founder decision, not an engineering one.
+
 ## 2026-08-06 — Founder Alpha Completion Mode: reliability pass
 
 Per the Founder Alpha Completion Mode directive: no new features, only fixes that reduce distance to the first successful AI-assisted post and improve daily-workflow reliability. Confirmed clean `npm run build` and 85/85 `npm run test` before and after, plus a headless-browser walkthrough of sign-in → workspace → brand → draft review with seeded data.

@@ -2,17 +2,59 @@ import React, { useState, useEffect } from "react";
 import { LayoutDashboard, Sparkles, ExternalLink, Settings, LifeBuoy, LogOut, Plus, Bell, ChevronDown, User as UserIcon } from "lucide-react";
 import { T, BASE_CSS, useInjectedStyle, useOnlineStatus } from "./theme.js";
 import { Btn, Card, Field, inputStyle, Pill } from "./primitives.jsx";
-import { devAuth, workspaces, brands, pendingReviewCount, lastWorkspace } from "../social/store.js";
+import { workspaces, brands, pendingReviewCount, lastWorkspace } from "../social/store.js";
+import * as auth from "../lib/auth.js";
 import { CreateBrand, BrandDetail, SocialConnectionsPanel } from "../social/shared.jsx";
 import DashboardHome from "./DashboardHome.jsx";
 import ConnectModule from "./ConnectModule.jsx";
 import SupportModule from "./SupportModule.jsx";
 import AIAssistantPanel from "./AIAssistantPanel.jsx";
 
-// ─── Sign in (dev-mode — see src/social/store.js header comment) ──
+// ─── Sign in — real Supabase Auth via /api/auth/* (src/lib/auth.js) ──
 function SignIn({ onSignedIn }) {
+  const [mode, setMode] = useState("signin"); // "signin" | "signup"
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  const [confirmSent, setConfirmSent] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setBusy(true);
+    try {
+      if (mode === "signup") {
+        const result = await auth.signUp(email.trim(), password);
+        if (result.needsEmailConfirmation) {
+          setConfirmSent(true);
+        } else {
+          onSignedIn(result);
+        }
+      } else {
+        onSignedIn(await auth.signInWithPassword(email.trim(), password));
+      }
+    } catch (err) {
+      setError(err.message || "Something went wrong — please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (confirmSent) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+        <Card style={{ width: 380, textAlign: "center" }}>
+          <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>Check your email</div>
+          <div style={{ fontSize: 13, color: T.textSub, lineHeight: 1.6 }}>
+            We sent a confirmation link to <strong>{email}</strong>. Click it, then come back and sign in.
+          </div>
+          <Btn variant="ghost" style={{ marginTop: 16 }} onClick={() => { setConfirmSent(false); setMode("signin"); }}>Back to sign in</Btn>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
       <Card style={{ width: 380 }}>
@@ -21,54 +63,56 @@ function SignIn({ onSignedIn }) {
           <div style={{ fontSize: 18, fontWeight: 800 }}>Veridian AI</div>
         </div>
         <div style={{ fontSize: 13, color: T.textSub, marginBottom: 18 }}>
-          Dev-mode sign-in — no password yet. Real authentication ships once Supabase Auth credentials are provisioned (see CHANGELOG.md).
+          {mode === "signup" ? "Create your account." : "Sign in to your account."}
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); if (email.trim()) onSignedIn(devAuth.signIn(email, name)); }}>
-          <Field label="Email"><input style={inputStyle} value={email} onChange={e => setEmail(e.target.value)} type="email" required placeholder="you@yourbusiness.com" /></Field>
-          <Field label="Name"><input style={inputStyle} value={name} onChange={e => setName(e.target.value)} placeholder="Optional" /></Field>
-          <Btn type="submit" style={{ width: "100%", justifyContent: "center", marginTop: 4 }}>Continue</Btn>
+        {error && (
+          <div style={{ background: T.redB, border: `1px solid ${T.red}44`, color: T.red, borderRadius: 8, padding: "8px 10px", fontSize: 12.5, marginBottom: 14 }}>
+            {error}
+          </div>
+        )}
+        <form onSubmit={submit}>
+          <Field label="Email"><input style={inputStyle} value={email} onChange={e => setEmail(e.target.value)} type="email" required placeholder="you@yourbusiness.com" autoComplete="email" /></Field>
+          <Field label="Password">
+            <input
+              style={inputStyle} value={password} onChange={e => setPassword(e.target.value)}
+              type="password" required minLength={mode === "signup" ? 8 : undefined}
+              placeholder={mode === "signup" ? "At least 8 characters" : "Your password"}
+              autoComplete={mode === "signup" ? "new-password" : "current-password"}
+            />
+          </Field>
+          <Btn type="submit" disabled={busy} style={{ width: "100%", justifyContent: "center", marginTop: 4 }}>
+            {busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
+          </Btn>
         </form>
+        <div style={{ marginTop: 14, textAlign: "center", fontSize: 12.5, color: T.textSub }}>
+          {mode === "signup" ? "Already have an account?" : "New here?"}{" "}
+          <button
+            onClick={() => { setMode(mode === "signup" ? "signin" : "signup"); setError(null); }}
+            style={{ background: "none", border: "none", color: T.accent, cursor: "pointer", fontWeight: 700, fontSize: 12.5 }}
+          >
+            {mode === "signup" ? "Sign in" : "Create one"}
+          </button>
+        </div>
       </Card>
     </div>
   );
 }
 
-// ─── Workspace picker ───────────────────────────────────────────
-function WorkspacePicker({ user, onEnter }) {
-  const [list, setList] = useState(() => workspaces.list().filter(w => w.ownerEmail === user.email));
-  const [name, setName] = useState("");
-
-  const create = (e) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    const ws = workspaces.insert({ name: name.trim(), ownerEmail: user.email });
-    setList([...list, ws]);
-    onEnter(ws);
-  };
-
-  return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ width: 420 }}>
-        <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Welcome to Veridian AI, {user.name}</div>
-        <div style={{ fontSize: 13, color: T.textSub, marginBottom: 20 }}>Pick a workspace or create your first one.</div>
-        {list.map(ws => (
-          <Card key={ws.id} style={{ marginBottom: 10, cursor: "pointer" }}>
-            <div onClick={() => onEnter(ws)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ fontWeight: 700 }}>{ws.name}</div>
-              <Btn variant="ghost" onClick={() => onEnter(ws)}>Open</Btn>
-            </div>
-          </Card>
-        ))}
-        <Card>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Create a workspace</div>
-          <form onSubmit={create}>
-            <input style={inputStyle} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Riverside Coffee Co." />
-            <Btn type="submit" style={{ marginTop: 10, width: "100%", justifyContent: "center" }}><Plus size={14} /> Create workspace</Btn>
-          </form>
-        </Card>
-      </div>
-    </div>
-  );
+// ─── Workspace sync ─────────────────────────────────────────────
+// One local workspace record per real organization (Founder Alpha is
+// single-org by design — see api/auth/session.js's bootstrap). Syncs on
+// every sign-in rather than assuming a 1-time setup, and backfills any
+// pre-Sprint-1 local workspace that only has the old `ownerEmail` field so
+// existing dev-mode brand data isn't orphaned by the identity switch.
+function syncWorkspacesForOrgs(user, organizations) {
+  const all = workspaces.list();
+  return organizations.map((org) => {
+    const existingByOrg = all.find((w) => w.ownerOrgId === org.id);
+    if (existingByOrg) return existingByOrg;
+    const legacyByEmail = all.find((w) => !w.ownerOrgId && w.ownerEmail === user.email);
+    if (legacyByEmail) return workspaces.update(legacyByEmail.id, { ownerOrgId: org.id, name: legacyByEmail.name || org.name });
+    return workspaces.insert({ name: org.name, ownerEmail: user.email, ownerOrgId: org.id });
+  });
 }
 
 const NAV = [
@@ -82,7 +126,9 @@ const NAV = [
 export default function Shell() {
   useInjectedStyle(BASE_CSS);
   const online = useOnlineStatus();
-  const [user, setUser] = useState(() => devAuth.current());
+  // undefined = still resolving an existing session; null = signed out.
+  const [session, setSession] = useState(undefined);
+  const [orgError, setOrgError] = useState(null);
   const [workspace, setWorkspace] = useState(null);
   const [brandList, setBrandList] = useState([]);
   const [activeBrand, setActiveBrand] = useState(null);
@@ -94,26 +140,53 @@ export default function Shell() {
   const [allWorkspaces, setAllWorkspaces] = useState([]);
   const [oauthNotice, setOauthNotice] = useState(null);
 
+  const user = session?.user || null;
+
+  // Resolves (and silently refreshes, if needed) any existing session once
+  // on mount, so a page reload doesn't force a re-sign-in every time.
+  useEffect(() => {
+    let cancelled = false;
+    auth.getValidSession().then((s) => { if (!cancelled) setSession(s); });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Once signed in, fetch (and, on a brand-new account, trigger server-side
+  // provisioning of) real organizations, then sync them into the local
+  // workspace records that brands/content are still scoped to.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    setOrgError(null);
+    auth.fetchOrganizations(session.access_token)
+      .then(({ organizations, warning }) => {
+        if (cancelled) return;
+        if (warning) setOrgError(warning);
+        setAllWorkspaces(syncWorkspacesForOrgs(user, organizations));
+      })
+      .catch((err) => { if (!cancelled) setOrgError(err.message); });
+    return () => { cancelled = true; };
+  }, [user, session?.access_token]);
+
   useEffect(() => {
     if (workspace) {
       setBrandList(brands.list(workspace.id));
-      if (user) setAllWorkspaces(workspaces.list().filter(w => w.ownerEmail === user.email));
       lastWorkspace.set(workspace.id);
     }
-  }, [workspace, user]);
+  }, [workspace]);
 
-  // Restores the last-used workspace on load (page refresh, reopened tab)
-  // instead of forcing the founder back through workspace selection.
+  // Auto-enters the single workspace most sign-ins will have (Founder Alpha
+  // is single-org by design), or restores the last-used one on reload;
+  // only falls through to a picker when there's genuinely more than one.
   useEffect(() => {
-    if (user && !workspace) {
-      const savedId = lastWorkspace.get();
-      if (savedId) {
-        const found = workspaces.list().find(w => w.id === savedId && w.ownerEmail === user.email);
-        if (found) setWorkspace(found);
-      }
+    if (!user || workspace || allWorkspaces.length === 0) return;
+    if (allWorkspaces.length === 1) {
+      setWorkspace(allWorkspaces[0]);
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+    const savedId = lastWorkspace.get();
+    const found = savedId && allWorkspaces.find((w) => w.id === savedId);
+    if (found) setWorkspace(found);
+  }, [user, workspace, allWorkspaces]);
 
   // Handles the redirect back from /api/social/oauth/tiktok/callback so the
   // founder gets a clear "connected" or "failed" result, not a silent return.
@@ -130,8 +203,41 @@ export default function Shell() {
     }
   }, []);
 
-  if (!user) return <SignIn onSignedIn={setUser} />;
-  if (!workspace) return <WorkspacePicker user={user} onEnter={setWorkspace} />;
+  if (session === undefined) return null; // resolving an existing session — avoid a sign-in flash
+  if (!user) return <SignIn onSignedIn={setSession} />;
+
+  if (!workspace) {
+    if (orgError && allWorkspaces.length === 0) {
+      return (
+        <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <Card style={{ width: 420, textAlign: "center" }}>
+            <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 8 }}>Couldn't load your workspace</div>
+            <div style={{ fontSize: 13, color: T.textSub, lineHeight: 1.6, marginBottom: 16 }}>{orgError}</div>
+            <Btn variant="ghost" onClick={() => { auth.signOut(); setSession(null); }}><LogOut size={13} /> Sign out</Btn>
+          </Card>
+        </div>
+      );
+    }
+    if (allWorkspaces.length > 1) {
+      return (
+        <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <div style={{ width: 420 }}>
+            <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Choose a workspace</div>
+            <div style={{ fontSize: 13, color: T.textSub, marginBottom: 20 }}>{user.email}</div>
+            {allWorkspaces.map((ws) => (
+              <Card key={ws.id} style={{ marginBottom: 10, cursor: "pointer" }}>
+                <div onClick={() => setWorkspace(ws)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontWeight: 700 }}>{ws.name}</div>
+                  <Btn variant="ghost" onClick={() => setWorkspace(ws)}>Open</Btn>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return null; // exactly one workspace — the auto-enter effect above is resolving it
+  }
 
   const goTo = (id) => { setNav(id); setActiveBrand(null); };
   const openBrand = (b) => { setNav("social"); setActiveBrand(b); };
@@ -221,14 +327,14 @@ export default function Shell() {
                 display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", cursor: "pointer", color: T.text,
               }}>
                 <div style={{ width: 28, height: 28, borderRadius: "50%", background: T.accentB, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700 }}>
-                  {user.name.slice(0, 1).toUpperCase()}
+                  {user.email.slice(0, 1).toUpperCase()}
                 </div>
                 <ChevronDown size={13} color={T.textDim} />
               </button>
               {userMenuOpen && (
                 <div style={{ position: "absolute", top: "110%", right: 0, background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: 6, minWidth: 180, zIndex: 40 }}>
                   <div style={{ padding: "8px 10px", fontSize: 12, color: T.textDim, borderBottom: `1px solid ${T.border}`, marginBottom: 4 }}>{user.email}</div>
-                  <button onClick={() => { devAuth.signOut(); setUser(null); setWorkspace(null); }} style={{
+                  <button onClick={() => { auth.signOut(); setSession(null); setWorkspace(null); setAllWorkspaces([]); }} style={{
                     display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", background: "none",
                     color: T.textSub, border: "none", borderRadius: 6, padding: "7px 10px", fontSize: 12.5, cursor: "pointer",
                   }}><LogOut size={13} /> Sign out</button>

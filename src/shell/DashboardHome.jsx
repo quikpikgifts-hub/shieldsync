@@ -71,7 +71,7 @@ export default function DashboardHome({ user, workspace, brandList, onOpenBrand,
 
   return (
     <div>
-      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>{greeting()}, {user.name}</div>
+      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>{greeting()}, {user.email.split("@")[0]}</div>
       <div style={{ fontSize: 13, color: T.textSub, marginBottom: 24 }}>Here's what's happening across {workspace.name}.</div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))", gap: 12, marginBottom: 24 }}>
