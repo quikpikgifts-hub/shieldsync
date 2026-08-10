@@ -18,7 +18,7 @@ Every variable the codebase actually reads, grouped by what it powers. "Required
 | `ANTHROPIC_API_KEY` | AI generation | Both Connect's recovery-plan/chat features and all of Veridian Social's content generation (brand voice, drafts, hashtags, video scripts) |
 | `DASH_PIN` | Connect's `/dashboard` command center | Must be set, and must not be `"0000"` — every PIN-gated endpoint fails closed otherwise (see Sprint 0a) |
 | `CRON_SECRET` | Connect's daily follow-up cron | Follow-up emails silently never send without it |
-| `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Connect's `leads`/`bookings` tables | Connect's metrics dashboard and booking dedup |
+| `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Connect's `leads`/`bookings` tables, and (as of Sprint 1) Veridian AI's real sign-in/sign-up/session + `organizations`/`memberships` | Connect's metrics dashboard, booking dedup, and the entire Veridian AI shell's authentication — no separate anon key needed; see `api/_lib/auth.js`'s header comment for why the service-role key alone is sufficient here |
 | `RESEND_API_KEY`, `TEAM_EMAIL`, `FROM_DOMAIN` | Transactional email | Connect's lead/booking/follow-up emails |
 | `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` | SMS text-back | Connect's missed-call recovery |
 | `VAPI_SECRET` | AI voice receptionist webhook auth | Connect's Vapi integration — fails closed if unset (Sprint 0a) |
@@ -51,8 +51,6 @@ These enable the "Configuration Required" state to show correctly and are ready 
 
 **Billing (Stripe):** no code reads any `STRIPE_*` variable yet — the Settings screen's billing card is a static notice, not a live integration. Don't set Stripe keys expecting anything to activate; billing needs to be built first (see `ops/veridian-platform-strategy.md`).
 
-**Real authentication (Supabase Auth):** Veridian Social's sign-in is dev-mode only (`src/social/store.js`), not gated by any env var — there's no "flip a switch" here yet, this needs actual engineering work first.
-
 ---
 
 ## 2. Database & migrations
@@ -61,8 +59,11 @@ These enable the "Configuration Required" state to show correctly and are ready 
 |---|---|
 | `supabase/migrations/20260619000000_create_bookings.sql` | Applied to Connect's live Supabase project (pre-existing) |
 | `supabase/migrations/20260805000000_create_leads.sql` | Formalizes the `leads` table Connect already writes to (Sprint 0b) — confirm it's been applied if not already |
+| `supabase/migrations/20260810000000_create_platform_core.sql` | **Needs to be applied before Sprint 1 sign-in works in production** — creates `organizations`/`memberships` + RLS. Run it against the same Supabase project Connect already uses (Supabase Dashboard → SQL Editor, or the CLI) before or immediately after this deploy. |
 
-Veridian Social has no database migrations — its data layer is localStorage-only (dev-mode), by design, until real auth/Postgres work happens.
+Veridian Social's brands/content/media remain localStorage-only (dev-mode) — only identity (auth + organizations) moved to real Postgres in Sprint 1. Migrating brand/content data onto Postgres/RLS is separate, later work per `ops/veridian-platform-strategy.md`.
+
+**One more setup step, Supabase Dashboard side:** email confirmation is on by default for new Supabase Auth projects. If you want founders/beta testers to get a session immediately on sign-up (no "check your email" step), turn off "Confirm email" under Authentication → Providers → Email — either is fine, the sign-up flow (`SignIn` in `src/shell/Shell.jsx`) handles both cases correctly today.
 
 ---
 

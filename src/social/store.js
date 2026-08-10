@@ -1,12 +1,11 @@
 // ─────────────────────────────────────────────────────────────────
 // Veridian Social — Data Layer
-// Same convention as src/db.js: localStorage today, Supabase-ready
-// later (see ops/veridian-platform-strategy.md, Task 2's schema).
-// Deliberately NOT wired to real Supabase Auth/Postgres yet — that
-// requires live project credentials this build doesn't have. This
-// layer is what "the founder can log in and create workspaces" runs
-// on today; swapping the LS-backed functions below for real API
-// calls is the only change needed when those credentials exist.
+// Identity (sign-in, organizations) is now real — see src/lib/auth.js
+// and api/auth/*.js (Sprint 1, ops/veridian-platform-strategy.md).
+// Brands/content/media below remain localStorage-backed for now, scoped
+// to the real organization id (workspace.ownerOrgId) instead of an
+// email — moving them onto Postgres/RLS is a later, separate sprint per
+// that same doc, not bundled into this one.
 // ─────────────────────────────────────────────────────────────────
 
 const LS = {
@@ -40,24 +39,6 @@ function collection(colName, { scopeKey } = {}) {
     remove: (id) => LS.set(key, all().filter(r => r.id !== id)),
   };
 }
-
-// ─── Dev-mode session — NOT production auth ───────────────────────
-// Real auth (Supabase Auth, per the platform strategy) needs a live
-// project. Until then this is an honest, clearly-labeled stand-in:
-// an email identifies a local profile, no password, no server
-// verification. It lets the founder (and later, real dev-mode beta
-// testers on a trusted link) exercise the whole product today.
-const SESSION_KEY = "vs_session";
-
-export const devAuth = {
-  signIn: (email, name) => {
-    const profile = { email: email.trim().toLowerCase(), name: name?.trim() || email.split("@")[0] };
-    LS.set(SESSION_KEY, profile);
-    return profile;
-  },
-  current: () => LS.get(SESSION_KEY, null),
-  signOut: () => LS.del(SESSION_KEY),
-};
 
 // Remembers which workspace was open, so reloading the page (a browser
 // refresh, reopening a tab, a phone screen lock) doesn't force the founder

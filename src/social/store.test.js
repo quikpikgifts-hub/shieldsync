@@ -13,34 +13,14 @@ function installFakeLocalStorage() {
 }
 
 installFakeLocalStorage();
-const { devAuth, workspaces, brands, contentItems, mediaAssets, pendingReviewCount, lastWorkspace } = await import("./store.js");
+const { workspaces, brands, contentItems, mediaAssets, pendingReviewCount, lastWorkspace } = await import("./store.js");
 
 beforeEach(() => {
   global.localStorage.clear();
 });
 
-describe("devAuth", () => {
-  it("has no session by default", () => {
-    expect(devAuth.current()).toBeNull();
-  });
-
-  it("signs in and persists the session", () => {
-    const profile = devAuth.signIn("Founder@Example.com", "Founder");
-    expect(profile.email).toBe("founder@example.com"); // normalized lowercase
-    expect(devAuth.current()).toEqual(profile);
-  });
-
-  it("defaults name from the email local-part when name is omitted", () => {
-    const profile = devAuth.signIn("jamie@example.com");
-    expect(profile.name).toBe("jamie");
-  });
-
-  it("signs out and clears the session", () => {
-    devAuth.signIn("a@example.com");
-    devAuth.signOut();
-    expect(devAuth.current()).toBeNull();
-  });
-});
+// Sign-in/session tests moved to src/lib/auth.test.js — devAuth was retired
+// in Sprint 1 (real Supabase Auth replaces it; see api/auth/*.js).
 
 describe("workspaces / brands / contentItems collections", () => {
   it("inserts and lists workspaces", () => {
