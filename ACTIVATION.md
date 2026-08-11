@@ -67,14 +67,20 @@ Once both vars for a platform are set, Settings shows it as **Connected** immedi
 
 **Before this activates:** your LinkedIn app needs both "Sign In with LinkedIn using OpenID Connect" and "Share on LinkedIn" products approved — request both in the Developer Portal before expecting `requiredScopes` to be grantable. Standard LinkedIn access tokens last ~60 days and are **not** refreshable unless your app has separately been approved for programmatic refresh tokens; without that, reconnecting every ~60 days is expected, not a bug.
 
+### Veridian Social — YouTube (real, implemented)
+
+| Variable | Purpose | Where to get it |
+|---|---|---|
+| `GOOGLE_CLIENT_ID` | App identifier | Google Cloud Console → OAuth client |
+| `GOOGLE_CLIENT_SECRET` | App secret | Same |
+| `GOOGLE_REDIRECT_URI` | OAuth callback URL | Must exactly match an authorized redirect URI on the OAuth client — `https://<your-domain>/api/social/oauth/youtube/callback` |
+| `YOUTUBE_PRIVACY_STATUS` (optional) | Overrides the default `private` upload privacy | Only set to `public`/`unlisted` once you've confirmed uploads work — same caution as `TIKTOK_PRIVACY_LEVEL` |
+
+**Before this activates:** enable the YouTube Data API v3 on the Google Cloud project, and expect the `youtube.upload` scope to need Google's OAuth consent screen verification before non-test users can grant it. Uploads work from any publicly-reachable `mediaUrl` — the server fetches it and streams it into YouTube's resumable-upload API (YouTube's API doesn't support a "pull from URL" shortcut like TikTok's).
+
 ### Veridian Social — other platforms (scaffolded, `publish()` not implemented yet)
 
-These enable the "Configuration Required" state to show correctly and are ready for when each platform's real integration is built. Setting them today does **not** enable posting — only TikTok, X, LinkedIn, Facebook, and Instagram's integrations are complete.
-
-| Platform | Variables |
-|---|---|
-| YouTube | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
-| Pinterest | `PINTEREST_CLIENT_ID`, `PINTEREST_CLIENT_SECRET` |
+Pinterest is the only platform left in this state — enables the "Configuration Required" UI to show correctly, ready for a real integration later. Setting `PINTEREST_CLIENT_ID`/`PINTEREST_CLIENT_SECRET` today does **not** enable posting.
 
 ### Veridian Social — billing (Stripe, skeleton only)
 
@@ -113,10 +119,10 @@ No new API configuration needed for TikTok or any other platform — they're all
 
 ## 4. OAuth redirect requirements
 
-TikTok, X, and LinkedIn have real OAuth flows today (Facebook/Instagram use a static token instead — see above; YouTube/Pinterest don't have either yet):
-- Redirect URI registered in each portal **must exactly match** `TIKTOK_REDIRECT_URI` / `X_REDIRECT_URI` / `LINKEDIN_REDIRECT_URI` — protocol, host, and path, character-for-character. A mismatch fails the callback silently from the user's perspective (the platform rejects it before ever reaching this app).
-- The callback routes (`api/social/oauth/{tiktok,x,linkedin}/callback.js`) redirect the browser back to `/app?{tiktok,x,linkedin}=connected` or `?...=error` — the shell shows a clear banner either way, generically across platforms (see `src/shell/Shell.jsx`'s `OAUTH_REDIRECT_PLATFORMS`).
-- LinkedIn's callback also calls `verifyConnection()` immediately after saving the token — its Posts API needs the author's URN, which isn't in the OAuth token response, so this learns it right away instead of waiting for a manual "Verify connection" click before the founder can publish.
+TikTok, X, LinkedIn, and YouTube have real OAuth flows today (Facebook/Instagram use a static token instead — see above; Pinterest doesn't have either yet):
+- Redirect URI registered in each portal **must exactly match** `TIKTOK_REDIRECT_URI` / `X_REDIRECT_URI` / `LINKEDIN_REDIRECT_URI` / `GOOGLE_REDIRECT_URI` — protocol, host, and path, character-for-character. A mismatch fails the callback silently from the user's perspective (the platform rejects it before ever reaching this app).
+- The callback routes (`api/social/oauth/{tiktok,x,linkedin,youtube}/callback.js`) redirect the browser back to `/app?{tiktok,x,linkedin,youtube}=connected` or `?...=error` — the shell shows a clear banner either way, generically across platforms (see `src/shell/Shell.jsx`'s `OAUTH_REDIRECT_PLATFORMS`).
+- LinkedIn's and YouTube's callbacks also call `verifyConnection()` immediately after saving the token, to learn the author URN / channel display name right away instead of waiting for a manual "Verify connection" click before the founder can publish.
 - X additionally uses OAuth 2.0 + PKCE: the code_verifier is generated in `api/social/oauth/x/start.js` and stashed in KV keyed by the CSRF `state` value for the callback to retrieve — nothing to configure, just noted here since it's one more moving part than TikTok's flow.
 
 ## 5. Security checklist (recap — confirm still true before going live)
@@ -138,7 +144,7 @@ All from Sprint 0a/0b, re-verified as part of this activation pass (Task 33):
 ## 7. Rollback plan
 
 - **Code rollback:** Vercel keeps every deployment; use the Vercel dashboard's "Promote to Production" on a prior deployment, or `git revert` the offending commit and push — either restores the previous working state within minutes.
-- **Platform token rollback:** if a bad token gets stored (e.g., a failed refresh loop), call `POST /api/social/oauth/{tiktok,x,linkedin}/disconnect` (or use the "Disconnect" button in Settings) and reconnect — this clears the single KV key holding that platform's token, no wider blast radius. Facebook/Instagram have no such route — "disconnecting" is unsetting their env vars.
+- **Platform token rollback:** if a bad token gets stored (e.g., a failed refresh loop), call `POST /api/social/oauth/{tiktok,x,linkedin,youtube}/disconnect` (or use the "Disconnect" button in Settings) and reconnect — this clears the single KV key holding that platform's token, no wider blast radius. Facebook/Instagram have no such route — "disconnecting" is unsetting their env vars.
 - **Env var rollback:** Vercel env var changes take effect on next deploy/redeploy — reverting a bad value and redeploying is the same "rollback" motion as a code change.
 
 ---

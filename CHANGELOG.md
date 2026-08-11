@@ -4,6 +4,30 @@ Lightweight ongoing record per the Veridian AI Build to Launch directive. One en
 
 ---
 
+## 2026-08-10 — Sprint 6 (cont.): real YouTube OAuth + publish (6th platform, Pinterest is now the only one left)
+
+**Completed work:**
+- **`api/_lib/publishers/youtube.js`**: real OAuth 2.0 flow (`access_type=offline&prompt=consent` to guarantee a `refresh_token`), KV-backed token storage, and a real resumable-upload `publish()`. This one has a genuine structural difference from every other platform here: YouTube's upload API has no "give me a URL and I'll fetch it" option like TikTok's `PULL_FROM_URL` or Instagram's `image_url` — the video bytes must be PUT by the caller. `publish()` HEADs `mediaUrl` for its size/content-type, initiates a resumable session, then re-fetches the media and **streams** the response body straight into the upload PUT (`body: mediaRes.body`, a `ReadableStream`) rather than buffering the whole video into memory first — matters on an Edge runtime with real memory/time limits.
+- Defaults uploads to `privacyStatus: "private"` (override via `YOUTUBE_PRIVACY_STATUS`) — same "don't post publicly until proven" caution as TikTok's `SELF_ONLY` default.
+- Channel display name learned via `/youtube/v3/channels?mine=true`, called automatically right after the OAuth callback saves the token (same pattern as LinkedIn's author-URN lookup).
+- `Shell.jsx`'s `OAUTH_REDIRECT_PLATFORMS` extended; no other UI changes needed (already generalized).
+
+**Bugs fixed:** none (feature pass).
+
+**Breaking changes:** none — the old stub's `publish()` also took `userAccessToken` directly; nothing external called it.
+
+**Migrations:** none — tokens in KV under `veridian:social:youtube:token`, `veridian:social:youtube:oauth_state:*`.
+
+**Deployment notes:** no new required env vars for what shipped — `GOOGLE_CLIENT_ID`/`SECRET`/`REDIRECT_URI` only needed at activation (`ACTIVATION.md`). 172/172 tests pass (13 new), build clean.
+
+**Known issues:**
+- Not live-tested, same caveat as every platform here.
+- The `youtube.upload` scope is sensitive in Google's OAuth consent screen review process — expect a verification step before non-test users can grant it.
+- The streamed-upload approach hasn't been exercised against a real large video file in the actual Vercel Edge runtime; if Edge's execution-time or streaming-body limits turn out to be a problem for large files in practice, that's the first thing to check once real testing starts.
+- **Pinterest is now the only platform left with a stub `publish()`** — the 7-platform pilot set from Pilot Launch's original scope is 6/7 real.
+
+**Next engineering task:** Pinterest completes the set — or Sprint 5 (billing goes live) once a founder pricing decision exists, which is now genuinely the largest remaining piece of the original roadmap.
+
 ## 2026-08-10 — Sprint 6 (cont.): real LinkedIn OAuth + publish
 
 Fifth real platform, fourth on the TikTok/X-style real OAuth-flow pattern (Facebook/Instagram used the static-token pattern instead — see their entry below).
