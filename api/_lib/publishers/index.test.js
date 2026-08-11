@@ -38,12 +38,21 @@ describe("listPublishers", () => {
     expect(list.find((p) => p.platform === "tiktok").label).toBe("Waiting for Credentials");
   });
 
-  it("moves a credentials-only platform to configuration_required once its env vars are set", async () => {
+  it("moves a still-credentials-only platform (LinkedIn) to configuration_required once its env vars are set", async () => {
+    for (const k of ALL_ENV_VARS) delete process.env[k];
+    process.env.LINKEDIN_CLIENT_ID = "id";
+    process.env.LINKEDIN_CLIENT_SECRET = "secret";
+    const linkedin = (await listPublishers()).find((p) => p.platform === "linkedin");
+    expect(linkedin.state).toBe("configuration_required");
+    expect(linkedin.configured).toBe(true);
+  });
+
+  it("Facebook (static Page token, no OAuth step) goes straight to connected once its env vars are set", async () => {
     for (const k of ALL_ENV_VARS) delete process.env[k];
     process.env.META_PAGE_ACCESS_TOKEN = "token";
     process.env.META_FACEBOOK_PAGE_ID = "page-id";
     const facebook = (await listPublishers()).find((p) => p.platform === "facebook");
-    expect(facebook.state).toBe("configuration_required");
+    expect(facebook.state).toBe("connected");
     expect(facebook.configured).toBe(true);
   });
 

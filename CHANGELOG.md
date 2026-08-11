@@ -4,6 +4,30 @@ Lightweight ongoing record per the Veridian AI Build to Launch directive. One en
 
 ---
 
+## 2026-08-10 — Sprint 6 (cont.): real Facebook + Instagram publish (Meta Graph API)
+
+Third and fourth real platforms, both on Meta's Graph API — done together since they share one API surface. Unlike TikTok/X, these use a pre-obtained long-lived access token rather than an in-app OAuth flow (Meta's own recommended pattern for single-Page/account use, and it avoids App Review for anything beyond your own Page/account).
+
+**Completed work:**
+- **`api/_lib/publishers/facebook.js`**: real `publish()` — text posts to `/{page-id}/feed`, photo posts (with caption) to `/{page-id}/photos` when a `mediaUrl` is given.
+- **`api/_lib/publishers/instagram.js`**: real `publish()` — the documented two-step Content Publishing flow (`POST /{ig-user-id}/media` to create a container, then `POST /{ig-user-id}/media_publish`). Still requires `mediaUrl` (Instagram has no text-only post type).
+- **Connection-state fix**: both previously used `configOnlyConnectionState`, which — correctly for an OAuth-flow platform, but not for these — can never progress past "Configuration Required" (there's no `ready_to_activate`/`connected` distinction without a connect click). Since a static token *is* the fully-connected state, both now report `waiting_for_credentials` → `connected` directly once their env vars are set. `oauthAvailable` stays `false` for both (no `verifyConnection`, no OAuth routes to disconnect from) — Settings correctly shows no Connect/Verify/Disconnect buttons for a platform that doesn't have those steps.
+
+**Bugs fixed:** none (feature pass) — though the connection-state change above is arguably a fix to a pre-existing UI-accuracy gap (would have shown "Configuration Required" forever even once fully working).
+
+**Breaking changes:** `listPublishers()`'s Facebook entry now reports `state: "connected"` once configured, where it previously reported `"configuration_required"` — no caller assumed the old value (nothing built on it since it shipped stubbed).
+
+**Migrations:** none.
+
+**Deployment notes:** no new required env vars for what shipped — see `ACTIVATION.md` for the four Meta vars and how to generate them, needed only at actual activation. 146/146 tests pass (21 new), build clean (server-only change, no client bundle diff).
+
+**Known issues:**
+- Neither integration has been exercised against a live Meta app/Page/IG account — same "implemented against the documented API shape, mocked-HTTP tested, not live-tested" caveat as every platform here.
+- Long-lived Page/user tokens from Meta still expire (typically ~60 days) and need manual regeneration — no refresh flow exists here since there's no refresh_token in the static-token model; a future pass could add an expiry-warning surface if this becomes a real operational papercut.
+- The remaining 3 platforms (LinkedIn, YouTube, Pinterest) still have stub `publish()` bodies.
+
+**Next engineering task:** LinkedIn, YouTube, or Pinterest (all still real OAuth-flow platforms, so each follows the TikTok/X pattern rather than the Facebook/Instagram static-token one) — or Sprint 5 (billing goes live) once a founder pricing decision exists.
+
 ## 2026-08-10 — Sprint 6: real X (Twitter) OAuth + publish, second pilot platform
 
 Replicates TikTok's real OAuth+publish pattern for a second platform, per Founder Alpha's own "Next engineering task" note and Sprint 6 of `ops/veridian-platform-strategy.md`. No business decision needed to build this (unlike billing) — only to activate it later with real X Developer credentials.

@@ -44,14 +44,25 @@ Every variable the codebase actually reads, grouped by what it powers. "Required
 
 **Before this activates:** posting (write access) via the X API has historically required a paid API tier — verify current X API pricing/access in the Developer Portal before assuming the free tier covers `POST /2/tweets`; if it doesn't, this stays "Ready to Activate" until a paid tier is added, same honest degrade as everything else.
 
+### Veridian Social — Facebook & Instagram (real, implemented — static token, no OAuth click)
+
+Unlike TikTok/X, these two use a **pre-obtained, long-lived access token** rather than an in-app "Connect account" OAuth flow — Meta's own recommended pattern for a single-Page/single-account integration, and it keeps you out of Meta's App Review requirements for anything beyond your own Page/account.
+
+| Variable | Purpose | Where to get it |
+|---|---|---|
+| `META_PAGE_ACCESS_TOKEN` | Facebook Page posting | Meta Graph API Explorer (or Business Settings → System Users) → generate a **long-lived** Page token with `pages_manage_posts` + `pages_read_engagement` for your Page |
+| `META_FACEBOOK_PAGE_ID` | Which Page to post to | Your Page's numeric ID (Page → About → Page transparency, or the Graph API Explorer) |
+| `META_ACCESS_TOKEN` | Instagram Content Publishing | Same Graph API Explorer flow, scoped to `instagram_content_publish` + `instagram_basic` for the Instagram Business/Creator account |
+| `META_INSTAGRAM_ACCOUNT_ID` | Which IG account to post to | `GET /{page-id}?fields=instagram_business_account&access_token=...` — requires the IG account already be linked to a Facebook Page |
+
+Once both vars for a platform are set, Settings shows it as **Connected** immediately — there's no separate activation click, since the token itself is the credential. Instagram publishing always requires a publicly-reachable `mediaUrl` (Meta fetches it server-side; data URLs and localhost won't work).
+
 ### Veridian Social — other platforms (scaffolded, `publish()` not implemented yet)
 
-These enable the "Configuration Required" state to show correctly and are ready for when each platform's real integration is built. Setting them today does **not** enable posting — only TikTok and X's integrations are complete.
+These enable the "Configuration Required" state to show correctly and are ready for when each platform's real integration is built. Setting them today does **not** enable posting — only TikTok, X, Facebook, and Instagram's integrations are complete.
 
 | Platform | Variables |
 |---|---|
-| Instagram | `META_ACCESS_TOKEN`, `META_INSTAGRAM_ACCOUNT_ID` |
-| Facebook | `META_PAGE_ACCESS_TOKEN`, `META_FACEBOOK_PAGE_ID` |
 | LinkedIn | `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET` |
 | YouTube | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
 | Pinterest | `PINTEREST_CLIENT_ID`, `PINTEREST_CLIENT_SECRET` |
