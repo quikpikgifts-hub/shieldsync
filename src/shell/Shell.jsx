@@ -115,6 +115,10 @@ function syncWorkspacesForOrgs(user, organizations) {
   });
 }
 
+// Platforms with a real OAuth callback redirect (api/social/oauth/{p}/callback.js)
+// whose result the shell should surface as a banner on return to /app.
+const OAUTH_REDIRECT_PLATFORMS = ["tiktok", "x"];
+
 const NAV = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "social", label: "Social", icon: Sparkles },
@@ -188,16 +192,20 @@ export default function Shell() {
     if (found) setWorkspace(found);
   }, [user, workspace, allWorkspaces]);
 
-  // Handles the redirect back from /api/social/oauth/tiktok/callback so the
-  // founder gets a clear "connected" or "failed" result, not a silent return.
+  // Handles the redirect back from /api/social/oauth/{platform}/callback so
+  // the founder gets a clear "connected" or "failed" result, not a silent
+  // return — generic across every platform with a real OAuth flow, not
+  // hardcoded to whichever one shipped first (TikTok).
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const tiktokResult = params.get("tiktok");
-    if (tiktokResult) {
+    const platform = OAUTH_REDIRECT_PLATFORMS.find((p) => params.get(p));
+    if (platform) {
+      const result = params.get(platform);
+      const label = platform[0].toUpperCase() + platform.slice(1);
       setOauthNotice(
-        tiktokResult === "connected"
-          ? { tone: "green", text: "TikTok account connected — you can publish directly now." }
-          : { tone: "red", text: "TikTok connection failed. Check your TIKTOK_CLIENT_KEY/SECRET/REDIRECT_URI and try again from Settings." }
+        result === "connected"
+          ? { tone: "green", text: `${label} account connected — you can publish directly now.` }
+          : { tone: "red", text: `${label} connection failed. Check its credentials in Settings and try again.` }
       );
       window.history.replaceState({}, "", "/app");
     }

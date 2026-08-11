@@ -5,7 +5,7 @@ const ALL_ENV_VARS = [
   "META_ACCESS_TOKEN", "META_INSTAGRAM_ACCOUNT_ID", "META_PAGE_ACCESS_TOKEN", "META_FACEBOOK_PAGE_ID",
   "TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET", "TIKTOK_REDIRECT_URI",
   "LINKEDIN_CLIENT_ID", "LINKEDIN_CLIENT_SECRET",
-  "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "X_CLIENT_ID", "X_CLIENT_SECRET",
+  "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "X_CLIENT_ID", "X_CLIENT_SECRET", "X_REDIRECT_URI",
   "PINTEREST_CLIENT_ID", "PINTEREST_CLIENT_SECRET",
 ];
 
@@ -65,10 +65,12 @@ describe("listPublishers", () => {
     expect(list.every((p) => Array.isArray(p.requiredScopes) && p.requiredScopes.length > 0)).toBe(true);
   });
 
-  it("only reports oauthAvailable for TikTok — the only platform with a real OAuth flow built", async () => {
+  it("only reports oauthAvailable for platforms with a real OAuth flow built (TikTok, X)", async () => {
     const list = await listPublishers();
-    expect(list.find((p) => p.platform === "tiktok").oauthAvailable).toBe(true);
-    for (const platform of ["facebook", "instagram", "linkedin", "youtube", "x", "pinterest"]) {
+    for (const platform of ["tiktok", "x"]) {
+      expect(list.find((p) => p.platform === platform).oauthAvailable).toBe(true);
+    }
+    for (const platform of ["facebook", "instagram", "linkedin", "youtube", "pinterest"]) {
       expect(list.find((p) => p.platform === platform).oauthAvailable).toBe(false);
     }
   });
@@ -93,6 +95,13 @@ describe("verifyPublisherConnection", () => {
     expect(result.ok).toBe(false);
     expect(result.reason).toBe("not_configured"); // no env vars set in this test
   });
+
+  it("delegates to X's real verifyConnection", async () => {
+    for (const k of ALL_ENV_VARS) delete process.env[k];
+    const result = await verifyPublisherConnection("x");
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe("not_configured"); // no env vars set in this test
+  });
 });
 
 describe("publish() before credentials exist", () => {
@@ -108,9 +117,10 @@ describe("publish() before credentials exist", () => {
   it("x publisher enforces the 280-character limit once configured", async () => {
     process.env.X_CLIENT_ID = "id";
     process.env.X_CLIENT_SECRET = "secret";
+    process.env.X_REDIRECT_URI = "https://example.test/api/social/oauth/x/callback";
     const publisher = getPublisher("x");
     const longCaption = "a".repeat(300);
-    const result = await publisher.publish({ caption: longCaption, userAccessToken: "tok" });
+    const result = await publisher.publish({ caption: longCaption });
     expect(result.ok).toBe(false);
     expect(result.reason).toBe("over_character_limit");
   });
