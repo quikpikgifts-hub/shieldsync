@@ -4,6 +4,30 @@ Lightweight ongoing record per the Veridian AI Build to Launch directive. One en
 
 ---
 
+## 2026-08-10 — Sprint 2: Stripe billing skeleton
+
+Completes Sprint 2 of `ops/veridian-platform-strategy.md` (the AI Gateway half shipped earlier, in the Build to Launch entry). Schema + plumbing only, matching every other unactivated integration's pattern in this codebase (TikTok's siblings, `not_configured` degrade): **no code path here can charge anyone** — there is no `STRIPE_SECRET_KEY` set, and even once one is, there are no real Stripe Prices yet, which is a founder pricing decision (Sprint 5), not an engineering task.
+
+**Completed work:**
+- **`subscriptions`/`invoices`/`product_entitlements`** tables (`supabase/migrations/20260810000001_create_billing.sql`), RLS-scoped like `organizations`/`memberships`, server-write-only.
+- **`api/_lib/stripe.js`**: REST client (no Stripe SDK — consistent with this codebase's zero-dependency convention), form-encoded per Stripe's API, plus a from-scratch webhook signature verifier (`crypto.subtle` HMAC-SHA256, per Stripe's documented manual-verification scheme) — no npm `stripe` package needed for that either.
+- **`api/billing/{checkout,portal,webhook,status}.js`**: checkout/portal create or reuse a Stripe customer per org (membership-checked — you can only buy for an org you belong to) and return a hosted Stripe URL; webhook verifies its signature and upserts `subscriptions`/`product_entitlements`/`invoices` on subscription and invoice events; status is a simple read the Settings screen can poll.
+- **`api/_lib/entitlements.js`**: `getEntitlement(orgId, productKey)` — defaults to `"unmetered"` when no billing record exists yet, matching the Settings billing card's existing honest copy rather than inventing a fake plan or blocking access to a product nothing has been sold for.
+
+**Bugs fixed:** none (feature pass).
+
+**Breaking changes:** none — no existing route or table touched.
+
+**Migrations:** `supabase/migrations/20260810000001_create_billing.sql` — low urgency (nothing reads these tables until Stripe keys exist), but apply alongside `..._create_platform_core.sql` while you're in the SQL editor anyway.
+
+**Deployment notes:** no env vars are *required*; `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` are documented in `ACTIVATION.md` for whenever billing actually goes live. 114/114 tests pass (14 new), build clean (no client-bundle change — this sprint is server-side only).
+
+**Known issues:**
+- No plan-selection UI yet — `api/billing/checkout.js` takes a `priceId` from its caller rather than hardcoding one, since no real Prices exist in Stripe yet.
+- `product_entitlements` isn't enforced anywhere yet (nothing currently gates a Social feature behind a paid plan) — this sprint is the plumbing, not the gate. Adding an actual paywall is a product decision for when Sprint 5 (real pricing) lands, not assumed here.
+
+**Next engineering task:** per the roadmap, Sprint 6 (real publish integration for a second social platform, following TikTok's pattern) is fully unblocked and requires no business decision — recommended next. Sprint 5 (billing goes live) needs a founder pricing decision first per this repo's own stop-conditions.
+
 ## 2026-08-10 — Sprint 1: real authentication + organizations
 
 Per `ops/veridian-platform-strategy.md`'s roadmap (Sprint 1, next after Founder Alpha): replaces Veridian AI's dev-mode `devAuth` with real Supabase Auth, and adds the `organizations`/`memberships` platform-core schema. Connect (`/`, `/dashboard`, its PIN gate, and all `api/{contact,assessment,book,follow-up,sms,voice,metrics,leads}.js`) is completely untouched.
