@@ -4,6 +4,29 @@ Lightweight ongoing record per the Veridian AI Build to Launch directive. One en
 
 ---
 
+## 2026-08-10 — Sprint 6 complete: real Pinterest OAuth + publish (7th and final pilot platform)
+
+Closes out Sprint 6 and the entire 7-platform pilot set from Pilot Launch's original scope — every platform named there (TikTok, X, LinkedIn, YouTube, Pinterest via real OAuth flows; Facebook, Instagram via a static token) now has a real `publish()`, not a stub.
+
+**Completed work:**
+- **`api/_lib/publishers/pinterest.js`**: real OAuth 2.0 flow, KV-backed token storage, `POST /v5/pins`. Pinterest-specific wrinkle: every pin needs a `board_id`, unknown until after connecting — `verifyConnection()` (auto-invoked by the OAuth callback, same pattern as LinkedIn/YouTube) fetches the account's boards via `/v5/boards` and stores the first one as the default, overridable with `PINTEREST_BOARD_ID` for accounts with more than one board.
+- `api/social/oauth/pinterest/{start,callback,disconnect}.js`; `Shell.jsx`'s `OAUTH_REDIRECT_PLATFORMS` extended — no other UI changes needed.
+- Retired the `index.test.js` "still-credentials-only platform" test case: there's no longer a purely-stub platform to exercise it against (Pinterest was the last one).
+
+**Bugs fixed:** none (feature pass).
+
+**Breaking changes:** none.
+
+**Migrations:** none — tokens in KV under `veridian:social:pinterest:token`, `veridian:social:pinterest:oauth_state:*`.
+
+**Deployment notes:** no new required env vars — `PINTEREST_CLIENT_ID`/`SECRET`/`REDIRECT_URI` only needed at activation (`ACTIVATION.md`). 186/186 tests pass (14 new), build clean.
+
+**Known issues:**
+- Not live-tested, same caveat as every platform here.
+- Pinterest's trial API access tier is heavily rate-limited — standard access approval is likely needed before real use.
+
+**Next engineering task:** Sprint 5 (billing goes live) is now the largest remaining item on the original roadmap, and it needs a founder pricing decision before any further engineering makes sense — see `ops/veridian-platform-strategy.md` Task 3's pricing table (explicitly "a hypothesis, not a commitment"). Until that decision is made, remaining lower-risk engineering options: a dedicated plan-selection UI in Settings once Sprint 5 pricing exists, or platform-connection UX polish (e.g., an expiry-warning surface for tokens that don't auto-refresh, noted as a known issue in the Facebook/Instagram entry).
+
 ## 2026-08-10 — Sprint 6 (cont.): real YouTube OAuth + publish (6th platform, Pinterest is now the only one left)
 
 **Completed work:**
