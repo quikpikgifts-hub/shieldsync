@@ -117,7 +117,7 @@ function syncWorkspacesForOrgs(user, organizations) {
 
 // Platforms with a real OAuth callback redirect (api/social/oauth/{p}/callback.js)
 // whose result the shell should surface as a banner on return to /app.
-const OAUTH_REDIRECT_PLATFORMS = ["tiktok", "x", "linkedin", "youtube"];
+const OAUTH_REDIRECT_PLATFORMS = ["tiktok", "x", "linkedin", "youtube", "pinterest"];
 
 const NAV = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },

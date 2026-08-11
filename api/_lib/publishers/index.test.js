@@ -6,7 +6,7 @@ const ALL_ENV_VARS = [
   "TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET", "TIKTOK_REDIRECT_URI",
   "LINKEDIN_CLIENT_ID", "LINKEDIN_CLIENT_SECRET", "LINKEDIN_REDIRECT_URI",
   "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GOOGLE_REDIRECT_URI", "X_CLIENT_ID", "X_CLIENT_SECRET", "X_REDIRECT_URI",
-  "PINTEREST_CLIENT_ID", "PINTEREST_CLIENT_SECRET",
+  "PINTEREST_CLIENT_ID", "PINTEREST_CLIENT_SECRET", "PINTEREST_REDIRECT_URI",
 ];
 
 const ORIGINAL_ENV = { ...process.env };
@@ -38,14 +38,10 @@ describe("listPublishers", () => {
     expect(list.find((p) => p.platform === "tiktok").label).toBe("Waiting for Credentials");
   });
 
-  it("moves a still-credentials-only platform (Pinterest) to configuration_required once its env vars are set", async () => {
-    for (const k of ALL_ENV_VARS) delete process.env[k];
-    process.env.PINTEREST_CLIENT_ID = "id";
-    process.env.PINTEREST_CLIENT_SECRET = "secret";
-    const pinterest = (await listPublishers()).find((p) => p.platform === "pinterest");
-    expect(pinterest.state).toBe("configuration_required");
-    expect(pinterest.configured).toBe(true);
-  });
+  // All 7 platforms are now real (4 OAuth-flow, 2 static-token, and
+  // Pinterest completing the OAuth-flow set) — no purely-stub
+  // "credentials-only" platform is left to exercise configuration_required
+  // against; see the Facebook/TikTok cases below for the two real shapes.
 
   it("Facebook (static Page token, no OAuth step) goes straight to connected once its env vars are set", async () => {
     for (const k of ALL_ENV_VARS) delete process.env[k];
@@ -74,14 +70,14 @@ describe("listPublishers", () => {
     expect(list.every((p) => Array.isArray(p.requiredScopes) && p.requiredScopes.length > 0)).toBe(true);
   });
 
-  it("only reports oauthAvailable for platforms with a real OAuth flow built (TikTok, X, LinkedIn, YouTube)", async () => {
+  it("only reports oauthAvailable for platforms with a real OAuth flow built (TikTok, X, LinkedIn, YouTube, Pinterest)", async () => {
     const list = await listPublishers();
-    for (const platform of ["tiktok", "x", "linkedin", "youtube"]) {
+    for (const platform of ["tiktok", "x", "linkedin", "youtube", "pinterest"]) {
       expect(list.find((p) => p.platform === platform).oauthAvailable).toBe(true);
     }
     // Facebook/Instagram are real too, but use a static token with no
     // verifyConnection/OAuth flow (see their own files' header comments).
-    for (const platform of ["facebook", "instagram", "pinterest"]) {
+    for (const platform of ["facebook", "instagram"]) {
       expect(list.find((p) => p.platform === platform).oauthAvailable).toBe(false);
     }
   });
@@ -124,6 +120,13 @@ describe("verifyPublisherConnection", () => {
   it("delegates to YouTube's real verifyConnection", async () => {
     for (const k of ALL_ENV_VARS) delete process.env[k];
     const result = await verifyPublisherConnection("youtube");
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe("not_configured"); // no env vars set in this test
+  });
+
+  it("delegates to Pinterest's real verifyConnection", async () => {
+    for (const k of ALL_ENV_VARS) delete process.env[k];
+    const result = await verifyPublisherConnection("pinterest");
     expect(result.ok).toBe(false);
     expect(result.reason).toBe("not_configured"); // no env vars set in this test
   });
