@@ -47,9 +47,14 @@ These enable the "Configuration Required" state to show correctly and are ready 
 | X | `X_CLIENT_ID`, `X_CLIENT_SECRET` |
 | Pinterest | `PINTEREST_CLIENT_ID`, `PINTEREST_CLIENT_SECRET` |
 
-### Not yet integrated
+### Veridian Social — billing (Stripe, skeleton only)
 
-**Billing (Stripe):** no code reads any `STRIPE_*` variable yet — the Settings screen's billing card is a static notice, not a live integration. Don't set Stripe keys expecting anything to activate; billing needs to be built first (see `ops/veridian-platform-strategy.md`).
+| Variable | Purpose |
+|---|---|
+| `STRIPE_SECRET_KEY` | Enables `api/billing/{checkout,portal}.js`. Until set, both return `501 { ok: false, reason: "not_configured" }` — no code path can charge anyone today. |
+| `STRIPE_WEBHOOK_SECRET` | Enables signature verification in `api/billing/webhook.js`. Get it from the Stripe Dashboard when you register the webhook endpoint (`/api/billing/webhook`) for `customer.subscription.{created,updated,deleted}` and `invoice.{paid,payment_failed}`. |
+
+**Setting these two vars alone does not start charging anyone.** There are no real Stripe Products/Prices yet — `api/billing/checkout.js` takes a `priceId` from its caller rather than a hardcoded one, so creating real prices in the Stripe Dashboard and wiring a plan-selection UI to them is still a founder decision (pricing itself — see `ops/veridian-platform-strategy.md` Task 3's pricing table, marked "a hypothesis, not a commitment"), not an engineering blocker. Until an org has a real subscription, `GET /api/billing/status` reports `entitlement.status: "unmetered"` — the honest default, not a fabricated "active" plan.
 
 ---
 
@@ -60,6 +65,7 @@ These enable the "Configuration Required" state to show correctly and are ready 
 | `supabase/migrations/20260619000000_create_bookings.sql` | Applied to Connect's live Supabase project (pre-existing) |
 | `supabase/migrations/20260805000000_create_leads.sql` | Formalizes the `leads` table Connect already writes to (Sprint 0b) — confirm it's been applied if not already |
 | `supabase/migrations/20260810000000_create_platform_core.sql` | **Needs to be applied before Sprint 1 sign-in works in production** — creates `organizations`/`memberships` + RLS. Run it against the same Supabase project Connect already uses (Supabase Dashboard → SQL Editor, or the CLI) before or immediately after this deploy. |
+| `supabase/migrations/20260810000001_create_billing.sql` | Creates `subscriptions`/`invoices`/`product_entitlements` + RLS (Sprint 2 skeleton). Apply alongside the platform-core migration — nothing reads these tables until `STRIPE_SECRET_KEY` is also set, so there's no urgency, but api/billing/status.js's `supabaseSelect` calls degrade to the safe "unmetered" default either way. |
 
 Veridian Social's brands/content/media remain localStorage-only (dev-mode) — only identity (auth + organizations) moved to real Postgres in Sprint 1. Migrating brand/content data onto Postgres/RLS is separate, later work per `ops/veridian-platform-strategy.md`.
 
