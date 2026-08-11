@@ -4,6 +4,31 @@ Lightweight ongoing record per the Veridian AI Build to Launch directive. One en
 
 ---
 
+## 2026-08-10 — Sprint 6 (cont.): real LinkedIn OAuth + publish
+
+Fifth real platform, fourth on the TikTok/X-style real OAuth-flow pattern (Facebook/Instagram used the static-token pattern instead — see their entry below).
+
+**Completed work:**
+- **`api/_lib/publishers/linkedin.js`**: real OAuth 2.0 flow (`api/social/oauth/linkedin/{start,callback,disconnect}.js`), KV-backed token storage, and a real `POST /rest/posts` `publish()` (current LinkedIn Posts API — `LinkedIn-Version`/`X-Restli-Protocol-Version` headers, response id read from the `x-restli-id` header per LinkedIn's documented shape, not the body).
+- **Author URN handling**: LinkedIn's Posts API requires the author as a URN (`urn:li:person:{id}`), which the OAuth token response doesn't include — `verifyConnection()` (via `/v2/userinfo`, OpenID Connect) learns and stores it, and the OAuth callback calls it automatically right after saving the token so the founder can publish immediately without a separate manual "Verify connection" click first.
+- **Refresh handled the same way as X**: attempts a `refresh_token` grant if one is present, otherwise degrades to `account_not_connected` once the (typically ~60-day) access token expires — standard LinkedIn tokens aren't refreshable without separate app approval for programmatic refresh tokens.
+- `Shell.jsx`'s `OAUTH_REDIRECT_PLATFORMS` and the Settings connections panel (already generalized in the earlier X entry) needed no further changes to support a third OAuth-flow platform — that generalization is now paying for itself.
+
+**Bugs fixed:** none (feature pass).
+
+**Breaking changes:** none. Note for anyone who read the old stub's signature: `publish()` changed from `{ caption, hashtags, mediaUrl, userAccessToken, authorUrn }` (both passed in per-call) to `{ caption, hashtags }` (both now come from the KV-backed store), same shift TikTok/X already made — nothing external called the old stub shape.
+
+**Migrations:** none — LinkedIn tokens live in KV under new keys (`veridian:social:linkedin:token`, `veridian:social:linkedin:oauth_state:*`).
+
+**Deployment notes:** no new required env vars for what shipped (`LINKEDIN_CLIENT_ID`/`SECRET`/`REDIRECT_URI` only needed at actual activation — `ACTIVATION.md`). 159/159 tests pass (13 new), build clean.
+
+**Known issues:**
+- Not live-tested — same caveat as every platform here: implemented against LinkedIn's documented OIDC + Posts API shape, verified with mocked HTTP calls.
+- Both LinkedIn products (Sign In with OpenID Connect, Share on LinkedIn) require app-level approval before the required scopes are grantable — expect an approval wait before first real activation.
+- YouTube and Pinterest still have stub `publish()` bodies — the only 2 platforms left.
+
+**Next engineering task:** YouTube or Pinterest complete the 7-platform pilot set from Pilot Launch's original scope; after that, or in parallel, Sprint 5 (billing goes live) once a founder pricing decision exists.
+
 ## 2026-08-10 — Sprint 6 (cont.): real Facebook + Instagram publish (Meta Graph API)
 
 Third and fourth real platforms, both on Meta's Graph API — done together since they share one API surface. Unlike TikTok/X, these use a pre-obtained long-lived access token rather than an in-app OAuth flow (Meta's own recommended pattern for single-Page/account use, and it avoids App Review for anything beyond your own Page/account).
