@@ -34,9 +34,19 @@ Every variable the codebase actually reads, grouped by what it powers. "Required
 | `TIKTOK_REDIRECT_URI` | OAuth callback URL | Must exactly match what's registered in the portal — `https://<your-domain>/api/social/oauth/tiktok/callback` |
 | `TIKTOK_PRIVACY_LEVEL` (optional) | Overrides the default `SELF_ONLY` privacy | Only set this after TikTok approves your app for public posting — see §5 |
 
+### Veridian Social — X / Twitter (real, implemented)
+
+| Variable | Purpose | Where to get it |
+|---|---|---|
+| `X_CLIENT_ID` | App identifier | X Developer Portal → your app (OAuth 2.0, "Confidential client") |
+| `X_CLIENT_SECRET` | App secret | Same |
+| `X_REDIRECT_URI` | OAuth callback URL | Must exactly match what's registered in the portal — `https://<your-domain>/api/social/oauth/x/callback` |
+
+**Before this activates:** posting (write access) via the X API has historically required a paid API tier — verify current X API pricing/access in the Developer Portal before assuming the free tier covers `POST /2/tweets`; if it doesn't, this stays "Ready to Activate" until a paid tier is added, same honest degrade as everything else.
+
 ### Veridian Social — other platforms (scaffolded, `publish()` not implemented yet)
 
-These enable the "Configuration Required" state to show correctly and are ready for when each platform's real integration is built (see `CHANGELOG.md`'s "Next engineering task"). Setting them today does **not** enable posting — only TikTok's integration is complete.
+These enable the "Configuration Required" state to show correctly and are ready for when each platform's real integration is built. Setting them today does **not** enable posting — only TikTok and X's integrations are complete.
 
 | Platform | Variables |
 |---|---|
@@ -44,7 +54,6 @@ These enable the "Configuration Required" state to show correctly and are ready 
 | Facebook | `META_PAGE_ACCESS_TOKEN`, `META_FACEBOOK_PAGE_ID` |
 | LinkedIn | `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET` |
 | YouTube | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
-| X | `X_CLIENT_ID`, `X_CLIENT_SECRET` |
 | Pinterest | `PINTEREST_CLIENT_ID`, `PINTEREST_CLIENT_SECRET` |
 
 ### Veridian Social — billing (Stripe, skeleton only)
@@ -84,9 +93,10 @@ No new API configuration needed for TikTok or any other platform — they're all
 
 ## 4. OAuth redirect requirements
 
-Only TikTok has a real OAuth flow today:
-- Redirect URI registered in TikTok's portal **must exactly match** `TIKTOK_REDIRECT_URI` — protocol, host, and path, character-for-character. A mismatch fails the callback silently from the user's perspective (TikTok rejects it before ever reaching this app).
-- The callback route (`api/social/oauth/tiktok/callback.js`) redirects the browser back to `/app?tiktok=connected` or `?tiktok=error` — the shell shows a clear banner either way (Founder Alpha entry, CHANGELOG.md).
+TikTok and X have real OAuth flows today (the other 5 platforms don't yet):
+- Redirect URI registered in each portal **must exactly match** `TIKTOK_REDIRECT_URI` / `X_REDIRECT_URI` — protocol, host, and path, character-for-character. A mismatch fails the callback silently from the user's perspective (the platform rejects it before ever reaching this app).
+- The callback routes (`api/social/oauth/{tiktok,x}/callback.js`) redirect the browser back to `/app?{tiktok,x}=connected` or `?{tiktok,x}=error` — the shell shows a clear banner either way, generically across platforms (see `src/shell/Shell.jsx`'s `OAUTH_REDIRECT_PLATFORMS`).
+- X additionally uses OAuth 2.0 + PKCE: the code_verifier is generated in `api/social/oauth/x/start.js` and stashed in KV keyed by the CSRF `state` value for the callback to retrieve — nothing to configure, just noted here since it's one more moving part than TikTok's flow.
 
 ## 5. Security checklist (recap — confirm still true before going live)
 
@@ -107,7 +117,7 @@ All from Sprint 0a/0b, re-verified as part of this activation pass (Task 33):
 ## 7. Rollback plan
 
 - **Code rollback:** Vercel keeps every deployment; use the Vercel dashboard's "Promote to Production" on a prior deployment, or `git revert` the offending commit and push — either restores the previous working state within minutes.
-- **TikTok token rollback:** if a bad token gets stored (e.g., a failed refresh loop), call `POST /api/social/oauth/tiktok/disconnect` (or use the "Disconnect" button in Settings) and reconnect — this clears the single KV key holding the token, no wider blast radius.
+- **Platform token rollback:** if a bad token gets stored (e.g., a failed refresh loop), call `POST /api/social/oauth/{tiktok,x}/disconnect` (or use the "Disconnect" button in Settings) and reconnect — this clears the single KV key holding that platform's token, no wider blast radius.
 - **Env var rollback:** Vercel env var changes take effect on next deploy/redeploy — reverting a bad value and redeploying is the same "rollback" motion as a code change.
 
 ---
@@ -124,6 +134,17 @@ All from Sprint 0a/0b, re-verified as part of this activation pass (Task 33):
 8. If it fails, the UI shows the specific reason (`media_required`, `account_not_connected`, `publish_error` with detail) rather than a generic error — use that to diagnose rather than guessing.
 
 Once step 7 succeeds, Founder Alpha's success criterion is met — see the "Founder Activation" entry in `CHANGELOG.md`.
+
+## 8b. X activation sequence
+
+1. Register an app in the X Developer Portal (OAuth 2.0, "Confidential client"), request the `tweet.read`, `tweet.write`, `users.read`, and `offline.access` scopes.
+2. Confirm your X API access tier includes write access (`POST /2/tweets`) — historically not included in the free tier; check current pricing before assuming it works.
+3. Set `X_CLIENT_ID`, `X_CLIENT_SECRET`, `X_REDIRECT_URI` in Vercel — must exactly match the callback URL registered in the portal.
+4. Open Settings (`/app` → Settings) → X will show **Ready to Activate** → click **Connect account**.
+5. Complete X's OAuth consent screen → redirected back with a **Connected** confirmation banner.
+6. Click **Verify connection** (calls `/2/users/me`) — Settings will show the connected account's display name.
+7. Generate and approve a draft, then **Publish now** — this is the first live post (X has no privacy-tier restriction like TikTok's `SELF_ONLY`, so treat the first attempt as fully public).
+8. If it fails, the UI shows the specific reason (`account_not_connected`, `over_character_limit`, `publish_error` with detail).
 
 ## 9. Daily founder workflow (for reference)
 

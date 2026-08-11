@@ -4,6 +4,30 @@ Lightweight ongoing record per the Veridian AI Build to Launch directive. One en
 
 ---
 
+## 2026-08-10 — Sprint 6: real X (Twitter) OAuth + publish, second pilot platform
+
+Replicates TikTok's real OAuth+publish pattern for a second platform, per Founder Alpha's own "Next engineering task" note and Sprint 6 of `ops/veridian-platform-strategy.md`. No business decision needed to build this (unlike billing) — only to activate it later with real X Developer credentials.
+
+**Completed work:**
+- **`api/_lib/publishers/x.js`**: real OAuth 2.0 + PKCE flow (`api/social/oauth/x/{start,callback,disconnect}.js`), KV-backed token storage with automatic refresh (same single-tenant-by-design convention as TikTok), and a real `POST /2/tweets` `publish()`. PKCE (`generateCodeVerifier`/`generateCodeChallenge`, Web Crypto SHA-256) is net-new since TikTok's flow didn't need it — X requires it regardless of client type.
+- **Generalized the "Connect account" / "Verify connection" / "Disconnect" UI** (`src/social/shared.jsx`'s `SocialConnectionsPanel`) off `p.platform === "tiktok"` onto `p.oauthAvailable` — now works for any platform with a real OAuth flow without a third copy-pasted UI branch when a third platform ships. Same generalization in `Shell.jsx`'s OAuth-redirect banner handling (`OAUTH_REDIRECT_PLATFORMS`).
+- `x.js`'s `publish()` signature changed from the old stub's `{ caption, hashtags, mediaUrl, userAccessToken }` (a token passed in per-call) to `{ caption, hashtags }` (token now comes from the same KV-backed store as TikTok) — matches the real pattern every other implemented platform uses; nothing external called the stub's old shape yet, so this isn't a breaking change to a working path.
+
+**Bugs fixed:** none (feature pass).
+
+**Breaking changes:** none.
+
+**Migrations:** none — X tokens live in KV under new keys (`veridian:social:x:token`, `veridian:social:x:oauth_state:*`), same as TikTok's.
+
+**Deployment notes:** no new required env vars for what shipped (`X_CLIENT_ID`/`X_CLIENT_SECRET`/`X_REDIRECT_URI` only needed once you actually activate X — see `ACTIVATION.md` §8b). 131/131 tests pass (17 new), build clean.
+
+**Known issues:**
+- None of the X code has been exercised against a live X account or app — same caveat as TikTok's initial ship: implemented against X's documented OAuth 2.0 + v2 tweets API shape, verified with mocked HTTP calls, not live-tested.
+- X API write access has historically required a paid tier — verify current access before assuming `Ready to Activate` → `Connected` → a successful `Publish now` all just work on whatever tier is on file.
+- The remaining 5 platforms (Instagram, Facebook, LinkedIn, YouTube, Pinterest) still have stub `publish()` bodies.
+
+**Next engineering task:** per the roadmap, either a third platform (Instagram/Facebook share the Meta Graph API, so doing them together is likely more efficient than separately), or Sprint 5 (billing goes live) once a founder pricing decision exists.
+
 ## 2026-08-10 — Sprint 2: Stripe billing skeleton
 
 Completes Sprint 2 of `ops/veridian-platform-strategy.md` (the AI Gateway half shipped earlier, in the Build to Launch entry). Schema + plumbing only, matching every other unactivated integration's pattern in this codebase (TikTok's siblings, `not_configured` degrade): **no code path here can charge anyone** — there is no `STRIPE_SECRET_KEY` set, and even once one is, there are no real Stripe Prices yet, which is a founder pricing decision (Sprint 5), not an engineering task.

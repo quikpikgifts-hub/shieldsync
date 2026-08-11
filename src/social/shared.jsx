@@ -477,10 +477,10 @@ export function SocialConnectionsPanel() {
 
   useEffect(() => { refresh(); }, []);
 
-  const disconnectTiktok = async () => {
-    setBusyPlatform("tiktok");
+  const disconnectPlatform = async (platformKey) => {
+    setBusyPlatform(platformKey);
     try {
-      await fetch("/api/social/oauth/tiktok/disconnect", { method: "POST" });
+      await fetch(`/api/social/oauth/${platformKey}/disconnect`, { method: "POST" });
       await refresh();
     } finally {
       setBusyPlatform(null);
@@ -534,15 +534,15 @@ export function SocialConnectionsPanel() {
                   </div>
                 )}
                 <div style={{ display: "flex", gap: 8 }}>
-                  {p.platform === "tiktok" && p.state === "ready_to_activate" && (
-                    <a href="/api/social/oauth/tiktok/start"><Btn style={{ padding: "5px 12px", fontSize: 11.5 }}>Connect account</Btn></a>
+                  {p.oauthAvailable && p.state === "ready_to_activate" && (
+                    <a href={`/api/social/oauth/${p.platform}/start`}><Btn style={{ padding: "5px 12px", fontSize: 11.5 }}>Connect account</Btn></a>
                   )}
-                  {p.platform === "tiktok" && p.state === "connected" && (
+                  {p.oauthAvailable && p.state === "connected" && (
                     <>
                       <Btn variant="ghost" style={{ padding: "5px 12px", fontSize: 11.5 }} onClick={() => verify(p.platform)} disabled={busyPlatform === p.platform}>
                         {busyPlatform === p.platform ? "Verifying…" : "Verify connection"}
                       </Btn>
-                      <Btn variant="ghost" style={{ padding: "5px 12px", fontSize: 11.5 }} onClick={disconnectTiktok} disabled={busyPlatform === p.platform}>Disconnect</Btn>
+                      <Btn variant="ghost" style={{ padding: "5px 12px", fontSize: 11.5 }} onClick={() => disconnectPlatform(p.platform)} disabled={busyPlatform === p.platform}>Disconnect</Btn>
                     </>
                   )}
                   {(p.state === "waiting_for_credentials" || p.state === "configuration_required") && (
