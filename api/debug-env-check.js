@@ -43,18 +43,28 @@ export default async function handler(req) {
         durationMs: Date.now() - start,
         errorName: e?.name,
         errorMessage: e?.message,
-        errorCause: e?.cause ? String(e.cause) : null,
+        errorCause: e?.cause ? { name: e.cause.name, message: e.cause.message, code: e.cause.code, nestedCause: e.cause.cause ? String(e.cause.cause) : null } : null,
+        errorStack: e?.stack || null,
       };
     }
   }
+
+  // Control probes against hosts unrelated to Supabase — if these ALSO fail
+  // identically, the problem is outbound fetch from this Edge Function in
+  // general, not this specific Supabase project.
+  const controlProbes = [
+    probe("control: api.github.com", "https://api.github.com", { method: "GET" }),
+    probe("control: example.com", "https://example.com", { method: "GET" }),
+  ];
 
   report.probes = urlValid
     ? await Promise.all([
         probe("base-host-root", url, { method: "GET" }),
         probe("gotrue-settings (what api/_lib/auth.js hits)", `${url}/auth/v1/settings`, { headers: { apikey: serviceKey } }),
         probe("postgrest-root (what api/_lib/supabase.js hits)", `${url}/rest/v1/`, { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }),
+        ...controlProbes,
       ])
-    : [{ label: "skipped", reason: "URL failed syntax validation, see urlSyntax above" }];
+    : [{ label: "skipped", reason: "URL failed syntax validation, see urlSyntax above" }, ...(await Promise.all(controlProbes))];
 
   return new Response(JSON.stringify(report, null, 2), { headers: { "Content-Type": "application/json" } });
 }
