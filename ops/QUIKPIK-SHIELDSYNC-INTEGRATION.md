@@ -20,7 +20,7 @@ Configure Gumroad Ping to POST to the deployed endpoint:
 
 `https://<verified-shieldsync-host>/api/webhooks/gumroad?token=<GUMROAD_WEBHOOK_SECRET>`
 
-The endpoint accepts sale pings only. It does not trust the posted price or product details: it fetches the sale from Gumroad's authenticated API, checks the returned sale ID, restricts records to the allowlisted product IDs, and uses a KV idempotency key to prevent duplicate sale events from being counted twice.
+The endpoint accepts sale, refund, dispute, and dispute-won pings. It does not trust the posted price or product details: it fetches the sale from Gumroad's authenticated API, checks the returned sale ID, restricts records to the allowlisted product IDs, and uses a KV idempotency key to prevent duplicate sale events from being counted twice, and updates an existing stored sale when a refund/dispute event changes its verified state.
 
 Use Gumroad's test ping first. Then make a low-value owner-approved test transaction only if needed; never fabricate a real sale record. Check refunds and disputes separately before using these event totals as accounting numbers.
 
@@ -31,9 +31,9 @@ Use Gumroad's test ping first. Then make a low-value owner-approved test transac
 ## Current limitations and release gates
 
 - No historical Gumroad sales are imported; only events received after setup are visible.
-- Verify the Gumroad API response shape and price units with a test ping before relying on displayed amounts.
+- Verify the Gumroad API response shape and price units with test pings for sale, refund, dispute, and dispute-won events before relying on displayed amounts.
 - Gumroad Ping events do not provide a signed webhook signature; protect the URL with the random secret and verify every sale through the API.
-- Refund updates may arrive after the original sale event; implement and test refund/dispute reconciliation before using the view for financial reporting.
+- Refund/dispute events are normalized into the stored sale state, but this behavior must pass end-to-end test pings before relying on it. The view is not an accounting ledger.
 - KV list storage is suitable for an initial low-volume operations view, not an accounting ledger.
 - Validate build, deployment preview, endpoint authorization, duplicate handling, and product allowlisting before merge or production rollout.
 - No production environment variables, Gumroad settings, live site, or sales records were changed as part of this code change.
