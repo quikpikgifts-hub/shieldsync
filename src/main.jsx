@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
+import "./production.css";
 
 const Website = lazy(() => import("./Website.jsx"));
 const Shell = lazy(() => import("./shell/Shell.jsx"));
