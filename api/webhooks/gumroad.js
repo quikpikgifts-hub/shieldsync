@@ -25,6 +25,8 @@ function safeSale(sale) {
     currency: String(sale.currency || "usd").slice(0, 8).toUpperCase(),
     createdAt: sale.created_at || sale.sale_timestamp || new Date().toISOString(),
     isRefunded: Boolean(sale.refunded || sale.is_refunded),
+    isDisputed: Boolean(sale.disputed || sale.chargebacked),
+    disputeWon: Boolean(sale.dispute_won),
     source: "gumroad",
   };
 }
@@ -54,7 +56,8 @@ export default async function handler(req) {
 
   const resourceName = String(form.get("resource_name") || "sale");
   const saleId = String(form.get("sale_id") || "").trim();
-  if (resourceName !== "sale") return new Response(null, { status: 204 });
+  const supportedResources = new Set(["sale", "refund", "dispute", "dispute_won"]);
+  if (!supportedResources.has(resourceName)) return new Response(null, { status: 204 });
   if (!saleId || saleId.length > 200) return json({ error: "Missing or invalid sale_id" }, 400);
   if (String(form.get("test") || "").toLowerCase() === "true") return new Response(null, { status: 200 });
 
@@ -87,9 +90,15 @@ export default async function handler(req) {
     return json({ error: "Verified sale data is incomplete" }, 400);
   }
 
-  // Claim and append atomically so concurrent retries cannot double-count a
-  // sale, and a storage failure cannot leave a permanent claim without a row.
-  const script = "if redis.call('EXISTS', KEYS[1]) == 1 then return 0 end " +
+  // Upsert sale state for refund/dispute changes; deduplicate repeated sale
+  // pings atomically. The list is intentionally bounded at the API read layer.
+  const script = "local rows = redis.call('LRANGE', KEYS[2], 0, -1) " +
+    "for i, row in ipairs(rows) do " +
+    "local ok, item = pcall(cjson.decode, row) " +
+    "if ok and item.saleId == ARGV[3] then " +
+    "redis.call('LSET', KEYS[2], i - 1, ARGV[1]) " +
+    "redis.call('SET', KEYS[1], '1', 'EX', ARGV[2]) return 2 end end " +
+    "if redis.call('EXISTS', KEYS[1]) == 1 then return 0 end " +
     "redis.call('SET', KEYS[1], '1', 'EX', ARGV[2]) " +
     "redis.call('LPUSH', KEYS[2], ARGV[1]) return 1";
   let stored;
@@ -99,14 +108,15 @@ export default async function handler(req) {
       "quikpik:gumroad:processed:" + normalized.saleId,
       "quikpik:gumroad:sales",
       JSON.stringify(normalized),
-      String(60 * 60 * 24 * 365)
+      String(60 * 60 * 24 * 365),
+      normalized.saleId
     );
   } catch {
     return json({ error: "Event storage unavailable" }, 503);
   }
   if (Number(stored) === 0) return new Response(null, { status: 200 });
-  if (Number(stored) !== 1) return json({ error: "Event storage did not confirm write" }, 503);
+  if (Number(stored) !== 1 && Number(stored) !== 2) return json({ error: "Event storage did not confirm write" }, 503);
 
-  console.log("[quikpik-gumroad] verified sale recorded", normalized.saleId);
+  console.log("[quikpik-gumroad] verified sale state recorded", normalized.saleId);
   return new Response(null, { status: 200 });
 }
