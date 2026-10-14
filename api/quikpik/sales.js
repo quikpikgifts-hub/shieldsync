@@ -40,6 +40,7 @@ export default async function handler(req) {
     grossByCurrency[currency] = (grossByCurrency[currency] || 0) + (sale.isRefunded ? 0 : sale.priceCents);
   }
   const refundedCount = sales.filter(s => s.isRefunded).length;
+  const disputedCount = sales.filter(s => s.isDisputed && !s.disputeWon).length;
   const currencyCounts = [...new Set(sales.map(s => s.currency))];
   return json({
     connected: true,
@@ -47,8 +48,9 @@ export default async function handler(req) {
     salesCount: sales.length,
     grossByCurrency,
     refundedCount,
+    disputedCount,
     currencies: currencyCounts,
-    recentSales: sales.slice(0, 20).map(({ saleId, productName, priceCents, currency, createdAt, isRefunded }) =>
+    recentSales: sales.slice(0, 20).map(({ saleId, productName, priceCents, currency, createdAt, isRefunded, isDisputed, disputeWon }) =>
       ({ saleId, productName, priceCents, currency, createdAt, isRefunded })
     ),
     note: "This view includes only verified webhook events received after setup. It is not a historical Gumroad sales import.",
