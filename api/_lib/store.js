@@ -38,7 +38,21 @@ export async function recordLead(entry) {
   const sbWrite = supabaseInsert("leads", sbRow).catch((err) => ({ ok: false, error: err.message }));
 
   const [kvResult, sbResult] = await Promise.all([kvWrite, sbWrite]);
-  return { kvResult, sbResult };
+  // Treat only an actual successful write as persistence; missing KV config
+  // resolves to null, and Supabase may explicitly report that it was skipped.
+  const kvStored = kvResult.some((result) =>
+    result.status === "fulfilled" && result.value !== null && result.value !== undefined
+  );
+  const supabaseStored = sbResult?.ok === true;
+  return {
+    kvResult,
+    sbResult,
+    storageOk: kvStored || supabaseStored,
+    storage: {
+      kv: kvStored ? "stored" : "unavailable",
+      supabase: supabaseStored ? "stored" : sbResult?.skipped ? "unconfigured" : "failed",
+    },
+  };
 }
 
 const FOLLOWUP_DELAYS_MS = {
