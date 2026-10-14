@@ -335,7 +335,7 @@ function WebFooter({isMobile}){
 const JOURNEY=[
   {icon:Phone,label:"Customer Calls",sub:"Prospect dials your number",color:"#3B82F6"},
   {icon:X,label:"No Answer",sub:"Call goes unanswered",color:W.red},
-  {icon:MessageSquare,label:"Instant Response",sub:"Veridian replies in < 60s",color:W.accent},
+  {icon:MessageSquare,label:"Instant Response",sub:"Rapid response workflow (configuration dependent)",color:W.accent},
   {icon:MessageSquare,label:"Customer Replies",sub:"Conversation started",color:"#8B5CF6"},
   {icon:Calendar,label:"Appointment Booked",sub:"Confirmed and scheduled",color:W.green},
   {icon:CheckCircle,label:"Revenue Recovered",sub:"Lead converted",color:W.green},
@@ -417,11 +417,11 @@ function Hero({isMobile}){
                 Get My Recovery Plan
               </a>
             </div>
-            <div style={{fontSize:12,color:W.textDim,marginBottom:isMobile?44:0}}>No obligation. Results in 60 seconds.</div>
+            <div style={{fontSize:12,color:W.textDim,marginBottom:isMobile?44:0}}>Free estimate · No obligation · Takes about 60 seconds.</div>
             {/* Mini stats */}
             {!isMobile&&(
               <div style={{display:"flex",gap:40,marginTop:44,paddingTop:36,borderTop:`1px solid ${W.border}`}}>
-                {[{n:"68%",l:"of missed calls recovered"},{n:"<60s",l:"first response time"},{n:"10+",l:"years in the field"}].map(s=>(
+                {[{n:"24/7",l:"lead capture opportunities"},{n:"Fast",l:"response workflows"},{n:"Track",l:"every inquiry in one place"}].map(s=>(
                   <div key={s.l}>
                     <div style={{fontSize:26,fontWeight:900,color:W.text,letterSpacing:"-0.03em"}}>{s.n}</div>
                     <div style={{fontSize:11,color:W.textSub,marginTop:4}}>{s.l}</div>
@@ -453,7 +453,7 @@ function BeforeAfter({isMobile}){
     "Unknown losses → revenue invisible",
   ];
   const after=[
-    "Every call answered within 60 seconds",
+    "Fast response workflows help capture more inquiries",
     "First to respond → first to win the business",
     "Systematic follow-up → no lead left behind",
     "24/7 coverage → every hour is revenue hours",
@@ -523,7 +523,7 @@ function BeforeAfter({isMobile}){
             </div>
             <div style={{marginTop:28,padding:"14px 18px",background:"rgba(16,185,129,0.05)",borderRadius:10,borderTop:"1px solid rgba(16,185,129,0.12)"}}>
               <div style={{fontSize:20,fontWeight:900,color:W.green,letterSpacing:"-0.02em"}}>Revenue recovered</div>
-              <div style={{fontSize:12,color:W.textSub,marginTop:3}}>Every missed call becomes an opportunity</div>
+              <div style={{fontSize:12,color:W.textSub,marginTop:3}}>Turn missed calls into follow-up opportunities</div>
             </div>
           </div>
         </div>
@@ -593,7 +593,7 @@ function Calculator({isMobile}){
             <div style={{background:"linear-gradient(135deg,rgba(99,102,241,0.1),rgba(99,102,241,0.04))",border:"1px solid rgba(99,102,241,0.22)",borderRadius:20,padding:isMobile?24:32,textAlign:"center"}}>
               <div style={{fontSize:11,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:8}}>VERIDIAN RECOVERY POTENTIAL</div>
               <div style={{fontSize:isMobile?"44px":"60px",fontWeight:900,color:W.text,letterSpacing:"-0.04em",lineHeight:1}}>{fmtM(annual)}</div>
-              <div style={{fontSize:12,color:W.textSub,marginTop:8}}>per year · based on 68% recovery rate</div>
+              <div style={{fontSize:12,color:W.textSub,marginTop:8}}>per year · illustrative estimate using a 68% assumption, not a guarantee</div>
             </div>
             <a href="#contact" onClick={()=>{Object.assign(_lead,{calls,miss,val,conv,missed,lostMo,recMo,annual});window.dispatchEvent(new CustomEvent("veridian:calcdata",{detail:{..._lead}}));track("calculator_cta_click",{value:annual,currency:"USD"});}}
               className="vd-btn" style={{background:W.accent,color:"#fff",padding:isMobile?16:18,borderRadius:12,fontSize:15,fontWeight:700,justifyContent:"center",boxShadow:`0 6px 24px ${W.accentGlow}`}}>
@@ -832,7 +832,7 @@ function MissedCallTextRecovery({isMobile}){
           <div style={{textAlign:"center",marginBottom:isMobile?28:40}}>
             <SLabel>ROI EXAMPLES</SLabel>
             <h3 style={{fontSize:isMobile?"24px":"32px",fontWeight:900,color:W.text,letterSpacing:"-0.03em",marginBottom:8}}>What recovery looks like for businesses like yours.</h3>
-            <p style={{fontSize:14,color:W.textSub}}>Based on 68% recovery rate applied to representative call volumes. Actual results vary.</p>
+            <p style={{fontSize:14,color:W.textSub}}>Illustrative estimates using a 68% recovery assumption and representative call volumes. Actual results vary; this is not a promise of recovered revenue.</p>
           </div>
           <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:14}}>
             {roi.map((r,i)=>(
@@ -1077,7 +1077,7 @@ function Industries({isMobile}){
             <div style={{background:"linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.03))",border:"1px solid rgba(16,185,129,0.22)",borderRadius:20,padding:isMobile?24:32}}>
               <div style={{fontSize:10,fontWeight:700,color:W.green,letterSpacing:"0.1em",marginBottom:12}}>RECOVERY POTENTIAL</div>
               <div style={{fontSize:isMobile?"36px":"48px",fontWeight:900,color:W.green,letterSpacing:"-0.04em",lineHeight:1,marginBottom:8}}>{d.recovery}</div>
-              <div style={{fontSize:12,color:W.textSub}}>based on 68% average recovery rate</div>
+              <div style={{fontSize:12,color:W.textSub}}>illustrative scenario using a 68% assumption — not a guaranteed result</div>
             </div>
             <div style={{background:W.card,border:`1px solid ${W.border}`,borderRadius:20,padding:isMobile?24:32,flex:1}}>
               <div style={{fontSize:10,fontWeight:700,color:W.accent,letterSpacing:"0.1em",marginBottom:12}}>EXPECTED OUTCOME</div>
