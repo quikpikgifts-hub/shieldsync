@@ -1,5 +1,4 @@
 import React from "react";
-import { createRoot } from "react-dom/client";
 import { Clapperboard, BookOpen, Mic2, Cat, Sparkles, ArrowUpRight, PlayCircle } from "lucide-react";
 import "./production.css";
 
@@ -22,7 +21,7 @@ function Emblem(){return <svg viewBox="0 0 240 240" role="img" aria-label="Quik 
   <text x="34" y="123" textAnchor="middle" fontSize="10" fill="#f4c337">★</text><text x="206" y="123" textAnchor="middle" fontSize="10" fill="#f4c337">★</text>
 </svg>}
 
-function ProductionHub(){
+export default function ProductionHub(){
  return <main className="qp-shell">
   <header className="qp-nav"><a className="qp-brand" href="/"><Emblem/><span><b>QUIK PIK</b><small>PRODUCTION HOUSE</small></span></a><span className="qp-live"><i/> PRODUCTION HUB</span></header>
   <section className="qp-hero">
@@ -34,4 +33,3 @@ function ProductionHub(){
   <footer className="qp-footer"><span>© {new Date().getFullYear()} Quik Pik Production</span><span>SAFETY · DRAMA · FAMILY</span><a href="https://www.tiktok.com/@gspeed25">Follow the studio ↗</a></footer>
  </main>
 }
-createRoot(document.getElementById("root")).render(<ProductionHub/>);
