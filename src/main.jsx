@@ -10,7 +10,7 @@ class ErrorBoundary extends React.Component {
   static getDerivedStateFromError(error) { return { error }; }
   componentDidCatch(error, info) { console.error("[Quik Pik Production] Render error:", error, info?.componentStack); }
   render() {
-    if (this.state.error) return React.createElement("div", {style:{minHeight:"100vh",display:"grid",placeItems:"center",padding:24,textAlign:"center",background:"#091d32",color:"#fff",fontFamily:"sans-serif"}}, React.createElement("div", null, React.createElement("h2", null, "Quik Pik Production"), React.createElement("p", null, "Something went wrong. Please reload."), React.createElement("button",{onClick:()=>window.location.reload()},"Reload")));
+    if (this.state.error) return React.createElement("div", {style:{minHeight:"100vh",display:"grid",placeItems:"center",padding:24,textAlign:"center",background:"#091d32",color:"#fff",fontFamily:"sans-serif"}}, React.createElement("div", null, React.createElement("h2", null, "Quik Pik Production"), React.createElement("p", null, this.state.error?.message || "Unknown rendering error"), React.createElement("p", {style:{fontSize:12,opacity:.7,maxWidth:600,overflowWrap:"anywhere"}}, "Share this error text with support."), React.createElement("button",{onClick:()=>window.location.reload()},"Reload")));
     return this.props.children;
   }
 }
