@@ -167,12 +167,16 @@ function RevenueMonitor() {
             <div style={{ color: T.textSub, fontSize: 11.5 }}>Refunded events</div>
             <div style={{ color: T.text, fontSize: 23, fontWeight: 800, marginTop: 5 }}>{data.refundedCount}</div>
           </div>
+          <div style={{ background: T.card, border: "1px solid " + T.border, borderRadius: 10, padding: 13 }}>
+            <div style={{ color: T.textSub, fontSize: 11.5 }}>Open disputes</div>
+            <div style={{ color: T.text, fontSize: 23, fontWeight: 800, marginTop: 5 }}>{data.disputedCount ?? 0}</div>
+          </div>
         </div>
         {data.recentSales?.length ? <div style={{ display: "grid", gap: 7 }}>
           {data.recentSales.slice(0, 8).map((sale) => <div key={sale.saleId} style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", borderTop: "1px solid " + T.border, paddingTop: 9 }}>
             <div style={{ minWidth: 0 }}>
               <div style={{ color: T.text, fontSize: 12.5, fontWeight: 700, overflowWrap: "anywhere" }}>{sale.productName}</div>
-              <div style={{ color: T.textSub, fontSize: 10.5, marginTop: 3 }}>{sale.createdAt ? new Date(sale.createdAt).toLocaleString() : "Date unavailable"}{sale.isRefunded ? " · Refunded" : ""}</div>
+              <div style={{ color: T.textSub, fontSize: 10.5, marginTop: 3 }}>{sale.createdAt ? new Date(sale.createdAt).toLocaleString() : "Date unavailable"}{sale.isRefunded ? " · Refunded" : sale.isDisputed && !sale.disputeWon ? " · Disputed" : sale.disputeWon ? " · Dispute won" : ""}</div>
             </div>
             <div style={{ color: sale.isRefunded ? "#F59E0B" : T.text, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{moneyFromCents(sale.priceCents, sale.currency)}</div>
           </div>)}
