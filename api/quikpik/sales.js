@@ -34,14 +34,18 @@ export default async function handler(req) {
   const sales = rows.map((row) => {
     try { return typeof row === "string" ? JSON.parse(row) : row; } catch { return null; }
   }).filter(s => s && s.source === "gumroad" && typeof s.priceCents === "number");
-  const grossCents = sales.reduce((sum, s) => sum + (s.isRefunded ? 0 : s.priceCents), 0);
+  const grossByCurrency = {};
+  for (const sale of sales) {
+    const currency = sale.currency || "USD";
+    grossByCurrency[currency] = (grossByCurrency[currency] || 0) + (sale.isRefunded ? 0 : sale.priceCents);
+  }
   const refundedCount = sales.filter(s => s.isRefunded).length;
   const currencyCounts = [...new Set(sales.map(s => s.currency))];
   return json({
     connected: true,
     source: "verified Gumroad webhook events",
     salesCount: sales.length,
-    grossCents,
+    grossByCurrency,
     refundedCount,
     currencies: currencyCounts,
     recentSales: sales.slice(0, 20).map(({ saleId, productName, priceCents, currency, createdAt, isRefunded }) =>
