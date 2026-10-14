@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { LayoutDashboard, Sparkles, ExternalLink, Settings, LifeBuoy, LogOut, Plus, Bell, ChevronDown, User as UserIcon } from "lucide-react";
+import { LayoutDashboard, Sparkles, ExternalLink, Settings, LifeBuoy, LogOut, Plus, Bell, ChevronDown, User as UserIcon, Workflow } from "lucide-react";
 import { T, BASE_CSS, useInjectedStyle, useOnlineStatus } from "./theme.js";
 import { Btn, Card, Field, inputStyle, Pill } from "./primitives.jsx";
 import { workspaces, brands, pendingReviewCount, lastWorkspace } from "../social/store.js";
@@ -9,6 +9,7 @@ import DashboardHome from "./DashboardHome.jsx";
 import ConnectModule from "./ConnectModule.jsx";
 import SupportModule from "./SupportModule.jsx";
 import AIAssistantPanel from "./AIAssistantPanel.jsx";
+import QuikPikModule from "./QuikPikModule.jsx";
 
 // ─── Sign in — real Supabase Auth via /api/auth/* (src/lib/auth.js) ──
 function SignIn({ onSignedIn }) {
@@ -122,6 +123,7 @@ const OAUTH_REDIRECT_PLATFORMS = ["tiktok", "x", "linkedin", "youtube", "pintere
 const NAV = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "social", label: "Social", icon: Sparkles },
+  { id: "quikpik", label: "Quik Pik", icon: Workflow },
   { id: "connect", label: "Connect", icon: ExternalLink },
   { id: "settings", label: "Settings", icon: Settings },
   { id: "support", label: "Support", icon: LifeBuoy },
@@ -426,6 +428,8 @@ export default function Shell() {
           )}
 
           {nav === "connect" && <ConnectModule />}
+
+          {nav === "quikpik" && <QuikPikModule />}
 
           {nav === "settings" && (
             <div style={{ maxWidth: 560 }}>
