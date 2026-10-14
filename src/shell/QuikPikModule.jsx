@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   ArrowUpRight, BookOpen, CircleDollarSign, Clapperboard, ExternalLink,
   Link2, Radio, ShieldCheck, ShoppingBag, Workflow
 } from "lucide-react";
 import { T } from "./theme.js";
+import * as auth from "../lib/auth.js";
 
 const DESTINATIONS = [
   {
@@ -95,6 +96,93 @@ function Panel({ children, style = {} }) {
   );
 }
 
+function moneyFromCents(cents, currency = "USD") {
+  try {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(cents / 100);
+  } catch {
+    return currency + " " + (cents / 100).toFixed(2);
+  }
+}
+
+function RevenueMonitor() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function loadSales() {
+    setLoading(true);
+    setError("");
+    try {
+      const session = await auth.getValidSession();
+      if (!session?.access_token) throw new Error("Sign in again to view owner-only sales data.");
+      const response = await fetch("/api/quikpik/sales", {
+        headers: { Authorization: "Bearer " + session.access_token },
+        cache: "no-store",
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || "Sales request failed (" + response.status + ")");
+      setData(payload);
+    } catch (err) {
+      setData(null);
+      setError(err?.message || "Sales data could not be loaded.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { loadSales(); }, []);
+
+  return (
+    <Panel style={{ marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
+        <div>
+          <div style={{ color: T.text, fontSize: 15, fontWeight: 800 }}>Revenue monitor</div>
+          <div style={{ color: T.textSub, fontSize: 12, marginTop: 4 }}>Owner-only · verified Gumroad sale events</div>
+        </div>
+        <button onClick={loadSales} disabled={loading} style={{
+          border: "1px solid " + T.border, borderRadius: 8, padding: "8px 12px",
+          background: T.card, color: T.text, fontSize: 12, fontWeight: 700,
+          cursor: loading ? "wait" : "pointer", opacity: loading ? .65 : 1,
+        }}>{loading ? "Refreshing…" : "Refresh sales"}</button>
+      </div>
+      {loading && !data && <div style={{ color: T.textSub, fontSize: 12.5 }}>Checking sales connection…</div>}
+      {error && <div role="status" style={{ border: "1px solid rgba(245,158,11,.28)", background: "rgba(245,158,11,.08)", borderRadius: 9, padding: 12 }}>
+        <div style={{ color: "#F59E0B", fontWeight: 800, fontSize: 12.5, marginBottom: 5 }}>Sales feed not available yet</div>
+        <div style={{ color: T.textSub, fontSize: 12, lineHeight: 1.65 }}>{error}</div>
+        <div style={{ color: T.textSub, fontSize: 11.5, marginTop: 7 }}>Live data requires the server-side Gumroad token, webhook secret, approved product IDs, owner email, and KV storage configuration.</div>
+      </div>}
+      {data && <>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, marginBottom: 14 }}>
+          <div style={{ background: T.card, border: "1px solid " + T.border, borderRadius: 10, padding: 13 }}>
+            <div style={{ color: T.textSub, fontSize: 11.5 }}>Recorded sale events</div>
+            <div style={{ color: T.text, fontSize: 23, fontWeight: 800, marginTop: 5 }}>{data.salesCount}</div>
+          </div>
+          <div style={{ background: T.card, border: "1px solid " + T.border, borderRadius: 10, padding: 13 }}>
+            <div style={{ color: T.textSub, fontSize: 11.5 }}>Gross by currency</div>
+            {Object.entries(data.grossByCurrency || {}).length
+              ? Object.entries(data.grossByCurrency).map(([currency, cents]) => <div key={currency} style={{ color: T.text, fontSize: 18, fontWeight: 800, marginTop: 5 }}>{moneyFromCents(cents, currency)}</div>)
+              : <div style={{ color: T.text, fontSize: 18, fontWeight: 800, marginTop: 5 }}>$0.00</div>}
+          </div>
+          <div style={{ background: T.card, border: "1px solid " + T.border, borderRadius: 10, padding: 13 }}>
+            <div style={{ color: T.textSub, fontSize: 11.5 }}>Refunded events</div>
+            <div style={{ color: T.text, fontSize: 23, fontWeight: 800, marginTop: 5 }}>{data.refundedCount}</div>
+          </div>
+        </div>
+        {data.recentSales?.length ? <div style={{ display: "grid", gap: 7 }}>
+          {data.recentSales.slice(0, 8).map((sale) => <div key={sale.saleId} style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", borderTop: "1px solid " + T.border, paddingTop: 9 }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ color: T.text, fontSize: 12.5, fontWeight: 700, overflowWrap: "anywhere" }}>{sale.productName}</div>
+              <div style={{ color: T.textSub, fontSize: 10.5, marginTop: 3 }}>{sale.createdAt ? new Date(sale.createdAt).toLocaleString() : "Date unavailable"}{sale.isRefunded ? " · Refunded" : ""}</div>
+            </div>
+            <div style={{ color: sale.isRefunded ? "#F59E0B" : T.text, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{moneyFromCents(sale.priceCents, sale.currency)}</div>
+          </div>)}
+        </div> : <div style={{ color: T.textSub, fontSize: 12 }}>No verified Gumroad webhook sales have been received yet.</div>}
+        <div style={{ color: T.textSub, fontSize: 11, lineHeight: 1.6, marginTop: 12 }}>{data.note || "Only verified webhook events received after setup are included; this is not a historical sales import."}</div>
+      </>}
+    </Panel>
+  );
+}
+
 export default function QuikPikModule() {
   return (
     <div style={{ maxWidth: 1120, margin: "0 auto" }}>
@@ -121,6 +209,8 @@ export default function QuikPikModule() {
           </div>
         </div>
       </Panel>
+
+      <RevenueMonitor />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 12, marginBottom: 24 }}>
         {DESTINATIONS.map((item) => {
