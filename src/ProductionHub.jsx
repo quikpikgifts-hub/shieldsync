@@ -1,6 +1,5 @@
 import React from "react";
 import { Clapperboard, BookOpen, Mic2, Cat, Sparkles, ArrowUpRight, PlayCircle } from "lucide-react";
-import "./production.css";
 
 const projects = [
   { title: "Drama Hub", tag: "SHORT-FORM STORIES", desc: "Character-driven drama, cliffhangers, and episodic storytelling.", icon: Clapperboard, href: "https://incomparable-marshmallow-b3d5c4.netlify.app/", tone: "drama", label: "OPEN DRAMA HUB" },
