@@ -3,10 +3,10 @@ import { Clapperboard, BookOpen, Mic2, Cat, Sparkles, ArrowUpRight, PlayCircle }
 
 const projects = [
   { title: "Drama Hub", tag: "SHORT-FORM STORIES", desc: "Character-driven drama, cliffhangers, and episodic storytelling.", icon: Clapperboard, href: "https://incomparable-marshmallow-b3d5c4.netlify.app/", tone: "drama", label: "OPEN DRAMA HUB" },
-  { title: "Ember’s Big Discoveries", tag: "KIDS & FAMILY", desc: "Warm, imaginative discoveries with Ember and the approved dragon family.", icon: Sparkles, href: "#ember", tone: "ember", label: "VIEW PROJECT" },
-  { title: "Cat Moves", tag: "COMEDY & TRENDS", desc: "Playful cat characters, funny moments, and dance-inspired shorts.", icon: Cat, href: "#cats", tone: "cats", label: "VIEW PROJECT" },
-  { title: "Books & Digital Products", tag: "READ · CREATE · DISCOVER", desc: "Activity books, printable products, and creative downloads.", icon: BookOpen, href: "#books", tone: "books", label: "VIEW PROJECT" },
-  { title: "Podcast Studio", tag: "AUDIO STORIES", desc: "Podcast concepts, episode production, and listening experiences.", icon: Mic2, href: "#podcast", tone: "podcast", label: "VIEW PROJECT" },
+  { title: "Ember’s Big Discoveries", tag: "KIDS & FAMILY", desc: "Warm, imaginative discoveries with Ember and the approved dragon family.", icon: Sparkles, href: null, tone: "ember", label: "IN PRODUCTION" },
+  { title: "Cat Moves", tag: "COMEDY & TRENDS", desc: "Playful cat characters, funny moments, and dance-inspired shorts.", icon: Cat, href: null, tone: "cats", label: "IN PRODUCTION" },
+  { title: "Books & Digital Products", tag: "READ · CREATE · DISCOVER", desc: "Activity books, printable products, and creative downloads.", icon: BookOpen, href: null, tone: "books", label: "IN PRODUCTION" },
+  { title: "Podcast Studio", tag: "AUDIO STORIES", desc: "Podcast concepts, episode production, and listening experiences.", icon: Mic2, href: null, tone: "podcast", label: "IN PRODUCTION" },
 ];
 
 function Emblem(){return <svg viewBox="0 0 240 240" role="img" aria-label="Quik Pik Production QP emblem" className="qp-emblem">
@@ -21,13 +21,14 @@ function Emblem(){return <svg viewBox="0 0 240 240" role="img" aria-label="Quik 
 </svg>}
 
 export default function ProductionHub(){
+ React.useEffect(() => { document.title = "Quik Pik Production | Stories, Characters & Experiences"; const description = document.querySelector('meta[name="description"]'); if (description) description.setAttribute("content", "Explore Quik Pik Production: drama, family stories, comedy, creative books, and audio projects."); }, []);
  return <main className="qp-shell">
   <header className="qp-nav"><a className="qp-brand" href="/"><Emblem/><span><b>QUIK PIK</b><small>PRODUCTION HOUSE</small></span></a><span className="qp-live"><i/> PRODUCTION HUB</span></header>
   <section className="qp-hero">
    <div className="qp-copy"><p className="qp-kicker">STORIES. CHARACTERS. EXPERIENCES.</p><h1>Ideas become<br/><em>something worth watching.</em></h1><p className="qp-sub">One home for Quik Pik’s stories, family adventures, funny cats, books, and audio projects. Choose a studio to explore.</p><div className="qp-actions"><a className="qp-primary" href="#studios"><PlayCircle size={18}/> Explore productions <ArrowUpRight size={16}/></a><span className="qp-no-cost">Built to grow · $0 new spend</span></div></div>
    <div className="qp-visual"><div className="qp-orbit qp-orbit-a"/><div className="qp-orbit qp-orbit-b"/><div className="qp-logo-large"><Emblem/></div><div className="qp-float qp-float-one">✦ STORY LAB</div><div className="qp-float qp-float-two">★ FAMILY · DRAMA · FUN</div></div>
   </section>
-  <section id="studios" className="qp-studios"><div className="qp-section-head"><div><p className="qp-kicker">THE PRODUCTION LINEUP</p><h2>Choose your studio</h2></div><span className="qp-count">05 CREATIVE DIVISIONS</span></div><div className="qp-grid">{projects.map((p,i)=>{const Icon=p.icon;return <article className={"qp-card "+p.tone} key={p.title}><div className="qp-card-art"><span className="qp-number">0{i+1}</span><div className="qp-art-icon"><Icon size={36} strokeWidth={1.5}/></div><span className="qp-art-tag">{p.tag}</span></div><div className="qp-card-copy"><h3>{p.title}</h3><p>{p.desc}</p><a href={p.href} className="qp-card-link">{p.label}<ArrowUpRight size={16}/></a></div></article>})}</div></section>
+  <section id="studios" className="qp-studios"><div className="qp-section-head"><div><p className="qp-kicker">THE PRODUCTION LINEUP</p><h2>Choose your studio</h2></div><span className="qp-count">05 CREATIVE DIVISIONS</span></div><div className="qp-grid">{projects.map((p,i)=>{const Icon=p.icon;return <article className={"qp-card "+p.tone} key={p.title}><div className="qp-card-art"><span className="qp-number">0{i+1}</span><div className="qp-art-icon"><Icon size={36} strokeWidth={1.5}/></div><span className="qp-art-tag">{p.tag}</span>{p.href && <span className="qp-availability">LIVE</span>}</div><div className="qp-card-copy"><h3>{p.title}</h3><p>{p.desc}</p>{p.href ? <a href={p.href} target="_blank" rel="noreferrer" className="qp-card-link" aria-label={"Open "+p.title+" in a new tab"}>{p.label}<ArrowUpRight size={16}/></a> : <div className="qp-card-link qp-card-pending"><span>{p.label}</span><span className="qp-status-dot" aria-hidden="true"/></div>}</div></article>})}</div></section>
   <section className="qp-bottom"><div><p className="qp-kicker">MADE FOR THE NEXT STORY</p><h2>Start with one great release.<br/><em>Build from there.</em></h2></div><p>New projects are added as production-ready files pass review. Drafts are clearly identified and nothing is published without owner approval.</p></section>
   <footer className="qp-footer"><span>© {new Date().getFullYear()} Quik Pik Production</span><span>SAFETY · DRAMA · FAMILY</span><a href="https://www.tiktok.com/@gspeed25">Follow the studio ↗</a></footer>
  </main>
