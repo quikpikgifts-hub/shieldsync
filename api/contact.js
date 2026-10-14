@@ -179,7 +179,19 @@ export default async function handler(req) {
 
   // Single write path — dual-writes to KV (dashboard/follow-up cron) and
   // Supabase (metrics) together instead of two independently-maintained blocks.
-  const { sbResult } = await recordLead(crmEntry);
+  const { sbResult, storageOk, storage } = await recordLead(crmEntry);
+  if (!storageOk) {
+    console.error(`[contact] persistence FAILED — leadId=${leadId}`, JSON.stringify(storage));
+    return new Response(JSON.stringify({
+      success: false,
+      error: "We couldn't securely save your details. Please try again shortly.",
+      leadId,
+      storage,
+    }), {
+      status: 503,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    });
+  }
 
   const promises = [];
   promises.push(scheduleFollowUps(leadId, ["24h", "3d", "7d", "14d"]));
