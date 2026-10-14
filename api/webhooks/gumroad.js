@@ -87,26 +87,25 @@ export default async function handler(req) {
     return json({ error: "Verified sale data is incomplete" }, 400);
   }
 
-  // SET NX is the idempotency gate. Fail closed if KV does not confirm that
-  // this event was newly claimed, so retries cannot double-count a sale.
-  let claim;
+  // Claim and append atomically so concurrent retries cannot double-count a
+  // sale, and a storage failure cannot leave a permanent claim without a row.
+  const script = "if redis.call('EXISTS', KEYS[1]) == 1 then return 0 end " +
+    "redis.call('SET', KEYS[1], '1', 'EX', ARGV[2]) " +
+    "redis.call('LPUSH', KEYS[2], ARGV[1]) return 1";
+  let stored;
   try {
-    claim = await kv("SET", `quikpik:gumroad:processed:${normalized.saleId}`, "1", "NX", "EX", 60 * 60 * 24 * 365);
+    stored = await kv(
+      "EVAL", script, 2,
+      "quikpik:gumroad:processed:" + normalized.saleId,
+      "quikpik:gumroad:sales",
+      JSON.stringify(normalized),
+      String(60 * 60 * 24 * 365)
+    );
   } catch {
     return json({ error: "Event storage unavailable" }, 503);
   }
-  if (claim !== "OK") {
-    // A duplicate may be retried by Gumroad. Return success without re-counting.
-    return new Response(null, { status: 200 });
-  }
-
-  try {
-    await kv("LPUSH", "quikpik:gumroad:sales", JSON.stringify(normalized));
-  } catch {
-    // Keep the idempotency claim: never risk a duplicate financial event.
-    console.error("[quikpik-gumroad] event claimed but sales-list write failed");
-    return json({ error: "Event storage incomplete; manual reconciliation required" }, 503);
-  }
+  if (Number(stored) === 0) return new Response(null, { status: 200 });
+  if (Number(stored) !== 1) return json({ error: "Event storage did not confirm write" }, 503);
 
   console.log("[quikpik-gumroad] verified sale recorded", normalized.saleId);
   return new Response(null, { status: 200 });
