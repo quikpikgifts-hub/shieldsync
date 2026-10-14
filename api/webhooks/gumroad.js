@@ -62,9 +62,9 @@ export default async function handler(req) {
   // retrieve the sale from Gumroad's authenticated API and validate the product.
   let verified;
   try {
-    const response = await fetch(`https://api.gumroad.com/v2/sales/${encodeURIComponent(saleId)}`, {
-      headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
-    });
+    const saleUrl = new URL(`https://api.gumroad.com/v2/sales/${encodeURIComponent(saleId)}`);
+    saleUrl.searchParams.set("access_token", accessToken);
+    const response = await fetch(saleUrl.toString(), { headers: { Accept: "application/json" } });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || payload.success !== true) {
       console.error("[quikpik-gumroad] sale verification rejected", response.status);
