@@ -132,11 +132,17 @@ function ChatWidget(){
     if(!lead.email||submitting)return;
     setSubmitting(true);
     try{
-      await fetch("/api/contact",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:lead.name,email:lead.email,phone:lead.phone,biz:lead.biz,challenge:lead.challenge||msgs.filter(m=>m.role==="user").map(m=>m.content).join(" / ").slice(0,300)})});
-    }catch{}
-    setSubmitting(false);
-    setCaptured(true);
-    setMsgs(m=>[...m,{role:"assistant",content:`Perfect, ${lead.name?lead.name.split(" ")[0]:"I've"} got your details. A Veridian advisor will reach out within 1 business day with your personalized revenue recovery assessment.\n\nReady to move faster? Book your free consultation now.`}]);
+      const r=await fetch("/api/contact",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:lead.name,email:lead.email,phone:lead.phone,biz:lead.biz,challenge:lead.challenge||msgs.filter(m=>m.role==="user").map(m=>m.content).join(" / ").slice(0,300)})});
+      let data={};
+      try{data=await r.json();}catch{}
+      if(!r.ok||!data.success)throw new Error(data.error||"Lead submission failed");
+      setCaptured(true);
+      setMsgs(m=>[...m,{role:"assistant",content:`Perfect, ${lead.name?lead.name.split(" ")[0]:"I've"} got your details. A Veridian advisor will reach out within 1 business day with your personalized revenue recovery assessment.\n\nReady to move faster? Book your free consultation now.`}]);
+    }catch{
+      setMsgs(m=>[...m,{role:"assistant",content:"I couldn't submit your details just now. Please try again, or use the contact form on the page."}]);
+    }finally{
+      setSubmitting(false);
+    }
   };
   const send=async e=>{
     if(e)e.preventDefault();
