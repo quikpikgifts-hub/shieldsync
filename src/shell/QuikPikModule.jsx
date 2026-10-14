@@ -158,7 +158,7 @@ function RevenueMonitor() {
             <div style={{ color: T.text, fontSize: 23, fontWeight: 800, marginTop: 5 }}>{data.salesCount}</div>
           </div>
           <div style={{ background: T.card, border: "1px solid " + T.border, borderRadius: 10, padding: 13 }}>
-            <div style={{ color: T.textSub, fontSize: 11.5 }}>Gross by currency</div>
+            <div style={{ color: T.textSub, fontSize: 11.5 }}>Recorded value by currency</div>
             {Object.entries(data.grossByCurrency || {}).length
               ? Object.entries(data.grossByCurrency).map(([currency, cents]) => <div key={currency} style={{ color: T.text, fontSize: 18, fontWeight: 800, marginTop: 5 }}>{moneyFromCents(cents, currency)}</div>)
               : <div style={{ color: T.text, fontSize: 18, fontWeight: 800, marginTop: 5 }}>$0.00</div>}
@@ -177,7 +177,7 @@ function RevenueMonitor() {
             <div style={{ color: sale.isRefunded ? "#F59E0B" : T.text, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{moneyFromCents(sale.priceCents, sale.currency)}</div>
           </div>)}
         </div> : <div style={{ color: T.textSub, fontSize: 12 }}>No verified Gumroad webhook sales have been received yet.</div>}
-        <div style={{ color: T.textSub, fontSize: 11, lineHeight: 1.6, marginTop: 12 }}>{data.note || "Only verified webhook events received after setup are included; this is not a historical sales import."}</div>
+        <div style={{ color: T.textSub, fontSize: 11, lineHeight: 1.6, marginTop: 12 }}>{data.note || "Only verified webhook events received after setup are included; this is not a historical import or accounting ledger. Refund/dispute reconciliation must be verified separately."}</div>
       </>}
     </Panel>
   );
