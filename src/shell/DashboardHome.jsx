@@ -82,8 +82,8 @@ export default function DashboardHome({ user, workspace, brandList, onOpenBrand,
 
       <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
         <Btn onClick={onAddBrand}><Plus size={14} /> Add a brand</Btn>
-        <Btn variant="ghost" onClick={onGoToSocial}><Sparkles size={14} /> Open Veridian Social</Btn>
-        <Btn variant="ghost" onClick={onGoToConnect}><ExternalLink size={14} /> Open Veridian Connect</Btn>
+        <Btn variant="ghost" onClick={onGoToSocial}><Sparkles size={14} /> Open Quik Pik Social</Btn>
+        <Btn variant="ghost" onClick={onGoToConnect}><ExternalLink size={14} /> Open Quik Pik Connect</Btn>
       </div>
 
       <div style={{ fontSize: 17, fontWeight: 800, marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
