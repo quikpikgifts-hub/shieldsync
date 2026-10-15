@@ -60,7 +60,7 @@ function SignIn({ onSignedIn }) {
       <Card style={{ width: 380 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
           <Sparkles size={20} color={T.accent} />
-          <div style={{ fontSize: 18, fontWeight: 800 }}>Veridian AI</div>
+          <div style={{ fontSize: 18, fontWeight: 800 }}>Quik Pik Productions</div>
         </div>
         <div style={{ fontSize: 13, color: T.textSub, marginBottom: 18 }}>
           {mode === "signup" ? "Create your account." : "Sign in to your account."}
@@ -263,7 +263,7 @@ export default function Shell() {
       {/* Sidebar */}
       <div style={{ width: 220, borderRight: `1px solid ${T.border}`, padding: 20, display: "flex", flexDirection: "column", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 24 }}>
-          <Sparkles size={18} color={T.accent} /><div style={{ fontWeight: 800, fontSize: 15 }}>Veridian AI</div>
+          <Sparkles size={18} color={T.accent} /><div style={{ fontWeight: 800, fontSize: 15 }}>Quik Pik Productions</div>
         </div>
         {NAV.map(n => (
           <button key={n.id} onClick={() => goTo(n.id)} style={{
@@ -278,7 +278,7 @@ export default function Shell() {
         ))}
         <div style={{ flex: 1 }} />
         <div style={{ fontSize: 10.5, color: T.textDim, lineHeight: 1.5 }}>
-          Veridian Connect (missed-call revenue recovery) keeps running independently of this shell.
+          Quik Pik Connect (missed-call revenue recovery) keeps running independently of this shell.
         </div>
       </div>
 
