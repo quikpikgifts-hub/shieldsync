@@ -69,7 +69,7 @@ export default async function handler(req) {
 
   console.log(`[book] new booking: ${bookingId} — ${name} | ${email}`);
 
-  // Supabase insert — before emails, errors are non-fatal
+  // Persist the booking before marking it confirmed or sending confirmation emails.
   const sbPayload = {
     booking_id: bookingId,
     lead_id:    leadId || null,
@@ -80,16 +80,37 @@ export default async function handler(req) {
     status:     "confirmed",
     notes:      notes || null,
   };
-  let sbResult = { skipped: true };
+  let sbResult = { skipped: true, reason: "not attempted" };
   try {
     sbResult = await supabaseInsert("bookings", sbPayload);
   } catch (err) {
     sbResult = { ok: false, error: err.message };
     console.error("[book] supabase insert threw:", err.message);
   }
+  let kvBookingResult = null;
+  try {
+    kvBookingResult = await kv("LPUSH", "veridian:bookings", JSON.stringify(booking));
+  } catch (err) {
+    console.error("[book] KV booking write threw:", err?.message || String(err));
+  }
   const bookingInserted = sbResult?.ok === true;
-
-  await kv("LPUSH", "veridian:bookings", JSON.stringify(booking));
+  const kvBookingStored = kvBookingResult !== null && kvBookingResult !== undefined;
+  if (!bookingInserted && !kvBookingStored) {
+    console.error(`[book] persistence FAILED — bookingId=${bookingId}`);
+    return new Response(JSON.stringify({
+      success: false,
+      error: "We couldn't securely save your booking. Please try again shortly.",
+      bookingId,
+      bookingInserted: false,
+      storage: {
+        supabase: sbResult?.skipped ? "unconfigured" : "failed",
+        kv: "unavailable",
+      },
+    }), {
+      status: 503,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    });
+  }
   if (leadId) {
     await kv("SET", `veridian:booked:${leadId}`, "1");
     // Remove from all follow-up queues — they've booked
