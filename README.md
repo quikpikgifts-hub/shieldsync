@@ -1,58 +1,58 @@
-ShieldSync — Security Management Platform
-A premium physical security management web application with real-time incident tracking, guard roster management, and access control logging.
-Features
-🔐 Firebase Authentication (Email/Password)
-🚨 Incident Reporting & Tracking (with severity levels)
-👮 Guard Roster Management (on-duty/off-duty status)
-🔒 Access Control Logging (key card, PIN, biometric, etc.)
-📊 Live Dashboard with threat level meter
-📋 Report Generation
-⏱️ Live clock & real-time data sync via Firestore
-Stack
-Vanilla HTML/CSS/JavaScript (no build step required)
-Firebase v10 (Auth + Firestore) via CDN
-Deployed on Vercel
-Setup
-1. Firebase Configuration
-Open `index.html` and replace the placeholder Firebase config values with your real ones from the Firebase Console:
-```js
-const firebaseConfig = {
-  apiKey: "YOUR\_REAL\_API\_KEY",
-  authDomain: "shieldsync-1ffe0.firebaseapp.com",
-  projectId: "shieldsync-1ffe0",
-  storageBucket: "shieldsync-1ffe0.appspot.com",
-  messagingSenderId: "YOUR\_MESSAGING\_SENDER\_ID",
-  appId: "YOUR\_APP\_ID"
-};
+# ShieldSync / Veridian AI Platform
+
+**Current product identity:** Veridian — Turn Missed Calls Into Revenue  
+**Repository:** `quikpikgifts-hub/shieldsync`  
+**Production URL:** https://shieldsync-jbsx.vercel.app/  
+**Default branch:** `main`
+
+> This repository has evolved beyond the original standalone security-management demo. The old Firebase/Firestore instructions below are not an authoritative guide to the current implementation. Use `ACTIVATION.md` for current environment-variable and integration requirements, and the `ops/` directory for product/architecture planning.
+
+## Current architecture (source-code view)
+
+- **Frontend:** React 19 + Vite 6 single-page application.
+- **Hosting/API:** Vercel deployment with serverless/Edge API handlers under `api/`.
+- **Authentication and organization identity:** Supabase Auth, with organization/membership provisioning in `api/auth/`.
+- **Data/storage:** Supabase tables for selected records; Vercel KV/Upstash for selected lead, follow-up, rate-limit, and token-storage flows. Some Veridian Social brand/content state is still localStorage-based; do not assume all data is server-persisted.
+- **AI:** Anthropic-backed API handlers.
+- **Email:** Resend-backed transactional email handlers.
+- **Optional integrations:** Twilio, GoHighLevel, social-platform publishing APIs, and Stripe billing skeleton. Each integration requires its documented configuration and platform permissions.
+
+## What is implemented vs. what is activated
+
+Source code for an integration does **not** prove its production credentials are present, its platform permissions are approved, or its end-to-end workflow is working. Check the production environment and run the tests before describing a feature as live.
+
+- Stripe billing is documented as a skeleton until configured with valid credentials, webhook verification, and real products/prices.
+- Social publishing implementations remain inactive until their required credentials and permissions are configured.
+- Supabase migrations must be checked against the live project; the presence of SQL files in this repository does not prove they have been applied.
+- Follow-up automation is scheduled in `vercel.json`; verify Vercel cron execution and email delivery in production.
+
+## Local development
+
+Requirements: a supported Node.js version and npm.
+
+```bash
+npm install
+npm run dev
 ```
-Get these values from: Firebase Console → Project Settings → Your apps → Web app
-2. Enable Firebase Services
-In Firebase Console (`shieldsync-1ffe0`):
-Authentication → Sign-in method → Enable Email/Password
-Firestore Database → Create database → Start in test mode (then add security rules)
-3. Firestore Security Rules (Recommended)
+
+## Validation
+
+```bash
+npm test
+npm run build
 ```
-rules\_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{collection}/{docId} {
-      allow read, write: if request.auth != null \&\& request.resource.data.uid == request.auth.uid;
-      allow read, delete: if request.auth != null \&\& resource.data.uid == request.auth.uid;
-    }
-  }
-}
-```
-4. Deploy to Vercel
-Already configured at `shieldsync-app.vercel.app`. Just push to GitHub — Vercel auto-deploys.
-File Structure
-```
-shieldsync/
-├── index.html     # Full app (auth + dashboard + all views)
-├── styles.css     # Premium dark UI stylesheet
-└── README.md
-```
-Collections (Firestore)
-Collection	Fields
-`incidents`	type, location, severity, description, status, uid, createdAt
-`guards`	name, zone, shift, status, uid, createdAt
-`access\_logs`	person, zone, method, granted, uid, createdAt
+
+Run both commands before proposing a production deployment. Tests/build results must be recorded with the commit or pull request.
+
+## Production-safety rules
+
+1. Never commit secrets, API keys, access tokens, customer data, or production environment values.
+2. Treat `.env.example` and `ACTIVATION.md` as configuration references, not proof that production is configured.
+3. Do not deploy, merge, change pricing, activate billing, enable public publishing, or change production data without explicit owner approval.
+4. Validate authentication, authorization, organization isolation, database RLS, and rate limiting before storing sensitive customer data or expanding access.
+5. Use a feature branch and reviewable pull request for changes; do not make unreviewed changes directly on `main`.
+6. Keep verified behavior separate from assumptions in all readiness reports.
+
+## Audit documents
+
+See `ops/SHIELDSYNC-PRODUCTION-READINESS.md` for the current source-review findings, open verification questions, and recommended order of work.
