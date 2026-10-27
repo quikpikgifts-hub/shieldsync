@@ -1,0 +1,54 @@
+name: Quik Pik Revenue Platform Readiness
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "public/qp-revenue-platform.html"
+      - "docs/QUIK-PIK-REVENUE-PLATFORM.md"
+      - "tests/qp-revenue-platform.test.js"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/qp-readiness.yml"
+      - "vite.config.js"
+  push:
+    branches: ["feature/qp-revenue-platform-foundation"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qp-readiness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  prototype-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Chromium for browser tests
+        run: npx playwright install --with-deps chromium
+      - name: Build application
+        run: npm run build
+      - name: Run KV rate-limit security tests
+        run: npm run test:security
+      - name: Run Quik Pik browser readiness tests
+        run: npm run test:qp
+      - name: Upload build output on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qp-readiness-failure
+          path: |
+            dist/
+          if-no-files-found: ignore
