@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:qp": "node --test tests/qp-revenue-platform.test.js"
+    "test:qp": "node --test tests/qp-revenue-platform.test.js",
+    "test:security": "node --test tests/kv-rate-limit.test.js"
   },
   "dependencies": {
     "lucide-react": "^0.511.0",
