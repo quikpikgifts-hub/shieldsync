@@ -40,6 +40,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Build application
         run: npm run build
+      - name: Run KV rate-limit security tests
+        run: npm run test:security
       - name: Run Quik Pik browser readiness tests
         run: npm run test:qp
       - name: Upload build output on failure
