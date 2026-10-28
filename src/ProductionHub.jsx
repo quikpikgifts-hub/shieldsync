@@ -2,11 +2,11 @@ import React from "react";
 import { Clapperboard, BookOpen, Mic2, Cat, Sparkles, ArrowUpRight, PlayCircle } from "lucide-react";
 
 const projects = [
-  { title: "Drama Hub", tag: "SHORT-FORM STORIES", desc: "Character-driven drama, cliffhangers, and episodic storytelling.", icon: Clapperboard, href: "https://incomparable-marshmallow-b3d5c4.netlify.app/", tone: "drama", label: "OPEN DRAMA HUB" },
-  { title: "Ember Stories", tag: "PUBLISHED · KIDS & FAMILY", desc: "Find published Ember stories and discovery clips on the Quik Pik Productions TikTok profile.", icon: Sparkles, href: "https://www.tiktok.com/@gspeed25", tone: "ember", label: "VIEW ON TIKTOK" },
-  { title: "Dance Movie", tag: "PUBLISHED · DANCE", desc: "Browse the released Quik Pik dance movie and dance content on TikTok.", icon: PlayCircle, href: "https://www.tiktok.com/@gspeed25", tone: "cats", label: "VIEW ON TIKTOK" },
-  { title: "Cat Series", tag: "PUBLISHED · COMEDY", desc: "Find the released cat series and cat shorts on the Quik Pik Productions TikTok profile.", icon: Cat, href: "https://www.tiktok.com/@gspeed25", tone: "cats", label: "VIEW ON TIKTOK" },
-  { title: "Books & Digital Products", tag: "PUBLISHED · READ & CREATE", desc: "Books and digital products are part of the released catalogue. Open the studio profile while individual store links are being connected.", icon: BookOpen, href: "https://www.tiktok.com/@gspeed25", tone: "books", label: "OPEN STUDIO PROFILE" },
+  { title: "Drama Hub", tag: "SHORT-FORM STORIES", desc: "Character-driven drama, cliffhangers, and episodic storytelling.", icon: Clapperboard, href: "/drama", tone: "drama", label: "OPEN DRAMA HUB" },
+  { title: "Ember Stories", tag: "PUBLISHED · KIDS & FAMILY", desc: "Explore the Ember collection on the official Quik Pik Productions TikTok profile.", icon: Sparkles, href: "https://www.tiktok.com/@quikpikproductions", tone: "ember", label: "OPEN TIKTOK PROFILE" },
+  { title: "Dance Movie", tag: "PUBLISHED · DANCE", desc: "Open the Quik Pik Productions TikTok profile for dance releases. Individual movie links will be added when verified.", icon: PlayCircle, href: "https://www.tiktok.com/@quikpikproductions", tone: "cats", label: "VIEW ON TIKTOK" },
+  { title: "Cat Series", tag: "PUBLISHED · COMEDY", desc: "Explore cat comedy releases on the Quik Pik Productions TikTok profile.", icon: Cat, href: "https://www.tiktok.com/@quikpikproductions", tone: "cats", label: "VIEW ON TIKTOK" },
+  { title: "Books & Digital Products", tag: "PUBLISHED · READ & CREATE", desc: "Books and digital products are part of the released catalogue. Open the studio profile while individual store links are being connected.", icon: BookOpen, href: "https://www.tiktok.com/@quikpikproductions", tone: "books", label: "OPEN TIKTOK PROFILE" },
   { title: "Podcast Studio", tag: "AUDIO STORIES", desc: "Podcast concepts, episode production, and listening experiences.", icon: Mic2, href: null, tone: "podcast", label: "IN PRODUCTION" },
 ];
 
@@ -31,6 +31,6 @@ export default function ProductionHub(){
   </section>
   <section id="studios" className="qp-studios"><div className="qp-section-head"><div><p className="qp-kicker">THE PRODUCTION LINEUP</p><h2>Choose your studio</h2></div><span className="qp-count">06 CREATIVE DIVISIONS</span></div><div className="qp-grid">{projects.map((p,i)=>{const Icon=p.icon;return <article className={"qp-card "+p.tone} key={p.title}><div className="qp-card-art"><span className="qp-number">0{i+1}</span><div className="qp-art-icon"><Icon size={36} strokeWidth={1.5}/></div><span className="qp-art-tag">{p.tag}</span>{p.href && <span className="qp-availability">LIVE</span>}</div><div className="qp-card-copy"><h3>{p.title}</h3><p>{p.desc}</p>{p.href ? <a href={p.href} target="_blank" rel="noreferrer" className="qp-card-link" aria-label={"Open "+p.title+" in a new tab"}>{p.label}<ArrowUpRight size={16}/></a> : <div className="qp-card-link qp-card-pending"><span>{p.label}</span><span className="qp-status-dot" aria-hidden="true"/></div>}</div></article>})}</div></section>
   <section className="qp-bottom"><div><p className="qp-kicker">MADE FOR THE NEXT STORY</p><h2>Start with one great release.<br/><em>Build from there.</em></h2></div><p>New projects are added as production-ready files pass review. Drafts are clearly identified and nothing is published without owner approval.</p></section>
-  <footer className="qp-footer"><span>© {new Date().getFullYear()} Quik Pik Production</span><span>SAFETY · DRAMA · FAMILY</span><a href="https://www.tiktok.com/@gspeed25" target="_blank" rel="noreferrer">Open Quik Pik TikTok ↗</a></footer>
+  <footer className="qp-footer"><span>© {new Date().getFullYear()} Quik Pik Production</span><span>SAFETY · DRAMA · FAMILY</span><a href="https://www.tiktok.com/@quikpikproductions" target="_blank" rel="noreferrer">Open Quik Pik TikTok ↗</a></footer>
  </main>
 }
