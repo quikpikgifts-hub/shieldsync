@@ -6,6 +6,7 @@ const Website = lazy(() => import("./Website.jsx"));
 const Shell = lazy(() => import("./shell/Shell.jsx"));
 const ProductionHub = lazy(() => import("./ProductionHub.jsx"));
 const CompetitiveIntelligence = lazy(() => import("./CompetitiveIntelligence.jsx"));
+const DramaHub = lazy(() => import("./DramaHub.jsx"));
 
 class ErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { error: null }; }
@@ -19,6 +20,7 @@ class ErrorBoundary extends React.Component {
 
 const path = window.location.pathname;
 const isIntelligence = path === "/intelligence" || path.startsWith("/intelligence/");
+const isDramaHub = path === "/drama" || path.startsWith("/drama/");
 const isShell = path === "/app" || path.startsWith("/app/") || path === "/social" || path.startsWith("/social/");
-const Entry = isIntelligence ? CompetitiveIntelligence : isShell ? Shell : (path === "/veridian" || path.startsWith("/veridian/") || path === "/dashboard" || path.startsWith("/dashboard/")) ? Website : ProductionHub;
+const Entry = isDramaHub ? DramaHub : isIntelligence ? CompetitiveIntelligence : isShell ? Shell : (path === "/veridian" || path.startsWith("/veridian/") || path === "/dashboard" || path.startsWith("/dashboard/")) ? Website : ProductionHub;
 createRoot(document.getElementById("root")).render(React.createElement(ErrorBoundary, null, React.createElement(Suspense, { fallback: React.createElement("div", {style:{background:"#091d32",minHeight:"100vh"}}) }, React.createElement(Entry))));
