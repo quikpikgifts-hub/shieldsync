@@ -1,4 +1,5 @@
 import React from "react";
+import "./drama-hub.css";
 import { ArrowLeft, ArrowUpRight, Clapperboard, PlayCircle, Sparkles } from "lucide-react";
 
 const TIKTOK = "https://www.tiktok.com/@quikpikproductions";
