@@ -92,7 +92,7 @@ Validate every field server-side. Reject unknown message types, oversized payloa
 - `POST /api/agents/tasks/:id/events` — append status, progress, failure, and completion events.
 - `POST /api/agents/research` — server-side You.com research adapter.
 - `POST /api/agents/media` — server-side Muse generation adapter.
-- `POST /api/agents/media/status` — poll Muse generation status.
+- `GET /api/agents/media-status?task_id=<task_id>` — poll Muse generation status.
 - `GET /api/agents/daily-report` — summarize tasks, quality, usage, publication and verified outcomes.
 
 These are proposed routes, not claims that endpoints already exist. Implement only after checking deployed environment variables and current API route inventory.
