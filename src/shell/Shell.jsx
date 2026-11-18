@@ -61,7 +61,7 @@ function SignIn({ onSignedIn }) {
       <Card style={{ width: 380 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
           <Sparkles size={20} color={T.accent} />
-          <div style={{ fontSize: 18, fontWeight: 800 }}>Veridian AI</div>
+          <div style={{ fontSize: 18, fontWeight: 800 }}>Quik Pik Studio</div>
         </div>
         <div style={{ fontSize: 13, color: T.textSub, marginBottom: 18 }}>
           {mode === "signup" ? "Create your account." : "Sign in to your account."}
