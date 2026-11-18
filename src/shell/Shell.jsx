@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { LayoutDashboard, Sparkles, ExternalLink, Settings, LifeBuoy, LogOut, Plus, Bell, ChevronDown, User as UserIcon } from "lucide-react";
+import { LayoutDashboard, Sparkles, ExternalLink, Settings, LifeBuoy, LogOut, Plus, Bell, ChevronDown, Film } from "lucide-react";
 import { T, BASE_CSS, useInjectedStyle, useOnlineStatus } from "./theme.js";
 import { Btn, Card, Field, inputStyle, Pill } from "./primitives.jsx";
 import { workspaces, brands, pendingReviewCount, lastWorkspace } from "../social/store.js";
@@ -9,6 +9,7 @@ import DashboardHome from "./DashboardHome.jsx";
 import ConnectModule from "./ConnectModule.jsx";
 import SupportModule from "./SupportModule.jsx";
 import AIAssistantPanel from "./AIAssistantPanel.jsx";
+import VideoStudio from "./VideoStudio.jsx";
 
 // ─── Sign in — real Supabase Auth via /api/auth/* (src/lib/auth.js) ──
 function SignIn({ onSignedIn }) {
@@ -60,7 +61,7 @@ function SignIn({ onSignedIn }) {
       <Card style={{ width: 380 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
           <Sparkles size={20} color={T.accent} />
-          <div style={{ fontSize: 18, fontWeight: 800 }}>Veridian AI</div>
+          <div style={{ fontSize: 18, fontWeight: 800 }}>Quik Pik Studio</div>
         </div>
         <div style={{ fontSize: 13, color: T.textSub, marginBottom: 18 }}>
           {mode === "signup" ? "Create your account." : "Sign in to your account."}
@@ -121,7 +122,8 @@ const OAUTH_REDIRECT_PLATFORMS = ["tiktok", "x", "linkedin", "youtube", "pintere
 
 const NAV = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "social", label: "Social", icon: Sparkles },
+  { id: "social", label: "Clients & Social", icon: Sparkles },
+  { id: "studio", label: "AI Video Studio", icon: Film },
   { id: "connect", label: "Connect", icon: ExternalLink },
   { id: "settings", label: "Settings", icon: Settings },
   { id: "support", label: "Support", icon: LifeBuoy },
@@ -263,7 +265,7 @@ export default function Shell() {
       {/* Sidebar */}
       <div style={{ width: 220, borderRight: `1px solid ${T.border}`, padding: 20, display: "flex", flexDirection: "column", flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 24 }}>
-          <Sparkles size={18} color={T.accent} /><div style={{ fontWeight: 800, fontSize: 15 }}>Veridian AI</div>
+          <Sparkles size={18} color={T.accent} /><div><div style={{ fontWeight: 800, fontSize: 15 }}>Quik Pik Studio</div><div style={{ fontSize: 10, color: T.textDim }}>by Quik Pik Productions</div></div>
         </div>
         {NAV.map(n => (
           <button key={n.id} onClick={() => goTo(n.id)} style={{
@@ -424,6 +426,8 @@ export default function Shell() {
               <BrandDetail key={activeBrand.id} brand={activeBrand} />
             </>
           )}
+
+          {nav === "studio" && <VideoStudio session={session} workspace={workspace} brandList={brandList} />}
 
           {nav === "connect" && <ConnectModule />}
 

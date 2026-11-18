@@ -2,17 +2,16 @@ export const config = { runtime: "edge" };
 
 import { getPublisher, listPublishers } from "../_lib/publishers/index.js";
 
-const CORS = { "Access-Control-Allow-Origin": "*" };
+const CORS = { "Access-Control-Allow-Origin": "*", "Vary": "Origin" };
 
 export default async function handler(req) {
   if (req.method === "OPTIONS") {
     return new Response(null, {
-      headers: { ...CORS, "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" },
+      headers: { ...CORS, "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization" },
     });
   }
 
-  // GET — which platforms are connected, so the UI can show real state
-  // instead of guessing.
+  // GET exposes connection state only; it never publishes content.
   if (req.method === "GET") {
     return new Response(JSON.stringify({ publishers: await listPublishers() }), {
       headers: { "Content-Type": "application/json", ...CORS },
@@ -21,6 +20,20 @@ export default async function handler(req) {
 
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405, headers: CORS });
+  }
+
+  // Fail closed until tenant-scoped authorization, persisted approval records,
+  // and per-client publisher credentials are implemented and tested.
+  // A browser-provided status flag is not a trustworthy approval control.
+  if (process.env.SOCIAL_PUBLISHING_ENABLED !== "true") {
+    return new Response(JSON.stringify({
+      published: false,
+      reason: "publishing_locked",
+      error: "Publishing is disabled until client authorization and server-side approval controls are enabled.",
+    }), {
+      status: 423,
+      headers: { "Content-Type": "application/json", ...CORS },
+    });
   }
 
   let body;
@@ -46,8 +59,6 @@ export default async function handler(req) {
 
   try {
     const result = await publisher.publish(item);
-    // Not an error — this is the expected, honest state until credentials
-    // and OAuth exist. The UI treats this as "fall back to manual posting."
     return new Response(JSON.stringify({ published: result.ok === true, ...result }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...CORS },

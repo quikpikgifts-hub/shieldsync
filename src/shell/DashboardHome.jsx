@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Sparkles, Bell, Plus, ExternalLink, Zap, Users, Send, ListChecks } from "lucide-react";
+import { Sparkles, Bell, Plus, ExternalLink, Users, Send, ListChecks } from "lucide-react";
 import { T } from "./theme.js";
 import { Btn, Card, Pill } from "./primitives.jsx";
 import { contentItems, pendingReviewCount } from "../social/store.js";
@@ -12,10 +12,6 @@ function greeting() {
   return "Good evening";
 }
 
-// The founder's primary landing screen — an overview of everything Social,
-// plus quick access into Connect. This is deliberately built from real data
-// (pending review counts, live publisher connection status) rather than
-// placeholder widgets.
 export default function DashboardHome({ user, workspace, brandList, onOpenBrand, onAddBrand, onGoToSocial, onGoToConnect }) {
   const [publishers, setPublishers] = useState(null);
   const [dueItems, setDueItems] = useState([]);
@@ -54,9 +50,16 @@ export default function DashboardHome({ user, workspace, brandList, onOpenBrand,
         note = "Publish check failed — copied for manual posting instead.";
       }
     }
-    navigator.clipboard?.writeText(item.caption + (item.hashtags ? `\n\n${item.hashtags}` : ""));
-    contentItems.updateWithHistory(item.id, { status: "published", publishedAt: new Date().toISOString() });
-    setPublishNotes(n => ({ ...n, [item.id]: note || "Copied to clipboard for manual posting." }));
+    try {
+      await navigator.clipboard?.writeText(item.caption + (item.hashtags ? `\\n\\n${item.hashtags}` : ""));
+      note = `${note || "Content copied for manual posting."} Not marked as published. Record publication only after confirming the post is live.`;
+    } catch {
+      note = `${note || "Automatic publishing is unavailable."} No publication was recorded.`;
+    }
+    // Keep the item in an approved/ready state; copying to the clipboard is
+    // a handoff, not evidence that a social post was actually published.
+    contentItems.updateWithHistory(item.id, { status: "approved", scheduledFor: null });
+    setPublishNotes(n => ({ ...n, [item.id]: note }));
     refreshDue();
     setPublishingId(null);
   };
@@ -104,7 +107,7 @@ export default function DashboardHome({ user, workspace, brandList, onOpenBrand,
                   <div style={{ fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.caption}</div>
                 </div>
                 <Btn onClick={() => publishDueItem(item)} disabled={publishingId === item.id} style={{ flexShrink: 0 }}>
-                  <Send size={13} /> {publishingId === item.id ? "Publishing…" : "Publish now"}
+                  <Send size={13} /> {publishingId === item.id ? "Processing…" : "Publish / hand off"}
                 </Btn>
               </div>
               {publishNotes[item.id] && <div style={{ fontSize: 11.5, color: T.amber }}>{publishNotes[item.id]}</div>}
